@@ -1,0 +1,87 @@
+# Updated : 2024.08.08
+# Version : 1.2.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # +--------------------------------------+
+  # | Use the settings below with caution  |
+  # +--------------------------------------+
+  # Auto charge current control will automatically reduce the charging current as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
+  # If unsure, leave the below settings as default, this will ensure charge current will taper correctly.
+  # Factor to control the end of the charge current curve. A setting below 2 will extend the curve, above 2 will shorten the curve. 
+  charge_a_factor_curve_end: "2.0"
+  # Factor to adjust the shape of the charge current curve.
+  # A setting below 1 will reduce current at a slow rate after the float voltage is reached, then increase as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
+  # A factor above 1 will reduce current at a fast rate after the float voltage is reached, then slow as a cell reaches the BMS "cell_voltage_overvoltage_recovery".
+  charge_a_factor_curve_shape: "1.8"
+
+switch:
+  - platform: template
+    name: ${name} ${yambms_name} Automatic Charge Current
+    id: ${yambms_id}_switch_auto_ccl
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+sensor:
+  # +--------------------------------------+
+  # | Auto Charge Current Limit            |
+  # +--------------------------------------+
+  # First, an initial charge current is calculated based upon the maximum cell voltage but only if the Auto Charge Current switch is enabled.
+  - platform: copy
+    source_id: ${yambms_id}_max_cell_voltage
+    name: ${name} ${yambms_name} Initial Charge Current
+    id: auto_ccl_initial
+    unit_of_measurement: A
+    device_class: current
+    internal: true  
+    filters:
+    - lambda: !lambda |-
+              // Variables
+              double cell_float_v = (id(${yambms_id}_float_voltage).state / id(${yambms_id}_cell_count).state);
+              // Auto Charge Current function
+              if (id(${yambms_id}_max_cell_voltage).state > id(${yambms_id}_cell_ovpr).state) return 0.0;
+              else return max(0.0,(- pow(${charge_a_factor_curve_end}, pow( max(0.0, ((x - cell_float_v) / (id(${yambms_id}_cell_ovpr).state - cell_float_v))),${charge_a_factor_curve_shape}))+2) * id(${yambms_id}_max_charge_current).state);
+  # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial charge current values.
+  - platform: copy
+    source_id: auto_ccl_initial
+    name: ${name} ${yambms_name} Moving Average Charge Current
+    id:  auto_ccl_moving_average
+    unit_of_measurement: A
+    device_class: current
+    internal: true  
+    filters:    
+    - exponential_moving_average:
+        alpha: 0.15
+        send_every: 1
+        send_first_at: 1
+  # Third, if the instantaneous initial charge current value is lower than the moving average, use that, otherwise use the moving average.
+  # This means that cell voltage spikes will be reacted to quickly, but reduced cell voltages will not, preventing oscillation of requested current.
+  - platform: copy
+    source_id: auto_ccl_initial
+    name: ${name} ${yambms_name} Auto Charge Current
+    id: auto_ccl
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 1
+    internal: true
+    filters:
+    - lambda: !lambda |-
+              if (id(${yambms_id}_switch_auto_ccl).state) id(${yambms_id}_auto_ccl) = (round(min(id(auto_ccl_moving_average).state, x) * 10) / 10);
+              else id(${yambms_id}_auto_ccl) = -1.0; // Auto CCL not used
+              return (round(min(id(auto_ccl_moving_average).state, x) * 10) / 10);

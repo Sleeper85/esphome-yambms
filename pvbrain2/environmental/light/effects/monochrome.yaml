@@ -1,0 +1,36 @@
+
+      - strobe:
+          name: blink_slow
+          colors:
+            - state: true
+              duration: 1s
+            - state: false
+              duration: 1s
+              
+      - strobe:
+          name: blink_fast
+          colors:
+            - state: true
+              duration: 300ms
+            - state: false
+              duration: 300ms
+            - state: true
+              duration: 300ms
+            - state: false
+              duration: 1s
+              
+      - strobe:
+          name: blink_very_fast
+          colors:
+            - state: true
+              duration: 100ms
+            - state: false
+              duration: 100ms
+            - state: true
+              duration: 100ms
+            - state: false
+              duration: 100ms
+            - state: true
+              duration: 100ms
+            - state: false
+              duration: 1s

@@ -1,0 +1,121 @@
+# Updated : 2024.08.08
+# Version : 2.4.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # +--------------------------------------+
+  # | Use the settings below with caution  |
+  # +--------------------------------------+
+  # Factor to adjust the proportional gain of the auto voltage control PI logic.
+  # The higher the setting, the faster the correcting response. Too high a value will cause oscillation.
+  charge_v_kp: "0.05"
+  # Factor to adjust the integral gain of the auto voltage control PI logic.
+  # The higher the setting, the more the correction response will be increased over time. Too high a value will cause oscillation.
+  charge_v_ki: "0.5"
+
+switch:
+  - platform: template
+    name: ${name} ${yambms_name} Automatic Charge Voltage
+    id: ${yambms_id}_switch_auto_cvl
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  - platform: template
+    name: "${name} ${yambms_name} Auto CVL Boost Charge V."
+    id: "${yambms_id}_auto_cvl_boost_charge_v"
+    step: 0.1
+    min_value: 0
+    max_value: 3
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0.0
+    unit_of_measurement: V
+    icon: mdi:sine-wave
+    optimistic: true
+    entity_category: config
+
+sensor:
+  # +--------------------------------------+
+  # | Auto Charge Voltage Control          |
+  # +--------------------------------------+
+  - platform: template
+    name: ${name} ${yambms_name} Auto Charge Voltage
+    id: auto_cvl
+    update_interval: 1s # must have the same value as the "dt" variable in the lamda below
+    unit_of_measurement: V
+    device_class: voltage
+    internal: true
+    lambda: |-
+            // Variables
+
+            double static integral = 0.0;                                             // Integral term initialization
+            double static prev_integral = 0.0;                                        // Prior Integral term initialization
+            double cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
+            double balance_delta = id(${yambms_id}_balance_trigger_voltage).state;
+            double max_allowed_voltage = cell_bulk_v + balance_delta;
+            double max_cell_v = id(${yambms_id}_max_cell_voltage).state;
+            double max_CVL = id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_auto_cvl_boost_charge_v).state;  // Maximum CVL
+            double min_CVL = id(${yambms_id}_float_voltage).state;                                                  // Minimum CVL
+            double CVL = id(${yambms_id}_bulk_voltage).state;                                                       // Starting CVL
+
+            double kp = ${charge_v_kp};                                               // Proportional gain, adjust as needed
+            double ki = ${charge_v_ki};                                               // Integral gain, adjust as needed
+            double dt = 1.0;                                                          // Time step, adjust based on update_interval
+            double error = 0.0;                                                       // Starting error
+            double output = 0.0;                                                      // Starting output
+
+            // Check feature enabled
+            if (!id(${yambms_id}_switch_auto_cvl).state){
+              id(${yambms_id}_auto_cvl) = -1.0;
+              return id(${yambms_id}_bulk_voltage).state;
+            } else {
+              // PI Algorithm
+              error = cell_bulk_v - max_cell_v;
+              // It's possible for PI control to start before BMS values are available, so don't store non-number values
+              if(isnan(prev_integral)) {
+                prev_integral = 0;
+                integral = 0;
+              }
+              // Check if max cell voltage is in deadband
+              if ((max_cell_v <= max_allowed_voltage) & (max_cell_v >= cell_bulk_v)) {
+                // No integral error within deadband zone
+              } else {
+                  integral = prev_integral + error * dt;
+              }
+              // Calculate PI output
+              output = kp * error + ki * integral;
+              // Update CVL
+              CVL += output;
+              // If CVL is less than lower limit, enforce limit
+              if (CVL < min_CVL) {
+                CVL = min_CVL;
+              }
+              // If CVL is greater than upper limit, enforce limit
+              else if (CVL > max_CVL) {
+                CVL = max_CVL;
+              }
+              else {
+                prev_integral = integral;
+              }
+              id(${yambms_id}_auto_cvl) = CVL;
+              return CVL;
+            }
+    filters:    
+    - round: 1

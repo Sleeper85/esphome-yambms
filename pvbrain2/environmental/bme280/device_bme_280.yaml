@@ -1,0 +1,30 @@
+# Updated : 2024.09.30
+# Version : 1.0.2
+# GitHub  : https://github.com/SeByDocKy/pvbrain2
+
+sensor:
+  - platform: bme280_i2c
+    temperature:
+      name: ${name}_${environnemental_name}_temperature
+      accuracy_decimals: 1
+      oversampling: 16x
+      id: ${environnemental_name}_temperature
+    pressure:
+      name: ${name}_${environnemental_name}_pressure
+      accuracy_decimals: 1
+      id: ${environnemental_name}_pressure
+    humidity:
+      name: ${name}_${environnemental_name}_humidity
+      accuracy_decimals: 1
+      id: ${environnemental_name}_humidity
+    address: ${environnemental_address}
+    update_interval: ${environnemental_update_interval}
+    i2c_id: ${environnemental_i2c_bus}
+
+  # https://esphome.io/components/sensor/absolute_humidity.html?highlight=absolute_humidity
+  - platform: absolute_humidity
+    name: ${name}_${environnemental_name}_humidity_absolue
+    id: ${environnemental_name}_humidity_absolue
+    equation: Wobus #Tetens #Buck
+    temperature: ${environnemental_name}_temperature
+    humidity: ${environnemental_name}_humidity

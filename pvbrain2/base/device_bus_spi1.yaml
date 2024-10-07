@@ -1,0 +1,6 @@
+# Used for the MCP2515 (CANBUS)
+spi:
+  - id: spi1_bus
+    mosi_pin: 11
+    miso_pin: 12
+    clk_pin: 13
