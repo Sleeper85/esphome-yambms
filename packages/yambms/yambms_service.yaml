@@ -1,0 +1,82 @@
+# Updated : 2024.10.03
+# Version : 1.4.5
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+esphome:
+  on_boot:
+    then:
+    - lambda: id(${yambms_id}_running_version).publish_state("${yambms_version}");
+    - lambda: id(${yambms_id}_last_version).publish_state("${yambms_version}");
+
+text_sensor:
+  # +--------------------------------------+
+  # | YamBMS version                       |
+  # +--------------------------------------+
+  - platform: template
+    name: ${name} ${yambms_name} Running version
+    id: ${yambms_id}_running_version
+    icon: mdi:cogs
+    entity_category: diagnostic
+    update_interval: never
+  - platform: template
+    name: ${name} ${yambms_name} Last version
+    id: ${yambms_id}_last_version
+    icon: mdi:new-box
+    entity_category: diagnostic
+    update_interval: never
+
+# https://esphome.io/components/http_request.html
+http_request:
+  verify_ssl: false
+
+interval:
+  - interval: 6h # 60min
+    then:
+      if:
+        condition:
+          and:
+            - lambda : return id(${yambms_id}_service) == true;
+            - lambda : return id(my_network).is_connected();
+        then:
+        - http_request.get:
+            url: http://script.opentel.be/yambms.get.php
+            capture_response: true
+            on_response:
+              then:
+              - lambda: |-
+                  // ESP_LOGI("yambms", "HTTP GET : %s", body.c_str());
+                  json::parse_json(body, [](JsonObject root) -> bool {
+                    id(${yambms_id}_last_version).publish_state(root["version"]);
+                    return true;
+                  });
+        
+        - http_request.post:
+            url: http://script.opentel.be/yambms.post.php
+            headers:
+              Content-Type: application/json
+            json: |-
+              root["mac"] = id(esp32_mac_wifi_address).state;
+              root["version"] = "${yambms_version}";
+              root["board_chip"] = "${board_chip}";
+              root["board_name"] = "${board_name}";
+              root["bms_model"] = "${bms_model}";
+              root["bms_protocol"] = "${bms_protocol}";
+              root["canbus_name"] = id(${yambms_id}_canbus_name);
+              root["canbus_protocol"] = id(${yambms_id}_canbus_protocol);
+              root["uptime"] = id(esp32_uptime).state;
+              root["date_time_now"] = id(esp32_date_time_now).state;

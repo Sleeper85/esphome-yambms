@@ -1,0 +1,102 @@
+# Updated : 2024.08.28
+# Version : 1.4.4
+# GitHub  : https://github.com/Sleeper85/esphome-yamshunt
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+globals:
+  - id: shunt${shunt_id}_combined_once
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+switch:
+  # Combine Enable-Switch (user controlled switch to en/dis-able combine)
+  - platform: template
+    name: "${name} ${shunt_name} Combine enabled"
+    id: shunt${shunt_id}_switch_combine
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+
+binary_sensor:
+  # Combine Availability (indicated, if the Shunt is able to be included in combine)
+  - platform: template
+    name: "${name} ${shunt_name} Combine Availability"
+    id: shunt${shunt_id}_availability
+    lambda: return (id(shunt${shunt_id}_voltage).state > 0);
+
+  # Can be combined (indicated, if the Shunt can be combined)
+  - platform: template
+    name: "${name} ${shunt_name} Can be combined"
+    id: shunt${shunt_id}_can_be_combined
+    lambda: return ((id(shunt${shunt_id}_availability).state) && (id(shunt${shunt_id}_switch_combine).state));
+
+# Combine once without conditions
+esphome:
+  on_boot:
+    then:
+      # Shunt counter (total)
+      - lambda: id(${yambms_id}_shunt_counter) += 1;
+
+interval:
+  - interval: ${shunt_combine_interval}
+    then:
+      - lambda: |-
+          // Combine once, only if the device is able to be included in combine
+          if (id(shunt${shunt_id}_can_be_combined).state)
+          {
+            if (id(shunt${shunt_id}_combined_once) == false)
+            {
+              // Can be combined shunt counter
+              id(${yambms_id}_can_be_combined_shunt_counter) += 1;
+
+              // Shunt use (replace BMS infos)
+              id(${yambms_id}_shunt_use) = true;
+
+              // Combined
+              id(shunt${shunt_id}_combined_once) = true;
+            }
+          }
+          // Uncombine once
+          else if (id(shunt${shunt_id}_combined_once) == true)
+          {
+            // Can be combined shunt counter
+            id(${yambms_id}_can_be_combined_shunt_counter) -= 1;
+
+            // Shunt use (replace BMS infos)
+            if (id(${yambms_id}_can_be_combined_shunt_counter) == 0) id(${yambms_id}_shunt_use) = false;
+            
+            // Uncombined
+            id(shunt${shunt_id}_combined_once) = false;
+          }
+
+          // Combine continuously (all Shunt)
+          if (id(${yambms_id}_processed_shunt_counter) < id(${yambms_id}_shunt_counter))
+          {
+            // Shunt processed counter
+            id(${yambms_id}_processed_shunt_counter) += 1;
+
+            // Combine only if the device is able to be included in combine
+            if (id(shunt${shunt_id}_can_be_combined).state)
+            {
+              // TOTAL voltage
+              id(${yambms_id}_shunt_total_voltage) += id(shunt${shunt_id}_voltage).state;
+              // TOTAL current
+              id(${yambms_id}_shunt_total_current) += id(shunt${shunt_id}_current).state;
+              // TOTAL power
+              id(${yambms_id}_shunt_total_power) += id(shunt${shunt_id}_power).state;
+              // TOTAL soc
+              id(${yambms_id}_shunt_total_soc) += id(shunt${shunt_id}_soc).state;
+            }
+          }

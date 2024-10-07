@@ -1,0 +1,43 @@
+      - random:
+      - random:
+          name: random_slow
+          transition_length: 30s
+          update_interval: 30s
+      - random:
+          name: random_fast
+          transition_length: 2s
+          update_interval: 1s
+      - pulse:
+      - pulse:
+          name: pulse_fast
+          transition_length: 0.5s
+          update_interval: 0.5s
+          min_brightness: 0%
+          max_brightness: 100%
+      - pulse:
+          name: pulse_slow
+          # transition_length: 1s      # defaults to 1s
+          update_interval: 0.5s
+      - strobe:
+      - strobe:
+          name: strobe_custom
+          colors:
+            - state: true
+              brightness: 100%
+              red: 100%
+              green: 90%
+              blue: 0%
+              duration: 500ms
+            - state: false
+              duration: 250ms
+            - state: true
+              brightness: 100%
+              red: 0%
+              green: 100%
+              blue: 0%
+              duration: 500ms
+      - flicker:
+      - flicker:
+          name: flicker_custom
+          alpha: 95%
+          intensity: 1.5%

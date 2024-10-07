@@ -1,0 +1,65 @@
+# Updated : 2024.10.03
+# Version : 1.2.3
+# GitHub  : https://github.com/SeByDocKy/pvbrain2
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "PVbrain2"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB # ajust according to your ESP32-S3 version
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio             # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
+    board_upload.maximum_ram_size: 524288   # Total Size of the internal RAM in bits. It's the same for all ESP32-S3 ( 512KB )
+
+# PSRAM activation and settings
+psram:
+  mode: octal
+  speed: 80MHz
+
+# <<: !include board_psram_settings.yaml
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  ap:
+    ssid: "YamBMS Fallback Hotspot"
+    password: "Y4mBM$85"
+
+captive_portal:
+
+logger:
+  hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
+  baud_rate: 0 # Prevent boot loop (bug WK2168 with CANBUS), don't use UART logging and release UART0 (tx_pin: 43, rx_pin: 44)
+
+light:
+  # https://esphome.io/components/light/status_led
+  - platform: status_led
+    name: ${name}_led_light_1
+    id: led_light_1
+    pin: GPIO01
+    entity_category: config
+
+  - platform: status_led
+    name: ${name}_led_light_2
+    id: led_light_2
+    pin: GPIO02    
+    entity_category: config
+
+  # https://esphome.io/components/light/esp32_rmt_led_strip
+  - platform: esp32_rmt_led_strip
+    name: ${name}_on_board_light_io48
+    id: on_board_light_io48
+    rgb_order: GRB
+    pin: GPIO48
+    num_leds: 1
+    rmt_channel: 0
+    chipset: ws2812
+    entity_category: config

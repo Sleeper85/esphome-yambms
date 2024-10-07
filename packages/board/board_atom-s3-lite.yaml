@@ -1,0 +1,99 @@
+# Updated : 2024.10.03
+# Version : 1.2.3
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "Atom S3 Lite"
+
+# From platform-espressif32 6.1.0
+# https://github.com/espressif/esp-idf/releases
+# https://github.com/platformio/platform-espressif32/releases
+# esp32:
+#   board: m5stack-atoms3
+#   variant: esp32s3
+
+# Atom S3 Lite - SKU:C124
+# https://docs.m5stack.com/en/core/AtomS3%20Lite
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
+  on_boot:
+    then:
+      - light.turn_on:
+          id: esp_light
+          red: 50%
+          blue: 50%
+          green: 0%
+          brightness: 50%
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  ap:
+    ssid: "YamBMS Fallback Hotspot"
+    password: "Y4mBM$85"
+
+captive_portal:
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+uart:
+  # UART 1
+  - id: uart_esp_1
+    tx_pin: 2
+    rx_pin: 1
+    baud_rate: 115200
+    rx_buffer_size: 512
+  # UART 2
+  # - id: uart_esp_2
+  #   tx_pin: 8
+  #   rx_pin: 7
+  #   baud_rate: 115200
+  #   rx_buffer_size: 512
+
+canbus:
+  # CANBUS NODE 1
+  - platform: esp32_can
+    id: canbus_node1
+    tx_pin: 5
+    rx_pin: 6
+    can_id: 1
+    bit_rate: 500kbps
+
+light:
+  # https://esphome.io/components/light/esp32_rmt_led_strip
+  - platform: esp32_rmt_led_strip
+    id: esp_light
+    name: ${name} ESP Light
+    rgb_order: GRB
+    pin: 35
+    num_leds: 1
+    rmt_channel: 0
+    chipset: ws2812
+    entity_category: config
+    internal: true

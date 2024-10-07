@@ -1,0 +1,15 @@
+# Updated : 2024.09.30
+# Version : 1.0.2
+# GitHub  : https://github.com/SeByDocKy/pvbrain2
+
+sensor:
+  - platform: dallas_temp
+    name: ${name}_${environnemental_name}
+    id: ${environnemental_name}
+    one_wire_id: one_wire_hub
+    address: ${environnemental_address}
+    update_interval: ${environnemental_update_interval}
+    filters:
+      - filter_out: 85
+      - filter_out: 128
+      - filter_out: NAN
