@@ -81,12 +81,6 @@ the CAN bus protocol `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4). I'm only tes
 * YamBMS 1.3.2 : New var `yambms_cell_count`, the BMS charge or discharge switches can be activated separately without causing the decombination of the BMS, new `minimal` version of the BMS YAML in order to reduce the loop time
 * YamBMS 1.3.1 : First multi-BMS version named `YamBMS`
 
-## Goodies
-
-A user of the [@syssi](https://github.com/syssi) [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) project ([@dr3amr](https://github.com/dr3amr)) shared some [Home Assistant Lovelace UI cards for a beautiful dashboard here](https://github.com/syssi/esphome-jk-bms/discussions/230).
-
-![Lovelace entities card](images/lovelace-cards-contribution.png "Home Assistant Lovelace UI cards")
-
 ## References
 
 * Thanks to [@syssi](https://github.com/syssi/esphome-jk-bms) for help and making the original JK-B UART and BLE code.
