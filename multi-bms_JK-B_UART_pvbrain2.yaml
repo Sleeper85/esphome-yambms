@@ -98,7 +98,7 @@ packages:
 # +--------------------------------------+
 
   # shunt1: !include
-  #   file: packages/shunt/shunt_victron_smartshunt.yaml # shunt_junctek_khf.yaml
+  #   file: packages/shunt/shunt_victron_smartshunt_pvbrain2.yaml # shunt_junctek_khf.yaml
   #   vars:
   #     # YamBMS ID
   #     yambms_id: 'yambms1'
@@ -107,7 +107,7 @@ packages:
   #     shunt_name: 'Shunt 1'
   #     shunt_update_interval: '3s'
   #     shunt_combine_interval: '1s'
-  #     shunt_uart_id: uart_esp_0
+  #     shunt_uart_id: uart_${uart_hub_bus}_2
 
   bms1: !include
     file: packages/bms/bms_JK-B_UART_full.yaml

@@ -98,7 +98,7 @@ packages:
 # +--------------------------------------+
 
   # shunt1: !include
-  #   file: packages/shunt/shunt_victron_smartshunt.yaml # shunt_junctek_khf.yaml
+  #   file: packages/shunt/shunt_victron_smartshunt_pvbrain2.yaml # shunt_junctek_khf.yaml
   #   vars:
   #     # YamBMS ID
   #     yambms_id: 'yambms1'
@@ -107,7 +107,7 @@ packages:
   #     shunt_name: 'Shunt 1'
   #     shunt_update_interval: '3s'
   #     shunt_combine_interval: '1s'
-  #     shunt_uart_id: uart_esp_0
+  #     shunt_uart_id: uart_${uart_hub_bus}_2
 
   # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
   # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS)

@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# packages:
-#   shunt_base: !include shunt_base.yaml
-#   shunt_combine: !include shunt_combine.yaml
+packages:
+  shunt_base: !include shunt_base.yaml
+  shunt_combine: !include shunt_combine.yaml
 
 external_components:
   - source: github://Sleeper85/esphome-junctek_khf@main
