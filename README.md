@@ -54,6 +54,7 @@ the CAN bus protocol `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4). I'm only tes
 6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
 7) [Configuration of the main YAML](documents/README/Main_YAML_config.md)
 8) [Installation procedure](documents/README/Installation_procedure.md)
+9) [Troubleshooting](documents/README/Troubleshooting.md)
 
 ## Requirements
 
