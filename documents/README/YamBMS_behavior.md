@@ -51,3 +51,11 @@ YamBMS will display BMS alarms as `Warning`.
 
 If all BMS are in alarm, they are all uncombined and in this case the sending of instructions on the `CAN bus` is also stopped.
 YamBMS will display BMS alarms as `Alarm`.
+
+## CAN bus link
+
+For the CAN bus link to be established with your inverter, the two conditions below must be met:
+1) At least one BMS is in service (the number of combined BMS must be `> 0`)
+2) Your inverter sends an `ACK 0x305` every `1s` (the link will be faulty if no ACK is received for 5s)
+
+If these conditions are not met, the application waits `120s` before trying to connect again.
