@@ -1,5 +1,5 @@
-# Updated : 2024.08.08
-# Version : 1.1.1
+# Updated : 2024.10.09
+# Version : 1.1.2
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,12 +32,12 @@ uart:
 
 victron:
   uart_id: ${shunt_uart_id}
-  id: victron0
+  id: victron${shunt_id}
   throttle: ${shunt_update_interval}
 
 sensor:
   - platform: victron
-    victron_id: victron0
+    victron_id: victron${shunt_id}
     battery_voltage:
       id: shunt${shunt_id}_voltage
       name: "${name} ${shunt_name} battery voltage"
@@ -103,7 +103,7 @@ sensor:
 
 text_sensor:
   - platform: victron
-    victron_id: victron0
+    victron_id: victron${shunt_id}
     alarm_condition_active:
       name: "${name} ${shunt_name} alarm condition active"
     alarm_reason:
@@ -121,6 +121,6 @@ text_sensor:
 
 binary_sensor:
   - platform: victron
-    victron_id: victron0
+    victron_id: victron${shunt_id}
     relay_state:
       name: "${name} ${shunt_name} relay state"
