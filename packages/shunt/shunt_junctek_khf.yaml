@@ -1,4 +1,4 @@
-# Updated : 2024.10.03
+# Updated : 2024.10.17
 # Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
 
@@ -34,8 +34,8 @@ external_components:
 #     rx_buffer_size: 384
 
 # Platform :
-# junctek_khf : with display version (UART and RS485)
-# junctek_khf_wod : without display version (only RS485)
+# junctek_khf : version with the screen connected (UART and RS485)
+# junctek_khf_rs485 : version without the screen connected (only RS485)
 sensor:
   - platform: junctek_khf
     uart_id: ${shunt_uart_id}
