@@ -1,4 +1,4 @@
-# Updated : 2024.10.03
+# Updated : 2024.10.17
 # Version : 1.4.5
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
@@ -97,17 +97,19 @@ packages:
 # | YamBMS packages                      |
 # +--------------------------------------+
 
-  # shunt1: !include
-  #   file: packages/shunt/shunt_victron_smartshunt_pvbrain2.yaml # shunt_junctek_khf.yaml
-  #   vars:
-  #     # YamBMS ID
-  #     yambms_id: 'yambms1'
-  #     # Shunt vars
-  #     shunt_id: '1' # must be a number
-  #     shunt_name: 'Shunt 1'
-  #     shunt_update_interval: '3s'
-  #     shunt_combine_interval: '1s'
-  #     shunt_uart_id: uart_${uart_hub_bus}_2
+  # You don't have to import a shunt but you must import at least one BMS.
+
+  shunt1: !include
+    file: packages/shunt/shunt_victron_smartshunt_pvbrain2.yaml # shunt_junctek_khf.yaml
+    vars:
+      # YamBMS ID
+      yambms_id: 'yambms1'
+      # Shunt vars
+      shunt_id: '1' # must be a number
+      shunt_name: 'Shunt 1'
+      shunt_update_interval: '3s'
+      shunt_combine_interval: '1s'
+      shunt_uart_id: uart_${uart_hub_bus}_2
 
   bms1: !include
     file: packages/bms/bms_JK-B_UART_full.yaml
@@ -117,7 +119,7 @@ packages:
       # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
-      bms_update_interval: '2s'
+      bms_update_interval: '3s'
       bms_combine_interval: '1s'
       bms_uart_id: uart_${uart_hub_bus}_4
   
@@ -129,7 +131,7 @@ packages:
       # BMS vars
       bms_id: '2' # must be a number
       bms_name: 'JK-BMS 2'
-      bms_update_interval: '2s'
+      bms_update_interval: '3s'
       bms_combine_interval: '1s'
       bms_uart_id: uart_${uart_hub_bus}_5
 

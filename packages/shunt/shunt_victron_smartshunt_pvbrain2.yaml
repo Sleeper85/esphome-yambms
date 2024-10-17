@@ -1,4 +1,4 @@
-# Updated : 2024.10.09
+# Updated : 2024.10.17
 # Version : 1.1.2
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
@@ -26,9 +26,9 @@ external_components:
     refresh: 0s
 
 victron:
-  uart_id: ${shunt_uart_id}
-  id: victron${shunt_id}
-  throttle: ${shunt_update_interval}
+  - uart_id: ${shunt_uart_id}
+    id: victron${shunt_id}
+    throttle: ${shunt_update_interval}
 
 sensor:
   - platform: victron
