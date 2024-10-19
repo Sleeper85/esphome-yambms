@@ -20,7 +20,13 @@ All `JK-B` and `JK-PB` models with software@ version `>=6.0` are using the imple
 
 See the [@syssi](https://github.com/syssi) [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) repository for more information.
 
-Note: other BMS brands already integrated with ESPhome can be added easily.
+**Note: other BMS brands already integrated with ESPhome can be added easily.**
+
+## Supported shunt
+
+`Victron Smartshunt` and `Junctek KH-F`.
+
+**Note: other Shunt brands already integrated with ESPhome can be added easily.**
 
 ## Supported CAN bus transceiver
 
@@ -30,9 +36,16 @@ Note: other BMS brands already integrated with ESPhome can be added easily.
 | --- | --- | --- |
 | <img src="../../images/CAN_Transceiver_TJA1050.png" width="300"> | <img src="../../images/CAN_Transceiver_TJA1051.jpg" width="300"> | <img src="../../images/CAN_Transceiver_SN65HVD230.jpg" width="300"> |
 
-| Atomic CAN Base | MCP2515 |
-| --- | --- |
-| <img src="../../images/CAN_Transceiver_Atomic_CAN_Base.png" width="450"> | <img src="../../images/CAN_Transceiver_MCP2515.png" width="450"> |
+| Atomic CAN Base (isolated) | CAN Unit (isolated) | MCP2515 |
+| --- | --- | --- |
+| <img src="../../images/CAN_Transceiver_M5Stack_Atomic_CAN_Base.png" width="300"> | <img src="../../images/CAN_Transceiver_M5Stack_CAN_Unit.png" width="300"> | <img src="../../images/CAN_Transceiver_MCP2515.png" width="300"> |
+
+## Supported RS485 transceiver
+
+| [M5Stack RS485 unit](https://docs.m5stack.com/en/unit/iso485) | [RS485 isolated board (high speed dual)](https://a.aliexpress.com/_EueIZT5) | [RS485 Two-way Converter](https://electronics.stackexchange.com/questions/244425/how-is-this-rs485-module-working) |
+| --- | --- | --- |
+| <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="300"> | <img src="../../images/RS485_Transceiver_isolated_high_speed_dual_board.png" width="300"> | <img src="../../images/RS485_Transceiver_Two-way_Converter.jpg" width="300"> |
+
 
 ## Supported inverter
 
@@ -47,6 +60,7 @@ The following are confirmed and known to work:
 | Deye | SUN-5K-SG03LP1-EU | Working | [@arzaman](https://github.com/arzaman) | Lithium 00 | JK-B | BLE | Atom S3 | PYLON | PYLON 1.2 | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | --- |
 | Deye | SUN-5K-SG03LP1-EU (3) | Working | [@widget4145](https://diysolarforum.com/members/widget4145.110784/) | Lithium 00 | JK-PB (7) | RS485 | Atom S3 Lite | PYLON | PYLON 1.2 | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | RS485 (talk pin) | yes | --- |
 | Deye | SUN-6K-SG03LP1-EU | Working | [@Sleeper85](https://github.com/Sleeper85) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | TJA1051T | --- | no | --- |
+| Deye | SUN-6K-SG03LP1-EU | Working | [@Imanol82](https://diysolarforum.com/members/imanol82.122457/) | Lithium 00 | JK-PB (2) | RS485 | ETH01-EVO POE | PYLON | PYLON 1.2 | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | yes | ESP32 wired without WiFi, all ok. |
 | Deye | SUN-12K-SG04LP3-EU | Working | [@lucize](https://github.com/lucize) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | --- | no | --- |
 | Deye | SUN-12K-SG04LP3-EU | Working | [@luckylinux](https://github.com/luckylinux) | Lithium 00 | JK-B | BLE | Atom S3 Lite | PYLON | PYLON 1.2 | [CANBus Unit (CA-IS3050G)](https://docs.m5stack.com/en/unit/can) | --- | no | --- |
 | Deye | SUN-12K-SG04LP3-EU | Working | [@virus100b](https://github.com/virus100b) | Lithium 00 | JK-PB (2) | RS485 | ESP32 DevKit V1 | PYLON | PYLON 1.2 | TJA1050 | --- | yes | --- |
@@ -68,8 +82,11 @@ The following are confirmed and known to work:
 | Solis | RHI-3K-48ES | Working | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) | AoBo | JK-B (2) | BLE | Atom S3 Lite | SMA | SMA | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | DIY Li-ion Growatt GBLI5001 converted. |
 | LuxPower | LXP SNA 5K | Working | [@shvmm](https://github.com/shvmm) | Lithium 6 | JK-B | UART | ESP32 DevKit V1 | Automatic | LuxPower| SN65HVD230 / TJA1050 | --- | no | --- |
 | LuxPower | LXP SNA 5K | Working | [@yur43](https://diysolarforum.com/members/yur43.121157/) | Lithium 6 | JK-PB (1) | RS485 | ESP32 DevKit V1 | Automatic | LuxPower | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | no | --- |
+| LuxPower | LXP-LB-US 10K | Working | [@Henny101](https://diysolarforum.com/members/henny101.67026/) | Lithium 6 | JK-PB (2) | RS485 | ESP32-S3 DevKitC-1 | Automatic | LuxPower | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | yes | --- |
 | EG4 | 6000XP | Working | [@ChrisG](https://diysolarforum.com/members/chrisg.483/) |  Lithium 2  | JK-B (2) | BLE | ESP32 DevKit V1 / ESP32-S3 DevKitC-1 | PYLON | PYLON 1.2 |  MCP2515 | --- | yes | --- |
 | EG4 | 6000XP (2) | Working | [@SGB](https://diysolarforum.com/members/scrotpusgobblebottom.100804/) |  Lithium 6  | JK-B (1) JK-PB (1) | BLE | Atom S3 (display) | Automatic | LuxPower | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | --- |
 | Victron | MultiPlus-II 48/10000/140 | Working | [@cali-clim](https://diysolarforum.com/members/cali-clim.54284/) | ESS | JK-PB (2) | RS485 | Atom S3 (display) | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | yes | --- |
 | Victron | Multiplus 24/1200/25-16  | Working | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) | ESS | JK-B (1) | BLE | Atom S3 Lite | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | Plugged into Cerbo Can port (must use supplied Victron terminator in the other port) |
+| MidNite Solar | MN15-12KW-AIO  | Working | [@goldserve](https://diysolarforum.com/members/goldserve.52541/) | PYLON | JK-B | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | no | Stable with Victron Smartshunt, MQTT, BLE, Neopixel LED, Display also working. |
+| MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
 | SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

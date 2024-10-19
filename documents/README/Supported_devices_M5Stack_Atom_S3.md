@@ -35,4 +35,4 @@ If soldering or creating your own board seems complicated to you, know that it i
 
 | Atomic S3 Lite | Atomic CAN Base |
 | --- | --- |
-| <img src="../../images/Atom_S3_Lite.png" width="450"> | <img src="../../images/CAN_Transceiver_Atomic_CAN_Base.png" width="450"> |
+| <img src="../../images/Atom_S3_Lite.png" width="450"> | <img src="../../images/CAN_Transceiver_M5Stack_Atomic_CAN_Base.png" width="450"> |
