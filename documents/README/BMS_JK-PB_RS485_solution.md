@@ -79,8 +79,8 @@ Note: the choice of RS485 board is not related to the chosen ESP32.
 ┌──────────┐                 ┌───────────┐                       ┌──────────┐
 │          │                 │   UART    │<-VCC--------------5V--│          │<---5V
 │   BMS    │                 │    TO     │                       │   ESP32  │
-│  JK-PB   │<-RJ45-P1 ----A->│   RS485   │<-DI-----------TX--G1--│  ATOM S3 │
-│          │<-RJ45-P2-----B->│           │--RO-----------RX--G2->│          │                  ┌────────────┐             ┌────────────┐
+│  JK-PB   │<-RJ45-P1-----B->│   RS485   │<-DI-----------TX--G1--│  ATOM S3 │
+│          │<-RJ45-P2-----A->│           │--RO-----------RX--G2->│          │                  ┌────────────┐             ┌────────────┐
 │  RS485   │                 │ CONVERTER │<-DE--+                │          │--G5--TX-----CTX->|            |             |            |
 │ NETWORK  │                 │           │<-RE--└--TALK PIN--G8--│          │<-G6--RX-----CRX--|   Atomic   |<---CAN H--->|  Inverter  |
 │          │                 │           │                       │          │<-------5V------->|  CAN Base  |<---CAN L--->|            |
@@ -94,8 +94,8 @@ Note: the choice of RS485 board is not related to the chosen ESP32.
 ┌──────────┐                 ┌───────────┐                       ┌──────────┐
 │          │                 │   UART    │<-V1--------3V3 or 5V--│          │<---5V
 │   BMS    │                 │    TO     │                       │          │
-│  JK-PB   │<-RJ45-P2-----B->│   RS485   │<-RX-----------TX--17--│ ESP32-S3 │
-│          │<-RJ45-P1 ----A->│           │--TX-----------RX--18->│          │                  ┌────────────┐             ┌────────────┐
+│  JK-PB   │<-RJ45-P1-----B->│   RS485   │<-RX-----------TX--17--│ ESP32-S3 │
+│          │<-RJ45-P2 ----A->│           │--TX-----------RX--18->│          │                  ┌────────────┐             ┌────────────┐
 │  RS485   │                 │ CONVERTER │                       │          │--38--TX-----CTX->|            |             |            |
 │ NETWORK  │                 │           │      No TALK PIN (8)--│          │<-39--RX-----CRX--|    CAN     |<---CAN H--->|  Inverter  |
 │          │                 │           │                       │          │<-------3V3------>| SN65HVD230 |<---CAN L--->|            |
