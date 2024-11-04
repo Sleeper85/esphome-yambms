@@ -27,7 +27,8 @@ Other configurations are possible, don't hesitate to communicate what works well
 | Solis | AoBo | SMA |
 | LuxPower | Lithium 6 | LuxPower |
 | EG4 | Lithium 6 | LuxPower |
-| Victron | ESS | Victron |
+| Victron | CAN-bus BMS LV (500 kbit/s) | Victron |
+| MidNite Solar | PYLON | PYLON 1.2 |
 | SMA | - | SMA |
 
 ## Charging settings
@@ -88,6 +89,8 @@ Controlling the CVL is the preferred option according to Victron and others, but
 My Solis inverter is not great at CVL control, so it doesn't work well for me.
 
 You can compare `Auto CVL` to cruise control in a car.
+
+`Boost Charge V.` allows you to increase the charging voltage to charge your battery faster, the `Auto CVL` function will itself reduce the charging voltage at the end of charging so that it does not exceed the target voltage `Bulk Voltage`.
 
 ## Auto CCL & DCL
 
