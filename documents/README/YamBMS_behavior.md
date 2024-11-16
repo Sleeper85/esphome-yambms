@@ -10,32 +10,48 @@
 
 ![Image](../../images/YamBMS_Combine_switch.png "YamBMS_Combine_switch")
 
-### Combine status
+The various counters above allow you to see what state your system is in.
+
+### Shunt/BMS combine status
 
 ![Image](../../images/YamBMS_Combine_Status.png "YamBMS_Combine_Status")
 
-**Combine Availability** : This status indicates whether the BMS or Shunt meets the conditions to be combined.
+* **Combine Availability** : This status indicates whether the `BMS` or `Shunt` meets the conditions to be combined.
+* **Can be combined** : This status indicates whether the `BMS` or `Shunt` is currently combined.
 
-**Can be combined** : This status indicates whether the BMS or Shunt is currently combined.
-
-## Shunt
+### Shunt
 
 Combine condition :
 1) the `Combine` switch is enabled
-2) the `Voltage` supplied by the shunt `is > 0V`
+2) the `Voltage` supplied by the shunt is `> 0V`
 
 If one of these two conditions is not respected, the shunt is automatically decombined.
 
-As soon as you import a `shunt` and it can be combined (see condition) the values ​​(Voltage, Current, Power and SoC) of the shunt(s) will take precedence over the BMS values.
+As soon as you import a `Shunt` and it can be combined (see condition) the values ​​`Voltage`, `Current`, `Power` and `SoC` of the shunt(s) will take precedence over the BMS values.
 
-## BMS
+> [!TIP]
+> If all BMS are `uncombined` the shunt data will no longer be published.
+
+### BMS
 
 Combine condition :
 1) the `Combine` switch is enabled
-2) BMS `Charging` or `Discharging` switch is enabled
-3) BMS is not in `alarm`
+2) BMS `Online Status` is `ON` (to detect a loss of connection with the BMS e.g. cable, BMS OFF or dead)
+3) BMS `Charging` or `Discharging` is allowed (based on `binary_sensor`, related to the state of `switches/alarms`)
 
 If one of these three conditions is not met, the BMS is automatically decombined.
+
+From YamBMS `1.5.1` :
+
+The `binary_sensor` does not only represent the state of the `charge/discharge` switches but simply whether the `charge/discharge` is **allowed**. The value of `binary_sensor` is related to the status of the `switches/alarms`.
+
+The `errors_bitmask` should not be a condition to combine a BMS anymore, let the BMS decide if the `charge/discharge` is allowed (its alarm system takes care of that).
+
+The `errors_bitmask` continues to be analyzed to send `warnings/alarms` on the CAN bus.
+
+The behavior of the `Charging Instruction` and `Discharging Instruction` sensors responsible for the instructions sent to the inverter will also be adapted. Alarm analysis will no longer be checked. If at least one BMS allows charging, charging can continue, if at least one BMS allows discharging, discharging can continue. This will also be based on the `binary_sensor` related to the state of `switchs/alarms` of the BMS.
+
+If a BMS blocks charging or discharging, the permitted current is automatically reduced.
 
 ## State of Charge
 
@@ -55,7 +71,7 @@ For the CAN bus link to be established with your inverter, the two conditions be
 1) At least one BMS is in service (the number of combined BMS must be `> 0`)
 2) Your inverter sends an `ACK 0x305` every `1s` (the link will be faulty if no ACK is received for 5s)
 
-If these conditions are not met, the application waits `120s` before trying to connect again.
+If these conditions are not met, the application waits `60s` before trying to connect again.
 
 ### Extra infos
 
@@ -77,22 +93,19 @@ This `5s` delay can be modified in the configuration when importing the canbus p
       canbus_node_id: 'canbus_node1'
       canbus_light_id: 'esp_light'
       # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
-      canbus_link_timer: '5'
+      canbus_link_timer: '5s'
 ```
 
-If the inverter does not respond with an `ACK 0x305` within this `5s` delay the sending of CAN frames is paused for `120s` this delay cannot be modified when importing the canbus package but you can modify it in the code if you need to.
+If the inverter does not respond with an `ACK 0x305` within this `5s` delay the sending of CAN frames is paused for `60s` this delay cannot be modified when importing the canbus package but you can modify it in the code if you need to.
 
 ## BMS alarms
 
-> [!IMPORTANT]  
-> This is the current behavior, it may not be perfect, feel free to communicate your ideas to improve it.
-
 ![Image](../../images/YamBMS_BMS_alarms.png "YamBMS_BMS_alarms")
 
-The `errors_bitmask` values ​​are merged and then analyzed continuously **even if the BMS is uncombined**.
+The BMS `errors_bitmask` values ​​are merged and then analyzed continuously **even if the BMS is uncombined**.
 
-As long as at least one BMS is working normally the system will continue to work.
-YamBMS will display BMS alarms as `Warning`.
+If all BMS have alarms, the alarms are sent to the **CAN bus** as `Protection Alarms`.
 
-If all BMS are in alarm, they are all uncombined and in this case the sending of instructions on the `CAN bus` is also stopped.
-YamBMS will display BMS alarms as `Alarm`.
+If at least one BMS has no alarms, the alarms are sent to the CAN bus as `Warning`.
+
+Both **text_sensor** `Alarm` and `Warning` show the alarms/warnings currently transmitted to the inverter.

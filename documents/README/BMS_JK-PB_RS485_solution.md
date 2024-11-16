@@ -71,7 +71,15 @@ The example below uses an Atom S3 (display) with the CAN base and RS485 unit.
 
 ## Schematic and setup instructions
 
-Note: the choice of RS485 board is not related to the chosen ESP32.
+> [!CAUTION]
+> Galvanic isolation of the `RS485` connection is strongly recommended.
+> The diagrams below does not show the galvanic isolation of the `RS485` connection !
+
+> [!IMPORTANT]
+> The boards `uart` are configured by default with an `rx_buffer_size` of `512` which **normally** is fine for all components. Only one user reported to me an instability problem with his `Atom S3` which he solved by increasing the `rx_buffer_size` to `1024`, this user is also the only one currently using the isolated RS485 unit of M5Stack.
+> If you encounter a similar problem, let me know.
+
+**Note:** the choice of RS485 board is not related to the chosen ESP32.
 
 ### Atom S3 with unisolated RS485 board
 

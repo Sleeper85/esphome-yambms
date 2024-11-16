@@ -12,13 +12,51 @@
 
 ## Schematic and setup instructions
 
-### Atom S3 Lite (ESP32-S3)
+> [!CAUTION]
+> The `GND` of the `JK-B GPS port` is directly connected with the `B-` of your battery. Even if your BMS is in protection or stopped you can measure the `full voltage` between this `GND` and `B+`. This therefore presents a risk of `bypass` of the BMS `P-` and can be dangerous if the GND of your ESP32 is connected to the GND of your inverter or a measurement shunt for example.
+> I therefore strongly advise you to achieve galvanic isolation between your ESP32 and the `UART-TTL` of the `JK-B GPS port`.
+
+## Galvanic isolation of the `UART-TTL` connection
+
+> [!CAUTION]
+> `V1` and `V2` must be isolated and cannot come from the same source. `V1` (JK GPS port side) can be powered by the `3V3` of the ESP32 via a `DC-DC isolator` (**B0303S = 3V3-to-3V3**), `V2` (ESP32 side) is powered directly by the `3V3` of the ESP32.
+
+```
+┌────────────┐   |         ┌──────────┐             ┌───────────┐
+│            |   └─3V3--V1>│          |<V2---3V3---<|           |
+│   DEVICE   │<RX-------AO<│ UART-TTL │<AI-------TX<|   ESP32   |
+│   JK BMS   │>TX-------AI>│ ISOLATOR │>BO-------RX>|           |
+│            │<----GND---->│          │<----GND---->|           |
+└────────────┘             └──────────┘             └───────────┘
+```
+
+Here are some components available on the market allowing you to set up galvanic isolation. The `UART-TTL isolator 2` seems a little better isolated with more space below the chip.
+
+* [UART-TTL isolator 1](https://a.aliexpress.com/_EuXszn7)
+* [UART-TTL isolator 2](https://a.aliexpress.com/_EItDRvX)
+* [UART-TTL isolator](https://a.aliexpress.com/_EItDRvX)
+
+![Image](../../images/UART-TTL_isolator_1.png "UART-TTL isolator example")
+
+| [UART-TTL isolator](https://a.aliexpress.com/_EItDRvX) | [DC-DC isolator](https://a.aliexpress.com/_EIsPAoh) |
+| --- | --- |
+| <img src="../../images/UART-TTL_isolator_2.png" width="400"> | <img src="../../images/DC-DC_3V3-to-3V3_isolator.png" width="400"> |
+
+### Another solution would be the use of M5Stack's isolated RS485 unit.
+
+| [M5Stack RS485 unit (isolated)](https://docs.m5stack.com/en/unit/iso485) |
+| --- |
+| <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="400"> |
+
+### Atom S3 (ESP32-S3)
+
+> [!CAUTION]
+> The diagram below does not show the galvanic isolation of the `UART-TTL` connection !
 
 The GPIOs are preconfigured in the `packages/board/board_atom-s3-lite.yaml` file.<br>
 You need to import this YAML into the main YAML.
 
 ```
-
               UART-TTL               RS232-TTL                   CAN BUS
 ┌──────────┐            ┌──────────┐             ┌────────────┐              ┌──────────┐
 │          │<TX------RX>│2        5│<TX-------TX>|            |              |          |
@@ -31,11 +69,13 @@ You need to import this YAML into the main YAML.
 
 ### Atom Lite (ESP32-PICO)
 
+> [!CAUTION]
+> The diagram below does not show the galvanic isolation of the `UART-TTL` connection !
+
 The GPIOs are preconfigured in the `packages/board/board_atom-lite.yaml` file.<br>
 You need to import this YAML into the main YAML.
 
 ```
-
               UART-TTL               RS232-TTL                   CAN BUS
 ┌──────────┐            ┌──────────┐             ┌────────────┐              ┌──────────┐
 │          │<TX------RX>│26      22│<TX-------TX>|            |              |          |
@@ -47,6 +87,9 @@ You need to import this YAML into the main YAML.
 ```
 
 ### Generic ESP32 DevKit V1 30 pin
+
+> [!CAUTION]
+> The diagram below does not show the galvanic isolation of the `UART-TTL` connection !
 
 The GPIOs are preconfigured in the `packages/board/board_esp32-devkit-v1.yaml` file.<br>
 You need to import this YAML into the main YAML.
@@ -91,7 +134,7 @@ You need to import this YAML into the main YAML.
 
 ### JK-B BMS UART-TTL GPS port
 
-The `JK-B` BMS using the RS485 port (GPS) which is in fact not RS485 but 3V3 UART-TTL, so it can be directly connected to the ESP32.
+The `GPS` port sometimes called `RS485` is not an `RS485` port but `3V3 UART-TTL`.
 
 ```
 # UART-TTL GPS port on JK-BMS (4 pin, JST 1.25mm pitch)
@@ -100,12 +143,11 @@ The `JK-B` BMS using the RS485 port (GPS) which is in fact not RS485 but 3V3 UAR
 │ O   O   O   O  │
 │GND  RX  TX VBAT│ 
 └────────────────┘
-  │   │   │   | VBAT is full battery volatge eg 51.2V (No connect)
-  │   │   └──── ESP32 (`rx_pin`)
-  │   └──────── ESP32 (`tx_pin`)
-  └──────────── GND
+  │   │   │   | VBAT is full battery volatge eg 51.2V (possible to use it via an isolated DC-DC converter)
+  │   │   └──── to TTL-isolator AI (input)
+  │   └──────── to TTL-isolator AO (output)
+  └──────────── to TTL-isolator GND
 ```
-
 
 The UART-TTL (labeled as `GPS`) socket of the BMS can be attached to any UART pins of the ESP.<br>
 A hardware UART should be preferred because of the high baudrate (115200 baud).<br>
