@@ -29,7 +29,7 @@ If one of these two conditions is not respected, the shunt is automatically deco
 
 As soon as you import a `Shunt` and it can be combined (see condition) the values ​​`Voltage`, `Current`, `Power` and `SoC` of the shunt(s) will take precedence over the BMS values.
 
-> [!TIP]
+> [!NOTE]
 > If all BMS are `uncombined` the shunt data will no longer be published.
 
 ### BMS

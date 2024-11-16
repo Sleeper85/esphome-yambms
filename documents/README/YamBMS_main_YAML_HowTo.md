@@ -406,7 +406,7 @@ As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_b
 
 ```YAML
   shunt1: !include
-    file: packages/shunt/shunt_victron_smartshunt_UART.yaml # shunt_junctek_khf_UART.yaml
+    file: packages/shunt/shunt_victron_smartshunt_UART.yaml
     vars:
       # YamBMS ID
       yambms_id: 'yambms1' # YamBMS ID to send information to

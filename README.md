@@ -57,7 +57,7 @@
 
 ## Try YamBMS with the DEMO firmware
 
-You can simply test the application with a `generic ESP32` without compiling and connecting anything on your ESP32.<br>
+You can simply test the application with a `generic ESP32` without compiling and connecting anything on your ESP32.
 The DEMO firmware is composed of `3x BMS` and `1x Shunt` (fake) for a `48V LFP` system.
 
 > [!IMPORTANT] 
@@ -117,6 +117,6 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## References
 
-* Thanks to [@syssi](https://github.com/syssi/esphome-jk-bms) for help and making the original JK-B UART and BLE code.
-* Thanks to [@txubelaxu](https://github.com/txubelaxu/esphome-jk-bms) for help and making the original JK-PB RS485 code.
+* Thanks to [@syssi](https://github.com/syssi/esphome-jk-bms) for help and making many BMS components (JK, JBD, Seplos, Pace, etc.)
+* Thanks to [@txubelaxu](https://github.com/txubelaxu/esphome-jk-bms) for help and making the `JK-PB RS485` component.
 * Thanks to [@uksa007](https://www.patreon.com/Uksa007Codedevelopment) for making the original CANBUS code.

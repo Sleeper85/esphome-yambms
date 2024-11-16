@@ -6,12 +6,13 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+> [!IMPORTANT]
+> BMS monitoring with `UART` or `RS485` is recommended.
+
 ## Number of BMS supported
 
-**Warning:** BMS monitoring with `UART` or `RS485` is recommended, however, if you want to monitor your BMS with `Bluetooth`, please choose an `ESP32-S3`.
-
-* 3x BMS with `Bluetooth` (BLE stack consumes significant amount of RAM on device and can cause crash and reboot)
-* 3x `JK-B` BMS with `UART`
+* 2x BMS with `Bluetooth` (BLE stack consumes significant amount of RAM on device and can cause crash and reboot)
+* 3x `JK-B` BMS with `UART/RS485`
 * several `JK-PB` BMS with `RS485` (already tested with 7 BMS)
 
 Note: these are theoretical limits, not all combinations have been tested.
@@ -21,6 +22,11 @@ Note: these are theoretical limits, not all combinations have been tested.
 It would be possible to add one or more [WK2168 4x UART expander](https://esphome.io/components/weikai.html) to increase the number of BMS monitored with `UART`.
 
 ## Build your own PCB
+
+> [!CAUTION]
+> The `GND` of the `JK-B GPS port` is directly connected with the `B-` of your battery. Even if your BMS is in protection or stopped you can measure the `full voltage` between this `GND` and `B+`. This therefore presents a risk of `bypass` of the BMS `P-` and can be dangerous if the GND of your ESP32 is connected to the GND of your inverter or a measurement shunt for example.
+> I therefore strongly advise you to achieve [galvanic isolation](BMS_JK-B_UART_solution.md#galvanic-isolation-of-the-uart-ttl-connection) between your ESP32 and the `UART-TTL` of the `JK-B GPS port`.
+> This example does not implement galvanic isolation which could cause problems.
 
 This is an example of an ESP32 DevKit V1 30 pin board powered by the BMS.
 
