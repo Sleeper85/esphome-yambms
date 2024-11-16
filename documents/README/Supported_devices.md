@@ -16,15 +16,18 @@
 
 ## Supported BMS
 
-All `JK-B` and `JK-PB` models with software@ version `>=6.0` are using the implemented protocol and should be supported.
-
-See the [@syssi](https://github.com/syssi) [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) repository for more information.
+* All `JK-B` BMS models with software version `>=6.0`, see [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms)
+* `JK-PB` BMS, see [esphome-jk-bms](https://github.com/txubelaxu/esphome-jk-bms/)
+* `JBD` BMS, see [esphome-jbd-bms](https://github.com/syssi/esphome-jbd-bms)
+* `Seplos V1 V2` BMS, see [esphome-seplos-bms](https://github.com/syssi/esphome-seplos-bms)
 
 **Note: other BMS brands already integrated with ESPhome can be added easily.**
 
 ## Supported shunt
 
-`Victron Smartshunt` and `Junctek KH-F`.
+* `Victron Smartshunt` (UART), see [VictronMPPT-ESPHOME](https://github.com/KinDR007/VictronMPPT-ESPHOME)
+* `Victron Smartshunt` (BLE), see [esphome-victron_ble](https://github.com/Fabian-Schmidt/esphome-victron_ble)
+* `Junctek KH-F` (UART/RS485), see [esphome-junctek_khf](https://github.com/Sleeper85/esphome-junctek_khf)
 
 **Note: other Shunt brands already integrated with ESPhome can be added easily.**
 

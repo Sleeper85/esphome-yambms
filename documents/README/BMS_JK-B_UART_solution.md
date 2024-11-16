@@ -34,7 +34,7 @@ Here are some components available on the market allowing you to set up galvanic
 
 * [UART-TTL isolator 1](https://a.aliexpress.com/_EuXszn7)
 * [UART-TTL isolator 2](https://a.aliexpress.com/_EItDRvX)
-* [UART-TTL isolator](https://a.aliexpress.com/_EItDRvX)
+* [DC-DC isolator](https://a.aliexpress.com/_EIsPAoh)
 
 ![Image](../../images/UART-TTL_isolator_1.png "UART-TTL isolator example")
 
