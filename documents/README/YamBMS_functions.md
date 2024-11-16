@@ -8,7 +8,7 @@
 
 ## CAN protocol
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > You need to check if your inverter model is on the list of [supported inverters](Supported_devices.md#supported-inverter). In any case it must support one of the following `CAN` bus protocols.
 
 ![Image](../../images/YamBMS_CANBUS_Protocol.png "YamBMS_CANBUS_Protocol")
@@ -42,6 +42,9 @@ The `Charging instruction` is defined based on the `Charging status` and allows 
 The `Float charge enabled` switch allows the battery to be kept fully charged at the end of the `Bulk` charge. The voltage used will be that of the `Float voltage` slider.
 
 The `EOC timer enabled` switch ensures that the `Cut-Off` phase lasts maximum `30 min` (default value) even if your cells are still being equalized. If your cells are equalized, the `Cut-Off` phase will end at the earliest after `60s` (default value). This prevents the risk of staying in the `Cut-Off` phase for many hours if you have several batteries and they are poorly equalized.
+
+> [!IMPORTANT]
+> If you have **totally unbalanced batteries** and want to fix this problem, you can disable the `EOC timer` and let `YamBMS` balance your batteries, **this can take hours**. A well balanced battery does not need this timer enabled as the equalization phase will finish in less than 30 minutes.
 
 The `Bulk voltage` slider allows you to set the voltage used during the `Bulk`, `Balancing` and `Cut-Off` phases.
 
@@ -83,6 +86,9 @@ A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5g
 
 ## Auto CVL
 
+> [!IMPORTANT]
+> The `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
+
 When enabled, the `Automatic Charge Voltage Limit` feature will automatically reduce the `Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the bulk target.
 That way, the runner cell should be maintained at or near bulk (for example, 3.45v) and the balancer can start to bring up the lagging cells.
 Controlling the CVL is the preferred option according to Victron and others, but it depends on how well your inverter behaves.
@@ -93,6 +99,10 @@ You can compare `Auto CVL` to cruise control in a car.
 `Boost Charge V.` allows you to increase the charging voltage to charge your battery faster, the `Auto CVL` function will itself reduce the charging voltage at the end of charging so that it does not exceed the target voltage `Bulk Voltage`.
 
 ## Auto CCL & DCL
+
+> [!IMPORTANT]
+> The `Auto CCL` function uses the `OVPR` value of your BMS which must be higher than `cell_bulk_voltage` to work properly. `e.g. for LFP` : CVL=3.45V / OVPR=3.55V / OVP=3.65V.
+> The `Auto DCL` function uses the `UVPR` value of your BMS. `e.g. for LFP` : UVPR=3.00V
 
 Regarding the new `Auto Charge/Discharge Current Limit`, this features has been introduced to hopefully prevent `OVP` and `UVP` alarms.
 

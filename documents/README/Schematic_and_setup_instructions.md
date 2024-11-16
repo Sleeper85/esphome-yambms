@@ -8,5 +8,6 @@
 
 ## Contents
 
-1) [JK-B BMS UART solution](BMS_JK-B_UART_solution.md)
-2) [JK-PB BMS RS485 solution](BMS_JK-PB_RS485_solution.md)
+1) [JK-B BMS UART (GPS port) solution](BMS_JK-B_UART_solution.md)
+2) [JK-B BMS RS485 (Display port) solution](BMS_JK-B_RS485_DISPLAY_solution.md)
+3) [JK-PB BMS RS485 solution](BMS_JK-PB_RS485_solution.md)

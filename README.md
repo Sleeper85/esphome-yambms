@@ -7,9 +7,6 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
-> [!CAUTION] 
-> There is a black screen issue with `Atom S3` when you compile YamBMS with ESPHome `2024.8.0` and above. Until this bug is fixed it is necessary to compile with ESPHome `2024.7.3` (this only concerns Atom S3).
-
 > [!TIP]
 > If compiling the source code is too difficult for you, I can provide you a `custom firmware` that is easy to install from a web page. You can [contact me privately](https://diysolarforum.com/direct-messages/add?to=Sleeper85) on the DIY solar forum.
 
@@ -54,9 +51,27 @@
 4) [Charging logic](documents/README/Charging_logic.md)
 5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
 6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
-7) [Configuration of the main YAML](documents/README/Main_YAML_config.md)
+7) [How to create your YamBMS YAML](documents/README/YamBMS_main_YAML_HowTo.md)
 8) [Installation procedure](documents/README/Installation_procedure.md)
 9) [Troubleshooting](documents/README/Troubleshooting.md)
+
+## Try YamBMS with the DEMO firmware
+
+You can simply test the application with a `generic ESP32` without compiling and connecting anything on your ESP32.<br>
+The DEMO firmware is composed of `3x BMS` and `1x Shunt` (fake) for a `48V LFP` system.
+
+> [!IMPORTANT] 
+> `YamBMS_DEMO_ESP32.factory.bin` is intended for a generic ESP32, does not work with ESP32-S3.
+> If you want to test `YamBMS DEMO` with another board you need to compile the firmware with the `multi-bms_DEMO.yaml`.
+
+1) Download [YamBMS_DEMO_ESP32.factory.bin](firmware/YamBMS_DEMO_ESP32.factory.bin)
+2) Follow the [procedure explained in this document](https://docs.google.com/document/d/12pOpaG4Iyw3DjC_kB1q0jjBeSKJHK2FvXI1swebL2RI/edit?usp=sharing).
+
+If you want to add a `CAN transceiver` on this `DEMO board` here are the GPIOs to connect it to :
+```YAML
+tx_pin: 23 # to CAN board CTX
+rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
+```
 
 ## Requirements
 
@@ -70,6 +85,22 @@
 
 ## Changelog
 
+* YamBMS 1.5.1 :
+  * The conditions for `combining` BMS and the `charging` and `discharging` instructions no longer have any relation with the `errors_bitmask` sensor, the new system relies on the three **binary_sensor** `online status`, `charging allowed` and `discharging allowed` being linked to the status of alarms and switches.
+  * The BMS combination procedure has been completely rewritten.
+  * Improved structure and ID names of `bms.yaml`.
+  * The `yambms.yaml` and `yambms_combine.yaml` global variable names have been changed for better code reading.
+  * Improved code regarding the CAN bus `esp_light` status for boards without integrated LED.
+  * New `Atom S3R` board and `Smartshunt BLE` shunt.
+  * New `JBD`, `Seplos V1 V2`, `JK-B RS485` (display port) and `FAKE` BMS.
+  * New `YamBMS DEMO` YAML and firmware offered to test and discover how `YamBMS` works.
+  * New management of temperature sensors (no longer limited to two sensors).
+  * **@Der_Hannes** fixed the AtomS3 `black screen` issue (with **esphome > 2024.7.3**) and developed new code for display management based on the [ili9xxx](https://esphome.io/components/display/ili9xxx.html) platform.
+  * `Auto CCL/DCL` functions have been fixed to work with `JK-PB` and `new JK-B` BMS, [see this issue](https://github.com/Sleeper85/esphome-yambms/issues/11).
+  * The `UVPR` and `OVPR` sensors are no longer used and replaced by `UVP` and `OVP` to ensure operation with all BMS.
+  * **@txubelaxu** fixed a bug in the `JK-PB RS485` component that could cause a false battery voltage value to be sent, [see this issue](https://github.com/Sleeper85/esphome-yambms/issues/10).
+  * Improved documentation, added a `HowTo` to create its main YAML, warning about galvanic isolation.
+* CANBUS 2.3.7 : If there is no response from the inverter, the time before a new communication test has been reduced from `120s` to `60s`, added Victron `0x372` nbr. of modules `blocking charge/discharge`.
 * YamBMS 1.4.5 : Changed the way to configure WiFi/Ethernet network, added `ESP32-C3 ETH01-EVO` ethernet board, reduction of the number of YAML bms files, UART `rx_buffer_size` is set to `512` by default for JK-B and JK-PB, new JK-BMS BLE sensors (last commits of @syssi) and new BLE `standard` version
 * CANBUS 2.3.6 : Sending CAN frames stops immediately if there are no combined BMS
 * YamBMS 1.4.4 : Multi-shunt support, Simplified and new YamBMS option `battery chemistry`, slider `min/max` values ​​are automatically configured based on the battery chemistry and cell count, added `YamBMS Fallback Hotspot`, added YamBMS `Update service`, added PVbrain2 and Atom Matrix board, added PSRAM settings YAML (not enabled by default), new MIN/MAX temperature sensor, added DC current icon, fixed dual sensor `Cell UVPR (MAX)` bug, Improved `combine` code, Breaking change : Atom S3 `GPIOs 1 and 2` reversed
