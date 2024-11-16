@@ -21,10 +21,16 @@ packages:
   shunt_base: !include shunt_base.yaml
   shunt_combine: !include shunt_combine.yaml
 
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
 external_components:
   - source: github://KinDR007/VictronMPPT-ESPHOME@main
     refresh: 0s
 
+# UART baud_rate: 19200
+# UART rx_buffer_size: 256
 uart:
   - id: !extend ${shunt_uart_id}
     baud_rate: 19200
@@ -34,6 +40,10 @@ victron:
   - uart_id: ${shunt_uart_id}
     id: victron${shunt_id}
     throttle: ${shunt_update_interval}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
 
 sensor:
   - platform: victron

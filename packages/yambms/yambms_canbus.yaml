@@ -1,5 +1,5 @@
-# Updated : 2024.09.09
-# Version : 2.3.6
+# Updated : 2024.11.11
+# Version : 2.3.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -112,7 +112,7 @@ script:
   - id: ${canbus_id}_script_canbus_link_timer
     mode: restart
     then:
-      - delay: ${canbus_link_timer}s
+      - delay: ${canbus_link_timer}
       - lambda: |-
           id(${canbus_id}_send_canbus_data) = false;                      // Stop sending CANBUS datas
           id(${canbus_id}_status).publish_state(false);                   // Set CANBUS Status to OFF
@@ -154,7 +154,7 @@ interval:
           id(${yambms_id}_canbus_name) = id(${canbus_id}_bms_name).state.c_str();
           id(${yambms_id}_canbus_protocol) = id(${canbus_id}_protocol).state.c_str();
 
-  - interval: 120s
+  - interval: 60s
     then:
       - lambda: |-
           // Test inverter 0x305 ACK
@@ -610,6 +610,8 @@ interval:
                         
                         uint8_t can_mesg[] = {0, 0, 0, 0, 0, 0, 0, 0};
                         can_mesg[0] = id(${yambms_id}_bms_combined).state;
+                        can_mesg[2] = id(${yambms_id}_bms_blocking_charge).state;
+                        can_mesg[4] = id(${yambms_id}_bms_blocking_discharge).state;
                         can_mesg[6] = (id(${yambms_id}_bms_count).state - id(${yambms_id}_bms_combined).state);
                         
                         ESP_LOGI("canbus", "send can_id: 0x372 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);

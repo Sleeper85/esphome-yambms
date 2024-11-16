@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.2.3
+# Updated : 2024.11.11
+# Version : 1.2.4
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,51 +24,53 @@ substitutions:
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
 
 external_components:
   - source: github://syssi/esphome-jk-bms@main
     refresh: 0s
 
-# +--------------------------------------+
-# | JK-BMS UART connection               |
-# +--------------------------------------+
-
 jk_modbus:
-  - id: modbus_bms${bms_id}
+  - id: jk_modbus${bms_id}
     uart_id: ${bms_uart_id}
 
 jk_bms:
-  - id: bms${bms_id}
-    jk_modbus_id: modbus_bms${bms_id}
+  - id: jk_bms${bms_id}
+    jk_modbus_id: jk_modbus${bms_id}
     update_interval: ${bms_update_interval}
 
+# +--------------------------------------+
+# | Component entities                   |
 # +--------------------------------------+
 
 binary_sensor:
   - platform: jk_bms
-    jk_bms_id: bms${bms_id}
+    jk_bms_id: jk_bms${bms_id}
     balancing:
       id: bms${bms_id}_equalizing
       name: "${name} ${bms_name} balancing"
     balancing_switch:
-      id: bms${bms_id}_switch_balancing
       name: "${name} ${bms_name} balancing switch"
     charging:
+      id: bms${bms_id}_charging_allowed
       name: "${name} ${bms_name} charging"
     charging_switch:
-      id: bms${bms_id}_switch_charging
       name: "${name} ${bms_name} charging switch"
     discharging:
+      id: bms${bms_id}_discharging_allowed
       name: "${name} ${bms_name} discharging"
     discharging_switch:
-      id: bms${bms_id}_switch_discharging
       name: "${name} ${bms_name} discharging switch"
     dedicated_charger_switch:
       name: "${name} ${bms_name} dedicated charger switch"
 
 switch:
   - platform: jk_bms
-    jk_bms_id: bms${bms_id}
+    jk_bms_id: jk_bms${bms_id}
     charging:
       name: "${name} ${bms_name} Charge switch"
     discharging:
@@ -77,7 +79,7 @@ switch:
 
 sensor:
   - platform: jk_bms
-    jk_bms_id: bms${bms_id}
+    jk_bms_id: jk_bms${bms_id}
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
       name: "${name} ${bms_name} min cell voltage"
@@ -207,7 +209,7 @@ sensor:
 
 text_sensor:
   - platform: jk_bms
-    jk_bms_id: bms${bms_id}
+    jk_bms_id: jk_bms${bms_id}
     errors:
       name: "${name} ${bms_name} errors"
       entity_category: diagnostic

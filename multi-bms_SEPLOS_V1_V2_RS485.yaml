@@ -1,6 +1,5 @@
 # Updated : 2024.11.11
 # Version : 1.5.1
-# GitHub  : https://github.com/SeByDocKy/pvbrain2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,20 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  name: 'pvbrain2'
-
-  ###### For extended UART ports with the 2 WK2168 ######
-
-  uart0_baudrate: '2400'    #WKS         {RJ45-UART0} 
-  uart1_baudrate: '38400'   #JSY193
-  uart2_baudrate: '19200'   #smartshunt
-  uart3_baudrate: '9600'    #SRNE        {RJ45-UART3} 
-  uart4_baudrate: '115200'  #JK-BMS 1
-  uart5_baudrate: '115200'  #JK-BMS 2
-  uart6_baudrate: '115200'  #Pylontech
-  uart7_baudrate: '9600'    #EPEVER      {RJ45-UART7} 
-  
-  #######################################################
+  name: yambms
 
 # Don't forget to configure your WiFi credentials in the secrets.yaml file
 #
@@ -74,153 +60,91 @@ api:
 #  ota: false
 
 # +--------------------------------------+
-# | PVbrain2 packages                    |
-# +--------------------------------------+
-packages:
-  device_base: !include packages/base/device_base.yaml
-  device_board: !include packages/board/board_pvbrain2.yaml
-
-  # BUS
-  # bus_i2c0: !include pvbrain2/base/device_bus_i2c0.yaml # SX1509 and BME280/BMP280
-  bus_spi1: !include pvbrain2/base/device_bus_spi1.yaml # MCP2515
-  # bus_one_wire: !include pvbrain2/base/device_bus_one_wire.yaml # Dallas
-
-  # Devices
-  device_uart_esp: !include pvbrain2/base/device_uart_esp.yaml
-  device_wk2168_spi: !include pvbrain2/base/device_wk2168_spi.yaml
-  # device_wk2168_i2c: !include pvbrain2/base/device_wk2168_i2c.yaml
-  # device_sx1509: !include pvbrain2/base/device_sx1509.yaml
-  device_canbus_node1: !include pvbrain2/base/device_canbus_esp32can.yaml
-  device_canbus_node2: !include pvbrain2/base/device_canbus_mcp2515.yaml
-
-# +--------------------------------------+
-# | YamBMS packages                      |
+# | Packages                             |
 # +--------------------------------------+
 
 # PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
 
-  # You don't have to import a shunt but you must import at least one BMS.
+packages:
+  device_base: !include packages/base/device_base.yaml
+  # Board : uncomment your board
+  device_board: !include packages/board/board_esp32-devkit-v1.yaml
+  # device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
+  # device_board: !include packages/board/board_atom-s3-lite.yaml
+  
+  # device_board: !include
+  #   file: packages/board/board_atom-s3.yaml # board_atom-s3r.yaml
+  #   vars:
+  #     yambms_id: 'yambms1'
+  #     canbus_id: 'canbus1'
+  #     display_auto_next_page_interval: '5s'
 
-  shunt1: !include
-    file: packages/shunt/shunt_victron_smartshunt_UART_pvbrain2.yaml # shunt_junctek_khf_UART.yaml
+  # shunt1: !include
+  #   file: packages/shunt/shunt_victron_smartshunt_UART.yaml # shunt_junctek_khf_UART.yaml
+  #   vars:
+  #     # YamBMS ID
+  #     yambms_id: 'yambms1'
+  #     # Shunt vars
+  #     shunt_id: '1' # must be a number
+  #     shunt_name: 'Shunt 1'
+  #     shunt_update_interval: '3s'
+  #     shunt_combine_interval: '1s'
+  #     shunt_uart_id: uart_esp_0
+
+  seplos_modbus1: !include
+    file: packages/bms/bms_SEPLOS_V1_V2_RS485_modbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Shunt vars
-      shunt_id: '1' # must be a number
-      shunt_name: 'Shunt 1'
-      shunt_update_interval: '3s'
-      shunt_combine_interval: '1s'
-      shunt_uart_id: uart_${uart_hub_bus}_2
+      seplos_modbus_id: 'seplos_modbus1'
+      seplos_modbus_uart_id: 'uart_esp_1'
+      seplos_modbus_baud_rate: '9600' # Please set the baudrate of your Seplos BMS model here. It's sometimes 19200 baud instead of 9600.
+      seplos_modbus_rx_timeout: 150ms
 
-  # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
-  # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS)
-
-  sniffer1: !include
-    file: packages/bms/bms_JK-PB_RS485_sniffer.yaml
-    vars:
-      sniffer_id: 'sniffer1'
-      sniffer_protocol: 'JK02_32S'
-      sniffer_uart_id: uart_${uart_hub_bus}_4
-
-  # Mode2 : configure the DIP switches of your BMS from 0x01 to 0x0F (don't use the 0x00 address, maximum 15 BMS)
   bms1: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
+    file: packages/bms/bms_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:
       # YamBMS ID
       yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
+      # Seplos modbus ID
+      seplos_modbus_id: 'seplos_modbus1'
       # BMS vars
       bms_id: '1' # must be a number
-      bms_name: 'JK-BMS 1'
+      bms_name: 'BMS 1'
       bms_rs485_address: '0x01' # BMS 1 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
+      bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+      bms_update_interval: '3s' # 10s @syssi example
       bms_combine_interval: '1s'
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
   
   bms2: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
+    file: packages/bms/bms_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:
       # YamBMS ID
       yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
+      # Seplos modbus ID
+      seplos_modbus_id: 'seplos_modbus1'
       # BMS vars
       bms_id: '2' # must be a number
-      bms_name: 'JK-BMS 2'
+      bms_name: 'BMS 2'
       bms_rs485_address: '0x02' # BMS 2 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
+      bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+      bms_update_interval: '3s' # 10s @syssi example
       bms_combine_interval: '1s'
-
-  bms3: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
-    vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
-      # BMS vars
-      bms_id: '3' # must be a number
-      bms_name: 'JK-BMS 3'
-      bms_rs485_address: '0x03' # BMS 3 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
-      bms_combine_interval: '1s'
-
-  bms4: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
-    vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
-      # BMS vars
-      bms_id: '4' # must be a number
-      bms_name: 'JK-BMS 4'
-      bms_rs485_address: '0x04' # BMS 4 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
-      bms_combine_interval: '1s'
-  
-  bms5: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
-    vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
-      # BMS vars
-      bms_id: '5' # must be a number
-      bms_name: 'JK-BMS 5'
-      bms_rs485_address: '0x05' # BMS 5 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
-      bms_combine_interval: '1s'
-
-  bms6: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
-    vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
-      # BMS vars
-      bms_id: '6' # must be a number
-      bms_name: 'JK-BMS 6'
-      bms_rs485_address: '0x06' # BMS 6 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
-      bms_combine_interval: '1s'
-
-  bms7: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
-    vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
-      # BMS vars
-      bms_id: '7' # must be a number
-      bms_name: 'JK-BMS 7'
-      bms_rs485_address: '0x07' # BMS 7 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
-      bms_combine_interval: '1s'
+      bms_uart_id: uart_esp_2
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
 
   yambms1: !include
     file: packages/yambms/yambms.yaml
@@ -261,7 +185,7 @@ packages:
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_node1'
-      canbus_light_id: 'led_light_1' # on_board_light_io48
+      canbus_light_id: 'esp_light'
       # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
       # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
       canbus_link_timer: '5s'
@@ -271,10 +195,7 @@ packages:
 # +--------------------------------------+
 
   device_debug: !include
-    file: pvbrain2/base/device_debug.yaml
+    file: packages/base/device_debug_ESP32.yaml
     vars:
       debug_name: 'Debug'
       debug_update_interval: '5s'
-      # Size of your PSRAM in bits
-      # 8Mb='8388608' | 6Mb='6291456' | 4Mb='4194304' | 2Mb='2097152' | NoPSRAM='0'
-      debug_psram_size: '8388608'

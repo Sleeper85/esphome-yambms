@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.2.3
+# Updated : 2024.11.11
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,6 +23,7 @@ substitutions:
 
 esp32:
   board: esp32-c3-devkitm-1
+  flash_size: 4MB # ajust according to your ESP32-C3 version
   framework:
     type: esp-idf
 
@@ -77,13 +78,13 @@ canbus:
 
 light:
   # https://esphome.io/components/light/esp32_rmt_led_strip
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
   - platform: esp32_rmt_led_strip
     id: esp_light
-    name: ${name} ESP Light
     rgb_order: GRB
     pin: 8
     num_leds: 1
     rmt_channel: 0
     chipset: ws2812
     entity_category: config
-    internal: true

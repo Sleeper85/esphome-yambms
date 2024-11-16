@@ -1,0 +1,106 @@
+# Updated : 2024.11.11
+# Version : 1.1.1
+# GitHub  : https://github.com/Fabian-Schmidt/esphome-victron_ble
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  shunt_base: !include shunt_base.yaml
+  shunt_combine: !include shunt_combine.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+external_components:
+  - source: github://Fabian-Schmidt/esphome-victron_ble
+    refresh: 0s
+
+esp32_ble_tracker:
+
+victron_ble:
+  - id: victron_ble${shunt_id}
+    mac_address: ${shunt_mac_address}
+    bindkey: ${shunt_encryption_key}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+# A SmartShunt is a Battery monitor. Therefore the following sensor values are available:
+
+# BATTERY_VOLTAGE in V
+# BATTERY_CURRENT in A
+# BATTERY_POWER in W
+# STATE_OF_CHARGE in %
+# CONSUMED_AH in Ah
+# AUX_VOLTAGE in V        (*)
+# MID_VOLTAGE in V        (*)
+# TEMPERATURE in °C       (*)
+# TIME_TO_GO in minutes
+
+# (*) Available if device aux port is configured.
+
+# The amount of charged and discharged energy is in the field CONSUMED_AH.
+# The battery SOC is in the field STATE_OF_CHARGE.
+
+# These are all available fields transmitted by the Victron Battery Shunt. I cannot add additional fields.
+
+sensor:
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    name: "${name} ${shunt_name} Time remaining"
+    type: TIME_TO_GO
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    id: shunt${shunt_id}_voltage
+    name: "${name} ${shunt_name} Voltage"
+    type: BATTERY_VOLTAGE
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    id: shunt${shunt_id}_current
+    name: "${name} ${shunt_name} Current"
+    type: BATTERY_CURRENT
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    id: shunt${shunt_id}_power
+    name: "${name} ${shunt_name} Power"
+    type: BATTERY_POWER
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    id: shunt${shunt_id}_soc
+    name: "${name} ${shunt_name} State of Charge"
+    type: STATE_OF_CHARGE
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    name: "${name} ${shunt_name} Consumed Ah"
+    type: CONSUMED_AH
+  # - platform: victron_ble
+  #   victron_ble_id: victron_ble${shunt_id}
+  #   name: "${name} ${shunt_name} Starter Battery" # BAUX_VOLTAGE or MID_VOLTAGE or TEMPERATURE, depending on configuration of SmartShunt.
+  #   type: AUX_VOLTAGE
+
+binary_sensor:
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    name: "${name} ${shunt_name} Battery has Alarm"
+    type: ALARM
+
+text_sensor:
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    name: "${name} ${shunt_name} Battery Alarm reason"
+    type: ALARM_REASON

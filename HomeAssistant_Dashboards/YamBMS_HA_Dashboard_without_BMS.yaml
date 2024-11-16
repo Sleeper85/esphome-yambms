@@ -1,0 +1,322 @@
+# Updated : 2024.11.11
+# Version : 1.5.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+views:
+  - title: YamBMS
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - graph: line
+            type: sensor
+            entity: sensor.yambms_yambms_1_total_voltage_o
+            detail: 2
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+            name: Voltage
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            entity: sensor.yambms_yambms_1_battery_soc
+            detail: 2
+            name: SoC
+            hours_to_show: 8
+          - type: gauge
+            entity: sensor.yambms_yambms_1_current_s
+            needle: true
+            severity:
+              green: 0
+              yellow: -250
+              red: -500
+            max: 500
+            min: -500
+            name: Current
+            layout_options:
+              grid_columns: 2
+              grid_rows: 3
+          - type: gauge
+            entity: sensor.yambms_yambms_1_power_s
+            needle: true
+            severity:
+              green: 0
+              yellow: -2500
+              red: -5000
+            max: 5000
+            min: -5000
+            name: Power
+            layout_options:
+              grid_columns: 2
+              grid_rows: 3
+          - type: tile
+            entity: sensor.yambms_yambms_1_installed_battery_capacity_s
+            name: Installed Battery Capacity
+          - type: tile
+            entity: sensor.yambms_yambms_1_battery_soh
+            name: Battery SoH
+          - type: tile
+            entity: sensor.yambms_yambms_1_battery_capacity_s
+            name: Battery Capacity
+          - type: tile
+            entity: sensor.yambms_yambms_1_capacity_remaining_s
+            name: Capacity Remaining
+          - type: tile
+            entity: sensor.yambms_yambms_1_delta_cell_voltage
+            name: Delta Cell Voltage
+          - type: tile
+            entity: binary_sensor.yambms_yambms_1_bms_equalizing_state
+            name: Equalizing state
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_max_cell_voltage
+                name: Max Cell V.
+              - entity: sensor.yambms_yambms_1_max_voltage_cell
+                name: Cell number
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_min_cell_voltage
+                name: Min Cell V.
+              - entity: sensor.yambms_yambms_1_min_voltage_cell
+                name: Cell number
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_max_temperature
+                name: Max temp.
+              - entity: sensor.yambms_yambms_1_max_temperature_sensor
+                name: Sensor number
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_min_temperature
+                name: Min temp.
+              - entity: sensor.yambms_yambms_1_min_temperature_sensor
+                name: Sensor number
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+        title: YamBMS - Battery
+        column_span: 1
+      - type: grid
+        cards:
+          - type: tile
+            entity: binary_sensor.yambms_canbus_1_status
+            name: CANBUS Status
+          - type: tile
+            entity: binary_sensor.yambms_esp32_online_status
+            name: ESP32 Status
+          - type: tile
+            entity: sensor.yambms_yambms_1_charging_status
+            name: Charging Status
+          - type: tile
+            entity: sensor.yambms_yambms_1_last_complete_charge
+            name: Last Complete Charge
+          - type: tile
+            entity: sensor.yambms_yambms_1_charging_instruction
+            name: Charging Instruction
+          - type: tile
+            entity: binary_sensor.yambms_yambms_1_discharging_instruction
+            name: Discharging Instruction
+          - type: tile
+            entity: sensor.yambms_yambms_1_alarm
+            name: Alarm
+          - type: tile
+            entity: sensor.yambms_yambms_1_warning
+            name: Warning
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_bms_count
+                name: BMS count
+              - entity: sensor.yambms_yambms_1_bms_combined
+                name: BMS combined
+              - entity: sensor.yambms_yambms_1_bms_blocking_charge
+                name: BMS blocking charge
+              - entity: sensor.yambms_yambms_1_bms_blocking_discharge
+                name: BMS blocking discharge
+              - entity: sensor.yambms_yambms_1_bms_in_alarm
+                name: BMS in alarm
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+          - type: tile
+            entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_shunt_count
+                name: Shunt count
+              - entity: sensor.yambms_yambms_1_shunt_combined
+                name: Shunt combined
+            layout_options:
+              grid_columns: 2
+              grid_rows: 3
+          - type: entities
+            entities:
+              - entity: sensor.yambms_yambms_1_requested_charge_voltage
+                name: Requested Charge Voltage
+              - entity: sensor.yambms_yambms_1_requested_charge_current
+                name: Requested Charge Current
+              - entity: sensor.yambms_yambms_1_requested_discharge_voltage
+                name: Requested Discharge Voltage
+              - entity: sensor.yambms_yambms_1_requested_discharge_current
+                name: Requested Discharge Current
+              - entity: binary_sensor.yambms_yambms_1_requested_force_charge
+                name: Requested Force Charge
+          - type: tile
+            entity: sensor.yambms_yambms_1_running_version
+            name: Running version
+          - type: tile
+            entity: sensor.yambms_yambms_1_last_version
+            name: Last version
+        title: YamBMS - Status
+        column_span: 1
+  - title: Control
+    cards:
+      - type: entities
+        entities:
+          - entity: select.yambms_canbus_1_bms_name
+            name: CANBUS 1 BMS Name
+          - entity: select.yambms_canbus_1_protocol
+            name: CANBUS 1 Protocol
+        title: YamBMS - CANBUS Protocol
+      - type: entities
+        entities:
+          - entity: switch.yambms_yambms_1_charge_enabled
+            name: YamBMS 1 Charge enabled
+          - entity: switch.yambms_yambms_1_discharge_enabled
+            name: YamBMS 1 Discharge enabled
+          - entity: binary_sensor.yambms_yambms_1_bms_charging_allowed
+            name: YamBMS 1 BMS Charging allowed
+          - entity: binary_sensor.yambms_yambms_1_bms_discharging_allowed
+            name: YamBMS 1 BMS Discharging allowed
+        title: YamBMS - Charge / Discharge switch
+      - type: entities
+        entities:
+          - entity: switch.yambms_yambms_1_automatic_charge_voltage
+            name: Automatic Charge Voltage
+          - entity: number.yambms_yambms_1_auto_cvl_boost_charge_v
+            name: Auto CVL Boost Charge V.
+        title: YamBMS - Auto CVL
+      - type: entities
+        entities:
+          - entity: sensor.yambms_yambms_1_charging_status
+            name: Charging Status
+          - entity: sensor.yambms_yambms_1_charging_instruction
+            name: Charging Instruction
+          - entity: switch.yambms_yambms_1_float_charge_enabled
+            name: Float charge enabled
+          - entity: switch.yambms_yambms_1_eoc_timer_enabled
+            name: EOC timer enabled
+          - entity: number.yambms_yambms_1_bulk_voltage
+            name: Bulk voltage
+          - entity: number.yambms_yambms_1_float_voltage
+            name: Float voltage
+          - entity: number.yambms_yambms_1_inverter_offset_v
+            name: Inverter Offset V.
+        title: YamBMS - Charging Settings
+      - type: entities
+        entities:
+          - entity: switch.yambms_yambms_1_automatic_charge_current
+            name: Automatic Charge Current
+          - entity: switch.yambms_yambms_1_automatic_discharge_current
+            name: Automatic Discharge Current
+        title: YamBMS - Auto CCL / DCL
+      - type: entities
+        entities:
+          - entity: number.yambms_yambms_1_rebulk_soc
+            name: Rebulk SoC
+          - entity: number.yambms_yambms_1_rebulk_v
+            name: Rebulk V.
+          - entity: switch.yambms_yambms_1_force_bulk_top_bal
+            name: Force Bulk (top bal)
+        title: YamBMS - ReBulk
+      - type: entities
+        entities:
+          - entity: number.yambms_yambms_1_max_charge_current
+            name: Max charge current (%)
+          - entity: number.yambms_yambms_1_max_discharge_current
+            name: Max discharge current (%)
+        title: YamBMS - Max current (%)
+      - type: entities
+        entities:
+          - entity: switch.yambms_yambms_1_request_force_charge
+            name: Request force charge
+          - entity: number.yambms_yambms_1_request_force_charge_start_soc
+            name: Force charge Start SoC
+          - entity: number.yambms_yambms_1_request_force_charge_stop_soc
+            name: Force charge Stop SoC
+          - entity: binary_sensor.yambms_yambms_1_requested_force_charge
+            name: Requested Force Charge
+        title: YamBMS - Request force charge
+      - type: entities
+        entities:
+          - entity: sensor.yambms_yambms_1_requested_charge_voltage
+            name: Requested Charge Voltage
+          - entity: sensor.yambms_yambms_1_requested_discharge_voltage
+            name: Requested Discharge Voltage
+          - entity: sensor.yambms_yambms_1_requested_charge_current
+            name: Requested Charge Current
+          - entity: sensor.yambms_yambms_1_requested_discharge_current
+            name: Requested Discharge Current
+        title: YamBMS - Requested Values
+      - type: entities
+        entities:
+          - entity: sensor.yambms_yambms_1_last_complete_charge
+            name: Last Complete Charge
+          - entity: binary_sensor.yambms_esp32_online_status
+            name: ESP32 Online Status
+          - entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
+          - entity: sensor.yambms_esp32_esphome_version
+            name: ESP32 ESPHome version
+          - entity: button.yambms_esp32_restart
+            name: ESP32 Restart
+        title: YamBMS - Diagnostic
+      - type: entities
+        entities:
+          - entity: binary_sensor.yambms_canbus_1_status
+            name: CANBUS 1 Status
+          - entity: switch.yambms_canbus_1_inverter_heartbeat_monitoring
+            name: CANBUS 1 Inverter Heartbeat Monitoring
+          - entity: sensor.yambms_canbus_1_inverter_heartbeat
+            name: CANBUS 1 Inverter Heartbeat
+        title: YamBMS - Inverter Heartbeat
+      - type: entities
+        entities:
+          - entity: sensor.yambms_debug_heap_free
+            name: Debug Heap free (%)
+          - entity: sensor.yambms_debug_heap_free_2
+            name: Debug Heap free
+          - entity: sensor.yambms_debug_heap_max_block
+            name: Debug Heap max block (%)
+          - entity: sensor.yambms_debug_heap_max_block_2
+            name: Debug Heap max block
+          - entity: sensor.yambms_debug_loop_time
+            name: Debug Loop time
+          - entity: sensor.yambms_debug_reset_reason
+            name: Debug Reset reason
+        title: YamBMS - DEBUG

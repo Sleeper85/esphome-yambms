@@ -1,0 +1,344 @@
+# Updated : 2024.11.11
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  bms_model: "Fake BMS"
+  bms_protocol: "DEMO"
+
+packages:
+  bms_combine: !include bms_combine.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+
+sensor:
+  # battery_capacity
+  - platform: template
+    id: bms${bms_id}_battery_capacity
+    name: "${name} ${bms_name} Battery Capacity"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: Ah
+    device_class: energy_storage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_battery_capacity};
+
+  # capacity_remaining_ah
+  - platform: template
+    id: bms${bms_id}_capacity_remaining_ah
+    name: "${name} ${bms_name} Capacity Remaining"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: Ah
+    device_class: energy_storage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_battery_capacity_remaining};
+
+  # total_voltage
+  - platform: template
+    id: bms${bms_id}_total_voltage
+    name: "${name} ${bms_name} Total Voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 2
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+    lambda: return ${bms_voltage};
+
+  # current
+  - platform: template
+    id: bms${bms_id}_current
+    name: "${name} ${bms_name} Current"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: A
+    device_class: current
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: return ${bms_current};
+
+  # power
+  - platform: template
+    id: bms${bms_id}_power
+    name: "${name} ${bms_name} Power"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_power};
+
+  # state_of_charge
+  - platform: template
+    id: bms${bms_id}_state_of_charge
+    name: "${name} ${bms_name} SoC"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: '%'
+    device_class: battery
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_soc};
+
+  # min_voltage_cell
+  - platform: template
+    id: bms${bms_id}_min_voltage_cell
+    name: "${name} ${bms_name} Min Voltage Cell"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_min_voltage_cell};
+
+  # max_voltage_cell
+  - platform: template
+    id: bms${bms_id}_max_voltage_cell
+    name: "${name} ${bms_name} Max Voltage Cell"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_max_voltage_cell};
+
+  # min_cell_voltage
+  - platform: template
+    id: bms${bms_id}_min_cell_voltage
+    name: "${name} ${bms_name} Min Cell Voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_min_cell_voltage};
+
+  # max_cell_voltage
+  - platform: template
+    id: bms${bms_id}_max_cell_voltage
+    name: "${name} ${bms_name} Max Cell Voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_max_cell_voltage};
+
+  # temperature_sensor_1
+  - platform: template
+    id: bms${bms_id}_temperature_sensor_1
+    name: "${name} ${bms_name} Temperature Sensor 1"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: return ${bms_temperature_sensor_1};
+
+  # temperature_sensor_2
+  - platform: template
+    id: bms${bms_id}_temperature_sensor_2
+    name: "${name} ${bms_name} Temperature Sensor 2"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: return ${bms_temperature_sensor_2};
+
+  # temperature_sensor_3
+  - platform: template
+    id: bms${bms_id}_temperature_sensor_3
+    name: "${name} ${bms_name} Temperature Sensor 3"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: return ${bms_temperature_sensor_3};
+
+  # temperature_sensor_4
+  - platform: template
+    id: bms${bms_id}_temperature_sensor_4
+    name: "${name} ${bms_name} Temperature Sensor 4"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: return ${bms_temperature_sensor_4};
+
+  # max_charge_current
+  - platform: template
+    id: bms${bms_id}_max_charge_current
+    name: "${name} ${bms_name} Max Charge Current"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: A
+    icon: mdi:current-dc
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_max_charge_current};
+
+  # max_discharge_current
+  - platform: template
+    id: bms${bms_id}_max_discharge_current
+    name: "${name} ${bms_name} Max Discharge Current"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: A
+    icon: mdi:current-dc
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_max_discharge_current};
+
+  # cell_ovp
+  - platform: template
+    id: bms${bms_id}_cell_ovp
+    name: "${name} ${bms_name} Cell OVP"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_ovp};
+
+  # cell_uvp
+  - platform: template
+    id: bms${bms_id}_cell_uvp
+    name: "${name} ${bms_name} Cell UVP"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_uvp};
+
+  # balance_trigger_voltage
+  - platform: template
+    id: bms${bms_id}_balance_trigger_voltage
+    name: "${name} ${bms_name} Balance Trigger Voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_balance_trigger_voltage};
+
+  # charging_cycles
+  - platform: template
+    id: bms${bms_id}_charging_cycles
+    name: "${name} ${bms_name} charging cycles"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:counter
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_charging_cycles};
+
+number:
+  # errors_bitmask (16bits)
+  - platform: template
+    id: bms${bms_id}_errors_bitmask
+    name: "${name} ${bms_name} errors bitmask"
+    step: 1
+    min_value: 0
+    max_value: 65535
+    restore_value: true
+    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
+    icon: mdi:alert-circle-outline
+    optimistic: true
+    entity_category: config
+
+switch:
+  # online_status
+  - platform: template
+    id: bms${bms_id}_online_status
+    name: "${name} ${bms_name} online status"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+  # bms_switch_charging
+  - platform: template
+    id: bms${bms_id}_charging_allowed
+    name: "${name} ${bms_name} charge switch"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+  # bms_switch_discharging
+  - platform: template
+    id: bms${bms_id}_discharging_allowed
+    name: "${name} ${bms_name} discharge switch"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+  # bms_switch_balancing
+  - platform: template
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} balance switch"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true

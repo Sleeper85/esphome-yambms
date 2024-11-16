@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.4.5
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,7 +32,7 @@ substitutions:
 #     dns2: 8.8.4.4
 
 logger:
-  level: WARN # DEBUG / INFO / WARN
+  level: INFO # DEBUG / INFO / WARN
 
 ota:
   platform: esphome
@@ -40,7 +40,7 @@ ota:
 # Please use the native `api` component instead of the `mqtt` section.
 # If you use Home Assistant, the native API is more lightweight.
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
-# If you don't use Home Assistant please uncomment the "reboot_timeout: 0s" option.
+# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
 api:
   reboot_timeout: 0s
 
@@ -62,22 +62,25 @@ api:
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+
 packages:
+  device_base: !include packages/base/device_base.yaml
   # Board : uncomment your board
   # device_board: !include packages/board/board_esp32-devkit-v1.yaml
   # device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
   device_board: !include packages/board/board_atom-s3-lite.yaml
   
   # device_board: !include
-  #   file: packages/board/board_atom-s3-display.yaml
+  #   file: packages/board/board_atom-s3.yaml # board_atom-s3r.yaml
   #   vars:
   #     yambms_id: 'yambms1'
   #     canbus_id: 'canbus1'
-
-  device_base: !include packages/base/device_base.yaml
+  #     display_auto_next_page_interval: '5s'
 
   # shunt1: !include
-  #   file: packages/shunt/shunt_victron_smartshunt.yaml # shunt_junctek_khf.yaml
+  #   file: packages/shunt/shunt_victron_smartshunt_UART.yaml # shunt_junctek_khf_UART.yaml
   #   vars:
   #     # YamBMS ID
   #     yambms_id: 'yambms1'
@@ -155,7 +158,7 @@ packages:
     file: packages/yambms/yambms_canbus.yaml
     vars:
       # YamBMS ID
-      yambms_id: 'yambms1'
+      yambms_id: 'yambms1' # YamBMS ID to retrieve information from
       # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
@@ -163,7 +166,7 @@ packages:
       canbus_light_id: 'esp_light'
       # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
       # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
-      canbus_link_timer: '5'
+      canbus_link_timer: '5s'
 
 # +--------------------------------------+
 # | DEBUG ( logger level must be DEBUG ) |

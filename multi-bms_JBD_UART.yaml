@@ -32,10 +32,7 @@ substitutions:
 #     dns2: 8.8.4.4
 
 logger:
-  level: DEBUG # DEBUG / INFO / WARN
-  logs:
-    esp32_ble_tracker: INFO
-    esp32_ble_client: INFO
+  level: INFO # DEBUG / INFO / WARN
 
 ota:
   platform: esphome
@@ -68,11 +65,6 @@ api:
 
 # PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
 
-# Max 3 BLE connections.
-# The BLE software stack (Bluedroid) on the ESP32 consumes a significant amount of RAM on the device.
-# Crashes are likely to occur if you include too many additional components in your device’s configuration.
-# https://esphome.io/components/ble_client.html
-
 packages:
   device_base: !include packages/base/device_base.yaml
   # Board : uncomment your board
@@ -100,30 +92,46 @@ packages:
   #     shunt_uart_id: uart_esp_0
 
   bms1: !include
-    file: packages/bms/bms_JK-ALL_BLE_standard.yaml
+    file: packages/bms/bms_JBD_UART_full.yaml
     vars:
       # YamBMS ID
       yambms_id: 'yambms1'
       # BMS vars
       bms_id: '1' # must be a number
-      bms_name: 'JK-BMS 1'
+      bms_name: 'BMS 1'
       bms_update_interval: '3s'
       bms_combine_interval: '1s'
-      bms_ble_protocol_version: JK02_32S # JK02_24S < hardware version 11.0 >= JK02_32S
-      bms_ble_mac_address: C8:47:8C:10:7E:AA
+      bms_uart_id: uart_esp_1
+      bms_rx_timeout: 150ms
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
   
   bms2: !include
-    file: packages/bms/bms_JK-ALL_BLE_standard.yaml
+    file: packages/bms/bms_JBD_UART_full.yaml
     vars:
       # YamBMS ID
       yambms_id: 'yambms1'
       # BMS vars
       bms_id: '2' # must be a number
-      bms_name: 'JK-BMS 2'
+      bms_name: 'BMS 2'
       bms_update_interval: '3s'
       bms_combine_interval: '1s'
-      bms_ble_protocol_version: JK02_32S # JK02_24S < hardware version 11.0 >= JK02_32S
-      bms_ble_mac_address: C8:47:8C:EE:16:EA
+      bms_uart_id: uart_esp_2
+      bms_rx_timeout: 150ms
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
 
   yambms1: !include
     file: packages/yambms/yambms.yaml

@@ -1,5 +1,5 @@
-# Updated : 2024.08.08
-# Version : 1.2.1
+# Updated : 2024.11.15
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -54,9 +54,11 @@ sensor:
     internal: true  
     filters:
     - lambda: !lambda |-
+              // Variables
+              double cell_low_v = id(${yambms_id}_cell_uvp).state + 0.2;
               // Auto Discharge Current function
-              if (id(${yambms_id}_min_cell_voltage).state < id(${yambms_id}_cell_uvpr).state) return 0.0;
-              else return max(0.0,(- pow(${discharge_a_factor_curve_end}, pow( max(0.0, ((x - ${discharge_knee_v}) / (id(${yambms_id}_cell_uvpr).state - ${discharge_knee_v}))),${discharge_a_factor_curve_shape}))+2) * id(${yambms_id}_max_discharge_current).state);
+              if (id(${yambms_id}_min_cell_voltage).state < cell_low_v) return 0.0;
+              else return max(0.0,(- pow(${discharge_a_factor_curve_end}, pow( max(0.0, ((x - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v}))),${discharge_a_factor_curve_shape}))+2) * id(${yambms_id}_max_discharge_current).state);
   # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial discharge current values.
   - platform: copy
     source_id: auto_dcl_initial
