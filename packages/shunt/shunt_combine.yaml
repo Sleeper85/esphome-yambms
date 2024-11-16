@@ -1,5 +1,5 @@
-# Updated : 2024.10.17
-# Version : 1.4.5
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -47,7 +47,7 @@ esphome:
   on_boot:
     then:
       # Shunt counter (total)
-      - lambda: id(${yambms_id}_shunt_counter) += 1;
+      - lambda: id(${yambms_id}_var_shunt_counter) += 1;
 
 interval:
   - interval: ${shunt_combine_interval}
@@ -58,11 +58,11 @@ interval:
           {
             if (id(shunt${shunt_id}_combined_once) == false)
             {
-              // Can be combined shunt counter
-              id(${yambms_id}_can_be_combined_shunt_counter) += 1;
+              // To combine shunt counter
+              id(${yambms_id}_var_to_combine_shunt_counter) += 1;
 
               // Shunt use (replace BMS infos)
-              id(${yambms_id}_shunt_use) = true;
+              id(${yambms_id}_var_shunt_use) = true;
 
               // Combined
               id(shunt${shunt_id}_combined_once) = true;
@@ -71,32 +71,31 @@ interval:
           // Uncombine once
           else if (id(shunt${shunt_id}_combined_once) == true)
           {
-            // Can be combined shunt counter
-            id(${yambms_id}_can_be_combined_shunt_counter) -= 1;
+            // To combine shunt counter
+            id(${yambms_id}_var_to_combine_shunt_counter) -= 1;
 
             // Shunt use (replace BMS infos)
-            if (id(${yambms_id}_can_be_combined_shunt_counter) == 0) id(${yambms_id}_shunt_use) = false;
+            if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
             
             // Uncombined
             id(shunt${shunt_id}_combined_once) = false;
           }
 
           // Combine continuously (all Shunt)
-          if (id(${yambms_id}_processed_shunt_counter) < id(${yambms_id}_shunt_counter))
+          if (id(${yambms_id}_var_to_combine_shunt_number) == ${shunt_id})
           {
-            // Shunt processed counter
-            id(${yambms_id}_processed_shunt_counter) += 1;
-
             // Combine only if the device is able to be included in combine
             if (id(shunt${shunt_id}_can_be_combined).state)
             {
               // TOTAL voltage
-              id(${yambms_id}_shunt_total_voltage) += id(shunt${shunt_id}_voltage).state;
+              id(${yambms_id}_var_shunt_total_voltage) += id(shunt${shunt_id}_voltage).state;
               // TOTAL current
-              id(${yambms_id}_shunt_total_current) += id(shunt${shunt_id}_current).state;
+              id(${yambms_id}_var_shunt_total_current) += id(shunt${shunt_id}_current).state;
               // TOTAL power
-              id(${yambms_id}_shunt_total_power) += id(shunt${shunt_id}_power).state;
+              id(${yambms_id}_var_shunt_total_power) += id(shunt${shunt_id}_power).state;
               // TOTAL soc
-              id(${yambms_id}_shunt_total_soc) += id(shunt${shunt_id}_soc).state;
+              id(${yambms_id}_var_shunt_total_soc) += id(shunt${shunt_id}_soc).state;
             }
+            // To combine shunt number
+            id(${yambms_id}_var_to_combine_shunt_number)++;
           }

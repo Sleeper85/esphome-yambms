@@ -1,5 +1,5 @@
-# Updated : 2024.08.08
-# Version : 1.1.1
+# Updated : 2024.11.11
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@ packages:
   shunt_combine: !include shunt_combine.yaml
 
 sensor:
-  # total_voltage MEAN
+  # total_voltage
   - platform: template
     id: shunt${shunt_id}_voltage
     name: "${name} ${shunt_name} Voltage"
@@ -34,9 +34,9 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.01
-    lambda: return 54.32;
+    lambda: return ${shunt_voltage};
 
-  # current SUM
+  # current
   - platform: template
     id: shunt${shunt_id}_current
     name: "${name} ${shunt_name} Current"
@@ -48,9 +48,9 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.1
-    lambda: return 12.3;
+    lambda: return ${shunt_current};
 
-  # power SUM
+  # power
   - platform: template
     id: shunt${shunt_id}_power
     name: "${name} ${shunt_name} Power"
@@ -62,9 +62,9 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return 668;
+    lambda: return ${shunt_power};
 
-  # state_of_charge MEAN
+  # state_of_charge
   - platform: template
     id: shunt${shunt_id}_soc
     name: "${name} ${shunt_name} SoC"
@@ -76,4 +76,4 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return 96;
+    lambda: return ${shunt_soc};

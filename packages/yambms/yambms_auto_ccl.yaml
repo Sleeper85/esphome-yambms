@@ -1,5 +1,5 @@
-# Updated : 2024.08.08
-# Version : 1.2.1
+# Updated : 2024.11.15
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -53,10 +53,12 @@ sensor:
     filters:
     - lambda: !lambda |-
               // Variables
+              double cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
               double cell_float_v = (id(${yambms_id}_float_voltage).state / id(${yambms_id}_cell_count).state);
+              double cell_high_v = ((id(${yambms_id}_cell_ovp).state + cell_bulk_v) / 2);
               // Auto Charge Current function
-              if (id(${yambms_id}_max_cell_voltage).state > id(${yambms_id}_cell_ovpr).state) return 0.0;
-              else return max(0.0,(- pow(${charge_a_factor_curve_end}, pow( max(0.0, ((x - cell_float_v) / (id(${yambms_id}_cell_ovpr).state - cell_float_v))),${charge_a_factor_curve_shape}))+2) * id(${yambms_id}_max_charge_current).state);
+              if (id(${yambms_id}_max_cell_voltage).state > cell_high_v) return 0.0;
+              else return max(0.0,(- pow(${charge_a_factor_curve_end}, pow( max(0.0, ((x - cell_float_v) / (cell_high_v - cell_float_v))),${charge_a_factor_curve_shape}))+2) * id(${yambms_id}_max_charge_current).state);
   # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial charge current values.
   - platform: copy
     source_id: auto_ccl_initial

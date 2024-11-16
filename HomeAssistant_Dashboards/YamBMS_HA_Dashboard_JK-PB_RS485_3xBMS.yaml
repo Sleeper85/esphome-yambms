@@ -1,5 +1,5 @@
-# Updated : 2024.10.04
-# Version : 1.1.4
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -81,7 +81,7 @@ views:
             entity: sensor.yambms_yambms_1_delta_cell_voltage
             name: Delta Cell Voltage
           - type: tile
-            entity: binary_sensor.yambms_yambms_1_equalizing_state
+            entity: binary_sensor.yambms_yambms_1_bms_equalizing_state
             name: Equalizing state
           - type: entities
             entities:
@@ -133,14 +133,14 @@ views:
             entity: sensor.yambms_yambms_1_charging_status
             name: Charging Status
           - type: tile
-            entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
+            entity: sensor.yambms_yambms_1_last_complete_charge
+            name: Last Complete Charge
           - type: tile
             entity: sensor.yambms_yambms_1_charging_instruction
             name: Charging Instruction
           - type: tile
-            entity: sensor.yambms_yambms_1_last_complete_charge
-            name: Last Complete Charge
+            entity: binary_sensor.yambms_yambms_1_discharging_instruction
+            name: Discharging Instruction
           - type: tile
             entity: sensor.yambms_yambms_1_alarm
             name: Alarm
@@ -153,11 +153,18 @@ views:
                 name: BMS count
               - entity: sensor.yambms_yambms_1_bms_combined
                 name: BMS combined
+              - entity: sensor.yambms_yambms_1_bms_blocking_charge
+                name: BMS blocking charge
+              - entity: sensor.yambms_yambms_1_bms_blocking_discharge
+                name: BMS blocking discharge
               - entity: sensor.yambms_yambms_1_bms_in_alarm
                 name: BMS in alarm
             layout_options:
               grid_columns: 2
-              grid_rows: 3
+              grid_rows: 4
+          - type: tile
+            entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
           - type: entities
             entities:
               - entity: sensor.yambms_yambms_1_shunt_count
@@ -202,10 +209,10 @@ views:
             name: YamBMS 1 Charge enabled
           - entity: switch.yambms_yambms_1_discharge_enabled
             name: YamBMS 1 Discharge enabled
-          - entity: binary_sensor.yambms_yambms_1_bms_charge_switch_state
-            name: YamBMS 1 BMS Charge switch state
-          - entity: binary_sensor.yambms_yambms_1_bms_discharge_switch_state
-            name: YamBMS 1 BMS Discharge switch state
+          - entity: binary_sensor.yambms_yambms_1_bms_charging_allowed
+            name: YamBMS 1 BMS Charging allowed
+          - entity: binary_sensor.yambms_yambms_1_bms_discharging_allowed
+            name: YamBMS 1 BMS Discharging allowed
         title: YamBMS - Charge / Discharge switch
       - type: entities
         entities:
@@ -610,7 +617,7 @@ views:
                   endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_1_cell_resistance_16') }} Ω
                   <br></center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_jk_bms_1_combine_enabled
                 name: Combine
@@ -618,6 +625,9 @@ views:
                 name: Cb. Availability
               - entity: binary_sensor.yambms_jk_bms_1_can_be_combined
                 name: Can be combined
+            conditions:
+              - condition: state
+                state_not: unavailable
             layout_options:
               grid_columns: 2
               grid_rows: 3
@@ -928,7 +938,7 @@ views:
                   endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_2_cell_resistance_16') }} Ω
                   <br></center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_jk_bms_2_combine_enabled
                 name: Combine
@@ -936,6 +946,9 @@ views:
                 name: Cb. Availability
               - entity: binary_sensor.yambms_jk_bms_2_can_be_combined
                 name: Can be combined
+            conditions:
+              - condition: state
+                state_not: unavailable
             layout_options:
               grid_columns: 2
               grid_rows: 3
@@ -1246,7 +1259,7 @@ views:
                   endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_3_cell_resistance_16') }} Ω
                   <br></center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_jk_bms_3_combine_enabled
                 name: Combine
@@ -1254,6 +1267,9 @@ views:
                 name: Cb. Availability
               - entity: binary_sensor.yambms_jk_bms_3_can_be_combined
                 name: Can be combined
+            conditions:
+              - condition: state
+                state_not: unavailable
             layout_options:
               grid_columns: 2
               grid_rows: 3

@@ -1,5 +1,5 @@
-# Updated : 2024.10.04
-# Version : 1.1.4
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -81,7 +81,7 @@ views:
             entity: sensor.yambms_yambms_1_delta_cell_voltage
             name: Delta Cell Voltage
           - type: tile
-            entity: binary_sensor.yambms_yambms_1_equalizing_state
+            entity: binary_sensor.yambms_yambms_1_bms_equalizing_state
             name: Equalizing state
           - type: entities
             entities:
@@ -133,14 +133,14 @@ views:
             entity: sensor.yambms_yambms_1_charging_status
             name: Charging Status
           - type: tile
-            entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
+            entity: sensor.yambms_yambms_1_last_complete_charge
+            name: Last Complete Charge
           - type: tile
             entity: sensor.yambms_yambms_1_charging_instruction
             name: Charging Instruction
           - type: tile
-            entity: sensor.yambms_yambms_1_last_complete_charge
-            name: Last Complete Charge
+            entity: binary_sensor.yambms_yambms_1_discharging_instruction
+            name: Discharging Instruction
           - type: tile
             entity: sensor.yambms_yambms_1_alarm
             name: Alarm
@@ -153,11 +153,18 @@ views:
                 name: BMS count
               - entity: sensor.yambms_yambms_1_bms_combined
                 name: BMS combined
+              - entity: sensor.yambms_yambms_1_bms_blocking_charge
+                name: BMS blocking charge
+              - entity: sensor.yambms_yambms_1_bms_blocking_discharge
+                name: BMS blocking discharge
               - entity: sensor.yambms_yambms_1_bms_in_alarm
                 name: BMS in alarm
             layout_options:
               grid_columns: 2
-              grid_rows: 3
+              grid_rows: 4
+          - type: tile
+            entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
           - type: entities
             entities:
               - entity: sensor.yambms_yambms_1_shunt_count
@@ -202,10 +209,10 @@ views:
             name: YamBMS 1 Charge enabled
           - entity: switch.yambms_yambms_1_discharge_enabled
             name: YamBMS 1 Discharge enabled
-          - entity: binary_sensor.yambms_yambms_1_bms_charge_switch_state
-            name: YamBMS 1 BMS Charge switch state
-          - entity: binary_sensor.yambms_yambms_1_bms_discharge_switch_state
-            name: YamBMS 1 BMS Discharge switch state
+          - entity: binary_sensor.yambms_yambms_1_bms_charging_allowed
+            name: YamBMS 1 BMS Charging allowed
+          - entity: binary_sensor.yambms_yambms_1_bms_discharging_allowed
+            name: YamBMS 1 BMS Discharging allowed
         title: YamBMS - Charge / Discharge switch
       - type: entities
         entities:
@@ -360,8 +367,8 @@ views:
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_1_discharging') == 'on'
-                  %} <font color=#41CD52>{{
+                  states('binary_sensor.yambms_jk_bms_1_discharging') == 'on' %}
+                  <font color=#41CD52>{{
                   states('binary_sensor.yambms_jk_bms_1_discharging') | upper
                   }}</font> {% else %} <font color=#3090C7>{{
                   states('binary_sensor.yambms_jk_bms_1_discharging') | upper
@@ -409,9 +416,8 @@ views:
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_1_capacity_remaining') }}
                   Ah</font><br> Cycle Count :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_charging_cycles')
-                  }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{
+                  states('sensor.yambms_jk_bms_1_charging_cycles') }}</font><br>
+                  Delta Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>{{
                   states('sensor.yambms_jk_bms_1_delta_cell_voltage') }}
                   V</font><br> MOS Temp. :&nbsp;&nbsp;<font color=#41CD52>{{
                   states('sensor.yambms_jk_bms_1_power_tube_temperature') }}
@@ -437,86 +443,78 @@ views:
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '1' %}  <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_01') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_01') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_01') }} Ω
-                  <br> 02.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_01')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_01') }} Ω <br>
+                  02.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '2' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_02') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '2' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_02') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_02') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_02') }} Ω
-                  <br> 03.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_02')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_02') }} Ω <br>
+                  03.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '3' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_03') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '3' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_03') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_03') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_03') }} Ω
-                  <br> 04.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_03')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_03') }} Ω <br>
+                  04.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '4' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_04') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '4' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_04') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_04') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_04') }} Ω
-                  <br> 05.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_04')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_04') }} Ω <br>
+                  05.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '5' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_05') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '5' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_05') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_05') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_05') }} Ω
-                  <br> 06.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_05')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_05') }} Ω <br>
+                  06.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '6' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_06') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '6' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_06') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_06') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_06') }} Ω
-                  <br> 07.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_06')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_06') }} Ω <br>
+                  07.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '7' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_07') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '7' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_07') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_07') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_07') }} Ω
-                  <br> 08.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_07')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_07') }} Ω <br>
+                  08.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_1_max_voltage_cell') == '8' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_08') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '8' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_08') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_08') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_08')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_1_cell_resistance_08') }} Ω
                   <br></center>
               - type: markdown
@@ -528,89 +526,81 @@ views:
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '9' %}  <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_09') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_09') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_09') }} Ω
-                  <br> 10.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '10'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_09')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_09') }} Ω <br>
+                  10.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '10' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_10') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '10' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_10') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_10') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_10') }} Ω
-                  <br> 11.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '11'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_10')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_10') }} Ω <br>
+                  11.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '11' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_11') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '11' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_11') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_11') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_11') }} Ω
-                  <br> 12.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '12'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_11')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_11') }} Ω <br>
+                  12.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '12' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_12') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '12' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_12') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_12') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_12') }} Ω
-                  <br> 13.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '13'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_12')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_12') }} Ω <br>
+                  13.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '13' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_13') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '13' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_13') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_13') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_13') }} Ω
-                  <br> 14.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '14'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_13')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_13') }} Ω <br>
+                  14.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '14' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_14') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '14' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_14') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_14') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_14') }} Ω
-                  <br> 15.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '15'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_14')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_14') }} Ω <br>
+                  15.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '15' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_15') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '15' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_15') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_15') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_1_cell_resistance_15') }} Ω
-                  <br> 16.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '16'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_15')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_1_cell_resistance_15') }} Ω <br>
+                  16.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_1_max_voltage_cell') == '16' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_16') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_1_min_voltage_cell') ==
                   '16' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_1_cell_voltage_16') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_1_cell_voltage_16') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  {% else %} {{ states('sensor.yambms_jk_bms_1_cell_voltage_16')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_1_cell_resistance_16') }} Ω
                   <br></center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_jk_bms_1_combine_enabled
                 name: Combine
@@ -618,6 +608,9 @@ views:
                 name: Cb. Availability
               - entity: binary_sensor.yambms_jk_bms_1_can_be_combined
                 name: Can be combined
+            conditions:
+              - condition: state
+                state_not: unavailable
             layout_options:
               grid_columns: 2
               grid_rows: 3
@@ -678,8 +671,8 @@ views:
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_2_discharging') == 'on'
-                  %} <font color=#41CD52>{{
+                  states('binary_sensor.yambms_jk_bms_2_discharging') == 'on' %}
+                  <font color=#41CD52>{{
                   states('binary_sensor.yambms_jk_bms_2_discharging') | upper
                   }}</font> {% else %} <font color=#3090C7>{{
                   states('binary_sensor.yambms_jk_bms_2_discharging') | upper
@@ -727,9 +720,8 @@ views:
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_2_capacity_remaining') }}
                   Ah</font><br> Cycle Count :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_charging_cycles')
-                  }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{
+                  states('sensor.yambms_jk_bms_2_charging_cycles') }}</font><br>
+                  Delta Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>{{
                   states('sensor.yambms_jk_bms_2_delta_cell_voltage') }}
                   V</font><br> MOS Temp. :&nbsp;&nbsp;<font color=#41CD52>{{
                   states('sensor.yambms_jk_bms_2_power_tube_temperature') }}
@@ -755,86 +747,78 @@ views:
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '1' %}  <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_01') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_01') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_01') }} Ω
-                  <br> 02.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_01')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_01') }} Ω <br>
+                  02.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '2' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_02') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '2' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_02') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_02') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_02') }} Ω
-                  <br> 03.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_02')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_02') }} Ω <br>
+                  03.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '3' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_03') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '3' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_03') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_03') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_03') }} Ω
-                  <br> 04.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_03')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_03') }} Ω <br>
+                  04.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '4' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_04') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '4' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_04') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_04') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_04') }} Ω
-                  <br> 05.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_04')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_04') }} Ω <br>
+                  05.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '5' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_05') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '5' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_05') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_05') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_05') }} Ω
-                  <br> 06.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_05')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_05') }} Ω <br>
+                  06.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '6' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_06') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '6' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_06') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_06') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_06') }} Ω
-                  <br> 07.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_06')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_06') }} Ω <br>
+                  07.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '7' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_07') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '7' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_07') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_07') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_07') }} Ω
-                  <br> 08.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_07')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_07') }} Ω <br>
+                  08.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_2_max_voltage_cell') == '8' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_08') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '8' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_08') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_08') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_08')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_2_cell_resistance_08') }} Ω
                   <br></center>
               - type: markdown
@@ -846,89 +830,81 @@ views:
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '9' %}  <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_09') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_09') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_09') }} Ω
-                  <br> 10.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '10'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_09')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_09') }} Ω <br>
+                  10.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '10' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_10') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '10' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_10') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_10') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_10') }} Ω
-                  <br> 11.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '11'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_10')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_10') }} Ω <br>
+                  11.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '11' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_11') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '11' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_11') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_11') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_11') }} Ω
-                  <br> 12.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '12'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_11')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_11') }} Ω <br>
+                  12.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '12' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_12') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '12' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_12') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_12') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_12') }} Ω
-                  <br> 13.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '13'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_12')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_12') }} Ω <br>
+                  13.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '13' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_13') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '13' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_13') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_13') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_13') }} Ω
-                  <br> 14.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '14'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_13')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_13') }} Ω <br>
+                  14.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '14' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_14') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '14' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_14') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_14') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_14') }} Ω
-                  <br> 15.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '15'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_14')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_14') }} Ω <br>
+                  15.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '15' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_15') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '15' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_15') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_15') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_2_cell_resistance_15') }} Ω
-                  <br> 16.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '16'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_15')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_2_cell_resistance_15') }} Ω <br>
+                  16.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_2_max_voltage_cell') == '16' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_16') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_2_min_voltage_cell') ==
                   '16' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_2_cell_voltage_16') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_2_cell_voltage_16') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  {% else %} {{ states('sensor.yambms_jk_bms_2_cell_voltage_16')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_2_cell_resistance_16') }} Ω
                   <br></center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_jk_bms_2_combine_enabled
                 name: Combine
@@ -936,6 +912,9 @@ views:
                 name: Cb. Availability
               - entity: binary_sensor.yambms_jk_bms_2_can_be_combined
                 name: Can be combined
+            conditions:
+              - condition: state
+                state_not: unavailable
             layout_options:
               grid_columns: 2
               grid_rows: 3
@@ -996,8 +975,8 @@ views:
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_3_discharging') == 'on'
-                  %} <font color=#41CD52>{{
+                  states('binary_sensor.yambms_jk_bms_3_discharging') == 'on' %}
+                  <font color=#41CD52>{{
                   states('binary_sensor.yambms_jk_bms_3_discharging') | upper
                   }}</font> {% else %} <font color=#3090C7>{{
                   states('binary_sensor.yambms_jk_bms_3_discharging') | upper
@@ -1045,9 +1024,8 @@ views:
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_3_capacity_remaining') }}
                   Ah</font><br> Cycle Count :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_charging_cycles')
-                  }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{
+                  states('sensor.yambms_jk_bms_3_charging_cycles') }}</font><br>
+                  Delta Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>{{
                   states('sensor.yambms_jk_bms_3_delta_cell_voltage') }}
                   V</font><br> MOS Temp. :&nbsp;&nbsp;<font color=#41CD52>{{
                   states('sensor.yambms_jk_bms_3_power_tube_temperature') }}
@@ -1073,86 +1051,78 @@ views:
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '1' %}  <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_01') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_01') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_01') }} Ω
-                  <br> 02.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_01')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_01') }} Ω <br>
+                  02.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '2' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_02') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '2' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_02') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_02') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_02') }} Ω
-                  <br> 03.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_02')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_02') }} Ω <br>
+                  03.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '3' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_03') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '3' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_03') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_03') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_03') }} Ω
-                  <br> 04.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_03')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_03') }} Ω <br>
+                  04.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '4' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_04') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '4' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_04') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_04') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_04') }} Ω
-                  <br> 05.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_04')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_04') }} Ω <br>
+                  05.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '5' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_05') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '5' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_05') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_05') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_05') }} Ω
-                  <br> 06.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_05')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_05') }} Ω <br>
+                  06.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '6' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_06') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '6' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_06') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_06') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_06') }} Ω
-                  <br> 07.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_06')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_06') }} Ω <br>
+                  07.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '7' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_07') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '7' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_07') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_07') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_07') }} Ω
-                  <br> 08.&nbsp;&nbsp;&nbsp; {% if
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_07')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_07') }} Ω <br>
+                  08.&nbsp;&nbsp;&nbsp; {% if
                   states('sensor.yambms_jk_bms_3_max_voltage_cell') == '8' %} 
                   <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_08') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '8' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_08') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_08') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_08')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_3_cell_resistance_08') }} Ω
                   <br></center>
               - type: markdown
@@ -1164,89 +1134,81 @@ views:
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '9' %}  <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_09') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_09') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_09') }} Ω
-                  <br> 10.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '10'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_09')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_09') }} Ω <br>
+                  10.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '10' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_10') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '10' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_10') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_10') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_10') }} Ω
-                  <br> 11.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '11'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_10')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_10') }} Ω <br>
+                  11.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '11' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_11') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '11' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_11') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_11') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_11') }} Ω
-                  <br> 12.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '12'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_11')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_11') }} Ω <br>
+                  12.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '12' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_12') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '12' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_12') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_12') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_12') }} Ω
-                  <br> 13.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '13'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_12')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_12') }} Ω <br>
+                  13.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '13' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_13') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '13' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_13') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_13') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_13') }} Ω
-                  <br> 14.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '14'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_13')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_13') }} Ω <br>
+                  14.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '14' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_14') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '14' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_14') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_14') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_14') }} Ω
-                  <br> 15.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '15'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_14')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_14') }} Ω <br>
+                  15.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '15' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_15') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '15' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_15') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_15') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
-                  states('sensor.yambms_jk_bms_3_cell_resistance_15') }} Ω
-                  <br> 16.&nbsp;&nbsp;&nbsp; {% if
-                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '16'
-                  %}  <font color="red">{{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_15')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  states('sensor.yambms_jk_bms_3_cell_resistance_15') }} Ω <br>
+                  16.&nbsp;&nbsp;&nbsp; {% if
+                  states('sensor.yambms_jk_bms_3_max_voltage_cell') == '16' %} 
+                  <font color="red">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_16') }} V</font>
                   {% elif states('sensor.yambms_jk_bms_3_min_voltage_cell') ==
                   '16' %} <font color="#3090C7">{{
                   states('sensor.yambms_jk_bms_3_cell_voltage_16') }} V</font>
-                  {% else %} {{
-                  states('sensor.yambms_jk_bms_3_cell_voltage_16') }} V {%
-                  endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
+                  {% else %} {{ states('sensor.yambms_jk_bms_3_cell_voltage_16')
+                  }} V {% endif %} &nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp; {{
                   states('sensor.yambms_jk_bms_3_cell_resistance_16') }} Ω
                   <br></center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_jk_bms_3_combine_enabled
                 name: Combine
@@ -1254,6 +1216,9 @@ views:
                 name: Cb. Availability
               - entity: binary_sensor.yambms_jk_bms_3_can_be_combined
                 name: Can be combined
+            conditions:
+              - condition: state
+                state_not: unavailable
             layout_options:
               grid_columns: 2
               grid_rows: 3
@@ -1349,4 +1314,3 @@ views:
                 name: Shunt 1 Can be combined
         title: Shunt 1
         column_span: 1
-

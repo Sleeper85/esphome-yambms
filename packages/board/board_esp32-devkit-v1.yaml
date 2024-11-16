@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.2.3
+# Updated : 2024.11.11
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -65,17 +65,20 @@ canbus:
     can_id: 1
     bit_rate: 500kbps
 
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    output: esp_led
+    id: esp_light
+
 output:
   # ESP LED
   - platform: gpio
     pin: 2
     id: esp_led
     inverted: true
-
-light:
-  # ESP Light
-  - platform: binary
-    output: esp_led
-    id: esp_light
-    name: "${name} On board light"
-    internal: true

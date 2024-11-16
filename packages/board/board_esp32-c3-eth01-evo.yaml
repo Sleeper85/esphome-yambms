@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.2.3
+# Updated : 2024.11.11
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,6 +24,7 @@ substitutions:
 esp32:
   board: esp32-c3-devkitm-1
   variant: esp32c3
+  flash_size: 2MB
   framework:
     type: esp-idf
     version: latest
@@ -33,8 +34,16 @@ esphome:
   platformio_options:
     board_build.flash_mode: dio # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
 
+# external_components:
+#   - source: github://pr#6861
+#     components:
+#       - ethernet
+
 external_components:
-  - source: github://pr#6861
+  - source: 
+      type: git
+      url: https://github.com/esphome/esphome
+      ref: d5bdf2575c151abfad39b6c24c3856395a7d0901
     components:
       - ethernet
 
@@ -69,17 +78,22 @@ canbus:
     can_id: 1
     bit_rate: 500kbps
 
-output:
-  # ESP LED
-  - platform: gpio
-    pin: 0
-    id: esp_led
-    inverted: true
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
 
 light:
-  # ESP Light
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
   - platform: binary
-    output: esp_led
     id: esp_light
-    name: "${name} On board light"
-    internal: true
+    output: esp_output
+
+output:
+  # ESP32 board without LED
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+      #- lambda: C++ code; # action to be performed at each inverter heartbeat

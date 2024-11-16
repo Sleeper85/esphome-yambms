@@ -1,0 +1,183 @@
+# Updated : 2024.11.11
+# Version : 1.2.4
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "Atom S3R"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 8MB # ajust according to your ESP32-S3 version
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio             # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
+    board_upload.maximum_ram_size: 524288   # Total Size of the internal RAM in bits. It's the same for all ESP32-S3 ( 512KB )
+  on_boot:
+    then:
+      - output.turn_on:
+           id: white
+
+# PSRAM activation and settings
+psram:
+  mode: octal
+  speed: 80MHz
+
+<<: !include board_psram_settings.yaml
+
+external_components:
+  # Backlight
+  - source:
+      type: git
+      url: https://github.com/ssieb/esphome
+      ref: lp5562
+    components: [ lp5562 ]
+    refresh: 1min
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  ap:
+    ssid: "YamBMS Fallback Hotspot"
+    password: "Y4mBM$85"
+
+captive_portal:
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+uart:
+  # UART 0 : USB UART port used for ESP32 flashing and logs, can be released if necessary (tx_pin: 43, rx_pin: 44)
+  # UART 1
+  - id: uart_esp_1
+    tx_pin: 2
+    rx_pin: 1
+    baud_rate: 115200
+    rx_buffer_size: 512
+  # UART 2
+  # - id: uart_esp_2
+  #   tx_pin: 8
+  #   rx_pin: 7
+  #   baud_rate: 115200
+  #   rx_buffer_size: 512
+
+canbus:
+  # CANBUS NODE 1
+  - platform: esp32_can
+    id: canbus_node1
+    tx_pin: 5
+    rx_pin: 6
+    can_id: 1
+    bit_rate: 500kbps
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+# +--------------------------------------+
+# | Atom S3R related configuration       |
+# +--------------------------------------+
+
+packages:
+  display: !include board_display_128x128.yaml
+
+spi:
+  - id: atom_spi_bus
+    clk_pin: 15
+    mosi_pin: 21
+
+i2c:
+  - id: atom_i2c_bus
+    sda: 45
+    scl: 0
+    scan: true
+    
+lp5562:
+  - i2c_id: atom_i2c_bus
+
+output:
+  # Backlight Output
+  - platform: lp5562
+    id: red
+    channel: 0
+  - platform: lp5562
+    id: green
+    channel: 1
+  - platform: lp5562
+    id: blue
+    channel: 2
+  - platform: lp5562
+    id: white
+    channel: 3
+  # Inverter Heartbeat Output (ESP32 board without LED)
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+      #- lambda: C++ code; # action to be performed at each inverter heartbeat
+
+binary_sensor:
+  # Atom S3R Button
+  - platform: gpio
+    id: atom_button
+    pin:
+      number: 41
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_off: 10ms
+    on_press:
+      then:
+        - logger.log: Button Pressed
+        - display.page.show_next: my_display
+        #- display.page.show_previous: my_display
+
+display:
+  # Atom S3R display
+  # https://esphome.io/components/display/st7789v.html
+  - platform: st7789v
+    spi_id: atom_spi_bus
+    id: my_display
+    model: Custom
+    cs_pin: 14
+    dc_pin: 42
+    reset_pin: 48
+    height: 128
+    width: 128
+    offset_height: 2
+    offset_width: 1
+    eightbitcolor: true
+    update_interval: 1s
+    data_rate: 40Mhz
+    # rotation: 180   # use transform instead! https://esphome.io/components/display/ili9xxx.html

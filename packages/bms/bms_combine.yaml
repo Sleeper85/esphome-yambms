@@ -1,5 +1,5 @@
-# Updated : 2024.10.17
-# Version : 1.4.5
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -38,20 +38,20 @@ binary_sensor:
   - platform: template
     name: "${name} ${bms_name} Combine Availability"
     id: bms${bms_id}_availability
-    lambda: return (((id(bms${bms_id}_switch_charging).state) || (id(bms${bms_id}_switch_discharging).state)) && (id(bms${bms_id}_errors_bitmask).state == 0));
+    lambda: return (id(bms${bms_id}_online_status).state && (id(bms${bms_id}_charging_allowed).state || id(bms${bms_id}_discharging_allowed).state));
 
   # Can be combined (indicated, if the BMS can be combined)
   - platform: template
     name: "${name} ${bms_name} Can be combined"
     id: bms${bms_id}_can_be_combined
-    lambda: return ((id(bms${bms_id}_availability).state) && (id(bms${bms_id}_switch_combine).state));
+    lambda: return (id(bms${bms_id}_availability).state && id(bms${bms_id}_switch_combine).state);
 
 # Combine once without conditions
 esphome:
   on_boot:
     then:
       # Shunt counter (total)
-      - lambda: id(${yambms_id}_bms_counter) += 1;
+      - lambda: id(${yambms_id}_var_bms_counter) += 1;
 
 interval:
   - interval: ${bms_combine_interval}
@@ -63,20 +63,20 @@ interval:
             // Combine once only
             if (id(bms${bms_id}_combined_once) == false)
             {
-              id(${yambms_id}_total_installed_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
+              id(${yambms_id}_var_total_installed_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
               id(bms${bms_id}_combined_once) = true;
             }
             // Combine (not continuously)
             if (id(bms${bms_id}_combined) == false)
             {
-              // Can be combined bms counter
-              id(${yambms_id}_can_be_combined_bms_counter) += 1;
+              // To combine bms counter
+              id(${yambms_id}_var_to_combine_bms_counter) += 1;
               
               // TOTAL cell_count
-              id(${yambms_id}_total_cell_count) += id(bms${bms_id}_cell_count).state;
+              // id(${yambms_id}_var_total_cell_count) += id(bms${bms_id}_cell_count).state;
               
               // TOTAL battery_capacity
-              id(${yambms_id}_total_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
+              id(${yambms_id}_var_total_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
               
               // Combined
               id(bms${bms_id}_combined) = true;
@@ -85,24 +85,27 @@ interval:
           // Uncombine (not continuously)
           else if (id(bms${bms_id}_combined) == true)
           {
-            // Can be combined bms counter
-            id(${yambms_id}_can_be_combined_bms_counter) -= 1;
+            // To combine bms counter
+            id(${yambms_id}_var_to_combine_bms_counter) -= 1;
 
             // TOTAL cell_count
-            id(${yambms_id}_total_cell_count) -= id(bms${bms_id}_cell_count).state;
+            // id(${yambms_id}_var_total_cell_count) -= id(bms${bms_id}_cell_count).state;
 
             // TOTAL battery_capacity
-            id(${yambms_id}_total_battery_capacity) -= id(bms${bms_id}_battery_capacity).state;
+            id(${yambms_id}_var_total_battery_capacity) -= id(bms${bms_id}_battery_capacity).state;
             
             // Uncombined
             id(bms${bms_id}_combined) = false;
           }
 
           // Combine continuously (all BMS)
-          if (id(${yambms_id}_processed_bms_counter) < id(${yambms_id}_bms_counter))
+          if (id(${yambms_id}_var_to_combine_bms_number) == ${bms_id})
           {
-            // BMS processed counter
-            id(${yambms_id}_processed_bms_counter) += 1;
+            // TOTAL charging_allowed_counter
+            if (id(bms${bms_id}_charging_allowed).state) id(${yambms_id}_var_charging_allowed_counter) += 1;
+
+            // TOTAL discharging_allowed_counter
+            if (id(bms${bms_id}_discharging_allowed).state) id(${yambms_id}_var_discharging_allowed_counter) += 1;
 
             // +-----------------------------------------------+
             // | Errors bitmask (16bit)                        |
@@ -110,109 +113,90 @@ interval:
 
             if (id(bms${bms_id}_errors_bitmask).state > 1)
             {
-              uint16_t bms_errors_bitmask = id(bms${bms_id}_errors_bitmask).state;     // errors_bitmask (16bit)
-              id(${yambms_id}_var_errors_bitmask_alarm) |= bms_errors_bitmask;         // Alarm   - OR bitwise
-              id(${yambms_id}_var_errors_bitmask_warning) |= bms_errors_bitmask;       // Warning - OR bitwise
-              id(${yambms_id}_var_errors_bitmask_counter) += 1;                        // errors_bitmask_counter
+              uint16_t bms_errors_bitmask = id(bms${bms_id}_errors_bitmask).state;   // errors_bitmask (16bit)
+              id(${yambms_id}_var_errors_bitmask) |= bms_errors_bitmask;             // OR bitwise
+              id(${yambms_id}_var_errors_bitmask_counter) += 1;                      // errors_bitmask_counter
             }
 
             // +-----------------------------------------------+
 
             // Combine only if the device is able to be included in combine
-            else if (id(bms${bms_id}_can_be_combined).state)
+            if (id(bms${bms_id}_can_be_combined).state)
             {
               // TOTAL total_voltage
-              id(${yambms_id}_bms_total_voltage) += id(bms${bms_id}_total_voltage).state;
+              id(${yambms_id}_var_bms_total_voltage) += id(bms${bms_id}_total_voltage).state;
               
               // TOTAL current
-              id(${yambms_id}_bms_total_current) += id(bms${bms_id}_current).state;
+              id(${yambms_id}_var_bms_total_current) += id(bms${bms_id}_current).state;
               
               // TOTAL power
-              id(${yambms_id}_bms_total_power) += id(bms${bms_id}_power).state;
+              id(${yambms_id}_var_bms_total_power) += id(bms${bms_id}_power).state;
 
               // TOTAL max_charge_current
-              if (id(bms${bms_id}_switch_charging).state)
-                id(${yambms_id}_total_max_charge_current) += id(bms${bms_id}_max_charge_current).state;
+              if (id(bms${bms_id}_charging_allowed).state)
+                id(${yambms_id}_var_total_max_charge_current) += id(bms${bms_id}_max_charge_current).state;
               
               // TOTAL max_discharge_current
-              if (id(bms${bms_id}_switch_discharging).state)
-                id(${yambms_id}_total_max_discharge_current) += id(bms${bms_id}_max_discharge_current).state;
+              if (id(bms${bms_id}_discharging_allowed).state)
+                id(${yambms_id}_var_total_max_discharge_current) += id(bms${bms_id}_max_discharge_current).state;
               
               // TOTAL capacity_remaining_ah
-              id(${yambms_id}_total_capacity_remaining_ah) += id(bms${bms_id}_capacity_remaining_ah).state;
+              id(${yambms_id}_var_total_capacity_remaining_ah) += id(bms${bms_id}_capacity_remaining_ah).state;
 
               // TOTAL soc
-              id(${yambms_id}_bms_total_soc) += id(bms${bms_id}_state_of_charge).state;
+              id(${yambms_id}_var_bms_total_soc) += id(bms${bms_id}_state_of_charge).state;
                             
               // TOTAL charging_cycles
-              id(${yambms_id}_total_charging_cycles) += id(bms${bms_id}_charging_cycles).state;
+              id(${yambms_id}_var_total_charging_cycles) += id(bms${bms_id}_charging_cycles).state;
 
               // TOTAL equalizing_counter
-              if (id(bms${bms_id}_equalizing).state) id(${yambms_id}_equalizing_counter) += 1;
-
-              // TOTAL bms_switch_charging_counter
-              if (id(bms${bms_id}_switch_charging).state) id(${yambms_id}_bms_switch_charging_counter) += 1;
-
-              // TOTAL bms_switch_discharging_counter
-              if (id(bms${bms_id}_switch_discharging).state) id(${yambms_id}_bms_switch_discharging_counter) += 1;
+              if (id(bms${bms_id}_equalizing).state) id(${yambms_id}_var_equalizing_counter) += 1;
               
               // MIN/MAX values
               // MAX balance_trigger_voltage
-              if (id(bms${bms_id}_balance_trigger_voltage).state > id(${yambms_id}_max_balance_trigger_voltage))
-                id(${yambms_id}_max_balance_trigger_voltage) = id(bms${bms_id}_balance_trigger_voltage).state;
+              if (id(bms${bms_id}_balance_trigger_voltage).state > id(${yambms_id}_var_max_balance_trigger_voltage))
+                id(${yambms_id}_var_max_balance_trigger_voltage) = id(bms${bms_id}_balance_trigger_voltage).state;
               
               // MIN min_cell_voltage
               // MIN min_voltage_cell (cell number)
-              if (id(bms${bms_id}_min_cell_voltage).state < id(${yambms_id}_min_min_cell_voltage))
+              if (id(bms${bms_id}_min_cell_voltage).state < id(${yambms_id}_var_min_cell_voltage))
               {
-                id(${yambms_id}_min_min_cell_voltage) = id(bms${bms_id}_min_cell_voltage).state;
-                id(${yambms_id}_min_min_voltage_cell) = id(bms${bms_id}_min_voltage_cell).state + (${bms_id} * 100);
+                id(${yambms_id}_var_min_cell_voltage) = id(bms${bms_id}_min_cell_voltage).state;
+                id(${yambms_id}_var_min_voltage_cell) = id(bms${bms_id}_min_voltage_cell).state + (${bms_id} * 100);
               }
 
               // MAX max_cell_voltage
               // MAX max_voltage_cell (cell number)
-              if (id(bms${bms_id}_max_cell_voltage).state > id(${yambms_id}_max_max_cell_voltage))
+              if (id(bms${bms_id}_max_cell_voltage).state > id(${yambms_id}_var_max_cell_voltage))
               {
-                id(${yambms_id}_max_max_cell_voltage) = id(bms${bms_id}_max_cell_voltage).state;
-                id(${yambms_id}_max_max_voltage_cell) = id(bms${bms_id}_max_voltage_cell).state + (${bms_id} * 100);
+                id(${yambms_id}_var_max_cell_voltage) = id(bms${bms_id}_max_cell_voltage).state;
+                id(${yambms_id}_var_max_voltage_cell) = id(bms${bms_id}_max_voltage_cell).state + (${bms_id} * 100);
               }
               
               // MIN cell_ovp
-              if (id(bms${bms_id}_cell_ovp).state < id(${yambms_id}_min_cell_ovp))
-                id(${yambms_id}_min_cell_ovp) = id(bms${bms_id}_cell_ovp).state;
-              
-              // MIN cell_ovpr
-              if (id(bms${bms_id}_cell_ovpr).state < id(${yambms_id}_min_cell_ovpr))
-                id(${yambms_id}_min_cell_ovpr) = id(bms${bms_id}_cell_ovpr).state;
-              
-              // MAX cell_uvpr
-              if (id(bms${bms_id}_cell_uvpr).state > id(${yambms_id}_max_cell_uvpr))
-                id(${yambms_id}_max_cell_uvpr) = id(bms${bms_id}_cell_uvpr).state;
+              if (id(bms${bms_id}_cell_ovp).state < id(${yambms_id}_var_min_cell_ovp))
+                id(${yambms_id}_var_min_cell_ovp) = id(bms${bms_id}_cell_ovp).state;
+                            
+              // MAX cell_uvp
+              if (id(bms${bms_id}_cell_uvp).state > id(${yambms_id}_var_max_cell_uvp))
+                id(${yambms_id}_var_max_cell_uvp) = id(bms${bms_id}_cell_uvp).state;
 
               // MIN temperature
               // MIN temperature_sensor
-              if (id(bms${bms_id}_temperature_sensor_1).state < id(${yambms_id}_var_min_temperature))
+              if (id(bms${bms_id}_min_temperature).state < id(${yambms_id}_var_min_temperature))
               {
-                id(${yambms_id}_var_min_temperature) = id(bms${bms_id}_temperature_sensor_1).state;
-                id(${yambms_id}_var_min_temperature_sensor) = (1 + ${bms_id} * 100);
-              }
-              if (id(bms${bms_id}_temperature_sensor_2).state < id(${yambms_id}_var_min_temperature))
-              {
-                id(${yambms_id}_var_min_temperature) = id(bms${bms_id}_temperature_sensor_2).state;
-                id(${yambms_id}_var_min_temperature_sensor) = (2 + ${bms_id} * 100);
+                id(${yambms_id}_var_min_temperature) = id(bms${bms_id}_min_temperature).state;
+                id(${yambms_id}_var_min_temperature_sensor) = id(bms${bms_id}_min_temperature_sensor).state;
               }
 
               // MAX temperature
               // MAX temperature_sensor
-              if (id(bms${bms_id}_temperature_sensor_1).state > id(${yambms_id}_var_max_temperature))
+              if (id(bms${bms_id}_max_temperature).state > id(${yambms_id}_var_max_temperature))
               {
-                id(${yambms_id}_var_max_temperature) = id(bms${bms_id}_temperature_sensor_1).state;
-                id(${yambms_id}_var_max_temperature_sensor) = (1 + ${bms_id} * 100);
-              }
-              if (id(bms${bms_id}_temperature_sensor_2).state > id(${yambms_id}_var_max_temperature))
-              {
-                id(${yambms_id}_var_max_temperature) = id(bms${bms_id}_temperature_sensor_2).state;
-                id(${yambms_id}_var_max_temperature_sensor) = (2 + ${bms_id} * 100);
+                id(${yambms_id}_var_max_temperature) = id(bms${bms_id}_max_temperature).state;
+                id(${yambms_id}_var_max_temperature_sensor) = id(bms${bms_id}_max_temperature_sensor).state;
               }
             }
+            // To combine BMS number
+            id(${yambms_id}_var_to_combine_bms_number)++;
           }

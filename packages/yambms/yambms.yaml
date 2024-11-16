@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.4.5
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -31,21 +31,6 @@ packages:
   # Custom user config
   # yambms_custom: !include yambms_custom.yaml
 
-substitutions:
-  # +----------------------------------------------------------------+
-  # Information from the EVE LF280K v2 cell datasheet
-  # LFP Recommended Operating Temperature Range : 10~45°C
-  # Number of cycles at 25°C : 6000
-  # Number of cycles at 45°C : 2500
-  # >= 60°C  : Never charging or discharging
-  # <= 0°C   : Never charging
-  # <= -30°C : Never discharging
-  # +----------------------------------------------------------------+
-  # Over Temp Protection, Temp > OTP = Stop Charging and Discharging
-  yambms_otp: "45.0"
-  # Under Temp Protection, Temp < UTP = Stop Charging
-  yambms_utp: "1.0"
-
 # Execute once
 esphome:
   on_boot:
@@ -57,34 +42,37 @@ esphome:
           if (${yambms_battery_chemistry} == 1) // LFP
           {
             // LFP
-            id(${yambms_id}_mominal_v) = 3.20;
-            id(${yambms_id}_min_charge_v) = 3.37; // Fully charged at rest
-            id(${yambms_id}_max_charge_v) = 3.65;
+            id(${yambms_id}_cell_mominal_v) = 3.20;
+            id(${yambms_id}_cell_min_charge_v) = 3.37; // Fully charged at rest
+            id(${yambms_id}_cell_max_charge_v) = 3.65;
+            id(${yambms_id}_cell_max_discharge_v) = 3.00; // Not used
           }
           else if (${yambms_battery_chemistry} == 2) // Li-ion
           {
             // Li-ion
-            id(${yambms_id}_mominal_v) = 3.60;
-            id(${yambms_id}_min_charge_v) = 3.90;
-            id(${yambms_id}_max_charge_v) = 4.20;
+            id(${yambms_id}_cell_mominal_v) = 3.60;
+            id(${yambms_id}_cell_min_charge_v) = 3.90;
+            id(${yambms_id}_cell_max_charge_v) = 4.20;
+            id(${yambms_id}_cell_max_discharge_v) = 3.20; // Not used
           }
           else if (${yambms_battery_chemistry} == 3) // LTO
           {
             // LTO
-            id(${yambms_id}_mominal_v) = 2.40;
-            id(${yambms_id}_min_charge_v) = 2.55; // Fully charged at rest
-            id(${yambms_id}_max_charge_v) = 2.85;
+            id(${yambms_id}_cell_mominal_v) = 2.40;
+            id(${yambms_id}_cell_min_charge_v) = 2.55; // Fully charged at rest
+            id(${yambms_id}_cell_max_charge_v) = 2.85;
+            id(${yambms_id}_cell_max_discharge_v) = 2.00; // Not used
           }
           int cell_count = ${yambms_cell_count};
           // Bulk V.
-          id(${yambms_id}_bulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_min_charge_v) * 10) / 10);
-          id(${yambms_id}_bulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_max_charge_v) * 10) / 10);
+          id(${yambms_id}_bulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_cell_min_charge_v) * 10) / 10);
+          id(${yambms_id}_bulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_cell_max_charge_v) * 10) / 10);
           // Float V.
-          id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_min_charge_v) - 0.1) * 10) / 10);
-          id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_min_charge_v) + 0.1) * 10) / 10);
+          id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) - 0.1) * 10) / 10);
+          id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) + 0.1) * 10) / 10);
           // Rebulk V.
-          id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_mominal_v) * 10) / 10);
-          id(${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_min_charge_v) * 10) / 10);
+          id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_cell_mominal_v) * 10) / 10);
+          id(${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_cell_min_charge_v) * 10) / 10);
 
 globals:
   - id: ${yambms_id}_service
@@ -101,15 +89,19 @@ globals:
   - id: ${yambms_id}_canbus_protocol
     type: std::string
     restore_value: no
-  - id: ${yambms_id}_mominal_v
+  - id: ${yambms_id}_cell_mominal_v
     type: float
     restore_value: no
     initial_value: '0.0'
-  - id: ${yambms_id}_min_charge_v
+  - id: ${yambms_id}_cell_min_charge_v
     type: float
     restore_value: no
     initial_value: '0.0'
-  - id: ${yambms_id}_max_charge_v
+  - id: ${yambms_id}_cell_max_charge_v
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_cell_max_discharge_v
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -410,15 +402,41 @@ sensor:
         - throttle: 10s
         - delta: 0.1
     lambda: |-
+      if (id(${yambms_id}_bms_combined).state == 0) // no BMS combined
+        return 0;
       // Bulk
-      if (id(${yambms_id}_charging_instruction).state == "Bulk"){
-        if(id(${yambms_id}_auto_cvl) == -1.0) return (id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_inverter_offset_v).state); // Auto CVL not used
-        else return (id(${yambms_id}_auto_cvl) + id(${yambms_id}_inverter_offset_v).state);
+      else if (id(${yambms_id}_charging_instruction).state == "Bulk")
+      {
+        if(id(${yambms_id}_auto_cvl) == -1.0) // Auto CVL not used
+          return (id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_inverter_offset_v).state);
+        else
+          return (id(${yambms_id}_auto_cvl) + id(${yambms_id}_inverter_offset_v).state);
       }
       // Float
-      else if (id(${yambms_id}_charging_instruction).state == "Float") return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state);
+      else if (id(${yambms_id}_charging_instruction).state == "Float")
+        return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state);
       // Stop Charging
       else return (id(${yambms_id}_rebulk_voltage).state + id(${yambms_id}_inverter_offset_v).state);
+
+  # +--------------------------------------+
+  # |  Requested Discharge Voltage  (DVL)  |
+  # +--------------------------------------+
+  - platform: template
+    name: ${name} ${yambms_name} Requested Discharge Voltage
+    id: ${yambms_id}_requested_discharge_voltage
+    unit_of_measurement: V
+    device_class: voltage
+    update_interval: ${yambms_update_interval}
+    accuracy_decimals: 1
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: |-
+      if (id(${yambms_id}_bms_combined).state == 0) // no BMS combined
+        return 0;
+      else
+        return ((id(${yambms_id}_cell_uvp).state + 0.2) * id(${yambms_id}_cell_count).state);
 
   # +--------------------------------------+
   # |  Requested Charge Current  (CCL)     |
@@ -436,28 +454,15 @@ sensor:
         - delta: 0.1
     lambda: |-
       // Charging Allowed
-      if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float")){
-        if(id(${yambms_id}_auto_ccl) == -1.0) return id(${yambms_id}_max_charge_current).state; // Auto CCL not used
-        else return id(${yambms_id}_auto_ccl);
+      if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float"))
+      {
+        if(id(${yambms_id}_auto_ccl) == -1.0) // Auto CCL not used
+          return id(${yambms_id}_max_charge_current).state;
+        else
+          return id(${yambms_id}_auto_ccl);
       }
       // Charging Not Allowed
       else return 0;
-
-  # +--------------------------------------+
-  # |  Requested Discharge Voltage  (DVL)  |
-  # +--------------------------------------+
-  - platform: template
-    name: ${name} ${yambms_name} Requested Discharge Voltage
-    id: ${yambms_id}_requested_discharge_voltage
-    unit_of_measurement: V
-    device_class: voltage
-    update_interval: ${yambms_update_interval}
-    accuracy_decimals: 1
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
-    lambda: return (id(${yambms_id}_cell_uvpr).state * id(${yambms_id}_cell_count).state);
 
   # +--------------------------------------+
   # |  Requested Discharge Current  (DCL)  |
@@ -475,11 +480,14 @@ sensor:
         - delta: 0.1
     lambda: |-
       // Discharging Allowed
-      if (id(${yambms_id}_discharging_instruction).state == true){
-        if(id(${yambms_id}_auto_dcl) == -1.0) return id(${yambms_id}_max_discharge_current).state; // Auto DCL not used
-        else return id(${yambms_id}_auto_dcl);
+      if (id(${yambms_id}_discharging_instruction).state == true)
+      {
+        if(id(${yambms_id}_auto_dcl) == -1.0) // Auto DCL not used
+          return id(${yambms_id}_max_discharge_current).state;
+        else
+          return id(${yambms_id}_auto_dcl);
       }
-      // Stop Discharging
+      // Discharging Not Allowed
       else return 0;
 
   # +--------------------------------------+
@@ -499,8 +507,9 @@ sensor:
     lambda: |-
       float soc = id(${yambms_id}_state_of_charge).state;
       float min_cell_v = id(${yambms_id}_min_cell_voltage).state;
-      float cell_uvpr = id(${yambms_id}_cell_uvpr).state;
-      if (min_cell_v <= cell_uvpr) return 0;                          // Real 0% Sending 0%
+      float cell_low_v = (id(${yambms_id}_cell_uvp).state + 0.2);
+      if (id(${yambms_id}_bms_combined).state == 0) return 0;         // no BMS combined
+      else if (min_cell_v <= cell_low_v) return 0;                    // Real 0% Sending 0%
       else if (soc < 1) return 2;                                     // False 0% sending 2%
       else if (soc < 99) return soc;                                  // SOC < 99% => Sending BMS SOC
       // Useful for some inverters, will not send 100% until charging is complete
@@ -521,7 +530,9 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return round(((id(${yambms_id}_charging_cycles).state/${yambms_max_cycles})-1)*-100);
+    lambda: |-
+      if (id(${yambms_id}_bms_combined).state == 0) return 0; // no BMS combined
+      else return round(((id(${yambms_id}_charging_cycles).state/${yambms_max_cycles})-1)*-100);
 
   # +--------------------------------------+
   # | Cell Count                           |
@@ -563,29 +574,17 @@ text_sensor:
       
       // Warning : information from JK BMS is not available immediately after boot
       
-      // YamBMS Alarm ?
-      if ((id(${yambms_id}_alarm).state != "NoAlarm") & (id(${yambms_id}_alarm).state != "Warning")) id(${yambms_id}_charge_status) = "Alarm";
-      // YamBMS Alarm ended ?
-      else if ((id(${yambms_id}_charge_status) == "Alarm") & ((id(${yambms_id}_alarm).state == "NoAlarm") | (id(${yambms_id}_alarm).state == "Warning")))
-      {
-        if (id(${yambms_id}_eoc) == true)
-        {
-          if (id(${yambms_id}_switch_float).state) id(${yambms_id}_charge_status) = "Float";
-          else id(${yambms_id}_charge_status) = "EOC";
-        }
-        else id(${yambms_id}_charge_status) = "Wait";
-      }
       // EOC => Float
-      else if ((id(${yambms_id}_charge_status) == "EOC") & (id(${yambms_id}_switch_float).state)) id(${yambms_id}_charge_status) = "Float";
+      if ((id(${yambms_id}_charge_status) == "EOC") & (id(${yambms_id}_switch_float).state)) id(${yambms_id}_charge_status) = "Float";
       // No Float => EOC
       else if ((id(${yambms_id}_charge_status) == "Float") & (!id(${yambms_id}_switch_float).state)) id(${yambms_id}_charge_status) = "EOC";
       // No Force Bulk => Wait
       else if ((id(${yambms_id}_charge_status) == "Force Bulk") & (!id(${yambms_id}_switch_force_bulk).state)) id(${yambms_id}_charge_status) = "Wait";
 
       // +-----------------------------------------------+
-      // | Charge ON : BMS and ESP charging switch is ON |
+      // | Charging allowed (BMS and YamBMS)             |
       // +-----------------------------------------------+
-      else if ((id(${yambms_id}_bms_switch_charging).state) & (id(${yambms_id}_switch_charging).state)) {
+      else if ((id(${yambms_id}_charging_allowed).state) & (id(${yambms_id}_switch_charging).state)) {
       
         // Variables
         float cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
@@ -623,8 +622,8 @@ text_sensor:
           // +-----------------------------------------------+
           if (id(${yambms_id}_current).state >= 0)
           {
-            float cv_min = id(${yambms_id}_min_charge_v);
-            float cv_max = id(${yambms_id}_max_charge_v);
+            float cv_min = id(${yambms_id}_cell_min_charge_v);
+            float cv_max = id(${yambms_id}_cell_max_charge_v);
             float cutoff_current = (id(${yambms_id}_battery_capacity).state * 0.05 * (cell_bulk_v - cv_min) / (cv_max - cv_min));
             float cutoff_voltage = (cv_min + (cv_max - cv_min)/(0.05 + cutoff_offset_v) * (id(${yambms_id}_current).state / id(${yambms_id}_battery_capacity).state));
             
@@ -675,7 +674,7 @@ text_sensor:
           }
         }
       }
-      // Charge OFF
+      // Charging allowed (BMS or YamBMS)
       else id(${yambms_id}_charge_status) = "Wait";
       
       ESP_LOGI("yambms", "Charge Status : %s", id(${yambms_id}_charge_status).c_str());
@@ -690,15 +689,10 @@ text_sensor:
     update_interval: ${yambms_update_interval}
     icon: mdi:battery-plus
     lambda: |-
-      // Alarm > Stop Charging
-      if ((id(${yambms_id}_alarm).state == "Alarm") | (id(${yambms_id}_alarm).state == "OVP") | (id(${yambms_id}_alarm).state == "UTP") | (id(${yambms_id}_alarm).state == "COCP") | (id(${yambms_id}_alarm).state == "OTP") | (id(${yambms_id}_alarm).state == "BMS"))
-      {
-        return {"Stop"};
-      }
       // Bulk Charge
-      else if ((id(${yambms_id}_charge_status) != "EOC") && (id(${yambms_id}_charge_status) != "Float") && (id(${yambms_id}_charge_status) != "Wait"))
+      if ((id(${yambms_id}_charge_status) != "EOC") && (id(${yambms_id}_charge_status) != "Float") && (id(${yambms_id}_charge_status) != "Wait"))
       {
-        id(${yambms_id}_eoc) = false;                                        // SOC 100% can't be sent
+        id(${yambms_id}_eoc) = false; // SoC 100% can't be sent
         return {"Bulk"};
       }
       // Float Charge
@@ -712,10 +706,11 @@ text_sensor:
         return {"Stop"};
       }
       // Wait
+      // Charging not allowed, alarms or charging switch OFF
       else return {"Stop"};
 
   # +--------------------------------------+
-  # | YamBMS Alarm and Warning           |
+  # | YamBMS Alarm and Warning             |
   # +--------------------------------------+
   # | Errors Bitmask (16bit)               |
   # +--------------------------------------+
@@ -755,8 +750,11 @@ text_sensor:
       // Error Bitmask ?
       uint16_t errors_bitmask = id(${yambms_id}_errors_bitmask_alarm).state;
       int eb_counter = id(${yambms_id}_errors_bitmask_counter).state;
+
+      // At least one BMS in alarm
+      if ((eb_counter > 0) & (eb_counter < id(${yambms_id}_var_bms_counter))) return {"Warning"};
       // All BMS are in alarm
-      if (errors_bitmask > 1) {
+      else if (errors_bitmask > 1) {
         
         if ((errors_bitmask & 0x04) | (errors_bitmask & 0x80) | (errors_bitmask & 0x400)) {    // Cell Over Voltage        bit 2,7,10
           return {"OVP"};
@@ -784,8 +782,6 @@ text_sensor:
         }
         else return {"Alarm"};
       }
-      // At least one BMS in alarm
-      else if ((eb_counter > 0) & (eb_counter < id(${yambms_id}_bms_counter))) return {"Warning"};
       // No Alarm
       else return {"NoAlarm"};
 
@@ -796,20 +792,7 @@ text_sensor:
     update_interval: ${yambms_update_interval}
     entity_category: diagnostic
     icon: mdi:battery-alert
-    lambda: |-
-      
-      // Preventive Warning ?
-      if (id(${yambms_id}_bms_combined).state > 0){
-        // Over Temp Protection
-        if (id(${yambms_id}_max_temperature).state > ${yambms_otp}) {
-          return {"OTP"};
-        }
-        // Under Temp Protection
-        else if (id(${yambms_id}_min_temperature).state < ${yambms_utp}) {
-          return {"UTP"};
-        }
-      }
-      
+    lambda: |-      
       // Error Bitmask ?
       uint16_t errors_bitmask = id(${yambms_id}_errors_bitmask_warning).state;
       if (errors_bitmask > 1) {
@@ -852,13 +835,11 @@ binary_sensor:
     id: ${yambms_id}_discharging_instruction
     icon: mdi:battery-minus
     lambda: |-
-      // Alarm > Stop Discharging
-      if ((id(${yambms_id}_alarm).state == "Alarm") | (id(${yambms_id}_alarm).state == "UVP") | (id(${yambms_id}_alarm).state == "DOCP") | (id(${yambms_id}_alarm).state == "OTP") | (id(${yambms_id}_alarm).state == "BMS")) return false;
-      // BMS or ESP32 switch is OFF > Stop Discharging
-      else if ((!id(${yambms_id}_bms_switch_discharging).state) | (!id(${yambms_id}_switch_discharging).state)) return false;
+      // Discharging not allowed (all BMS or YamBMS)
+      if ((!id(${yambms_id}_discharging_allowed).state) | (!id(${yambms_id}_switch_discharging).state)) return false;
       // Battery voltage is low > Stop Discharging
       else if (id(${yambms_id}_total_voltage).state <= id(${yambms_id}_requested_discharge_voltage).state) return false;
-      // Discharging Allowed
+      // Discharging allowed
       else return true;
       
   # +--------------------------------------+
@@ -877,4 +858,3 @@ binary_sensor:
         else return false;
       }
       else return false;
-      

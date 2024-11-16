@@ -21,6 +21,10 @@ packages:
   shunt_base: !include shunt_base.yaml
   shunt_combine: !include shunt_combine.yaml
 
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
 external_components:
   - source: github://Sleeper85/esphome-junctek_khf@main
     refresh: 0s
@@ -28,10 +32,11 @@ external_components:
   #     type: local
   #     path: components
 
-# uart:
-#   - id: !extend ${shunt_uart_id}
-#     baud_rate: 115200
-#     rx_buffer_size: 384
+# UART baud_rate : 115200
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
 
 # Platform :
 # junctek_khf : version with the screen connected (UART and RS485)

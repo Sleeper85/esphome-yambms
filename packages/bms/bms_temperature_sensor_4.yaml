@@ -1,0 +1,113 @@
+# Updated : 2024.11.11
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.  
+  
+  sensor:
+  # MIN temperature
+  - platform: template
+    id: bms${bms_id}_min_temperature
+    name: "${name} ${bms_name} min temperature"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: |-
+            // MIN temperature
+            // MIN temperature_sensor
+            float min_temperature = id(bms${bms_id}_temperature_sensor_1).state;
+            int min_temperature_sensor = (1 + ${bms_id} * 100);
+            if (id(bms${bms_id}_temperature_sensor_2).state < min_temperature)
+            {
+              min_temperature = id(bms${bms_id}_temperature_sensor_2).state;
+              min_temperature_sensor = (2 + ${bms_id} * 100);
+            }
+            if (id(bms${bms_id}_temperature_sensor_3).state < min_temperature)
+            {
+              min_temperature = id(bms${bms_id}_temperature_sensor_3).state;
+              min_temperature_sensor = (3 + ${bms_id} * 100);
+            }
+            if (id(bms${bms_id}_temperature_sensor_4).state < min_temperature)
+            {
+              min_temperature = id(bms${bms_id}_temperature_sensor_4).state;
+              min_temperature_sensor = (4 + ${bms_id} * 100);
+            }
+            id(bms${bms_id}_min_temperature_sensor).publish_state(min_temperature_sensor);
+            return min_temperature;
+
+  # MIN temperature sensor
+  - platform: template
+    id: bms${bms_id}_min_temperature_sensor
+    name: "${name} ${bms_name} min temperature sensor"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+
+  # MAX temperature
+  - platform: template
+    id: bms${bms_id}_max_temperature
+    name: "${name} ${bms_name} max temperature"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+    lambda: |-
+            // MAX temperature
+            // MAX temperature_sensor
+            float max_temperature = id(bms${bms_id}_temperature_sensor_1).state;
+            int max_temperature_sensor = (1 + ${bms_id} * 100);
+            if (id(bms${bms_id}_temperature_sensor_2).state > max_temperature)
+            {
+              max_temperature = id(bms${bms_id}_temperature_sensor_2).state;
+              max_temperature_sensor = (2 + ${bms_id} * 100);
+            }
+            if (id(bms${bms_id}_temperature_sensor_3).state > max_temperature)
+            {
+              max_temperature = id(bms${bms_id}_temperature_sensor_3).state;
+              max_temperature_sensor = (3 + ${bms_id} * 100);
+            }
+            if (id(bms${bms_id}_temperature_sensor_4).state > max_temperature)
+            {
+              max_temperature = id(bms${bms_id}_temperature_sensor_4).state;
+              max_temperature_sensor = (4 + ${bms_id} * 100);
+            }
+            id(bms${bms_id}_max_temperature_sensor).publish_state(max_temperature_sensor);
+            return max_temperature;
+
+  # MAX temperature sensor
+  - platform: template
+    id: bms${bms_id}_max_temperature_sensor
+    name: "${name} ${bms_name} max temperature sensor"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1

@@ -1,0 +1,351 @@
+# Updated : 2024.11.11
+# Version : 1.1.1
+# GitHub  : https://github.com/syssi/esphome-jk-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  bms_model: "JK-B"
+  bms_protocol: "DISPLAY"
+
+packages:
+  bms_base: !include bms_base.yaml
+  bms_combine: !include bms_combine.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
+
+# +--------------------------------------+
+# | DISPLAY port schematic               |
+# +--------------------------------------+
+
+# JK-B2A8S20P
+
+# │                   JK-B2A8S20P                   │
+# │                                                 │
+# │   Temp    CAN    GPS     Display    Balancer    │
+# └──[oooo]──[ooo]──[oooo]──[oooooo]──[oooooooooo]──┘
+#                            ││││││
+#                            │││││└─ K-
+#                            ││││└── K+
+#                            │││└─── GND ( not common with B- , isolated ? )
+#                            ││└──── B
+#                            │└───── A
+#                            └────── VCC = +/- 11.5V
+
+# JK-BD6A2xS10P, JK-BxA24SxxP
+
+# │           JK-BD6A2xS10P, JK-BxA24SxxP           │
+# │                                                 │
+# │     CAN   GPS      Display     Heat             │
+# └────[ooo]─[oooo]───[oooooo]───[ooooooo]──────────┘
+#                      ││││││
+#                      │││││└─ VCC       ┌───────────────┐        ┌─────────────────┐
+#                      ││││└── A ────────│A+          GND│────────│GND              │
+#                      │││└─── B ────────│B-  RS485   RXD│────────│RX    ESP32/     │
+#                      ││└──── GND       │    to TTL  TXD│        │TX    ESP8266 GND│──────
+#                      │└───── K+        │    module  VCC│────────│5V            VCC│──────
+#                      └────── K-        └───────────────┘        └─────────────────┘
+
+# Power Button
+
+# K-   o-------[ 100kΩ ]-----o  /
+#                              /---|
+# K+   o---------------------o/
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+external_components:
+  - source: github://syssi/esphome-jk-bms@main
+    refresh: 0s
+
+uart:
+  - id: !extend ${bms_uart_id}
+    baud_rate: 2400
+
+jk_bms_display:
+  - id: jk_bms_display${bms_id}
+    uart_id: ${bms_uart_id}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  - platform: jk_bms_display
+    jk_bms_display_id: jk_bms_display${bms_id}
+    system_warning:
+      name: "${name} ${bms_name} system warning"
+    balancing_switch:
+      name: "${name} ${bms_name} balancing switch"
+    charging:
+      id: bms${bms_id}_charging_allowed
+      name: "${name} ${bms_name} charging"
+    discharging:
+      id: bms${bms_id}_discharging_allowed
+      name: "${name} ${bms_name} discharging"
+    cell_voltage_undervoltage_protection:
+      name: "${name} ${bms_name} cell voltage undervoltage protection"
+    cell_voltage_overvoltage_protection:
+      name: "${name} ${bms_name} cell voltage overvoltage protection"
+    overcurrent_protection:
+      name: "${name} ${bms_name} overcurrent protection"
+    mosfet_overtemperature_protection:
+      name: "${name} ${bms_name} mosfet overtemperature protection"
+    battery_temperature_protection:
+      name: "${name} ${bms_name} battery temperature protection"
+    short_circuit_protection:
+      name: "${name} ${bms_name} short circuit protection"
+    coprocessor_communication_error:
+      name: "${name} ${bms_name} coprocessor communication error"
+    balancer_wire_resistance_too_high:
+      name: "${name} ${bms_name} balancer wire resistance too high"
+    cell_count_mismatch:
+      name: "${name} ${bms_name} cell count mismatch"
+
+  # Required sensors cannot be retrieved from BMS
+  # online_status
+  - platform: template
+    id: bms${bms_id}_online_status
+    name: "${name} ${bms_name} online status"
+    lambda: |-
+      if (id(bms${bms_id}_total_voltage).state > 0)
+        return true;
+      else
+        return false;
+  # equalizing
+  - platform: template
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} balancing"
+    lambda: return false;
+
+sensor:
+  - platform: jk_bms_display
+    jk_bms_display_id: jk_bms_display${bms_id}
+    total_voltage:
+      id: bms${bms_id}_total_voltage
+      name: "${name} ${bms_name} total voltage"
+    current:
+      id: bms${bms_id}_current
+      name: "${name} ${bms_name} current"
+    power:
+      id: bms${bms_id}_power
+      name: "${name} ${bms_name} power"
+    charging_power:
+      id: bms${bms_id}_charging_power
+      name: "${name} ${bms_name} charging power"
+    discharging_power:
+      id: bms${bms_id}_discharging_power
+      name: "${name} ${bms_name} discharging power"
+    min_cell_voltage:
+      id: bms${bms_id}_min_cell_voltage
+      name: "${name} ${bms_name} min cell voltage"
+    max_cell_voltage:
+      id: bms${bms_id}_max_cell_voltage
+      name: "${name} ${bms_name} max cell voltage"
+    min_voltage_cell:
+      id: bms${bms_id}_min_voltage_cell
+      name: "${name} ${bms_name} min voltage cell"
+    max_voltage_cell:
+      id: bms${bms_id}_max_voltage_cell
+      name: "${name} ${bms_name} max voltage cell"
+    state_of_charge:
+      id: bms${bms_id}_state_of_charge
+      name: "${name} ${bms_name} state of charge"
+    delta_cell_voltage:
+      name: "${name} ${bms_name} delta cell voltage"
+    mosfet_temperature:
+      id: bms${bms_id}_temperature_sensor_1
+      name: "${name} ${bms_name} mosfet temperature"
+    battery_temperature:
+      id: bms${bms_id}_temperature_sensor_2
+      name: "${name} ${bms_name} battery temperature"
+    average_cell_voltage:
+      name: "${name} ${bms_name} average cell voltage"
+    cell_voltage_1:
+      name: "${name} ${bms_name} cell voltage 01"
+    cell_voltage_2:
+      name: "${name} ${bms_name} cell voltage 02"
+    cell_voltage_3:
+      name: "${name} ${bms_name} cell voltage 03"
+    cell_voltage_4:
+      name: "${name} ${bms_name} cell voltage 04"
+    cell_voltage_5:
+      name: "${name} ${bms_name} cell voltage 05"
+    cell_voltage_6:
+      name: "${name} ${bms_name} cell voltage 06"
+    cell_voltage_7:
+      name: "${name} ${bms_name} cell voltage 07"
+    cell_voltage_8:
+      name: "${name} ${bms_name} cell voltage 08"
+    cell_voltage_9:
+      name: "${name} ${bms_name} cell voltage 09"
+    cell_voltage_10:
+      name: "${name} ${bms_name} cell voltage 10"
+    cell_voltage_11:
+      name: "${name} ${bms_name} cell voltage 11"
+    cell_voltage_12:
+      name: "${name} ${bms_name} cell voltage 12"
+    cell_voltage_13:
+      name: "${name} ${bms_name} cell voltage 13"
+    cell_voltage_14:
+      name: "${name} ${bms_name} cell voltage 14"
+    cell_voltage_15:
+      name: "${name} ${bms_name} cell voltage 15"
+    cell_voltage_16:
+      name: "${name} ${bms_name} cell voltage 16"
+    # cell_voltage_17:
+    #   name: "${name} ${bms_name} cell voltage 17"
+    # cell_voltage_18:
+    #   name: "${name} ${bms_name} cell voltage 18"
+    # cell_voltage_19:
+    #   name: "${name} ${bms_name} cell voltage 19"
+    # cell_voltage_20:
+    #   name: "${name} ${bms_name} cell voltage 20"
+    # cell_voltage_21:
+    #   name: "${name} ${bms_name} cell voltage 21"
+    # cell_voltage_22:
+    #   name: "${name} ${bms_name} cell voltage 22"
+    # cell_voltage_23:
+    #   name: "${name} ${bms_name} cell voltage 23"
+    # cell_voltage_24:
+    #   name: "${name} ${bms_name} cell voltage 24"
+
+  # Required sensors cannot be retrieved from BMS
+  # battery_capacity
+  - platform: template
+    id: bms${bms_id}_battery_capacity
+    name: "${name} ${bms_name} Battery Capacity"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: Ah
+    device_class: energy_storage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_battery_capacity};
+
+  # capacity_remaining_ah
+  - platform: template
+    id: bms${bms_id}_capacity_remaining_ah
+    name: "${name} ${bms_name} Capacity Remaining"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: Ah
+    device_class: energy_storage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return (id(bms${bms_id}_battery_capacity).state * id(bms${bms_id}_state_of_charge).state / 100);
+
+  # max_charge_current
+  - platform: template
+    id: bms${bms_id}_max_charge_current
+    name: "${name} ${bms_name} max charge current"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: A
+    icon: mdi:current-dc
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_max_charge_current};
+
+  # max_discharge_current
+  - platform: template
+    id: bms${bms_id}_max_discharge_current
+    name: "${name} ${bms_name} max discharge current"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    unit_of_measurement: A
+    icon: mdi:current-dc
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return ${bms_max_discharge_current};
+
+  # cell_ovp
+  - platform: template
+    id: bms${bms_id}_cell_ovp
+    name: "${name} ${bms_name} cell ovp"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_ovp};
+
+  # cell_uvp
+  - platform: template
+    id: bms${bms_id}_cell_uvp
+    name: "${name} ${bms_name} cell uvp"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_uvp};
+
+  # balance_trigger_voltage
+  - platform: template
+    id: bms${bms_id}_balance_trigger_voltage
+    name: "${name} ${bms_name} balance trigger voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return 0.005;
+
+  # FAKE charging_cycles
+  - platform: template
+    id: bms${bms_id}_charging_cycles
+    name: "${name} ${bms_name} charging cycles"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:counter
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
+
+  # FAKE errors_bitmask
+  # Alarm management is not supported at this time
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_errors_bitmask
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;

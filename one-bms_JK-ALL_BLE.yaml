@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.4.5
+# Updated : 2024.11.11
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,7 +43,7 @@ ota:
 # Please use the native `api` component instead of the `mqtt` section.
 # If you use Home Assistant, the native API is more lightweight.
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
-# If you don't use Home Assistant please uncomment the "reboot_timeout: 0s" option.
+# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
 api:
   reboot_timeout: 0s
 
@@ -65,7 +65,16 @@ api:
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+
+# Max 3 BLE connections.
+# The BLE software stack (Bluedroid) on the ESP32 consumes a significant amount of RAM on the device.
+# Crashes are likely to occur if you include too many additional components in your device’s configuration.
+# https://esphome.io/components/ble_client.html
+
 packages:
+  device_base: !include packages/base/device_base.yaml
   # Board : uncomment your board
   device_board: !include packages/board/board_esp32-devkit-v1.yaml
   # device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
@@ -73,15 +82,14 @@ packages:
   # device_board: !include packages/board/board_atom-s3-lite.yaml
   
   # device_board: !include
-  #   file: packages/board/board_atom-s3-display.yaml
+  #   file: packages/board/board_atom-s3.yaml # board_atom-s3r.yaml
   #   vars:
   #     yambms_id: 'yambms1'
   #     canbus_id: 'canbus1'
-  
-  device_base: !include packages/base/device_base.yaml
+  #     display_auto_next_page_interval: '5s'
 
   # shunt1: !include
-  #   file: packages/shunt/shunt_victron_smartshunt.yaml # shunt_junctek_khf.yaml
+  #   file: packages/shunt/shunt_victron_smartshunt_UART.yaml # shunt_junctek_khf_UART.yaml
   #   vars:
   #     # YamBMS ID
   #     yambms_id: 'yambms1'
@@ -91,11 +99,6 @@ packages:
   #     shunt_update_interval: '3s'
   #     shunt_combine_interval: '1s'
   #     shunt_uart_id: uart_esp_0
-
-  # Max 3 BLE connections.
-  # The BLE software stack on the ESP32 consumes a significant amount of RAM on the device.
-  # Crashes are likely to occur if you include too many additional components in your device’s configuration.
-  # https://esphome.io/components/ble_client.html
 
   bms1: !include
     file: packages/bms/bms_JK-ALL_BLE_standard.yaml
@@ -108,7 +111,7 @@ packages:
       bms_update_interval: '3s'
       bms_combine_interval: '1s'
       bms_ble_protocol_version: JK02_32S # JK02_24S < hardware version 11.0 >= JK02_32S
-      bms_ble_mac_address: C8:47:8C:10:7E:AA
+      bms_ble_mac_address: C8:47:80:09:37:ED
   
   yambms1: !include
     file: packages/yambms/yambms.yaml
@@ -144,7 +147,7 @@ packages:
     file: packages/yambms/yambms_canbus.yaml
     vars:
       # YamBMS ID
-      yambms_id: 'yambms1'
+      yambms_id: 'yambms1' # YamBMS ID to retrieve information from
       # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
@@ -152,7 +155,7 @@ packages:
       canbus_light_id: 'esp_light'
       # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
       # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
-      canbus_link_timer: '5'
+      canbus_link_timer: '5s'
 
 # +--------------------------------------+
 # | DEBUG ( logger level must be DEBUG ) |

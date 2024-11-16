@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.2.3
+# Updated : 2024.11.11
+# Version : 1.2.4
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,10 +24,7 @@ substitutions:
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
-
-external_components:
-  - source: github://syssi/esphome-jk-bms@main
-    refresh: 0s
+  bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
 
 ota:
   on_begin:
@@ -36,8 +33,12 @@ ota:
       - logger.log: "BLE shutdown for flashing"
   
 # +--------------------------------------+
-# | JK-BMS BLE connection                |
+# | Component settings                   |
 # +--------------------------------------+
+
+external_components:
+  - source: github://syssi/esphome-jk-bms@main
+    refresh: 0s
 
 esp32_ble_tracker:
   scan_parameters:
@@ -57,51 +58,53 @@ esp32_ble_tracker:
 
 ble_client:
   - mac_address: ${bms_ble_mac_address}
-    id: client_bms${bms_id}
+    id: ble_client${bms_id}
 
 jk_bms_ble:
-  - ble_client_id: client_bms${bms_id}
+  - ble_client_id: ble_client${bms_id}
     protocol_version: ${bms_ble_protocol_version}
     throttle: ${bms_update_interval}
-    id: bms${bms_id}
+    id: jk_bms_ble${bms_id}
 
+# +--------------------------------------+
+# | Component entities                   |
 # +--------------------------------------+
 
 binary_sensor:
   - platform: jk_bms_ble
-    jk_bms_ble_id: bms${bms_id}
+    jk_bms_ble_id: jk_bms_ble${bms_id}
     balancing:
       id: bms${bms_id}_equalizing
       name: "${name} ${bms_name} balancing"
     charging:
+      id: bms${bms_id}_charging_allowed
       name: "${name} ${bms_name} charging"
     discharging:
+      id: bms${bms_id}_discharging_allowed
       name: "${name} ${bms_name} discharging"
     online_status:
-      name: "${name} ${bms_name} Online Status"
+      id: bms${bms_id}_online_status
+      name: "${name} ${bms_name} online status"
 
 switch:
   - platform: jk_bms_ble
-    jk_bms_ble_id: bms${bms_id}
+    jk_bms_ble_id: jk_bms_ble${bms_id}
     charging:
-      id: bms${bms_id}_switch_charging
       name: "${name} ${bms_name} Charge switch"
     discharging:
-      id: bms${bms_id}_switch_discharging
       name: "${name} ${bms_name} Discharge switch"
     balancer:
-      id: bms${bms_id}_switch_balancing
       name: "${name} ${bms_name} Balance switch"
     # +--------------------------------------+
   - platform: ble_client
-    ble_client_id: client_bms${bms_id}
+    ble_client_id: ble_client${bms_id}
     id: bms${bms_id}_enable_bluetooth_connection
     name: "${name} ${bms_name} Enable Bluetooth connection"
     # +--------------------------------------+
 
 sensor:
   - platform: jk_bms_ble
-    jk_bms_ble_id: bms${bms_id}
+    jk_bms_ble_id: jk_bms_ble${bms_id}
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
       name: "${name} ${bms_name} min cell voltage"
@@ -165,7 +168,7 @@ sensor:
 
 text_sensor:
   - platform: jk_bms_ble
-    jk_bms_ble_id: bms${bms_id}
+    jk_bms_ble_id: jk_bms_ble${bms_id}
     errors:
       name: "${name} ${bms_name} errors"
       entity_category: diagnostic
@@ -175,7 +178,7 @@ text_sensor:
 
 number:
   - platform: jk_bms_ble
-    jk_bms_ble_id: bms${bms_id}
+    jk_bms_ble_id: jk_bms_ble${bms_id}
     cell_count:
       id: bms${bms_id}_cell_count
       name: "${name} ${bms_name} cell count"
@@ -208,7 +211,7 @@ number:
 
 button:
   - platform: jk_bms_ble
-    jk_bms_ble_id: bms${bms_id}
+    jk_bms_ble_id: jk_bms_ble${bms_id}
     retrieve_settings:
       name: "${name} ${bms_name} retrieve settings"
       entity_category: config
