@@ -63,7 +63,7 @@ If soldering or creating your own board seems complicated to you, know that it i
 
 | Atomic S3 Lite | Atomic CAN Base | RS485 isolated Unit |
 | --- | --- | --- |
-| <img src="../../images/Atom_S3_Lite.png" width="300"> | <img src="../../images/CAN_Transceiver_Atomic_CAN_Base.png" width="300"> |  <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="300"> |
+| <img src="../../images/Atom_S3_Lite.png" width="300"> | <img src="../../images/CAN_Transceiver_M5Stack_Atomic_CAN_Base.png" width="300"> |  <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="300"> |
 
 The example below uses an Atom S3 (display) with the CAN base and RS485 unit.
 
