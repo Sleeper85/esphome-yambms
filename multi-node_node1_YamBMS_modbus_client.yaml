@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.5.1
+# Updated : 2024.12.23
+# Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  name: yambms-demo
+  name: yambms-node1
 
 # Don't forget to configure your WiFi credentials in the secrets.yaml file
 #
@@ -32,7 +32,7 @@ substitutions:
 #     dns2: 8.8.4.4
 
 logger:
-  level: DEBUG # DEBUG / INFO / WARN
+  level: INFO # DEBUG / INFO / WARN
 
 ota:
   platform: esphome
@@ -67,6 +67,10 @@ api:
 
 packages:
   device_base: !include packages/base/device_base.yaml
+  # Board : uncomment your board
+  # device_board: !include packages/board/board_esp32-devkit-v1.yaml
+  # device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
+  # device_board: !include packages/board/board_atom-s3-lite.yaml
   
   device_board: !include
     file: packages/board/board_atom-s3.yaml # board_atom-s3r.yaml
@@ -75,124 +79,86 @@ packages:
       canbus_id: 'canbus1'
       display_auto_next_page_interval: '5s'
 
-  shunt1: !include
-    file: packages/shunt/shunt_fake.yaml
+  # Config : this YAMLs contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
+
+  modbus: !include
+    file: packages/base/device_modbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Shunt vars
+      modbus_role: 'client' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  shunt1: !include
+    file: packages/shunt/shunt_combine_modbus_client.yaml
+    vars:
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
-      shunt_update_interval: '3s'
-      shunt_combine_interval: '1s'
-      # Shunt sensors values
-      shunt_voltage: '53.41' # V
-      shunt_current: '37.5' # A
-      shunt_power: '2003' # W
-      shunt_soc: '86' # %
 
   bms1: !include
-    file: packages/bms/bms_FAKE.yaml
+    file: packages/bms/bms_combine_modbus_client.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      # BMS sensors values
-      bms_battery_capacity: '280' # Ah
-      bms_battery_capacity_remaining: '243' # Ah
-      bms_voltage: '53.45' # V
-      bms_current: '9.2' # A
-      bms_power: '492' # W
-      bms_soc: '87' # %
-      bms_min_cell_voltage: '3.339' # V
-      bms_min_voltage_cell: '2' # cell number 1~16
-      bms_max_cell_voltage: '3.341' # V
-      bms_max_voltage_cell: '11' # cell number 1~16
-      bms_temperature_sensor_1: '21.1' # °C
-      bms_temperature_sensor_2: '21.3' # °C
-      bms_temperature_sensor_3: '21.5' # °C
-      bms_temperature_sensor_4: '21.7' # °C
-      bms_max_charge_current: '100' # A
-      bms_max_discharge_current: '100' # A
-      bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V                            Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      bms_balance_trigger_voltage: '0.010' # V             Used by 'Auto CVL' functions
-      bms_charging_cycles: '178' # charging cycles number  Used to calculate the SoH
-  
+
   bms2: !include
-    file: packages/bms/bms_FAKE.yaml
+    file: packages/bms/bms_combine_modbus_client.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '2' # must be a number
       bms_name: 'BMS 2'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      # BMS sensors values
-      bms_battery_capacity: '280' # Ah
-      bms_battery_capacity_remaining: '238' # Ah
-      bms_voltage: '53.41' # V
-      bms_current: '11.3' # A
-      bms_power: '604' # W
-      bms_soc: '85' # %
-      bms_min_cell_voltage: '3.337' # V
-      bms_min_voltage_cell: '14' # cell number 1~16
-      bms_max_cell_voltage: '3.339' # V
-      bms_max_voltage_cell: '3' # cell number 1~16
-      bms_temperature_sensor_1: '21.8' # °C
-      bms_temperature_sensor_2: '21.6' # °C
-      bms_temperature_sensor_3: '21.4' # °C
-      bms_temperature_sensor_4: '21.2' # °C
-      bms_max_charge_current: '100' # A
-      bms_max_discharge_current: '100' # A
-      bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V                            Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      bms_balance_trigger_voltage: '0.010' # V             Used by 'Auto CVL' functions
-      bms_charging_cycles: '226' # charging cycles number  Used to calculate the SoH
 
   bms3: !include
-    file: packages/bms/bms_FAKE.yaml
+    file: packages/bms/bms_combine_modbus_client.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '3' # must be a number
       bms_name: 'BMS 3'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      # BMS sensors values
-      bms_battery_capacity: '280' # Ah
-      bms_battery_capacity_remaining: '232' # Ah
-      bms_voltage: '53.37' # V
-      bms_current: '15.7' # A
-      bms_power: '838' # W
-      bms_soc: '83' # %
-      bms_min_cell_voltage: '3.334' # V
-      bms_min_voltage_cell: '7' # cell number 1~16
-      bms_max_cell_voltage: '3.336' # V
-      bms_max_voltage_cell: '9' # cell number 1~16
-      bms_temperature_sensor_1: '21.9' # °C
-      bms_temperature_sensor_2: '22.0' # °C
-      bms_temperature_sensor_3: '22.1' # °C
-      bms_temperature_sensor_4: '22.2' # °C
-      bms_max_charge_current: '100' # A
-      bms_max_discharge_current: '100' # A
-      bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V                            Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      bms_balance_trigger_voltage: '0.010' # V             Used by 'Auto CVL' functions
-      bms_charging_cycles: '194' # charging cycles number  Used to calculate the SoH
+
+  # bms4: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '4' # must be a number
+  #     bms_name: 'BMS 4'
+  
+  # bms5: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '5' # must be a number
+  #     bms_name: 'BMS 5'
+
+  # bms6: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '6' # must be a number
+  #     bms_name: 'BMS 6'
+
+  # bms7: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '7' # must be a number
+  #     bms_name: 'BMS 7'
+
+  # bms8: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '8' # must be a number
+  #     bms_name: 'BMS 8'
+
+  # bms9: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '9' # must be a number
+  #     bms_name: 'BMS 9'
+
+  # bms10: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '10' # must be a number
+  #     bms_name: 'BMS 10'
 
   yambms1: !include
     file: packages/yambms/yambms.yaml
     vars:
       # Please read the cut-off charging logic README to understand how the YamBMS works
-      yambms_id: 'yambms1'
-      yambms_name: 'YamBMS 1'
       yambms_update_interval: '1s'
       # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
       yambms_input_number_mode: 'slider'
@@ -220,9 +186,6 @@ packages:
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to retrieve information from
-      # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_node1'

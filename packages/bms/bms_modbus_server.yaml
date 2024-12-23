@@ -1,0 +1,157 @@
+# Updated : 2024.12.23
+# Version : 1.1.1
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+modbus_controller:
+  - modbus_id: modbus_server
+    address: ${bms_id} # max 255 (8bit)
+    server_registers:
+        # online_status (1/0)
+        - address: 1
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_online_status).state);
+        # charging_allowed (1/0)
+        - address: 2
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_charging_allowed).state);
+        # discharging_allowed (1/0)
+        - address: 3
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_discharging_allowed).state);
+        # equalizing (1/0)
+        - address: 4
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_equalizing).state);
+        # total_voltage (mV)
+        - address: 5
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(bms${bms_id}_total_voltage).state * 1000);
+        # current (mA) [signed]
+        - address: 7
+          value_type: S_DWORD
+          read_lambda: |-
+            return int32_t(id(bms${bms_id}_current).state * 1000);
+        # power (mW) [signed]
+        - address: 9
+          value_type: S_DWORD
+          read_lambda: |-
+            return int32_t(id(bms${bms_id}_power).state * 1000);
+        # soc (%)
+        - address: 11
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_state_of_charge).state);
+        # battery_capacity (Ah)
+        - address: 12
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_battery_capacity).state);
+        # capacity_remaining_ah (Ah)
+        - address: 13
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_capacity_remaining_ah).state);
+        # charging_cycles
+        - address: 14
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_charging_cycles).state);
+        # max_charge_current (A)
+        - address: 15
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_max_charge_current).state);
+        # max_discharge_current (A)
+        - address: 16
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_max_discharge_current).state);
+        # max_cell_voltage (mV)
+        - address: 17
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_max_cell_voltage).state * 1000);
+        # max_voltage_cell
+        - address: 18
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_max_voltage_cell).state);
+        # min_cell_voltage (mV)
+        - address: 19
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_min_cell_voltage).state * 1000);
+        # min_voltage_cell
+        - address: 20
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_min_voltage_cell).state);
+        # min_temperature (0.1°C) [signed]
+        - address: 21
+          value_type: S_WORD
+          read_lambda: |-
+            return int16_t(id(bms${bms_id}_min_temperature).state * 10);
+        # min_temperature_sensor
+        - address: 22
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_min_temperature_sensor).state);
+        # max_temperature (0.1°C) [signed]
+        - address: 23
+          value_type: S_WORD
+          read_lambda: |-
+            return int16_t(id(bms${bms_id}_max_temperature).state * 10);
+        # max_temperature_sensor
+        - address: 24
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_max_temperature_sensor).state);
+        # cell_ovp (mV)
+        - address: 25
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_cell_ovp).state * 1000);
+        # cell_uvp (mV)
+        - address: 26
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_cell_uvp).state * 1000);
+        # balance_trigger_voltage (mV)
+        - address: 27
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_balance_trigger_voltage).state * 1000);
+        # errors_bitmask
+        - address: 28
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_errors_bitmask).state);
+        # charging_power (mW)
+        - address: 29
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(bms${bms_id}_charging_power).state * 1000);
+        # discharging_power (mW)
+        - address: 31
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(bms${bms_id}_discharging_power).state * 1000);

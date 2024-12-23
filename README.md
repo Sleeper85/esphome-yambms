@@ -39,6 +39,36 @@
 
 ![Image](images/YamBMS_packaged_version.png "YamBMS packaged version")
 
+### Single-node
+
+You install `YamBMS` on a single ESP32 connected to your BMS and your inverter.
+
+* Max 2x BMS BLE
+* Max 3X BMS UART
+* several RS485 BMS on the same bus
+
+### Multi-node
+
+Each BMS/Shunt turns into a `modbus server` with its own address.
+
+> [!IMPORTANT]
+> The max number of `UART` BMS/Shunt per ESP32 is `2` (unless you use a UART expander) because you need to keep the last `UART` for the `RS485` network.
+> The max number of `BLE` BMS/Shunt per ESP32 is `2`, ESP32-S3 / AtomS3 can supervise `3` BLE devices.
+
+YamBMS installs on `node1` as a `modbus client` to collect information from all your BMS.
+The `node1` is also connected to your inverter via the `CAN bus`.
+
+The BMS/Shunt are connected to other ESP32 nodes connected on a dedicated RS485 bus for YamBMS. Each BMS/Shunt becomes a `modbus server`.
+
+The theoretical limit is `256` modbus server (BMS/Shunt) per `RS485 bus` but in reality this will depend on the capabilities of `node1` (YamBMS) which will have to combine all the BMS/Shunt together.
+
+[You can find more information about creating your YAML in this How To.](documents/README/YamBMS_main_YAML_HowTo.md)
+
+> [!TIP] 
+> If you have a lot of `BMS/Shunt` to combine, using an `ESP32-S3` or `AtomS3` for `node1` is recommended.
+
+![Image](images/YamBMS_multi-node_RS485_modbus.png "YamBMS multi-node RS485 modbus")
+
 ## Home Assistant
 
 ![Image](images/YamBMS_HA_Dashboard.png "YamBMS HA Dashboard")
@@ -85,6 +115,15 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Changelog
 
+* YamBMS 1.5.2 :
+  * Added shunt `Online Status` binary_sensor
+  * Shunt combine condition based on the new binary_sensor `Online Status`
+  * Logger `baud_rate: 0` by default (frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus")
+  * Changed names of `bms` and `shunt` YAMLs for modbus `multi-node` solution
+  * Added shared configuration file to simplify main YAML (centralization of parameters)
+  * Simplification (fewer options) when importing `BMS / Shunt` YAMLs
+  * New `multi-node` solution using `RS485 modbus` to communicate information to YamBMS
+  * New board `espBerry` with `2-CH-CAN HAT`
 * YamBMS 1.5.1 :
   * The conditions for `combining` BMS and the `charging` and `discharging` instructions no longer have any relation with the `errors_bitmask` sensor, the new system relies on the three **binary_sensor** `online status`, `charging allowed` and `discharging allowed` being linked to the status of alarms and switches.
   * The BMS combination procedure has been completely rewritten.

@@ -6,7 +6,6 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
-
 > [!IMPORTANT]
 > BMS monitoring with `Bluetooth` as well as the `Web server` are RAM-intensive components.
 > Please note that enabling these components will take up a lot of memory and may decrease the stability of your ESP32.
@@ -154,50 +153,153 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
   device_board: !include packages/board/board_esp32-c3-eth01-evo.yaml
 ```
 
-## BMS
-
-The example YAMLs are just examples, you can mix different BMS models without problems.
-
-There are other `bms.yaml` not mentioned here, see in the [bms](../../packages/bms/) folder.
-
-The `full` / `standard` versions contain all available sensors while the `minimal` version contains the basic sensors without the voltages of each cell and other superfluous sensors.
-
-### Multi-BMS example
+## YamBMS single-node example
 
 ```YAML
-  bms1: !include
-    file: packages/bms/bms_model.yaml
+  # Config : this YAML contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+
+  shunt1: !include
+    file: packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # BMS vars
+      shunt_id: '1' # must be a number
+      shunt_name: 'Shunt 1'
+      # other settings
+      # ...
+
+  bms1: !include
+    file: packages/bms/bms_combine_JK-B_UART_full.yaml
+    vars:
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
       # other settings
       # ...
 
   bms2: !include
-    file: packages/bms/bms_model.yaml
+    file: packages/bms/bms_combine_JBD_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # BMS vars
       bms_id: '2' # must be a number
+      bms_name: 'BMS 2'
+      # other settings
+      # ...
+```
+
+## YamBMS multi-node RS485 modbus example
+
+> [!IMPORTANT]
+> The BMS/Shunt IDs of the `modbus client` must match exactly with the BMS/Shunt IDs of the `modbus server` as in the example below.
+
+### YamBMS modbus client `node1`
+
+```YAML
+  # Config : this YAMLs contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
+
+  modbus: !include
+    file: packages/base/device_modbus.yaml
+    vars:
+      modbus_role: 'client' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  shunt1: !include
+    file: packages/shunt/shunt_combine_modbus_client.yaml # a Shunt connected to a node of the RS485 bus
+    vars:
+      shunt_id: '1' # must be a number, also represents the modbus server number (200 + shunt_id) !
+      shunt_name: 'Shunt 1'
+
+  bms1: !include
+    file: packages/bms/bms_combine_modbus_client.yaml # a BMS connected to a node of the RS485 bus
+    vars:
+      bms_id: '1' # must be a number, also represents the modbus server number !
+      bms_name: 'BMS 1'
+
+  bms2: !include
+    file: packages/bms/bms_combine_modbus_client.yaml # a BMS connected to a node of the RS485 bus
+    vars:
+      bms_id: '2' # must be a number, also represents the modbus server number !
+      bms_name: 'BMS 2'
+
+  bms3: !include
+    file: packages/bms/bms_combine_modbus_client.yaml # a BMS connected to a node of the RS485 bus
+    vars:
+      bms_id: '3' # must be a number, also represents the modbus server number !
+      bms_name: 'BMS 3'
+```
+
+### ESP32 modbus server `node2`
+
+```YAML
+  # Config : this YAMLs contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
+
+  modbus: !include
+    file: packages/base/device_modbus.yaml
+    vars:
+      modbus_role: 'server' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  shunt1: !include
+    file: packages/shunt/shunt_modbus_Victron_SmartShunt_UART.yaml
+    vars:
+      shunt_id: '1' # must be a number, also represents the modbus server number (200 + shunt_id) !
+      shunt_name: 'Shunt 1'
+      # other settings
+      # ...
+
+  bms1: !include
+    file: packages/bms/bms_modbus_JK-B_UART_full.yaml
+    vars:
+      bms_id: '1' # must be a number, also represents the modbus server number !
+      bms_name: 'BMS 1'
+      # other settings
+      # ...
+```
+
+### ESP32 modbus server `node3`
+
+```YAML
+  # Config : this YAMLs contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
+
+  modbus: !include
+    file: packages/base/device_modbus.yaml
+    vars:
+      modbus_role: 'server' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  bms2: !include
+    file: packages/bms/bms_modbus_JK-ALL_BLE_standard.yaml
+    vars:
+      bms_id: '2' # must be a number, also represents the modbus server number !
       bms_name: 'BMS 2'
       # other settings
       # ...
 
   bms3: !include
-    file: packages/bms/bms_model.yaml
+    file: packages/bms/bms_modbus_JK-ALL_BLE_standard.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # BMS vars
-      bms_id: '3' # must be a number
+      bms_id: '3' # must be a number, also represents the modbus server number !
       bms_name: 'BMS 3'
       # other settings
       # ...
 ```
+
+## BMS
+
+> [!IMPORTANT]
+> You must number your `BMS` in order starting with the number `1`.
+
+> [!TIP]
+> YAML files whose name starts with `bms_combine` are to be used on the main `YamBMS` node connected to your inverter, those whose name starts with `bms_modbus` are to be used on the other nodes connected to the `RS485` bus.
+
+The example YAMLs are just examples, you can mix different BMS models without problems.
+
+There are other `bms.yaml` not mentioned here, see in the [bms](../../packages/bms/) folder.
+
+The `full` / `standard` versions contain all available sensors while the `minimal` version contains the basic sensors without the voltages of each cell and other superfluous sensors.
 
 ### [JK-ALL (BLE)](https://github.com/syssi/esphome-jk-bms)
 
@@ -208,33 +310,25 @@ The `full` / `standard` versions contain all available sensors while the `minima
 
 ```YAML
   bms1: !include
-    file: packages/bms/bms_JK-ALL_BLE_standard.yaml
+    file: packages/bms/bms_combine_JK-ALL_BLE_standard.yaml # bms_modbus_JK-ALL_BLE_standard.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_ble_protocol_version: JK02_32S # JK02_24S < hardware version 11.0 >= JK02_32S
-      bms_ble_mac_address: C8:47:8C:10:7E:AA
+      bms_ble_protocol_version: 'JK02_32S' # JK02_24S < hardware version 11.0 >= JK02_32S
+      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
 ```
 
 ### [JK-B (UART)](https://github.com/syssi/esphome-jk-bms)
 
+[How to make the UART connection with the ESP32.](BMS_JK-B_UART_solution.md)
+
 ```YAML
   bms1: !include
-    file: packages/bms/bms_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK-B_UART_full.yaml # bms_modbus_JK-B_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_esp_1
+      bms_uart_id: 'uart_esp_1'
 ```
 
 ### [JK-B (RS485 DISPLAY)](https://github.com/syssi/esphome-jk-bms)
@@ -244,18 +338,15 @@ The `full` / `standard` versions contain all available sensors while the `minima
 > The missing information has been added in the code by fixed values.
 > e.g. it's not possible to know if the BMS is `online` or if the BMS is `equalizing` the cells.
 
+[How to make the RS485 connection with the ESP32.](BMS_JK-B_RS485_DISPLAY_solution.md)
+
 ```YAML
   bms1: !include
-    file: packages/bms/bms_JK-B_RS485_DISPLAY_full.yaml
+    file: packages/bms/bms_combine_JK-B_RS485_DISPLAY_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_esp_1
+      bms_uart_id: 'uart_esp_1'
       # Required settings cannot be retrieved from BMS
       # These values ​​must match your BMS settings
       # LFP values example
@@ -270,6 +361,8 @@ The `full` / `standard` versions contain all available sensors while the `minima
 
 A single `RS485 bus` allows you to monitor up to `16` BMS.
 
+[How to make the RS485 connection with the ESP32.](BMS_JK-PB_RS485_solution.md)
+
 #### JK-PB sniffer
 
 > [!IMPORTANT]
@@ -283,7 +376,7 @@ Sniffer without `talk_pin` :
 
 ```YAML
   sniffer1: !include
-    file: packages/bms/bms_JK-PB_RS485_sniffer.yaml
+    file: packages/bms/bms_combine_JK-PB_RS485_sniffer.yaml
     vars:
       sniffer_id: 'sniffer1'
       sniffer_protocol: 'JK02_32S'
@@ -294,7 +387,7 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
 
 ```YAML
   sniffer1: !include
-    file: packages/bms/bms_JK-PB_RS485_sniffer_talk_pin.yaml
+    file: packages/bms/bms_combine_JK-PB_RS485_sniffer_talk_pin.yaml
     vars:
       sniffer_id: 'sniffer1'
       sniffer_protocol: 'JK02_32S'
@@ -307,35 +400,26 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
 ```YAML
   # Mode2 : configure the DIP switches of your BMS from 0x01 to 0x0F (don't use the 0x00 address, maximum 15 BMS)
   bms1: !include
-    file: packages/bms/bms_JK-PB_RS485_bms_full.yaml
+    file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
       # Sniffer ID
       sniffer_id: 'sniffer1'
       # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
       bms_rs485_address: '0x01' # BMS 1 DIP switch
-      bms_update_interval: '3s' # going below '3s' can cause problems
-      bms_combine_interval: '1s'
 ```
 
 ### [JBD (UART)](https://github.com/syssi/esphome-jbd-bms)
 
 ```YAML
   bms1: !include
-    file: packages/bms/bms_JBD_UART_full.yaml
+    file: packages/bms/bms_combine_JBD_UART_full.yaml # bms_modbus_JBD_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_esp_1
-      bms_rx_timeout: 150ms
+      bms_uart_id: 'uart_esp_1'
+      bms_rx_timeout: '150ms'
       # Required settings cannot be retrieved from BMS
       # These values ​​must match your BMS settings
       # LFP values example
@@ -363,22 +447,20 @@ A single `RS485 bus` allows you to monitor up to `16` BMS.
 
 ```YAML
   seplos_modbus1: !include
-    file: packages/bms/bms_SEPLOS_V1_V2_RS485_modbus.yaml
+    file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_modbus.yaml
     vars:
       seplos_modbus_id: 'seplos_modbus1'
       seplos_modbus_uart_id: 'uart_esp_1'
-      seplos_modbus_baud_rate: '9600' # Please set the baudrate of your Seplos BMS model here. It's sometimes 19200 baud instead of 9600.
-      seplos_modbus_rx_timeout: 150ms
+      seplos_modbus_baud_rate: '9600' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
+      seplos_modbus_rx_timeout: '150ms'
 ```
 
 #### Seplos V1/V2 BMS
 
 ```YAML
   bms1: !include
-    file: packages/bms/bms_SEPLOS_V1_V2_RS485_bms_full.yaml
+    file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
       # Seplos modbus ID
       seplos_modbus_id: 'seplos_modbus1'
       # BMS vars
@@ -386,8 +468,6 @@ A single `RS485 bus` allows you to monitor up to `16` BMS.
       bms_name: 'BMS 1'
       bms_rs485_address: '0x01' # BMS 1 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
-      bms_update_interval: '3s' # 10s @syssi example
-      bms_combine_interval: '1s'
       # Required settings cannot be retrieved from BMS
       # These values ​​must match your BMS settings
       # LFP values example
@@ -400,22 +480,26 @@ A single `RS485 bus` allows you to monitor up to `16` BMS.
 
 ## Shunt
 
+> [!IMPORTANT]
+> You must number your `Shunt` in order starting with the number `1`.
+
+> [!TIP]
+> YAML files whose name starts with `shunt_combine` are to be used on the main `YamBMS` node connected to your inverter, those whose name starts with `shunt_modbus` are to be used on the other nodes connected to the `RS485` bus.
+
 As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_behavior.md#shunt)) the values ​​`Voltage`, `Current`, `Power` and `SoC` of the shunt(s) will take precedence over the BMS values.
+
 
 ### [Victron Smartshunt (UART)](https://github.com/KinDR007/VictronMPPT-ESPHOME)
 
+[How to make the UART connection with the ESP32.](Shunt_Victron_SmartShunt_HowTo.md)
+
 ```YAML
   shunt1: !include
-    file: packages/shunt/shunt_victron_smartshunt_UART.yaml
+    file: packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml # shunt_modbus_Victron_SmartShunt_UART.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # Shunt vars
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
-      shunt_update_interval: '3s'
-      shunt_combine_interval: '1s'
-      shunt_uart_id: uart_esp_1
+      shunt_uart_id: 'uart_esp_1'
 ```
 
 ### [Victron Smartshunt (BLE)](https://github.com/Fabian-Schmidt/esphome-victron_ble)
@@ -425,18 +509,15 @@ As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_b
 > Crashes are likely to occur if you include too many additional components in your device’s configuration.
 > I recommend using `UART` or `RS485` if possible.
 
+[How to make the BLE connection with the ESP32.](Shunt_Victron_SmartShunt_HowTo.md)
+
 ```YAML
   shunt1: !include
-    file: packages/shunt/shunt_victron_smartshunt_BLE.yaml
+    file: packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml # shunt_modbus_Victron_SmartShunt_BLE.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # Shunt vars
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
-      shunt_update_interval: '3s'
-      shunt_combine_interval: '1s'
-      shunt_mac_address: '60:A4:23:91:8F:55'
+      shunt_mac_address: '60:A4:23:91:8F:55' # Your MAC address
       shunt_encryption_key: '0df4d0395b7d1a876c0c33ecb9e70dcd' # Your encryption key
 ```
 
@@ -444,19 +525,17 @@ As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_b
 
 ```YAML
   shunt1: !include
-    file: packages/shunt/shunt_junctek_khf_UART.yaml
+    file: packages/shunt/shunt_combine_Junctek_KHF_UART.yaml # shunt_modbus_Junctek_KHF_UART.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to send information to
-      # Shunt vars
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
-      shunt_update_interval: '3s'
-      shunt_combine_interval: '1s'
-      shunt_uart_id: uart_esp_1
+      shunt_uart_id: 'uart_esp_1'
 ```
 
 ## YamBMS
+
+> [!TIP]
+> This package is only used with the `YamBMS` main node.
 
 > [!CAUTION]
 > By default, `YamBMS` is configured with the values ​​for a 16S LFP battery !
@@ -468,8 +547,6 @@ Take the time to configure `YamBMS` correctly according to your battery chemistr
     file: packages/yambms/yambms.yaml
     vars:
       # Please read the cut-off charging logic README to understand how the YamBMS works
-      yambms_id: 'yambms1'
-      yambms_name: 'YamBMS 1'
       yambms_update_interval: '1s'
       # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
       yambms_input_number_mode: 'slider'
@@ -497,6 +574,10 @@ Take the time to configure `YamBMS` correctly according to your battery chemistr
 
 ## CAN bus
 
+> [!TIP]
+> This package is only used with the `YamBMS` main node.
+> It's possible to use this package multiple times in order to send information on two different CAN bus.
+
 The CAN bus connected to your inverter via the CAN transceiver `canbus_node1`.
 
 You can keep the default configuration.
@@ -505,8 +586,6 @@ You can keep the default configuration.
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to retrieve information from
       # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'

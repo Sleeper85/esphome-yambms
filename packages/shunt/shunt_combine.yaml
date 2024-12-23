@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.5.1
+# Updated : 2024.12.23
+# Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -34,7 +34,7 @@ binary_sensor:
   - platform: template
     name: "${name} ${shunt_name} Combine Availability"
     id: shunt${shunt_id}_availability
-    lambda: return (id(shunt${shunt_id}_voltage).state > 0);
+    lambda: return (id(shunt${shunt_id}_online_status).state);
 
   # Can be combined (indicated, if the Shunt can be combined)
   - platform: template

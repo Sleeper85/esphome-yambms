@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.2.4
+# Updated : 2024.12.23
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -48,6 +48,9 @@ wifi:
     password: "Y4mBM$85"
 
 captive_portal:
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
 
 uart:
   # UART 1

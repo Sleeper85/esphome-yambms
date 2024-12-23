@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.5.1
+# Updated : 2024.12.23
+# Version : 1.5.2
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -25,7 +25,7 @@ substitutions:
 
   uart0_baudrate: '2400'    #WKS         {RJ45-UART0} 
   uart1_baudrate: '38400'   #JSY193
-  uart2_baudrate: '19200'   #smartshunt
+  uart2_baudrate: '19200'   #SmartShunt
   uart3_baudrate: '9600'    #SRNE        {RJ45-UART3} 
   uart4_baudrate: '115200'  #JK-BMS 1
   uart5_baudrate: '115200'  #JK-BMS 2
@@ -80,6 +80,9 @@ packages:
   device_base: !include packages/base/device_base.yaml
   device_board: !include packages/board/board_pvbrain2.yaml
 
+  # Config : this YAML contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+
   # BUS
   # bus_i2c0: !include pvbrain2/base/device_bus_i2c0.yaml # SX1509 and BME280/BMP280
   bus_spi1: !include pvbrain2/base/device_bus_spi1.yaml # MCP2515
@@ -102,47 +105,30 @@ packages:
   # You don't have to import a shunt but you must import at least one BMS.
 
   shunt1: !include
-    file: packages/shunt/shunt_victron_smartshunt_UART_pvbrain2.yaml # shunt_junctek_khf_UART.yaml
+    file: packages/shunt/shunt_combine_Victron_SmartShunt_UART_expander.yaml # shunt_combine_Junctek_KHF_UART.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # Shunt vars
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
-      shunt_update_interval: '3s'
-      shunt_combine_interval: '1s'
-      shunt_uart_id: uart_${uart_hub_bus}_2
+      shunt_uart_id: 'uart_${uart_hub_bus}_2'
 
   bms1: !include
-    file: packages/bms/bms_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK-B_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_${uart_hub_bus}_4
+      bms_uart_id: 'uart_${uart_hub_bus}_4'
   
   bms2: !include
-    file: packages/bms/bms_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK-B_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '2' # must be a number
       bms_name: 'JK-BMS 2'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_${uart_hub_bus}_5
+      bms_uart_id: 'uart_${uart_hub_bus}_5'
 
   yambms1: !include
     file: packages/yambms/yambms.yaml
     vars:
       # Please read the cut-off charging logic README to understand how the YamBMS works
-      yambms_id: 'yambms1'
-      yambms_name: 'YamBMS 1'
       yambms_update_interval: '1s'
       # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
       yambms_input_number_mode: 'slider'
@@ -170,9 +156,6 @@ packages:
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to retrieve information from
-      # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_node1'

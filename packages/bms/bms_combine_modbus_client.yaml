@@ -1,0 +1,444 @@
+# Updated : 2024.12.23
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  bms_model: "YamBMS"
+  bms_protocol: "Modbus"
+
+packages:
+  bms_combine: !include bms_combine.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+modbus_controller:
+  - id: modbus_controller${bms_id}
+    modbus_id: modbus_client
+    setup_priority: -10
+    address: ${bms_id}
+    update_interval: ${modbus_update_interval}
+    command_throttle: ${modbus_command_throttle}
+    max_cmd_retries: 3
+    # offline_skip_updates: 5
+    on_online:
+      then:
+        - logger.log: "BMS ${bms_id} modbus server back online !"
+    on_offline:
+      then:
+        - logger.log: "BMS ${bms_id} modbus server goes offline !"
+        - lambda: id(bms${bms_id}_online_status).publish_state(false);
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_online_status
+    name: "${name} ${bms_name} Online Status"
+    register_type: read
+    address: 1
+  # charging_allowed
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_charging_allowed
+    name: "${name} ${bms_name} Charging allowed"
+    register_type: read
+    address: 2
+  # discharging_allowed
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_discharging_allowed
+    name: "${name} ${bms_name} Discharging allowed"
+    register_type: read
+    address: 3
+  # equalizing
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} Equalizing state"
+    register_type: read
+    address: 4
+
+sensor:
+  # total_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_total_voltage
+    name: "${name} ${bms_name} Total Voltage"
+    register_type: read
+    address: 5
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # current
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_current
+    name: "${name} ${bms_name} Current"
+    register_type: read
+    address: 7
+    value_type: S_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: A
+    device_class: current
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # power
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_power
+    name: "${name} ${bms_name} Power"
+    register_type: read
+    address: 9
+    value_type: S_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # state_of_charge
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_state_of_charge
+    name: "${name} ${bms_name} SoC"
+    register_type: read
+    address: 11
+    value_type: U_WORD
+    accuracy_decimals: 0
+    unit_of_measurement: '%'
+    device_class: battery
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # battery_capacity
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_battery_capacity
+    name: "${name} ${bms_name} Battery Capacity"
+    register_type: read
+    address: 12
+    value_type: U_WORD
+    accuracy_decimals: 0
+    unit_of_measurement: Ah
+    device_class: energy_storage
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # battery_capacity_ah
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_capacity_remaining_ah
+    name: "${name} ${bms_name} Capacity Remaining"
+    register_type: read
+    address: 13
+    value_type: U_WORD
+    accuracy_decimals: 0
+    unit_of_measurement: Ah
+    device_class: energy_storage
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # charging_cycles
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_charging_cycles
+    name: "${name} ${bms_name} charging cycles"
+    register_type: read
+    address: 14
+    value_type: U_WORD
+    accuracy_decimals: 0
+    icon: mdi:counter
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # max_charge_current
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_max_charge_current
+    name: "${name} ${bms_name} Max Charge Current"
+    register_type: read
+    address: 15
+    value_type: U_WORD
+    accuracy_decimals: 0
+    unit_of_measurement: A
+    icon: mdi:current-dc
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # max_discharge_current
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_max_discharge_current
+    name: "${name} ${bms_name} Max Discharge Current"
+    register_type: read
+    address: 16
+    value_type: U_WORD
+    accuracy_decimals: 0
+    unit_of_measurement: A
+    icon: mdi:current-dc
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # max_cell_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_max_cell_voltage
+    name: "${name} ${bms_name} Max Cell Voltage"
+    register_type: read
+    address: 17
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+  # max_voltage_cell
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_max_voltage_cell
+    name: "${name} ${bms_name} Max Voltage Cell"
+    register_type: read
+    address: 18
+    value_type: U_WORD
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # min_cell_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_min_cell_voltage
+    name: "${name} ${bms_name} Min Cell Voltage"
+    register_type: read
+    address: 19
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+  # min_voltage_cell
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_min_voltage_cell
+    name: "${name} ${bms_name} Min Voltage Cell"
+    register_type: read
+    address: 20
+    value_type: U_WORD
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # min_temperature
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_min_temperature
+    name: "${name} ${bms_name} Min temperature"
+    register_type: read
+    address: 21
+    value_type: S_WORD
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - multiply: 0.1
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+  # min_temperature_sensor
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_min_temperature_sensor
+    name: "${name} ${bms_name} Min temperature sensor"
+    register_type: read
+    address: 22
+    value_type: U_WORD
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # max_temperature
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_max_temperature
+    name: "${name} ${bms_name} Max temperature"
+    register_type: read
+    address: 23
+    value_type: S_WORD
+    accuracy_decimals: 1
+    unit_of_measurement: °C
+    device_class: temperature
+    filters:
+      - multiply: 0.1
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+  # max_temperature_sensor
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_max_temperature_sensor
+    name: "${name} ${bms_name} Max temperature sensor"
+    register_type: read
+    address: 24
+    value_type: U_WORD
+    accuracy_decimals: 0
+    icon: mdi:numeric
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # cell_ovp
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_cell_ovp
+    name: "${name} ${bms_name} Cell OVP"
+    register_type: read
+    address: 25
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+  # cell_uvp
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_cell_uvp
+    name: "${name} ${bms_name} Cell UVP"
+    register_type: read
+    address: 26
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+  # balance_trigger_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_balance_trigger_voltage
+    name: "${name} ${bms_name} Balance Trigger Voltage"
+    register_type: read
+    address: 27
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+  # errors_bitmask (16bits)
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_errors_bitmask
+    name: "${name} ${bms_name} Errors Bitmask"
+    register_type: read
+    address: 28
+    value_type: U_WORD
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # charging_power
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_charging_power
+    name: "${name} ${bms_name} Charging Power"
+    register_type: read
+    address: 29
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # discharging_power
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller${bms_id}
+    id: bms${bms_id}_discharging_power
+    name: "${name} ${bms_name} Discharging Power"
+    register_type: read
+    address: 31
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01

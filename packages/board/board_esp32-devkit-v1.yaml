@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.2.4
+# Updated : 2024.12.23
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,7 +28,7 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
 wifi:
   id: my_network
@@ -40,6 +40,9 @@ wifi:
     password: "Y4mBM$85"
 
 captive_portal:
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
 
 uart:
   # UART 0 : uart used for ESP32 flashing and logs, can be released if necessary (tx_pin: 1, rx_pin: 3)
@@ -55,6 +58,12 @@ uart:
     rx_pin: 18
     baud_rate: 115200
     rx_buffer_size: 512
+  # UART 3
+  # - id: uart_esp_2
+  #   tx_pin: 26
+  #   rx_pin: 25
+  #   baud_rate: 115200
+  #   rx_buffer_size: 512
 
 canbus:
   # CANBUS NODE 1

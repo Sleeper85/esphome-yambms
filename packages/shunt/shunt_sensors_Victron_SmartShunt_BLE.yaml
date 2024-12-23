@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.1.1
+# Updated : 2024.12.23
+# Version : 1.1.3
 # GitHub  : https://github.com/Fabian-Schmidt/esphome-victron_ble
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,7 +19,6 @@
 
 packages:
   shunt_base: !include shunt_base.yaml
-  shunt_combine: !include shunt_combine.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -53,11 +52,31 @@ victron_ble:
 # TIME_TO_GO in minutes
 
 # (*) Available if device aux port is configured.
-
 # The amount of charged and discharged energy is in the field CONSUMED_AH.
 # The battery SOC is in the field STATE_OF_CHARGE.
-
 # These are all available fields transmitted by the Victron Battery Shunt. I cannot add additional fields.
+
+binary_sensor:
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    name: "${name} ${shunt_name} Battery has Alarm"
+    type: ALARM
+  # Required sensors cannot be retrieved from Shunt
+  # online_status
+  - platform: template
+    id: shunt${shunt_id}_online_status
+    name: "${name} ${shunt_name} Online Status"
+    lambda: |-
+      if (id(shunt${shunt_id}_voltage).state > 0)
+        return true;
+      else
+        return false;
+
+text_sensor:
+  - platform: victron_ble
+    victron_ble_id: victron_ble${shunt_id}
+    name: "${name} ${shunt_name} Battery Alarm reason"
+    type: ALARM_REASON
 
 sensor:
   - platform: victron_ble
@@ -92,15 +111,3 @@ sensor:
   #   victron_ble_id: victron_ble${shunt_id}
   #   name: "${name} ${shunt_name} Starter Battery" # BAUX_VOLTAGE or MID_VOLTAGE or TEMPERATURE, depending on configuration of SmartShunt.
   #   type: AUX_VOLTAGE
-
-binary_sensor:
-  - platform: victron_ble
-    victron_ble_id: victron_ble${shunt_id}
-    name: "${name} ${shunt_name} Battery has Alarm"
-    type: ALARM
-
-text_sensor:
-  - platform: victron_ble
-    victron_ble_id: victron_ble${shunt_id}
-    name: "${name} ${shunt_name} Battery Alarm reason"
-    type: ALARM_REASON

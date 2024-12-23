@@ -8,6 +8,8 @@
 
 ## Contents
 
-1) [JK-B BMS UART (GPS port) solution](BMS_JK-B_UART_solution.md)
-2) [JK-B BMS RS485 (Display port) solution](BMS_JK-B_RS485_DISPLAY_solution.md)
-3) [JK-PB BMS RS485 solution](BMS_JK-PB_RS485_solution.md)
+1) [Galvanic isolation](Galvanic_isolation.md)
+2) [JK-B BMS UART (GPS port) solution](BMS_JK-B_UART_solution.md)
+3) [JK-B BMS RS485 (Display port) solution](BMS_JK-B_RS485_DISPLAY_solution.md)
+4) [JK-PB BMS RS485 solution](BMS_JK-PB_RS485_solution.md)
+5) [Victron SmartShunt How To](Shunt_Victron_SmartShunt_HowTo.md)
