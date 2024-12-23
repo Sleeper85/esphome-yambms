@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.5.1
+# Updated : 2024.12.23
+# Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -79,48 +79,34 @@ packages:
   #     canbus_id: 'canbus1'
   #     display_auto_next_page_interval: '5s'
 
+  # Config : this YAML contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+
   # shunt1: !include
-  #   file: packages/shunt/shunt_victron_smartshunt_UART.yaml # shunt_junctek_khf_UART.yaml
+  #   file: packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml # shunt_combine_Junctek_KHF_UART.yaml
   #   vars:
-  #     # YamBMS ID
-  #     yambms_id: 'yambms1'
-  #     # Shunt vars
   #     shunt_id: '1' # must be a number
   #     shunt_name: 'Shunt 1'
-  #     shunt_update_interval: '3s'
-  #     shunt_combine_interval: '1s'
   #     shunt_uart_id: uart_esp_0
 
   bms1: !include
-    file: packages/bms/bms_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK-B_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_esp_1
+      bms_uart_id: 'uart_esp_1'
   
   bms2: !include
-    file: packages/bms/bms_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK-B_UART_full.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # BMS vars
       bms_id: '2' # must be a number
       bms_name: 'JK-BMS 2'
-      bms_update_interval: '3s'
-      bms_combine_interval: '1s'
-      bms_uart_id: uart_esp_2
+      bms_uart_id: 'uart_esp_2'
 
   yambms1: !include
     file: packages/yambms/yambms.yaml
     vars:
       # Please read the cut-off charging logic README to understand how the YamBMS works
-      yambms_id: 'yambms1'
-      yambms_name: 'YamBMS 1'
       yambms_update_interval: '1s'
       # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
       yambms_input_number_mode: 'slider'
@@ -148,9 +134,6 @@ packages:
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1' # YamBMS ID to retrieve information from
-      # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_node1'

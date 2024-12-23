@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.2.4
+# Updated : 2024.12.23
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,7 +29,7 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
   on_boot:
     then:
       - light.turn_on:
@@ -51,6 +51,7 @@ wifi:
 captive_portal:
 
 logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: USB_SERIAL_JTAG
 
 uart:

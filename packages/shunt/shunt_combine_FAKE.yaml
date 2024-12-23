@@ -21,6 +21,18 @@ packages:
   shunt_base: !include shunt_base.yaml
   shunt_combine: !include shunt_combine.yaml
 
+binary_sensor:
+  # Required sensors cannot be retrieved from Shunt
+  # online_status
+  - platform: template
+    id: shunt${shunt_id}_online_status
+    name: "${name} ${shunt_name} Online Status"
+    lambda: |-
+      if (id(shunt${shunt_id}_voltage).state > 0)
+        return true;
+      else
+        return false;
+
 sensor:
   # total_voltage
   - platform: template

@@ -19,34 +19,7 @@
 ## Galvanic isolation of the `UART-TTL` connection
 
 > [!CAUTION]
-> `V1` and `V2` must be isolated and cannot come from the same source. `V1` (JK GPS port side) can be powered by the `3V3` of the ESP32 via a `DC-DC isolator` (**B0303S = 3V3-to-3V3**), `V2` (ESP32 side) is powered directly by the `3V3` of the ESP32.
-
-```
-┌────────────┐   |         ┌──────────┐             ┌───────────┐
-│            |   └─3V3--V1>│          |<V2---3V3---<|           |
-│   DEVICE   │<RX-------AO<│ UART-TTL │<AI-------TX<|   ESP32   |
-│   JK BMS   │>TX-------AI>│ ISOLATOR │>BO-------RX>|           |
-│            │<----GND---->│          │<----GND---->|           |
-└────────────┘             └──────────┘             └───────────┘
-```
-
-Here are some components available on the market allowing you to set up galvanic isolation. The `UART-TTL isolator 2` seems a little better isolated with more space below the chip.
-
-* [UART-TTL isolator 1](https://a.aliexpress.com/_EuXszn7)
-* [UART-TTL isolator 2](https://a.aliexpress.com/_EItDRvX)
-* [DC-DC isolator](https://a.aliexpress.com/_EIsPAoh)
-
-![Image](../../images/UART-TTL_isolator_1.png "UART-TTL isolator example")
-
-| [UART-TTL isolator](https://a.aliexpress.com/_EItDRvX) | [DC-DC isolator](https://a.aliexpress.com/_EIsPAoh) |
-| --- | --- |
-| <img src="../../images/UART-TTL_isolator_2.png" width="400"> | <img src="../../images/DC-DC_3V3-to-3V3_isolator.png" width="400"> |
-
-### Another solution would be the use of M5Stack's isolated RS485 unit.
-
-| [M5Stack RS485 unit (isolated)](https://docs.m5stack.com/en/unit/iso485) |
-| --- |
-| <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="400"> |
+> [Please read this page about setting up galvanic isolation of the `UART-TTL` connection.](Galvanic_isolation.md)
 
 ### Atom S3 (ESP32-S3)
 
@@ -143,10 +116,10 @@ The `GPS` port sometimes called `RS485` is not an `RS485` port but `3V3 UART-TTL
 │ O   O   O   O  │
 │GND  RX  TX VBAT│ 
 └────────────────┘
-  │   │   │   | VBAT is full battery volatge eg 51.2V (possible to use it via an isolated DC-DC converter)
-  │   │   └──── to TTL-isolator AI (input)
-  │   └──────── to TTL-isolator AO (output)
-  └──────────── to TTL-isolator GND
+  │   │   │   └ VBAT is full battery volatge eg 51.2V (possible to use it via an isolated DC-DC converter)
+  │   │   └──── TX  to TTL-isolator AI (input)
+  │   └──────── RX  to TTL-isolator AO (output)
+  └──────────── GND to TTL-isolator GND
 ```
 
 The UART-TTL (labeled as `GPS`) socket of the BMS can be attached to any UART pins of the ESP.<br>

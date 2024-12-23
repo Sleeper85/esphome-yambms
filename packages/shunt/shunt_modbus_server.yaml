@@ -1,0 +1,58 @@
+# Updated : 2024.12.23
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+modbus_controller:
+  - modbus_id: modbus_server
+    address: 20${shunt_id} # max 255 (8bit)
+    server_registers:
+        # online_status (1/0)
+        - address: 1
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(shunt${shunt_id}_online_status).state);
+        # total_voltage (mV)
+        - address: 2
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(shunt${shunt_id}_voltage).state * 1000);
+        # current (mA) [signed]
+        - address: 4
+          value_type: S_DWORD
+          read_lambda: |-
+            return int32_t(id(shunt${shunt_id}_current).state * 1000);
+        # power (mW) [signed]
+        - address: 6
+          value_type: S_DWORD
+          read_lambda: |-
+            return int32_t(id(shunt${shunt_id}_power).state * 1000);
+        # soc (%)
+        - address: 8
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(shunt${shunt_id}_soc).state);
+        # charging_power (mW)
+        - address: 9
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(shunt${shunt_id}_battery_charging_power).state * 1000);
+        # discharging_power (mW)
+        - address: 11
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(shunt${shunt_id}_battery_discharging_power).state * 1000);

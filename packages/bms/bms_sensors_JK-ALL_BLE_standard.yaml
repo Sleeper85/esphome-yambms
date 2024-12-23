@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.2.4
+# Updated : 2024.12.23
+# Version : 1.2.5
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,13 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-substitutions:
-  bms_model: "JK"
-  bms_protocol: "BLE"
-
 packages:
   bms_base: !include bms_base.yaml
-  bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
 
 ota:
@@ -121,6 +116,7 @@ sensor:
       id: bms${bms_id}_delta_cell_voltage
       name: "${name} ${bms_name} delta cell voltage"
     average_cell_voltage:
+      id: bms${bms_id}_average_cell_voltage
       name: "${name} ${bms_name} average cell voltage"
     total_voltage:
       id: bms${bms_id}_total_voltage

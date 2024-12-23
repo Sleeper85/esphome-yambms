@@ -1,0 +1,153 @@
+# Updated : 2024.12.23
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  shunt_combine: !include shunt_combine.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+modbus_controller:
+  - id: modbus_controller20${shunt_id}
+    modbus_id: modbus_client
+    setup_priority: -10
+    address: 20${shunt_id}
+    update_interval: ${modbus_update_interval}
+    command_throttle: ${modbus_command_throttle}
+    max_cmd_retries: 3
+    # offline_skip_updates: 5
+    on_online:
+      then:
+        - logger.log: "Shunt ${shunt_id} modbus server back online !"
+    on_offline:
+      then:
+        - logger.log: "Shunt ${shunt_id} modbus server goes offline !"
+        - lambda: id(shunt${shunt_id}_online_status).publish_state(false);
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_online_status
+    name: "${name} ${shunt_name} Online Status"
+    register_type: read
+    address: 1
+
+sensor:
+  # total_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_voltage
+    name: "${name} ${shunt_name} Voltage"
+    register_type: read
+    address: 2
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # current
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_current
+    name: "${name} ${shunt_name} Current"
+    register_type: read
+    address: 4
+    value_type: S_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: A
+    device_class: current
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # power
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_power
+    name: "${name} ${shunt_name} Power"
+    register_type: read
+    address: 6
+    value_type: S_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # state_of_charge
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_soc
+    name: "${name} ${shunt_name} SoC"
+    register_type: read
+    address: 8
+    value_type: U_WORD
+    accuracy_decimals: 0
+    unit_of_measurement: '%'
+    device_class: battery
+    filters:
+      - multiply: 1
+      - or:
+        - throttle: 10s
+        - delta: 1
+  # charging_power
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_charging_power
+    name: "${name} ${shunt_name} Charging Power"
+    register_type: read
+    address: 9
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01
+  # discharging_power
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller20${shunt_id}
+    id: shunt${shunt_id}_discharging_power
+    name: "${name} ${shunt_name} Discharging Power"
+    register_type: read
+    address: 11
+    value_type: U_DWORD
+    accuracy_decimals: 2
+    unit_of_measurement: W
+    device_class: power
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.01

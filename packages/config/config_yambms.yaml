@@ -1,0 +1,26 @@
+# Updated : 2024.12.23
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  yambms_id: 'yambms1'
+  yambms_name: 'YamBMS 1'
+  shunt_update_interval: '3s' # frequency at which Shunt data is refreshed
+  shunt_combine_interval: '1s' # frequency at which data is combined in YamBMS
+  bms_update_interval: '3s' # frequency at which BMS data is refreshed, going below '3s' can cause problems
+  bms_combine_interval: '1s' # frequency at which data is combined in YamBMS

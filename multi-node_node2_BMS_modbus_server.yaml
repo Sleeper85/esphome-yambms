@@ -1,0 +1,118 @@
+# Updated : 2024.12.23
+# Version : 1.5.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  name: yambms-node2
+
+# Don't forget to configure your WiFi credentials in the secrets.yaml file
+#
+# If needed, configure a static IP here
+# wifi:
+#   manual_ip:
+#     static_ip: 192.168.0.85
+#     gateway: 192.168.0.1
+#     subnet: 255.255.255.0
+#     dns1: 8.8.8.8
+#     dns2: 8.8.4.4
+
+logger:
+  level: INFO # DEBUG / INFO / WARN
+
+ota:
+  platform: esphome
+  
+# Please use the native `api` component instead of the `mqtt` section.
+# If you use Home Assistant, the native API is more lightweight.
+# If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
+# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
+api:
+  reboot_timeout: 0s
+
+# If you don't want to use ESPHome's native API you can use MQTT instead.
+# In this case don't forget to remove the 'api:' section.
+# mqtt:
+#  broker: !secret mqtt_host
+#  username: !secret mqtt_username
+#  password: !secret mqtt_password
+#  id: mqtt_client
+
+# Please note that enabling this component will take up a lot of memory and may decrease
+# stability and be the cause of reboot depending on the capabilities of the board used.
+#web_server:
+#  port: 80
+#  log: false
+#  ota: false
+
+# Remove canbus_node1 (not necessary)
+canbus:
+  - id: !remove canbus_node1
+
+# +--------------------------------------+
+# | Packages                             |
+# +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+
+packages:
+  device_base: !include packages/base/device_base.yaml
+  # Board : uncomment your board
+  # device_board: !include packages/board/board_esp32-devkit-v1.yaml
+  device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
+  # device_board: !include packages/board/board_atom-s3-lite.yaml
+  
+  # device_board: !include
+  #   file: packages/board/board_atom-s3.yaml # board_atom-s3r.yaml
+  #   vars:
+  #     yambms_id: 'yambms1'
+  #     canbus_id: 'canbus1'
+  #     display_auto_next_page_interval: '5s'
+
+  # Config : this YAMLs contains the settings shared between all ESP32s
+  config_yambms: !include packages/config/config_yambms.yaml
+  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
+
+  modbus: !include
+    file: packages/base/device_modbus.yaml
+    vars:
+      modbus_role: 'server' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  shunt1: !include
+    file: packages/shunt/shunt_modbus_Victron_SmartShunt_UART.yaml
+    vars:
+      shunt_id: '1' # must be a number
+      shunt_name: 'Shunt 1'
+      shunt_uart_id: 'uart_esp_2'
+
+  bms1: !include
+    file: packages/bms/bms_modbus_JK-B_UART_full.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'JK-BMS 1'
+      bms_uart_id: 'uart_esp_3'
+
+# +--------------------------------------+
+# | DEBUG ( logger level must be DEBUG ) |
+# +--------------------------------------+
+
+  device_debug: !include
+    file: packages/base/device_debug_ESP32.yaml
+    vars:
+      debug_name: 'Debug'
+      debug_update_interval: '5s'

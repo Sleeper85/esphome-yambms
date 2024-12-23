@@ -1,5 +1,5 @@
-# Updated : 2024.10.03
-# Version : 1.2.3
+# Updated : 2024.12.23
+# Version : 1.2.5
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 
 substitutions:
@@ -14,8 +14,8 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio             # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
-    board_upload.maximum_ram_size: 524288   # Total Size of the internal RAM in bits. It's the same for all ESP32-S3 ( 512KB )
+    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
 
 # PSRAM activation and settings
 psram:
@@ -36,8 +36,8 @@ wifi:
 captive_portal:
 
 logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
-  baud_rate: 0 # Prevent boot loop (bug WK2168 with CANBUS), don't use UART logging and release UART0 (tx_pin: 43, rx_pin: 44)
 
 light:
   # https://esphome.io/components/light/status_led

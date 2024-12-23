@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.2.4
+# Updated : 2024.12.23
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,8 +30,8 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio             # Standard uses a single line for data, Dual IO uses 2 lines for data (prevent reboot loop)
-    board_upload.maximum_ram_size: 524288   # Total Size of the internal RAM in bits. It's the same for all ESP32-S3 ( 512KB )
+    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
   on_boot:
     then:
       - output.turn_on:
@@ -65,6 +65,7 @@ wifi:
 captive_portal:
 
 logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: USB_SERIAL_JTAG
 
 uart:

@@ -48,6 +48,18 @@ ble_client:
 # | Component entities                   |
 # +--------------------------------------+
 
+binary_sensor:
+  # Required sensors cannot be retrieved from Shunt
+  # online_status
+  - platform: template
+    id: shunt${shunt_id}_online_status
+    name: "${name} ${shunt_name} Online Status"
+    lambda: |-
+      if (id(shunt${shunt_id}_voltage).state > 0)
+        return true;
+      else
+        return false;
+
 sensor:
   - platform: victron_ble_connect
     ble_client_id: ble_client${shunt_id}

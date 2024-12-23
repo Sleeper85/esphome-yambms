@@ -23,9 +23,12 @@ The various counters above allow you to see what state your system is in.
 
 Combine condition :
 1) the `Combine` switch is enabled
-2) the `Voltage` supplied by the shunt is `> 0V`
+2) Shunt `Online Status` is `ON` (the shunt `Voltage` is `> 0V`)
 
-If one of these two conditions is not respected, the shunt is automatically decombined.
+If one of these two conditions is not respected, the shunt is automatically uncombined.
+
+> [!IMPORTANT]
+> In RS485 modbus `multi-node`, if a server does not respond (cable or hardware failure) the `Online Status` of the shunt will be set to `OFF` and it will be uncombined.
 
 As soon as you import a `Shunt` and it can be combined (see condition) the values ​​`Voltage`, `Current`, `Power` and `SoC` of the shunt(s) will take precedence over the BMS values.
 
@@ -39,7 +42,10 @@ Combine condition :
 2) BMS `Online Status` is `ON` (to detect a loss of connection with the BMS e.g. cable, BMS OFF or dead)
 3) BMS `Charging` or `Discharging` is allowed (based on `binary_sensor`, related to the state of `switches/alarms`)
 
-If one of these three conditions is not met, the BMS is automatically decombined.
+If one of these three conditions is not met, the BMS is automatically uncombined.
+
+> [!IMPORTANT]
+> In RS485 modbus `multi-node`, if a server does not respond (cable or hardware failure) the `Online Status` of the BMS will be set to `OFF` and it will be uncombined.
 
 From YamBMS `1.5.1` :
 
