@@ -65,7 +65,7 @@ The `SoC` is slightly manipulated before reaching `0%` or `100%`.
 SoC `100%` will be sent to your inverter only when the battery is `fully charged` (useful for some inverters stopping charging when the SoC reaches 100%).
 
 SoC behavior:
-1) If `min_cell_v <= cell_uvpr` SoC 0% is sent
+1) If `min_cell_v <= UVP + 0.02V` SoC 0% is sent
 2) Else if `SOC < 1%` SoC 2% is sent (false 0% sending 2%)
 3) Else if `SOC < 99%` real SoC is sent
 4) Else if `the battery is fully charged` real SoC is sent
@@ -91,9 +91,6 @@ This `5s` delay can be modified in the configuration when importing the canbus p
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
     vars:
-      # YamBMS ID
-      yambms_id: 'yambms1'
-      # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_node1'
