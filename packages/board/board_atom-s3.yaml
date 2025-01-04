@@ -1,4 +1,4 @@
-# Updated : 2024.12.23
+# Updated : 2025.01.04
 # Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -20,14 +20,13 @@
 substitutions:
   board_chip: "ESP32-S3"
   board_name: "Atom S3"
-  # web_server_sorting_group: '666'
 
 # From platform-espressif32 6.1.0
-  # https://github.com/espressif/esp-idf/releases
-  # https://github.com/platformio/platform-espressif32/releases
+# https://github.com/espressif/esp-idf/releases
+# https://github.com/platformio/platform-espressif32/releases
 # esp32:
-  # board: m5stack-atoms3
-  # variant: esp32s3
+#   board: m5stack-atoms3
+#   variant: esp32s3
 
 # Atom S3 - SKU:C123
 # https://docs.m5stack.com/en/core/AtomS3
@@ -40,6 +39,13 @@ esp32:
 esphome:
   platformio_options:
     board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+  on_boot:
+  - priority: 600
+    then:
+    - lambda: !lambda |-
+        id(my_display).enable();
+        id(my_display).transfer_byte(0x11);
+        id(my_display).disable();
 
 wifi:
   id: my_network
@@ -90,53 +96,8 @@ light:
     id: esp_light
     output: esp_output
 
-# +--------------------------------------+
-# | Atom S3 related configuration        |
-# +--------------------------------------+
-  # LCD     0.85"
-  # GPIO15  CS
-  # GPIO16  BL
-  # GPIO17  SCK
-  # GPIO21  MOSI
-  # GPIO33  RS
-  # GPIO34  LCD-RST
-  # GPIO4   IR
-  # GPIO41  BUTTON
-
-packages:
-  display: !include board_display_128x128.yaml
-
-spi:
-  - id: atom_spi_bus
-    clk_pin:  GPIO17
-    mosi_pin: GPIO21
-
-fan:
-  # Backlight Control Platform
-  - platform: speed
-    id: backlight
-    output: backlight_out
-    name: "${name} ${board_name} Backlight control"
-    # web_server:
-      # sorting_weight:  ${web_server_sorting_group}00
-      # sorting_group_id: group_${web_server_sorting_group} 
-    restore_mode: RESTORE_DEFAULT_ON
-    icon: mdi:brightness-6
-
 output:
-  # Backlight Output Hardware
-  - platform: ledc
-    id: backlight_out
-    pin:
-      number: GPIO16
-      # allow_other_uses: true
-    # inverted: true
-    frequency: 120Hz
-    channel: 1
-    max_power: 1.00
-    min_power: 0.10
-    zero_means_zero: true
-  # Inverter Heartbeat Output (ESP32 board without LED)
+  # ESP32 board without LED
   - platform: template
     id: esp_output
     type: binary
@@ -144,12 +105,23 @@ output:
       - logger.log: "Inverter Heartbeat Output"
       #- lambda: C++ code; # action to be performed at each inverter heartbeat
 
+# +--------------------------------------+
+# | Atom S3 related configuration        |
+# +--------------------------------------+
+
+packages:
+  display: !include board_display_128x128.yaml
+
+spi:
+  - id: atom_spi_bus
+    clk_pin: 17
+    mosi_pin: 21
+
 binary_sensor:
-  # Atom S3 Button
   - platform: gpio
     id: atom_button
     pin:
-      number: GPIO41
+      number: 41
       inverted: true
       mode:
         input: true
@@ -158,127 +130,26 @@ binary_sensor:
       - delayed_off: 10ms
     on_press:
       then:
-        - lambda: ESP_LOGI("Atom S3 Button", "Pressed");
-        - lambda: |-
-            // On press -> make sure set==ON & bri==100%
-            if ((id(backlight).speed != 100) || (id(backlight).state != true))
-            {
-              auto call = id(backlight).turn_on();
-              call.set_speed(100);
-              call.perform();
-            }
-            // if autodim enabled, execute script
-            if (id(backlight_autodim_time).state > 0)
-            {
-              id(backlight_autodim).execute();
-            }
+        - logger.log: Button Pressed
         - display.page.show_next: my_display
         #- display.page.show_previous: my_display
 
 display:
-  # Atom S3 display see https://esphome.io/components/display/ili9xxx.html
-  - platform: ili9xxx
-    id:         my_display
-    spi_id:     atom_spi_bus
-    model:      M5STACK  # M5STACK / ST7789V
-    cs_pin:     GPIO15
-    dc_pin:     GPIO33
-    reset_pin:  GPIO34
-    dimensions:
-      height:   128
-      width:    128
-      offset_height:  1
-      offset_width:   2
-    invert_colors: true
+  # Atom S3 display
+  # https://esphome.io/components/display/st7789v.html
+  - platform: st7789v
+    spi_id: atom_spi_bus
+    id: my_display
+    model: Custom
+    backlight_pin: 16
+    cs_pin: 15
+    dc_pin: 33
+    reset_pin: 34
+    height: 128
+    width: 128
+    offset_height: 2
+    offset_width: 1
+    eightbitcolor: true
+    update_interval: 1s
+    data_rate: 40Mhz
     # rotation: 180   # use transform instead! https://esphome.io/components/display/ili9xxx.html
-
-number:
-  # Backlight max Level
-  - platform: template
-    id: backlight_max_power
-    name: "${name} ${board_name} Backlight max Level"
-    # web_server:
-      # sorting_weight:  ${web_server_sorting_group}05
-      # sorting_group_id: group_${web_server_sorting_group}
-    icon: mdi:brightness-7
-    optimistic: true
-    min_value: 0
-    max_value: 100
-    step: 1
-    initial_value:  75
-    restore_value: true
-    mode: box
-    unit_of_measurement: "%"
-    on_value:
-      then:
-        - lambda: |-
-            int speed = id(backlight).speed;                // get actual level
-            id(backlight_out).set_max_power(x / 100);       // set max_power
-            auto call = id(backlight).turn_on();            // reset level
-            call.set_speed(speed);
-            call.perform();
-    update_interval: 10s
-
-  # Backlight Auto-Dim time
-  - platform: template
-    id: backlight_autodim_time
-    name: "${name} ${board_name} Backlight Auto-Dim Time in min."
-    # web_server:
-      # sorting_weight:  ${web_server_sorting_group}20
-      # sorting_group_id: group_${web_server_sorting_group}
-    icon: mdi:brightness-auto
-    optimistic: true
-    min_value:  0
-    max_value: 10
-    step: 0.1
-    initial_value: 0.2
-    restore_value: true
-    mode: box
-    unit_of_measurement: "min"
-    update_interval: never #5s
-
-  # Backlight Auto-Dim Level
-  - platform: template
-    id: backlight_autodim_level
-    name: "${name} ${board_name} Backlight Auto-Dim Level"
-    # web_server:
-      # sorting_weight:  ${web_server_sorting_group}15
-      # sorting_group_id: group_${web_server_sorting_group}
-    icon: mdi:brightness-4
-    optimistic: true
-    min_value:   0
-    max_value: 100
-    step:        1
-    initial_value: 25
-    restore_value: true
-    mode: box
-    unit_of_measurement: "%"
-    update_interval: never #5s
-
-script:
-  # Backlight Auto-Dimming Script
-  - id: backlight_autodim
-    mode: restart
-    then:
-      - delay: !lambda return id(backlight_autodim_time).state * 60 * 1000;     // delay (x min * 60s * 1000ms)
-      - lambda: |-                                                              # Handle Dimlevel
-          int speed = id(backlight_autodim_level).state;                        // get desired dimlevel
-          if (speed == 0)                                                       // if dimmlevel = 0
-          {
-            auto call = id(backlight).turn_off();                               // turn off backlight
-            call.perform();
-          }
-          else
-          {
-            auto call = id(backlight).turn_on();                                // set dimlevel
-            call.set_speed(speed);
-            call.perform();
-          }
-
-# web_server v3 needs to be added and sorting_groups must be defined to use grouping
-# web_server: 
-  # version: 3      
-  # sorting_groups:
-  #   - id: group_666
-  #     name: "${board_name} Backlight Control"
-  #     sorting_weight: -10000
