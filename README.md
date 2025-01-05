@@ -43,7 +43,7 @@
 
 You install `YamBMS` on a single ESP32 connected to your BMS and your inverter.
 
-* Max 2x BMS BLE
+* Max 3x BMS BLE
 * Max 3X BMS UART
 * several RS485 BMS on the same bus
 
@@ -107,9 +107,9 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 * [ESPHome 2024.6.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU
-* CAN Transceiver (only with TJA1050/TJA1051 : 4.7K resistor for 5V to 3V3 level shifing)
-* BMS JK-B*, JK-PB* (other BMS brands already integrated with ESPhome can be added easily)
-* Inverters supporting CAN PYLON/Goodwe/SMA/Victron Low Voltage protocol
+* CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
+* BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
+* Inverters supporting CAN PYLON/GoodWe/SMA/Victron Low Voltage protocol
 * Optional: 48V to 5V DC-DC converter to power the ESP32 from the JK-BMS VBAT pin (URB4805YMD-10WR3 or VRB4805S-6WR3)
 * Optional: JK RS485 adaptor and RS485 to TTL 3V3 adaptor (see schematic section)
 

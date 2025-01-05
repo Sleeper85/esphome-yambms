@@ -65,7 +65,7 @@ api:
 
 If you don't use `Home Assistant`, you can activate the `Web Server` and have access to YamBMS information and also interact with the application.
 
-[ESPHome Web Server Componenet](https://esphome.io/components/web_server.html)
+[ESPHome Web Server Component](https://esphome.io/components/web_server.html)
 
 ## Importing YamBMS packages
 
@@ -151,6 +151,18 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
 
 ```YAML
   device_board: !include packages/board/board_esp32-c3-eth01-evo.yaml
+```
+
+### ESP32 LilyGo T-CAN485
+
+```YAML
+  device_board: !include packages/board/board_esp32_LilyGo-T-CAN485.yaml
+```
+
+### ESP32-S3 LilyGo T-Connect
+
+```YAML
+  device_board: !include packages/board/board_esp32-s3_LilyGo-T-Connect.yaml
 ```
 
 ## YamBMS single-node example
