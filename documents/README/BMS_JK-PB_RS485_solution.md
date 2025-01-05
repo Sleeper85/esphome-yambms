@@ -10,64 +10,24 @@
 
 [JK_RS485](https://github.com/txubelaxu/esphome-jk-bms/blob/main/components/jk_rs485_bms/README.md) by [@txubelaxu](https://github.com/txubelaxu)
 
-## ESP32 board
+## Hardware
 
-Hardware wise, [Atom S3](https://docs.m5stack.com/en/core/AtomS3) solution is easier and cleaner but [ESP32-S3 DevKitC-1](https://docs.espressif.com/projects/esp-idf/en/v5.3/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html) has more GPIOs and PSRAM.
+> [!TIP]
+> This solution only requires an ESP32 with a CAN transceiver and a RS485 transceiver.
 
-### Atom S3
+You are free to choose the hardware you want, the list below are 3 easy to use examples :
 
-- [Atom S3 - SKU:C123](https://docs.m5stack.com/en/core/AtomS3)
-- [Atom S3 Lite - SKU:C124](https://docs.m5stack.com/en/core/AtomS3%20Lite)
-- [Atomic CAN Base - SKU:A103](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base)
+- `AtomS3` with the isolated `Atomic CAN base` and `RS485 unit`
+- [`LilyGo T-Connect`, ESP32-S3 with 3x RS485 and 1x CAN](https://github.com/Xinyuan-LilyGO/T-Connect)
+- [`LilyGo T-CAN485`, ESP32 with 1x RS485 and 1x CAN](https://github.com/Xinyuan-LilyGO/T-CAN485)
 
-Note: `Atom S3 Lite` does not have a display.
+See the [documentation about supported hardware](Supported_devices.md).
 
-### ESP32-S3 DevKitC-1
+### M5Stack AtomS3 example (no welding)
 
-- [ESP32-S3 N16R8](https://a.aliexpress.com/_EzFdrw3)
-- [SN65HVD230 3V3 CAN transceiver](https://a.aliexpress.com/_Evq9Ra7)
+The example below uses an `AtomS3` (display) with the `Atomic CAN base` and `RS485 unit`.
 
-## RS485 unisolated board (not recommanded)
-
-This board is the one used by [@txubelaxu](https://github.com/txubelaxu) the developer of the RS485 component for the new JK-PB series BMS.<br>
-This board is certainly not the best, it does not have galvanic isolation and requires a `TALK PIN`.
-
-![Image](../../images/RS485_Transceiver_MAX485_TALK_PIN_board.jpg "MAX485 UART-RS485")
-
-## RS485 isolated board (recommended for making your own PCB)
-
-This board has galvanic isolation and does not require a `TALK PIN` (this avoids having to solder a wire to the Atomic CAN base of the Atom S3).
-
-![Image](../../images/RS485_Transceiver_isolated_high_speed_dual_board.png "ADUM3201 B0505XT TTL to RS485")
-
-[RS485 isolated board (high speed dual)](https://a.aliexpress.com/_EueIZT5)
-
-Note: choose the `high speed dual` version !
-
-## M5stack RS485 isolated unit [SKU:U094] (recommended with M5stack Atom S3 solution)
-
-If you are using M5stack solution with Atom S3, this [RS485 unit](https://docs.m5stack.com/en/unit/iso485) is the simplest solution without soldering.
-
-![Image](../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png "M5stack RS485 isolated unit (SKU:U094)")
-
-## M5stack Atom S3 with CAN base and RS485 unit
-
-If soldering or creating your own board seems complicated to you, know that it is possible to use the Atom S3 solution from M5Stack.
-
-**Choose Atom S3 (display) or Atom S3 Lite + Atomic CAN base + RS485 unit**
-
-- [Atom S3 - SKU:C123](https://docs.m5stack.com/en/core/AtomS3)
-- [Atom S3 Lite - SKU:C124](https://docs.m5stack.com/en/core/AtomS3%20Lite)
-- [Atomic CAN Base - SKU:A103](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base)
-- [RS485 Isolated Unit - SKU:U094](https://docs.m5stack.com/en/unit/iso485)
-
-| Atomic S3 Lite | Atomic CAN Base | RS485 isolated Unit |
-| --- | --- | --- |
-| <img src="../../images/Atom_S3_Lite.png" width="300"> | <img src="../../images/CAN_Transceiver_M5Stack_Atomic_CAN_Base.png" width="300"> |  <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="300"> |
-
-The example below uses an Atom S3 (display) with the CAN base and RS485 unit.
-
-![Image](../../images/Solution_M5stack_AtomS3_CAN_base_RS485_unit.png "M5stack Atom S3 solution")
+![Image](../../images/Solution_M5stack_AtomS3_CAN_base_RS485_unit.png "M5stack AtomS3 solution")
 
 ## Schematic and setup instructions
 
@@ -75,19 +35,15 @@ The example below uses an Atom S3 (display) with the CAN base and RS485 unit.
 > Galvanic isolation of the `RS485` connection is strongly recommended.
 > The diagrams below does not show the galvanic isolation of the `RS485` connection !
 
-> [!IMPORTANT]
-> The boards `uart` are configured by default with an `rx_buffer_size` of `512` which **normally** is fine for all components. Only one user reported to me an instability problem with his `Atom S3` which he solved by increasing the `rx_buffer_size` to `1024`, this user is also the only one currently using the isolated RS485 unit of M5Stack.
-> If you encounter a similar problem, let me know.
-
 **Note:** the choice of RS485 board is not related to the chosen ESP32.
 
-### Atom S3 with unisolated RS485 board
+### AtomS3 with unisolated RS485 board
 
 ```
 ┌──────────┐                 ┌───────────┐                       ┌──────────┐
 │          │                 │   UART    │<-VCC--------------5V--│          │<---5V
 │   BMS    │                 │    TO     │                       │   ESP32  │
-│  JK-PB   │<-RJ45-P1-----B->│   RS485   │<-DI-----------TX--G1--│  ATOM S3 │
+│  JK-PB   │<-RJ45-P1-----B->│   RS485   │<-DI-----------TX--G1--│  Atom S3 │
 │          │<-RJ45-P2-----A->│           │--RO-----------RX--G2->│          │                  ┌────────────┐             ┌────────────┐
 │  RS485   │                 │ CONVERTER │<-DE--+                │          │--G5--TX-----CTX->|            |             |            |
 │ NETWORK  │                 │           │<-RE--└--TALK PIN--G8--│          │<-G6--RX-----CRX--|   Atomic   |<---CAN H--->|  Inverter  |
