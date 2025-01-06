@@ -1,4 +1,4 @@
-# Updated : 2024.12.23
+# Updated : 2025.01.06
 # Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -36,7 +36,6 @@ logger:
   logs:
     esp32_ble_tracker: INFO
     esp32_ble_client: INFO
-  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
 
 ota:
   platform: esphome
