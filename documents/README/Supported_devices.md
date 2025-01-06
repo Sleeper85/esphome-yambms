@@ -47,7 +47,7 @@
 
 **Note: some inverters only accept a CAN bus at 3.3V in this case please choose the SN65HVD230 chip.**
 
-| TJA1050 (5V) | [TJA1051T (5V)](https://a.aliexpress.com/_EIdl3b5) | [SN65HVD230 (3V3)]((https://a.aliexpress.com/_Evq9Ra7)) |
+| TJA1050 (5V) | [TJA1051T (5V)](https://a.aliexpress.com/_EIdl3b5) | [SN65HVD230 (3V3)](https://a.aliexpress.com/_Evq9Ra7) |
 | --- | --- | --- |
 | <img src="../../images/CAN_Transceiver_TJA1050.png" width="300"> | <img src="../../images/CAN_Transceiver_TJA1051.jpg" width="300"> | <img src="../../images/CAN_Transceiver_SN65HVD230.jpg" width="300"> |
 
