@@ -1,4 +1,4 @@
-# Updated : 2024.12.23
+# Updated : 2025.01.06
 # Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -33,7 +33,6 @@ substitutions:
 
 logger:
   level: INFO # DEBUG / INFO / WARN
-  baud_rate: 0 # avoid modbus reading errors with BLE-supervised BMS
 
 ota:
   platform: esphome
