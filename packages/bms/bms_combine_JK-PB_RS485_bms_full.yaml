@@ -1,4 +1,4 @@
-# Updated : 2024.11.11
+# Updated : 2025.01.07
 # Version : 1.2.2
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
@@ -28,7 +28,7 @@ packages:
 
 jk_rs485_bms:
   - id: jk_rs485_bms${bms_id}
-    rs485_address: ${bms_rs485_address}
+    rs485_address: ${bms_address}
     jk_rs485_sniffer_id: ${sniffer_id}
     update_interval: ${bms_update_interval}
 

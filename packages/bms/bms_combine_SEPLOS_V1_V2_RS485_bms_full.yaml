@@ -1,4 +1,4 @@
-# Updated : 2024.11.11
+# Updated : 2025.01.07
 # Version : 1.1.1
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
@@ -36,7 +36,7 @@ external_components:
 
 seplos_bms:
   - id: seplos_bms${bms_id}
-    address: ${bms_rs485_address}
+    address: ${bms_address}
     protocol_version: ${bms_protocol_version}
     seplos_modbus_id: ${seplos_modbus_id}
     update_interval: ${bms_update_interval}

@@ -419,7 +419,7 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
       # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
-      bms_rs485_address: '0x01' # BMS 1 DIP switch
+      bms_address: '0x01' # BMS 1 DIP switch
 ```
 
 ### [JBD (UART)](https://github.com/syssi/esphome-jbd-bms)
@@ -478,7 +478,7 @@ A single `RS485 bus` allows you to monitor up to `16` BMS.
       # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_rs485_address: '0x01' # BMS 1 DIP switch
+      bms_address: '0x01' # BMS 1 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
       # Required settings cannot be retrieved from BMS
       # These values ​​must match your BMS settings
