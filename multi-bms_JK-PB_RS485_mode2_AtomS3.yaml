@@ -1,4 +1,4 @@
-# Updated : 2024.12.23
+# Updated : 2025.01.07
 # Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -112,7 +112,7 @@ packages:
       # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
-      bms_rs485_address: '0x01' # BMS 1 DIP switch
+      bms_address: '0x01' # BMS 1 DIP switch
   
   bms2: !include
     file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
@@ -122,7 +122,7 @@ packages:
       # BMS vars
       bms_id: '2' # must be a number
       bms_name: 'JK-BMS 2'
-      bms_rs485_address: '0x02' # BMS 2 DIP switch
+      bms_address: '0x02' # BMS 2 DIP switch
 
   # bms3: !include
   #   file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
@@ -132,7 +132,7 @@ packages:
   #     # BMS vars
   #     bms_id: '3' # must be a number
   #     bms_name: 'JK-BMS 3'
-  #     bms_rs485_address: '0x03' # BMS 3 DIP switch
+  #     bms_address: '0x03' # BMS 3 DIP switch
 
   # bms4: !include
   #   file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
@@ -142,7 +142,7 @@ packages:
   #     # BMS vars
   #     bms_id: '4' # must be a number
   #     bms_name: 'JK-BMS 4'
-  #     bms_rs485_address: '0x04' # BMS 4 DIP switch
+  #     bms_address: '0x04' # BMS 4 DIP switch
   
   # bms5: !include
   #   file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
@@ -152,7 +152,7 @@ packages:
   #     # BMS vars
   #     bms_id: '5' # must be a number
   #     bms_name: 'JK-BMS 5'
-  #     bms_rs485_address: '0x05' # BMS 5 DIP switch
+  #     bms_address: '0x05' # BMS 5 DIP switch
 
   # bms6: !include
   #   file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
@@ -162,7 +162,7 @@ packages:
   #     # BMS vars
   #     bms_id: '6' # must be a number
   #     bms_name: 'JK-BMS 6'
-  #     bms_rs485_address: '0x06' # BMS 6 DIP switch
+  #     bms_address: '0x06' # BMS 6 DIP switch
 
   # bms7: !include
   #   file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
@@ -172,7 +172,7 @@ packages:
   #     # BMS vars
   #     bms_id: '7' # must be a number
   #     bms_name: 'JK-BMS 7'
-  #     bms_rs485_address: '0x07' # BMS 7 DIP switch
+  #     bms_address: '0x07' # BMS 7 DIP switch
 
   yambms1: !include
     file: packages/yambms/yambms.yaml

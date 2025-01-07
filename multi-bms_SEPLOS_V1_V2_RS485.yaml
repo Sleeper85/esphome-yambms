@@ -1,4 +1,4 @@
-# Updated : 2024.12.23
+# Updated : 2025.01.07
 # Version : 1.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -105,7 +105,7 @@ packages:
       # BMS vars
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
-      bms_rs485_address: '0x01' # BMS 1 DIP switch
+      bms_address: '0x01' # BMS 1 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
       # Required settings cannot be retrieved from BMS
       # These values ​​must match your BMS settings
@@ -124,7 +124,7 @@ packages:
       # BMS vars
       bms_id: '2' # must be a number
       bms_name: 'BMS 2'
-      bms_rs485_address: '0x02' # BMS 2 DIP switch
+      bms_address: '0x02' # BMS 2 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
       bms_uart_id: uart_esp_2
       # Required settings cannot be retrieved from BMS
