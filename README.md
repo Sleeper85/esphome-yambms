@@ -106,7 +106,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 ## Requirements
 
 * [ESPHome 2024.6.0 or higher](https://github.com/esphome/esphome/releases)
-* ESP32 MCU
+* ESP32 MCU (Buying a board with ≥8 MB flash is advised if you intend to monitor multiple BMSes.)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
 * Inverters supporting CAN PYLON/GoodWe/SMA/Victron Low Voltage protocol
