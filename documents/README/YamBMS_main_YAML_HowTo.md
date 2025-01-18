@@ -75,46 +75,36 @@ Package imports are done below this line:
 packages:
 ```
 
-## Base
-
-In any case, you need to import the base package.
-
-### Base for WiFi
-
-```YAML
-  device_base: !include packages/base/device_base.yaml
-```
-
-### Base for Ethernet
-
-```YAML
-  device_base: !include packages/base/device_base_ethernet.yaml
-```
-
 ## Board
 
-Next you need to import the package that corresponds to the `board` you are going to use.
+First you need to import the package that corresponds to the `board` you are going to use.
 
 There are other `board.yaml` not mentioned here, see in the [board](../../packages/board/) folder.
 
 So just one of the packages below :
 
+### ESP32 Generic
+
+```YAML
+  device_board: !include packages/board/board_ESP32_Generic.yaml
+```
+
 ### ESP32 DevKit-V1
 
 ```YAML
-  device_board: !include packages/board/board_esp32-devkit-v1.yaml
+  device_board: !include packages/board/board_ESP32_DevKit-V1.yaml
 ```
 
 ### ESP32-S3 DevKitC-1
 
 ```YAML
-  device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
+  device_board: !include packages/board/board_ESP32-S3_DevKitC-1.yaml
 ```
 
 ### Atom S3 Lite
 
 ```YAML
-  device_board: !include packages/board/board_atom-s3-lite.yaml
+  device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
 ```
 
 ### Atom S3 / S3R (display)
@@ -123,26 +113,22 @@ In this case you need to specify the `yambms` and `canbus` IDs to display the in
 
 ```YAML
   device_board: !include
-    file: packages/board/board_atom-s3.yaml
+    file: packages/board/board_ESP32-S3_AtomS3.yaml
     vars:
-      yambms_id: 'yambms1'
-      canbus_id: 'canbus1'
       display_auto_next_page_interval: '5s'
 ```
 
 ```YAML
   device_board: !include
-    file: packages/board/board_atom-s3r.yaml
+    file: packages/board/board_ESP32-S3_AtomS3R.yaml
     vars:
-      yambms_id: 'yambms1'
-      canbus_id: 'canbus1'
       display_auto_next_page_interval: '5s'
 ```
 
 ### ESP32-C3 DevKitM-1
 
 ```YAML
-  device_board: !include packages/board_esp32-c3-devkitm-1.yaml
+  device_board: !include packages/board_ESP32-C3_DevKitM-1.yaml
 ```
 
 ### ESP32-C3 ETH01-EVO
@@ -150,19 +136,19 @@ In this case you need to specify the `yambms` and `canbus` IDs to display the in
 This board has an `Ethernet` port and can be powered from `POE` (optional).
 
 ```YAML
-  device_board: !include packages/board/board_esp32-c3-eth01-evo.yaml
+  device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
 ```
 
 ### ESP32 LilyGo T-CAN485
 
 ```YAML
-  device_board: !include packages/board/board_esp32_LilyGo-T-CAN485.yaml
+  device_board: !include packages/board/board_ESP32_LilyGo-T-CAN485.yaml
 ```
 
 ### ESP32-S3 LilyGo T-Connect
 
 ```YAML
-  device_board: !include packages/board/board_esp32-s3_LilyGo-T-Connect.yaml
+  device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
 ```
 
 ## YamBMS single-node example

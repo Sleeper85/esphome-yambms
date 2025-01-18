@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.2.5
+# Updated : 2025.01.16
+# Version : 1.2.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,57 +19,51 @@
 
 substitutions:
   board_chip: "ESP32-S3"
-  board_name: "Atom S3R"
+  board_name: "Atom S3"
 
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
+  display: !include board_options_display_128x128.yaml
+
+# From platform-espressif32 6.1.0
+# https://github.com/espressif/esp-idf/releases
+# https://github.com/platformio/platform-espressif32/releases
+# esp32:
+#   board: m5stack-atoms3
+#   variant: esp32s3
+
+# Atom S3 - SKU:C123
+# https://docs.m5stack.com/en/core/AtomS3
 esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
-  flash_size: 8MB # ajust according to your ESP32-S3 version
   framework:
     type: esp-idf
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
-    board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
   on_boot:
+  - priority: 600
     then:
-      - output.turn_on:
-           id: white
-
-# PSRAM activation and settings
-psram:
-  mode: octal
-  speed: 80MHz
-
-<<: !include board_psram_settings.yaml
-
-external_components:
-  # Backlight
-  - source:
-      type: git
-      url: https://github.com/ssieb/esphome
-      ref: lp5562
-    components: [ lp5562 ]
-    refresh: 1min
+    - lambda: !lambda |-
+        id(my_display).enable();
+        id(my_display).transfer_byte(0x11);
+        id(my_display).disable();
 
 wifi:
   id: my_network
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret domain
-  ap:
-    ssid: "YamBMS Fallback Hotspot"
-    password: "Y4mBM$85"
-
-captive_portal:
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: USB_SERIAL_JTAG
 
 uart:
-  # UART 0 : USB UART port used for ESP32 flashing and logs, can be released if necessary (tx_pin: 43, rx_pin: 44)
   # UART 1
   - id: uart_esp_1
     tx_pin: 2
@@ -103,42 +97,8 @@ light:
     id: esp_light
     output: esp_output
 
-# +--------------------------------------+
-# | Atom S3R related configuration       |
-# +--------------------------------------+
-
-packages:
-  display: !include board_display_128x128.yaml
-
-spi:
-  - id: atom_spi_bus
-    clk_pin: 15
-    mosi_pin: 21
-
-i2c:
-  - id: atom_i2c_bus
-    sda: 45
-    scl: 0
-    scan: true
-    
-lp5562:
-  - i2c_id: atom_i2c_bus
-
 output:
-  # Backlight Output
-  - platform: lp5562
-    id: red
-    channel: 0
-  - platform: lp5562
-    id: green
-    channel: 1
-  - platform: lp5562
-    id: blue
-    channel: 2
-  - platform: lp5562
-    id: white
-    channel: 3
-  # Inverter Heartbeat Output (ESP32 board without LED)
+  # ESP32 board without LED
   - platform: template
     id: esp_output
     type: binary
@@ -146,8 +106,16 @@ output:
       - logger.log: "Inverter Heartbeat Output"
       #- lambda: C++ code; # action to be performed at each inverter heartbeat
 
+# +--------------------------------------+
+# | Atom S3 related configuration        |
+# +--------------------------------------+
+
+spi:
+  - id: atom_spi_bus
+    clk_pin: 17
+    mosi_pin: 21
+
 binary_sensor:
-  # Atom S3R Button
   - platform: gpio
     id: atom_button
     pin:
@@ -165,15 +133,16 @@ binary_sensor:
         #- display.page.show_previous: my_display
 
 display:
-  # Atom S3R display
+  # Atom S3 display
   # https://esphome.io/components/display/st7789v.html
   - platform: st7789v
     spi_id: atom_spi_bus
     id: my_display
     model: Custom
-    cs_pin: 14
-    dc_pin: 42
-    reset_pin: 48
+    backlight_pin: 16
+    cs_pin: 15
+    dc_pin: 33
+    reset_pin: 34
     height: 128
     width: 128
     offset_height: 2

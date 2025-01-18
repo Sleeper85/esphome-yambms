@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.1.1
+# Updated : 2025.01.18
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -398,8 +398,8 @@ sensor:
   # errors_bitmask (16bits)
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_errors_bitmask
-    name: "${name} ${bms_name} Errors Bitmask"
+    id: bms${bms_id}_yambms_errors_bitmask
+    name: "${name} ${bms_name} YamBMS Errors Bitmask"
     register_type: read
     address: 28
     value_type: U_WORD

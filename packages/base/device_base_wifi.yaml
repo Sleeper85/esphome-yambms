@@ -17,15 +17,41 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+sensor:
+  # https://esphome.io/components/sensor/wifi_signal 
+  - platform: wifi_signal
+    name: ${name} ESP32 WiFi power
+    id: esp32_wifi_power
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: copy # Reports the WiFi signal strength in %
+    source_id: esp32_wifi_power
+    name: ${name} ESP32 WiFi power (%)
+    id: esp32_wifi_power_percent
+    unit_of_measurement: '%'
+    entity_category: diagnostic
+    filters:
+      - lambda: 'return min(max(2 * (x + 100.0), 0.0), 100.0);'
+
 text_sensor:
-  # https://esphome.io/components/text_sensor/ethernet_info.html
-  - platform: ethernet_info
+  # https://esphome.io/components/text_sensor/wifi_info
+  - platform: wifi_info
     ip_address:
       name: ${name} ESP32 IP address
       id: esp32_ip_address
-    dns_address:
-      name: ${name} ESP32 DNS address
-      id: esp32_dns_address
+    ssid:
+      name: ${name} ESP32 connected SSID
+      id: esp32_connected_ssid
+    bssid:
+      name: ${name} ESP32 connected BSSID
+      id: esp32_connected_bssid
     mac_address:
       name: ${name} ESP32 MAC WiFi address
       id: esp32_mac_wifi_address
+    scan_results:
+      name: ${name} ESP32 latest scan results
+      id: esp32_latest_scan_results
+    dns_address:
+      name: ${name} ESP32 DNS address
+      id: esp32_dns_address

@@ -24,3 +24,4 @@ substitutions:
   shunt_combine_interval: '1s' # frequency at which data is combined in YamBMS
   bms_update_interval: '3s' # frequency at which BMS data is refreshed, going below '3s' can cause problems
   bms_combine_interval: '1s' # frequency at which data is combined in YamBMS
+  bms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO

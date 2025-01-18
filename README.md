@@ -106,7 +106,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 ## Requirements
 
 * [ESPHome 2024.6.0 or higher](https://github.com/esphome/esphome/releases)
-* ESP32 MCU (Buying a board with ≥8 MB flash is advised if you intend to monitor multiple BMSes.)
+* ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
 * Inverters supporting CAN PYLON/GoodWe/SMA/Victron Low Voltage protocol
@@ -115,6 +115,20 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Changelog
 
+* YamBMS 1.5.3 :
+  * Broadcasting JK-PB settings to all BMS set to OFF by default
+  * Reorganizing the `board` folder and YAMLs (device_base.yaml moved to board.yaml)
+  * `device_base.yaml` should no longer be part of `YamBMS_main.yaml`
+  * New `RGB LED status` light effects (red, green, blue, cyan) as an `options` packages for `board.yaml`
+  * Increased CPU frequency to `240Mhz` as an `options` packages for `board.yaml`
+  * Added `ESP32 Generic`, `LilyGo T-CAN485`, `LilyGo T-Connect` and `XIAO` boards
+  * Fixed SoC logic (low SoC will be detected at BMS level and no longer at YamBMS level)
+  * Simplified combination logic (removal of the combine switch) + dashboard update
+  * Check `Battery Capacity` is `> 0` before combining info (see [issue #14](https://github.com/Sleeper85/esphome-yambms/issues/14))
+  * Improved alarm logic with a common `YamBMS errors bitmask` for all BMS models (see OTP vs UTP bug reported by @ChrisG)
+  * Added [PR #7547](https://github.com/esphome/esphome/pull/7547) regarding publishing entities via the API
+  * Removed `captive_portal` because it increases the `loop time` too much
+  * `PSRAM` will no longer be enabled by default as this has a bad impact on `BLE BMS`
 * YamBMS 1.5.2 :
   * Added shunt `Online Status` binary_sensor
   * Shunt combine condition based on the new binary_sensor `Online Status`

@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.2.5
+# Updated : 2025.01.16
+# Version : 1.2.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -95,8 +95,8 @@ display:
           {
             it.print(115, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
           }
-          // CAN status
-          if (id(${canbus_id}_status).state)
+          // Inverter communication status (CANBUS / RS485)
+          if (id(inverter_com_status).state)
           {
             it.print(0, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
           }
@@ -121,8 +121,8 @@ display:
           {
             it.print(115, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
           }
-          // CAN status
-          if (id(${canbus_id}_status).state)
+          // Inverter communication status (CANBUS / RS485)
+          if (id(inverter_com_status).state)
           {
             it.print(0, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
           }
@@ -147,8 +147,8 @@ display:
           {
             it.print(115, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
           }
-          // CAN status
-          if (id(${canbus_id}_status).state)
+          // Inverter communication status (CANBUS / RS485)
+          if (id(inverter_com_status).state)
           {
             it.print(0, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
           }

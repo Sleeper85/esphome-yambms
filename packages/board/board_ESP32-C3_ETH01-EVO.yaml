@@ -1,0 +1,95 @@
+# Updated : 2025.01.16
+# Version : 1.2.6
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  board_chip: "ESP32-C3"
+  board_name: "ETH01-EVO"
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_ethernet: !include ../base/device_base_ethernet.yaml
+
+esp32:
+  board: esp32-c3-devkitm-1
+  variant: esp32c3
+  flash_size: 2MB
+  framework:
+    type: esp-idf
+    version: latest
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+  min_version: 2024.12.2
+
+external_components:
+  - source: github://pr#6861
+    components:
+      - ethernet
+
+ethernet:
+  id: my_network
+  type: DM9051 # W5500
+  clk_pin: 7
+  mosi_pin: 10
+  miso_pin: 3
+  cs_pin: 9
+  interrupt_pin: 8
+  reset_pin: 6
+  clock_speed: 20MHz
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+
+uart:
+  # UART 1
+  - id: uart_esp_1
+    tx_pin: 2
+    rx_pin: 5
+    baud_rate: 115200
+    rx_buffer_size: 512
+
+canbus:
+  # CANBUS NODE 1
+  - platform: esp32_can
+    id: canbus_node1
+    tx_pin: 19 # to CAN board CTX
+    rx_pin: 18 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
+    can_id: 1
+    bit_rate: 500kbps
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+output:
+  # ESP32 board without LED
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+      #- lambda: C++ code; # action to be performed at each inverter heartbeat

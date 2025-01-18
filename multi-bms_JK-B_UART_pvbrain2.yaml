@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.5.2
+# Updated : 2025.01.16
+# Version : 1.5.3
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -77,8 +77,7 @@ api:
 # | PVbrain2 packages                    |
 # +--------------------------------------+
 packages:
-  device_base: !include packages/base/device_base.yaml
-  device_board: !include packages/board/board_pvbrain2.yaml
+  device_board: !include packages/board/board_ESP32-S3_DevKitC-1_PVbrain2.yaml
 
   # Config : this YAML contains the settings shared between all ESP32s
   config_yambms: !include packages/config/config_yambms.yaml
@@ -169,7 +168,7 @@ packages:
 # +--------------------------------------+
 
   device_debug: !include
-    file: pvbrain2/base/device_debug.yaml
+    file: packages/base/device_debug_ESP32.yaml
     vars:
       debug_name: 'Debug'
       debug_update_interval: '5s'
