@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.5.1
+# Updated : 2025.01.18
+# Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -619,10 +619,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_1_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_1_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_1_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_1_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_1_can_be_combined
                 name: Can be combined
             conditions:
@@ -940,10 +940,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_2_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_2_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_2_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_2_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_2_can_be_combined
                 name: Can be combined
             conditions:
@@ -1261,10 +1261,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_3_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_3_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_3_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_3_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_3_can_be_combined
                 name: Can be combined
             conditions:
@@ -1582,10 +1582,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_4_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_4_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_4_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_4_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_4_can_be_combined
                 name: Can be combined
             conditions:
@@ -1903,10 +1903,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_5_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_5_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_5_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_5_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_5_can_be_combined
                 name: Can be combined
             conditions:
@@ -2224,10 +2224,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_6_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_6_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_6_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_6_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_6_can_be_combined
                 name: Can be combined
             conditions:
@@ -2545,10 +2545,10 @@ views:
                   <br></center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_7_combine_enabled
-                name: Combine
-              - entity: binary_sensor.yambms_jk_bms_7_combine_availability
-                name: Cb. Availability
+              - entity: switch.yambms_jk_bms_7_enable_bluetooth_connection
+                name: Bluetooth
+              - entity: binary_sensor.yambms_jk_bms_7_online_status
+                name: Online ?
               - entity: binary_sensor.yambms_jk_bms_7_can_be_combined
                 name: Can be combined
             conditions:
@@ -2643,8 +2643,6 @@ views:
             entities:
               - entity: switch.yambms_shunt_1_combine_enabled
                 name: Shunt 1 Combine enabled
-              - entity: binary_sensor.yambms_shunt_1_combine_availability
-                name: Shunt 1 Combine Availability
               - entity: binary_sensor.yambms_shunt_1_can_be_combined
                 name: Shunt 1 Can be combined
         title: Shunt 1

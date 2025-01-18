@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.5.2
+# Updated : 2025.01.16
+# Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -16,31 +16,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 globals:
-  - id: shunt${shunt_id}_combined_once
+  - id: shunt${shunt_id}_combined
     type: bool
     restore_value: no
     initial_value: "false"
-
-switch:
-  # Combine Enable-Switch (user controlled switch to en/dis-able combine)
-  - platform: template
-    name: "${name} ${shunt_name} Combine enabled"
-    id: shunt${shunt_id}_switch_combine
-    restore_mode: RESTORE_DEFAULT_ON
-    optimistic: true
-
-binary_sensor:
-  # Combine Availability (indicated, if the Shunt is able to be included in combine)
-  - platform: template
-    name: "${name} ${shunt_name} Combine Availability"
-    id: shunt${shunt_id}_availability
-    lambda: return (id(shunt${shunt_id}_online_status).state);
-
-  # Can be combined (indicated, if the Shunt can be combined)
-  - platform: template
-    name: "${name} ${shunt_name} Can be combined"
-    id: shunt${shunt_id}_can_be_combined
-    lambda: return ((id(shunt${shunt_id}_availability).state) && (id(shunt${shunt_id}_switch_combine).state));
 
 # Combine once without conditions
 esphome:
@@ -49,44 +28,51 @@ esphome:
       # Shunt counter (total)
       - lambda: id(${yambms_id}_var_shunt_counter) += 1;
 
+switch:
+  # Combine enable/disable Switch
+  - platform: template
+    name: "${name} ${shunt_name} Combine enabled"
+    id: shunt${shunt_id}_switch_combine
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+
+binary_sensor:
+  # Indicates whether the Shunt can be combined
+  - platform: template
+    name: "${name} ${shunt_name} Can be combined"
+    id: shunt${shunt_id}_can_be_combined
+    lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
+
 interval:
   - interval: ${shunt_combine_interval}
     then:
       - lambda: |-
-          // Combine once, only if the device is able to be included in combine
-          if (id(shunt${shunt_id}_can_be_combined).state)
-          {
-            if (id(shunt${shunt_id}_combined_once) == false)
-            {
-              // To combine shunt counter
-              id(${yambms_id}_var_to_combine_shunt_counter) += 1;
-
-              // Shunt use (replace BMS infos)
-              id(${yambms_id}_var_shunt_use) = true;
-
-              // Combined
-              id(shunt${shunt_id}_combined_once) = true;
-            }
-          }
-          // Uncombine once
-          else if (id(shunt${shunt_id}_combined_once) == true)
-          {
-            // To combine shunt counter
-            id(${yambms_id}_var_to_combine_shunt_counter) -= 1;
-
-            // Shunt use (replace BMS infos)
-            if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
-            
-            // Uncombined
-            id(shunt${shunt_id}_combined_once) = false;
-          }
-
-          // Combine continuously (all Shunt)
+          // Shunt number to combine ?
           if (id(${yambms_id}_var_to_combine_shunt_number) == ${shunt_id})
           {
-            // Combine only if the device is able to be included in combine
+            // The Shunt can be combined ?
             if (id(shunt${shunt_id}_can_be_combined).state)
             {
+              // +-----------------------------------------------+
+              // | Combine not continuously                      |
+              // +-----------------------------------------------+
+
+              if (id(shunt${shunt_id}_combined) == false)
+              {
+                // To combine shunt counter
+                id(${yambms_id}_var_to_combine_shunt_counter) += 1;
+
+                // Shunt use (replace BMS infos)
+                id(${yambms_id}_var_shunt_use) = true;
+
+                // Combined
+                id(shunt${shunt_id}_combined) = true;
+              }
+
+              // +-----------------------------------------------+
+              // | Combine continuously                          |
+              // +-----------------------------------------------+
+
               // TOTAL voltage
               id(${yambms_id}_var_shunt_total_voltage) += id(shunt${shunt_id}_voltage).state;
               // TOTAL current
@@ -95,7 +81,24 @@ interval:
               id(${yambms_id}_var_shunt_total_power) += id(shunt${shunt_id}_power).state;
               // TOTAL soc
               id(${yambms_id}_var_shunt_total_soc) += id(shunt${shunt_id}_soc).state;
+
             }
-            // To combine shunt number
+
+            // +-----------------------------------------------+
+            // | Uncombine not continuously                    |
+            // +-----------------------------------------------+
+            else if (id(shunt${shunt_id}_combined) == true)
+            {
+              // To combine shunt counter
+              id(${yambms_id}_var_to_combine_shunt_counter) -= 1;
+
+              // Shunt use (replace BMS infos)
+              if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
+              
+              // Uncombined
+              id(shunt${shunt_id}_combined) = false;
+            }
+
+            // Increment the counter for next Shunt processing
             id(${yambms_id}_var_to_combine_shunt_number)++;
           }

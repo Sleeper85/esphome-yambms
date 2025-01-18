@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.5.2
+# Updated : 2025.01.16
+# Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -506,15 +506,11 @@ sensor:
         - delta: 1
     lambda: |-
       float soc = id(${yambms_id}_state_of_charge).state;
-      float min_cell_v = id(${yambms_id}_min_cell_voltage).state;
-      float cell_low_v = (id(${yambms_id}_cell_uvp).state + 0.2);
-      if (id(${yambms_id}_bms_combined).state == 0) return 0;         // no BMS combined
-      else if (min_cell_v <= cell_low_v) return 0;                    // Real 0% Sending 0%
-      else if (soc < 1) return 2;                                     // False 0% sending 2%
-      else if (soc < 99) return soc;                                  // SOC < 99% => Sending BMS SOC
-      // Useful for some inverters, will not send 100% until charging is complete
-      else if (id(${yambms_id}_eoc) == true) return soc;              // End Of Charge => Sending BMS SOC
-      else return 98;                                                 // Otherwise => Sending 98%
+      if (id(${yambms_id}_bms_combined).state == 0) return 0;         // no BMS combined => sending 0%
+      else if (soc < 99) return soc;                                  // SoC < 99% => sending SoC
+      else if (id(${yambms_id}_eoc) == true) return soc;              // End Of Charge => sending SoC
+      else return 98;                                                 // Otherwise => sending 98%
+                                                                      // Useful for some inverters stopping charging when SoC reaches 100%
 
   # +--------------------------------------+
   # | Battery State of Health (SOH)        |
@@ -594,9 +590,11 @@ text_sensor:
         // +-----------------------------------------------+
         // | Force Bulk Logic                              |
         // +-----------------------------------------------+
-        if (id(${yambms_id}_switch_force_bulk).state) {
+        if (id(${yambms_id}_switch_force_bulk).state)
+        {
           // Stop Force Bulk when the BMS starts to equalize the cells
-          if (id(${yambms_id}_equalizing).state) {
+          if (id(${yambms_id}_equalizing).state)
+          {
             id(${yambms_id}_charge_status) = "Balancing";
             id(${yambms_id}_switch_force_bulk).turn_off();
           }
@@ -710,34 +708,25 @@ text_sensor:
       else return {"Stop"};
 
   # +--------------------------------------+
-  # | YamBMS Alarm and Warning             |
+  # | YamBMS Errors Bitmask (16bit)        |
   # +--------------------------------------+
-  # | Errors Bitmask (16bit)               |
-  # +--------------------------------------+
-      
-  # 0x8B 0x00 0x00: Battery warning message              0000 0000 0000 0000
-  #
-  # Bit 0    Low capacity                                1 (alarm), 0 (normal)    warning
-  # Bit 1    Power tube overtemperature                  1 (alarm), 0 (normal)    alarm
-  # Bit 2    Charging overvoltage                        1 (alarm), 0 (normal)    alarm
-  # Bit 3    Discharging undervoltage                    1 (alarm), 0 (normal)    alarm
-  # Bit 4    Battery over temperature                    1 (alarm), 0 (normal)    alarm
-  # Bit 5    Charging overcurrent                        1 (alarm), 0 (normal)    alarm
-  # Bit 6    Discharging overcurrent                     1 (alarm), 0 (normal)    alarm
-  # Bit 7    Cell pressure difference                    1 (alarm), 0 (normal)    alarm
-  # Bit 8    Overtemperature alarm in the battery box    1 (alarm), 0 (normal)    alarm
-  # Bit 9    Battery low temperature                     1 (alarm), 0 (normal)    alarm
-  # Bit 10   Cell overvoltage                            1 (alarm), 0 (normal)    alarm
-  # Bit 11   Cell undervoltage                           1 (alarm), 0 (normal)    alarm
-  # Bit 12   309_A protection                            1 (alarm), 0 (normal)    alarm
-  # Bit 13   309_A protection                            1 (alarm), 0 (normal)    alarm
-  # Bit 14   Reserved
-  # Bit 15   Reserved
-  #
-  # Examples:
-  # 0x0001 = 00000000 00000001: Low capacity alarm
-  # 0x0002 = 00000000 00000010: MOS tube over-temperature alarm
-  # 0x0003 = 00000000 00000011: Low capacity alarm AND power tube over-temperature alarm
+
+  # Bit 0     General alarm                                0000 0000 0000 0001         0x0001 
+  # Bit 1     Battery high voltage alarm                   0000 0000 0000 0010         0x0002
+  # Bit 2     Battery low voltage alarm                    0000 0000 0000 0100         0x0004
+  # Bit 3     Battery high temperature alarm               0000 0000 0000 1000         0x0008
+  # Bit 4     Battery low temperature alarm                0000 0000 0001 0000         0x0010
+  # Bit 5     Battery high temperature charge alarm        0000 0000 0010 0000         0x0020
+  # Bit 6     Battery low temperature charge alarm         0000 0000 0100 0000         0x0040
+  # Bit 7     Battery high discharge current alarm         0000 0000 1000 0000         0x0080
+  # Bit 8     Battery high charge current alarm            0000 0001 0000 0000         0x0100
+  # Bit 9     Contactor alarm                              0000 0010 0000 0000         0x0200
+  # Bit 10    Short circuit alarm                          0000 0100 0000 0000         0x0400
+  # Bit 11    BMS internal alarm                           0000 1000 0000 0000         0x0800
+  # Bit 12    Cell imbalance alarm                         0001 0000 0000 0000         0x1000
+  # Bit 13    Reserved                                     0010 0000 0000 0000         0x2000
+  # Bit 14    Reserved                                     0100 0000 0000 0000         0x4000
+  # Bit 15    Reserved                                     1000 0000 0000 0000         0x8000
 
   # YamBMS Protection Alarm (all-bms)
   - platform: template
@@ -754,32 +743,19 @@ text_sensor:
       // At least one BMS in alarm
       if ((eb_counter > 0) & (eb_counter < id(${yambms_id}_var_bms_counter))) return {"Warning"};
       // All BMS are in alarm
-      else if (errors_bitmask > 1) {
-        
-        if ((errors_bitmask & 0x04) | (errors_bitmask & 0x80) | (errors_bitmask & 0x400)) {    // Cell Over Voltage        bit 2,7,10
-          return {"OVP"};
-        }
-        if ((errors_bitmask & 0x08) | (errors_bitmask & 0x800)) {                              // Cell Under Voltage       bit 3,11
-          return {"UVP"};
-        }
-        if ((errors_bitmask & 0x02) | (errors_bitmask & 0x10) | (errors_bitmask & 0x100)) {    // Battery Over Temp        bit 1,4,8
-          return {"OTP"};
-        }
-        if ((errors_bitmask & 0x200)) {                                                        // Battery Under Temp       bit 9
-          return {"UTP"};
-        }
-        if ((errors_bitmask & 0x40)) {                                                         // Discharge Over Current   bit 6
-          return {"DOCP"};
-        }
-        if ((errors_bitmask & 0x20)) {                                                         // Charge Over Current      bit 5
-          return {"COCP"};
-        }
-        if ((errors_bitmask & 0x1000) | (errors_bitmask & 0x2000)) {                           // BMS Internal Error       bit 12,13
-          return {"BMS"};
-        }
-        if ((errors_bitmask & 0x80)) {                                                         // Unbalanced Cell          bit 7
-          return {"UBC"};
-        }
+      else if (errors_bitmask > 0)
+      {
+        if ((errors_bitmask & 0x0002)) return {"OVP"};         // Over Voltage Protection
+        else if ((errors_bitmask & 0x0004)) return {"UVP"};    // Under Voltage Protection
+        else if ((errors_bitmask & 0x0008)) return {"OTP"};    // Over Temp Protection
+        else if ((errors_bitmask & 0x0020)) return {"COTP"};   // Charge Over Temp Protection
+        else if ((errors_bitmask & 0x0010)) return {"UTP"};    // Under Temp Protection
+        else if ((errors_bitmask & 0x0040)) return {"CUTP"};   // Charge Under Temp Protection
+        else if ((errors_bitmask & 0x0080)) return {"DOCP"};   // Discharge Over Current Protection
+        else if ((errors_bitmask & 0x0100)) return {"COCP"};   // Charge Over Current Protection
+        else if ((errors_bitmask & 0x0400)) return {"SCP"};    // Short Circuit Protection
+        else if ((errors_bitmask & 0x0800)) return {"BMS"};    // BMS Internal Alarm
+        else if ((errors_bitmask & 0x1000)) return {"UBC"};    // Unbalanced Cell
         else return {"Alarm"};
       }
       // No Alarm
@@ -795,32 +771,20 @@ text_sensor:
     lambda: |-      
       // Error Bitmask ?
       uint16_t errors_bitmask = id(${yambms_id}_errors_bitmask_warning).state;
-      if (errors_bitmask > 1) {
-        
-        if ((errors_bitmask & 0x04) | (errors_bitmask & 0x80) | (errors_bitmask & 0x400)) {    // Cell Over Voltage        bit 2,7,10
-          return {"OVP"};
-        }
-        if ((errors_bitmask & 0x08) | (errors_bitmask & 0x800)) {                              // Cell Under Voltage       bit 3,11
-          return {"UVP"};
-        }
-        if ((errors_bitmask & 0x02) | (errors_bitmask & 0x10) | (errors_bitmask & 0x100)) {    // Battery Over Temp        bit 1,4,8
-          return {"OTP"};
-        }
-        if ((errors_bitmask & 0x200)) {                                                        // Battery Under Temp       bit 9
-          return {"UTP"};
-        }
-        if ((errors_bitmask & 0x40)) {                                                         // Discharge Over Current   bit 6
-          return {"DOCP"};
-        }
-        if ((errors_bitmask & 0x20)) {                                                         // Charge Over Current      bit 5
-          return {"COCP"};
-        }
-        if ((errors_bitmask & 0x1000) | (errors_bitmask & 0x2000)) {                           // BMS Internal Error       bit 12,13
-          return {"BMS"};
-        }
-        if ((errors_bitmask & 0x80)) {                                                         // Unbalanced Cell          bit 7
-          return {"UBC"};
-        }
+      
+      if (errors_bitmask > 0)
+      {
+        if ((errors_bitmask & 0x0002)) return {"OVP"};         // Over Voltage Protection
+        else if ((errors_bitmask & 0x0004)) return {"UVP"};    // Under Voltage Protection
+        else if ((errors_bitmask & 0x0008)) return {"OTP"};    // Over Temp Protection
+        else if ((errors_bitmask & 0x0020)) return {"COTP"};   // Charge Over Temp Protection
+        else if ((errors_bitmask & 0x0010)) return {"UTP"};    // Under Temp Protection
+        else if ((errors_bitmask & 0x0040)) return {"CUTP"};   // Charge Under Temp Protection
+        else if ((errors_bitmask & 0x0080)) return {"DOCP"};   // Discharge Over Current Protection
+        else if ((errors_bitmask & 0x0100)) return {"COCP"};   // Charge Over Current Protection
+        else if ((errors_bitmask & 0x0400)) return {"SCP"};    // Short Circuit Protection
+        else if ((errors_bitmask & 0x0800)) return {"BMS"};    // BMS Internal Alarm
+        else if ((errors_bitmask & 0x1000)) return {"UBC"};    // Unbalanced Cell
         else return {"Alarm"};
       }
       // No Alarm

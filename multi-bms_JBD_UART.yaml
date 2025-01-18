@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.5.2
+# Updated : 2025.01.16
+# Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -66,18 +66,24 @@ api:
 # PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
 
 packages:
-  device_base: !include packages/base/device_base.yaml
-  # Board : uncomment your board
-  device_board: !include packages/board/board_esp32-devkit-v1.yaml
-  # device_board: !include packages/board/board_esp32-s3-devkitc-1.yaml
-  # device_board: !include packages/board/board_atom-s3-lite.yaml
+  ############### >>> UNCOMMENT YOUR BOARD <<< ###############
+
+  # This list is incomplete, other board.yaml are available in the board folder
+
+  device_board: !include packages/board/board_ESP32_Generic.yaml
+  # device_board: !include packages/board/board_ESP32_DevKit-V1.yaml
+  # device_board: !include packages/board/board_ESP32_LilyGo-T-CAN485.yaml
+  # device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
+  # device_board: !include packages/board/board_ESP32-S3_DevKitC-1.yaml
+  # device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
+  # device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
   
   # device_board: !include
-  #   file: packages/board/board_atom-s3.yaml # board_atom-s3r.yaml
+  #   file: packages/board/board_ESP32-S3_AtomS3.yaml # board_ESP32-S3_AtomS3R.yaml
   #   vars:
-  #     yambms_id: 'yambms1'
-  #     canbus_id: 'canbus1'
   #     display_auto_next_page_interval: '5s'
+
+  ############################################################
 
   # Config : this YAML contains the settings shared between all ESP32s
   config_yambms: !include packages/config/config_yambms.yaml

@@ -1,5 +1,5 @@
-# Updated : 2025.01.18
-# Version : 1.5.3
+# Updated : 2025.01.10
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,13 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.5.3"
-
-external_components:
-  # https://github.com/esphome/esphome/pull/7547
-  # api: ensure fair network sharing + prevent lost state changes via deferred publish at high event load
-  - source: github://pr#7547
-    components: [ api, event ]
+  project_version: '1.1.1'
 
 esphome:
   name: ${name}
@@ -32,8 +26,8 @@ esphome:
   # comment: 'Solar system braining and more !'
   # area: 'Technical local'
   project:
-    name: Sleeper85.YamBMS
-    version: ${yambms_version}
+    name: Reseautonome.PVbrain2
+    version: ${project_version}
   min_version: 2024.6.0
 
 time:
@@ -65,6 +59,22 @@ sensor:
     id: esp32_uptime_sec
     update_interval: 10s
     internal: true
+
+  # https://esphome.io/components/sensor/wifi_signal 
+  - platform: wifi_signal
+    name: ${name} ESP32 WiFi power
+    id: esp32_wifi_power
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: copy # Reports the WiFi signal strength in %
+    source_id: esp32_wifi_power
+    name: ${name} ESP32 WiFi power (%)
+    id: esp32_wifi_power_percent
+    unit_of_measurement: '%'
+    entity_category: diagnostic
+    filters:
+      - lambda: 'return min(max(2 * (x + 100.0), 0.0), 100.0);'
 
   # https://esphome.io/components/sensor/internal_temperature
   - platform: internal_temperature
@@ -105,6 +115,27 @@ text_sensor:
     entity_category: diagnostic
     internal: true
     lambda: return id(my_time).now().strftime("%Y-%m-%d %H:%M:%S");
+
+  # https://esphome.io/components/text_sensor/wifi_info
+  - platform: wifi_info
+    ip_address:
+      name: ${name} ESP32 IP address
+      id: esp32_ip_address
+    ssid:
+      name: ${name} ESP32 connected SSID
+      id: esp32_connected_ssid
+    bssid:
+      name: ${name} ESP32 connected BSSID
+      id: esp32_connected_bssid
+    mac_address:
+      name: ${name} ESP32 MAC WiFi address
+      id: esp32_mac_wifi_address
+    scan_results:
+      name: ${name} ESP32 latest scan results
+      id: esp32_latest_scan_results
+    dns_address:
+      name: ${name} ESP32 DNS address
+      id: esp32_dns_address
 
   # https://esphome.io/components/text_sensor/version
   - platform: version

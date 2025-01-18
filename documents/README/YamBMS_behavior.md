@@ -23,7 +23,7 @@ The various counters above allow you to see what state your system is in.
 
 Combine condition :
 1) the `Combine` switch is enabled
-2) Shunt `Online Status` is `ON` (the shunt `Voltage` is `> 0V`)
+2) Shunt `Online Status` is `ON` (the shunt `Voltage` is `> 0`)
 
 If one of these two conditions is not respected, the shunt is automatically uncombined.
 
@@ -38,9 +38,8 @@ As soon as you import a `Shunt` and it can be combined (see condition) the value
 ### BMS
 
 Combine condition :
-1) the `Combine` switch is enabled
-2) BMS `Online Status` is `ON` (to detect a loss of connection with the BMS e.g. cable, BMS OFF or dead)
-3) BMS `Charging` or `Discharging` is allowed (based on `binary_sensor`, related to the state of `switches/alarms`)
+1) BMS `Online Status` is `ON / Connected` (to detect a loss of connection with the BMS e.g. cable, BMS OFF or dead)
+2) The BMS `Battery Capacity` is `> 0` (to ensure that the data received is correct)
 
 If one of these three conditions is not met, the BMS is automatically uncombined.
 
@@ -65,11 +64,20 @@ The `SoC` is slightly manipulated before reaching `0%` or `100%`.
 SoC `100%` will be sent to your inverter only when the battery is `fully charged` (useful for some inverters stopping charging when the SoC reaches 100%).
 
 SoC behavior:
-1) If `min_cell_v <= UVP + 0.02V` SoC 0% is sent
-2) Else if `SOC < 1%` SoC 2% is sent (false 0% sending 2%)
-3) Else if `SOC < 99%` real SoC is sent
-4) Else if `the battery is fully charged` real SoC is sent
-5) Else SoC `98%` is sent
+1) If `SOC < 99%` real SoC is sent
+2) Else if `the battery is fully charged` real SoC is sent
+3) Else SoC `98%` is sent
+
+## RGB LED status
+
+This only applies to boards with an `RGB LED`.
+
+| Color | Status |
+| --- | --- |
+| $${\color{red}Red}$$ | HA or MQTT KO + CANBUS KO |
+| $${\color{green}Green}$$ | HA or MQTT OK + CANBUS KO |
+| $${\color{blue}Flashing-Blue}$$ | HA or MQTT KO + CANBUS OK |
+| $${\color{cyan}Flashing-Cyan}$$ | HA or MQTT OK + CANBUS OK |
 
 ## CAN bus link
 
@@ -104,8 +112,6 @@ If the inverter does not respond with an `ACK 0x305` within this `5s` delay the 
 ## BMS alarms
 
 ![Image](../../images/YamBMS_BMS_alarms.png "YamBMS_BMS_alarms")
-
-The BMS `errors_bitmask` values ​​are merged and then analyzed continuously **even if the BMS is uncombined**.
 
 If all BMS have alarms, the alarms are sent to the **CAN bus** as `Protection Alarms`.
 

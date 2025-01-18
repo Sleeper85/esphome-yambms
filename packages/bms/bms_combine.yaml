@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.5.2
+# Updated : 2025.01.16
+# Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -25,27 +25,6 @@ globals:
     restore_value: no
     initial_value: "false"
 
-switch:
-  # Combine Enable-Switch (user controlled switch to en/dis-able combine)
-  - platform: template
-    name: "${name} ${bms_name} Combine enabled"
-    id: bms${bms_id}_switch_combine
-    restore_mode: RESTORE_DEFAULT_ON
-    optimistic: true
-
-binary_sensor:
-  # Combine Availability (indicated, if the BMS is able to be included in combine)
-  - platform: template
-    name: "${name} ${bms_name} Combine Availability"
-    id: bms${bms_id}_availability
-    lambda: return (id(bms${bms_id}_online_status).state && (id(bms${bms_id}_charging_allowed).state || id(bms${bms_id}_discharging_allowed).state));
-
-  # Can be combined (indicated, if the BMS can be combined)
-  - platform: template
-    name: "${name} ${bms_name} Can be combined"
-    id: bms${bms_id}_can_be_combined
-    lambda: return (id(bms${bms_id}_availability).state && id(bms${bms_id}_switch_combine).state);
-
 # Combine once without conditions
 esphome:
   on_boot:
@@ -53,76 +32,78 @@ esphome:
       # Shunt counter (total)
       - lambda: id(${yambms_id}_var_bms_counter) += 1;
 
+binary_sensor:
+  # Indicates whether the BMS can be combined
+  - platform: template
+    name: "${name} ${bms_name} Can be combined"
+    id: bms${bms_id}_can_be_combined
+    lambda: return (id(bms${bms_id}_online_status).state && id(bms${bms_id}_battery_capacity).state > 0);
+
 interval:
   - interval: ${bms_combine_interval}
     then:
       - lambda: |-
-          // Combine only if the device is able to be included in combine
-          if (id(bms${bms_id}_can_be_combined).state)
-          {
-            // Combine once only
-            if (id(bms${bms_id}_combined_once) == false)
-            {
-              id(${yambms_id}_var_total_installed_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
-              id(bms${bms_id}_combined_once) = true;
-            }
-            // Combine (not continuously)
-            if (id(bms${bms_id}_combined) == false)
-            {
-              // To combine bms counter
-              id(${yambms_id}_var_to_combine_bms_counter) += 1;
-              
-              // TOTAL cell_count
-              // id(${yambms_id}_var_total_cell_count) += id(bms${bms_id}_cell_count).state;
-              
-              // TOTAL battery_capacity
-              id(${yambms_id}_var_total_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
-              
-              // Combined
-              id(bms${bms_id}_combined) = true;
-            }
-          }
-          // Uncombine (not continuously)
-          else if (id(bms${bms_id}_combined) == true)
-          {
-            // To combine bms counter
-            id(${yambms_id}_var_to_combine_bms_counter) -= 1;
-
-            // TOTAL cell_count
-            // id(${yambms_id}_var_total_cell_count) -= id(bms${bms_id}_cell_count).state;
-
-            // TOTAL battery_capacity
-            id(${yambms_id}_var_total_battery_capacity) -= id(bms${bms_id}_battery_capacity).state;
-            
-            // Uncombined
-            id(bms${bms_id}_combined) = false;
-          }
-
-          // Combine continuously (all BMS)
+          // BMS number to combine ?
           if (id(${yambms_id}_var_to_combine_bms_number) == ${bms_id})
           {
-            // TOTAL charging_allowed_counter
-            if (id(bms${bms_id}_charging_allowed).state) id(${yambms_id}_var_charging_allowed_counter) += 1;
-
-            // TOTAL discharging_allowed_counter
-            if (id(bms${bms_id}_discharging_allowed).state) id(${yambms_id}_var_discharging_allowed_counter) += 1;
-
-            // +-----------------------------------------------+
-            // | Errors bitmask (16bit)                        |
-            // +-----------------------------------------------+
-
-            if (id(bms${bms_id}_errors_bitmask).state > 1)
-            {
-              uint16_t bms_errors_bitmask = id(bms${bms_id}_errors_bitmask).state;   // errors_bitmask (16bit)
-              id(${yambms_id}_var_errors_bitmask) |= bms_errors_bitmask;             // OR bitwise
-              id(${yambms_id}_var_errors_bitmask_counter) += 1;                      // errors_bitmask_counter
-            }
-
-            // +-----------------------------------------------+
-
-            // Combine only if the device is able to be included in combine
+            // The BMS can be combined ?
             if (id(bms${bms_id}_can_be_combined).state)
             {
+              // +-----------------------------------------------+
+              // | Combine once only                             |
+              // +-----------------------------------------------+
+
+              if (id(bms${bms_id}_combined_once) == false)
+              {
+                id(${yambms_id}_var_total_installed_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
+                id(bms${bms_id}_combined_once) = true;
+              }
+
+              // +-----------------------------------------------+
+              // | Combine not continuously                      |
+              // +-----------------------------------------------+
+
+              if (id(bms${bms_id}_combined) == false)
+              {
+                // To combine bms counter
+                id(${yambms_id}_var_to_combine_bms_counter) += 1;
+                              
+                // TOTAL battery_capacity
+                id(${yambms_id}_var_total_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
+                
+                // Combined
+                id(bms${bms_id}_combined) = true;
+              }
+
+              // +-----------------------------------------------+
+              // | Combine continuously                          |
+              // +-----------------------------------------------+
+
+              // YamBMS Errors Bitmask (16bit)
+              if (id(bms${bms_id}_yambms_errors_bitmask).state > 0)
+              {
+                uint16_t errors_bitmask = id(bms${bms_id}_yambms_errors_bitmask).state;   // errors_bitmask (16bit)
+                id(${yambms_id}_var_errors_bitmask) |= errors_bitmask;                    // OR bitwise
+                id(${yambms_id}_var_errors_bitmask_counter) += 1;                         // errors_bitmask_counter
+              }
+
+              // TOTAL charging_allowed_counter
+              // TOTAL max_charge_current
+              if (id(bms${bms_id}_charging_allowed).state)
+              {
+                id(${yambms_id}_var_charging_allowed_counter) += 1;
+                id(${yambms_id}_var_total_max_charge_current) += id(bms${bms_id}_max_charge_current).state;
+
+              }
+
+              // TOTAL discharging_allowed_counter
+              // TOTAL max_discharge_current
+              if (id(bms${bms_id}_discharging_allowed).state)
+              {
+                id(${yambms_id}_var_discharging_allowed_counter) += 1;
+                id(${yambms_id}_var_total_max_discharge_current) += id(bms${bms_id}_max_discharge_current).state;
+              }
+
               // TOTAL total_voltage
               id(${yambms_id}_var_bms_total_voltage) += id(bms${bms_id}_total_voltage).state;
               
@@ -131,14 +112,6 @@ interval:
               
               // TOTAL power
               id(${yambms_id}_var_bms_total_power) += id(bms${bms_id}_power).state;
-
-              // TOTAL max_charge_current
-              if (id(bms${bms_id}_charging_allowed).state)
-                id(${yambms_id}_var_total_max_charge_current) += id(bms${bms_id}_max_charge_current).state;
-              
-              // TOTAL max_discharge_current
-              if (id(bms${bms_id}_discharging_allowed).state)
-                id(${yambms_id}_var_total_max_discharge_current) += id(bms${bms_id}_max_discharge_current).state;
               
               // TOTAL capacity_remaining_ah
               id(${yambms_id}_var_total_capacity_remaining_ah) += id(bms${bms_id}_capacity_remaining_ah).state;
@@ -197,6 +170,22 @@ interval:
                 id(${yambms_id}_var_max_temperature_sensor) = id(bms${bms_id}_max_temperature_sensor).state;
               }
             }
-            // To combine BMS number
+
+            // +-----------------------------------------------+
+            // | Uncombine not continuously                    |
+            // +-----------------------------------------------+
+            else if (id(bms${bms_id}_combined) == true)
+            {
+              // To combine bms counter
+              id(${yambms_id}_var_to_combine_bms_counter) -= 1;
+
+              // TOTAL battery_capacity
+              id(${yambms_id}_var_total_battery_capacity) -= id(bms${bms_id}_battery_capacity).state;
+              
+              // Uncombined
+              id(bms${bms_id}_combined) = false;
+            }
+
+            // Increment the counter for next BMS processing
             id(${yambms_id}_var_to_combine_bms_number)++;
           }

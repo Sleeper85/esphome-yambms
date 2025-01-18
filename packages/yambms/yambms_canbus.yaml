@@ -1,5 +1,5 @@
-# Updated : 2024.11.18
-# Version : 2.4.1
+# Updated : 2025.01.08
+# Version : 2.4.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -117,7 +117,8 @@ script:
       - delay: ${canbus_link_timer}
       - lambda: |-
           id(${canbus_id}_send_canbus_data) = false;                      // Stop sending CANBUS datas
-          id(${canbus_id}_status).publish_state(false);                   // Set CANBUS Status to OFF
+          id(${canbus_id}_status).publish_state(false);                   // Set CANBUS status to OFF
+          id(inverter_com_status).publish_state(false);                   // Set Inverter com. status to OFF
 
 # +--------------------------------------+
 # | Start CAN Handling                   |
@@ -136,7 +137,8 @@ canbus:
             
             if (id(${canbus_id}_status).state == false) {
               id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
-              id(${canbus_id}_status).publish_state(true);                 // Set CANBUS Status to ON
+              id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
+              id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
             }
 
             // Inverter ACK interval
@@ -408,37 +410,45 @@ interval:
                       can_id: 0x359
                       data: !lambda |-
                         uint8_t can_mesg[] = {0, 0, 0, 0, 0, 0, 0, 0};
-  
+                        uint16_t errors_bitmask_alarm = id(${yambms_id}_errors_bitmask_alarm).state;
+                        uint16_t errors_bitmask_warning = id(${yambms_id}_errors_bitmask_warning).state;
+
                         // +---------------------------+
                         // | Alarm : byte 0 and 1      |
                         // +---------------------------+
                         
                         // YamBMS alarm ?
-                        if ((id(${yambms_id}_alarm).state != "NoAlarm") & (id(${yambms_id}_alarm).state != "Warning")) {
-                          if (id(${yambms_id}_alarm).state == "OVP") can_mesg[0] = can_mesg[0] | 0x02;   // Over Voltage Protection
-                          if (id(${yambms_id}_alarm).state == "UVP") can_mesg[0] = can_mesg[0] | 0x04;   // Under Voltage Protection
-                          if (id(${yambms_id}_alarm).state == "OTP") can_mesg[0] = can_mesg[0] | 0x08;   // Over Temp Protection
-                          if (id(${yambms_id}_alarm).state == "UTP") can_mesg[0] = can_mesg[0] | 0x10;   // Under Temp Protection
-                          if (id(${yambms_id}_alarm).state == "DOCP") can_mesg[0] = can_mesg[0] | 0x80;  // Discharge Over Current Protection
-                          if (id(${yambms_id}_alarm).state == "COCP") can_mesg[1] = can_mesg[1] | 0x80;  // Charge Over Current Protection
-                          if (id(${yambms_id}_alarm).state == "BMS") can_mesg[1] = can_mesg[1] | 0x08;   // BMS Internal Error
-                          if (id(${yambms_id}_alarm).state == "UBC") can_mesg[1] = can_mesg[1] | 0x10;   // UnBalanced Cell
+                        if (errors_bitmask_alarm > 0)
+                        {
+                          if (errors_bitmask_alarm & 0x0002) can_mesg[0] |= 0x02;    // Over Voltage Protection
+                          if (errors_bitmask_alarm & 0x0004) can_mesg[0] |= 0x04;    // Under Voltage Protection
+                          if (errors_bitmask_alarm & 0x0008) can_mesg[0] |= 0x08;    // Over Temp Protection
+                          if (errors_bitmask_alarm & 0x0020) can_mesg[0] |= 0x08;    // Charge Over Temp Protection
+                          if (errors_bitmask_alarm & 0x0010) can_mesg[0] |= 0x10;    // Under Temp Protection
+                          if (errors_bitmask_alarm & 0x0040) can_mesg[0] |= 0x10;    // Charge Under Temp Protection
+                          if (errors_bitmask_alarm & 0x0080) can_mesg[0] |= 0x80;    // Discharge Over Current Protection
+                          if (errors_bitmask_alarm & 0x0100) can_mesg[1] |= 0x80;    // Charge Over Current Protection
+                          if (errors_bitmask_alarm & 0x0800) can_mesg[1] |= 0x08;    // BMS Internal Error
+                          if (errors_bitmask_alarm & 0x1000) can_mesg[1] |= 0x10;    // UnBalanced Cell
                         }
                         
                         // +---------------------------+
                         // | Warning : byte 2 and 3    |
                         // +---------------------------+
-                        
+
                         // YamBMS warning ?
-                        if (id(${yambms_id}_warning).state != "NoAlarm") {
-                          if (id(${yambms_id}_warning).state == "OVP") can_mesg[2] = can_mesg[2] | 0x02;   // Over Voltage Protection
-                          if (id(${yambms_id}_warning).state == "UVP") can_mesg[2] = can_mesg[2] | 0x04;   // Under Voltage Protection
-                          if (id(${yambms_id}_warning).state == "OTP") can_mesg[2] = can_mesg[2] | 0x08;   // Over Temp Protection
-                          if (id(${yambms_id}_warning).state == "UTP") can_mesg[2] = can_mesg[2] | 0x10;   // Under Temp Protection
-                          if (id(${yambms_id}_warning).state == "DOCP") can_mesg[2] = can_mesg[2] | 0x80;  // Discharge Over Current Protection
-                          if (id(${yambms_id}_warning).state == "COCP") can_mesg[3] = can_mesg[3] | 0x80;  // Charge Over Current Protection
-                          if (id(${yambms_id}_warning).state == "BMS") can_mesg[3] = can_mesg[3] | 0x08;   // BMS Internal Error
-                          if (id(${yambms_id}_warning).state == "UBC") can_mesg[3] = can_mesg[3] | 0x10;   // UnBalanced Cell
+                        if (errors_bitmask_warning > 0)
+                        {
+                          if (errors_bitmask_warning & 0x0002) can_mesg[2] |= 0x02;    // Over Voltage Protection
+                          if (errors_bitmask_warning & 0x0004) can_mesg[2] |= 0x04;    // Under Voltage Protection
+                          if (errors_bitmask_warning & 0x0008) can_mesg[2] |= 0x08;    // Over Temp Protection
+                          if (errors_bitmask_warning & 0x0020) can_mesg[2] |= 0x08;    // Charge Over Temp Protection
+                          if (errors_bitmask_warning & 0x0010) can_mesg[2] |= 0x10;    // Under Temp Protection
+                          if (errors_bitmask_warning & 0x0040) can_mesg[2] |= 0x10;    // Charge Under Temp Protection
+                          if (errors_bitmask_warning & 0x0080) can_mesg[2] |= 0x80;    // Discharge Over Current Protection
+                          if (errors_bitmask_warning & 0x0100) can_mesg[3] |= 0x80;    // Charge Over Current Protection
+                          if (errors_bitmask_warning & 0x0800) can_mesg[3] |= 0x08;    // BMS Internal Error
+                          if (errors_bitmask_warning & 0x1000) can_mesg[3] |= 0x10;    // UnBalanced Cell
                         }
                         
                         // +---------------------------+
@@ -478,15 +488,15 @@ interval:
                         // | Byte 0 : Request flag          |
                         // +--------------------------------+
                         // Bit 3 : Request full charge
-                        // if () can_mesg[0] = can_mesg[0] | 0x8;
+                        // if () can_mesg[0] |= 0x8;
                         // Bit 4 : Request force charge 2 (Deye will charge the battery from the grid to the charging voltage specified by the CAN bus and displays `Request Force Charge` on the screen)
-                        if (id(${yambms_id}_requested_force_charge).state) can_mesg[0] = can_mesg[0] | 0x10;
+                        if (id(${yambms_id}_requested_force_charge).state) can_mesg[0] |= 0x10;
                         // Bit 5 : Request force charge 1 (Deye will charge the battery from the grid to the charging voltage specified by the CAN bus and displays `Request Force Charge` on the screen)
-                        // if () can_mesg[0] = can_mesg[0] | 0x20;
+                        // if () can_mesg[0] |= 0x20;
                         // Bit 6 : Discharge enable 
-                        if (id(${yambms_id}_discharging_instruction).state == true) can_mesg[0] = can_mesg[0] | 0x40;
+                        if (id(${yambms_id}_discharging_instruction).state == true) can_mesg[0] |= 0x40;
                         // Bit 7 : Charge enable  
-                        if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float")) can_mesg[0] = can_mesg[0] | 0x80;
+                        if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float")) can_mesg[0] |= 0x80;
 
                         // LuxPower
                         // Byte [02:03] : Cycle count     (1 cycle)
@@ -510,39 +520,53 @@ interval:
                         // https://github.com/dfch/BydCanProtocol
                         
                         uint8_t can_mesg[] = {0, 0, 0, 0, 0, 0, 0, 0};
-                        
+                        uint16_t errors_bitmask_alarm = id(${yambms_id}_errors_bitmask_alarm).state;
+                        uint16_t errors_bitmask_warning = id(${yambms_id}_errors_bitmask_warning).state;
+
                         // +---------------------------+
                         // | Alarm : byte 0 to 3       |
                         // +---------------------------+
-                        
+
                         // YamBMS alarm ?
-                        if ((id(${yambms_id}_alarm).state != "NoAlarm") & (id(${yambms_id}_alarm).state != "Warning")) {
-                          if (id(${yambms_id}_alarm).state == "OVP") can_mesg[0] = can_mesg[0] | 0x04;   // Over Voltage Protection
-                          if (id(${yambms_id}_alarm).state == "UVP") can_mesg[0] = can_mesg[0] | 0x10;   // Under Voltage Protection
-                          if (id(${yambms_id}_alarm).state == "OTP") can_mesg[0] = can_mesg[0] | 0x40;   // Over Temp Protection
-                          if (id(${yambms_id}_alarm).state == "UTP") can_mesg[1] = can_mesg[1] | 0x01;   // Under Temp Protection
-                          if (id(${yambms_id}_alarm).state == "DOCP") can_mesg[1] = can_mesg[1] | 0x40;  // Discharge Over Current Protection
-                          if (id(${yambms_id}_alarm).state == "COCP") can_mesg[2] = can_mesg[2] | 0x01;  // Charge Over Current Protection
-                          if (id(${yambms_id}_alarm).state == "BMS") can_mesg[2] = can_mesg[2] | 0x40;   // BMS Internal Error
-                          if (id(${yambms_id}_alarm).state == "UBC") can_mesg[3] = can_mesg[3] | 0x01;   // UnBalanced Cell
+                        if (errors_bitmask_alarm > 0)
+                        {
+                          if (errors_bitmask_alarm & 0x0001) can_mesg[0] |= 0x0001;    // General alarm
+                          if (errors_bitmask_alarm & 0x0002) can_mesg[0] |= 0x0004;    // Battery high voltage alarm
+                          if (errors_bitmask_alarm & 0x0004) can_mesg[0] |= 0x0010;    // Battery low voltage alarm
+                          if (errors_bitmask_alarm & 0x0008) can_mesg[0] |= 0x0040;    // Battery high temperature alarm
+                          if (errors_bitmask_alarm & 0x0010) can_mesg[1] |= 0x0001;    // Battery low temperature alarm
+                          if (errors_bitmask_alarm & 0x0020) can_mesg[1] |= 0x0004;    // Battery high temperature charge alarm
+                          if (errors_bitmask_alarm & 0x0040) can_mesg[1] |= 0x0010;    // Battery low temperature charge alarm
+                          if (errors_bitmask_alarm & 0x0080) can_mesg[1] |= 0x0040;    // Battery high discharge current alarm
+                          if (errors_bitmask_alarm & 0x0100) can_mesg[2] |= 0x0001;    // Battery high charge current alarm
+                          if (errors_bitmask_alarm & 0x0200) can_mesg[2] |= 0x0004;    // Contactor alarm
+                          if (errors_bitmask_alarm & 0x0400) can_mesg[2] |= 0x0010;    // Short circuit alarm
+                          if (errors_bitmask_alarm & 0x0800) can_mesg[2] |= 0x0040;    // BMS internal alarm
+                          if (errors_bitmask_alarm & 0x1000) can_mesg[3] |= 0x0001;    // Cell imbalance alarm
                         }
-                        
+
                         // +---------------------------+
                         // | Warning : byte 4 to 7     |
                         // +---------------------------+
-                        
+
                         // YamBMS warning ?
-                        if (id(${yambms_id}_warning).state != "NoAlarm") {
-                          if (id(${yambms_id}_warning).state == "OVP") can_mesg[4] = can_mesg[4] | 0x04;   // Over Voltage Protection
-                          if (id(${yambms_id}_warning).state == "UVP") can_mesg[4] = can_mesg[4] | 0x10;   // Under Voltage Protection
-                          if (id(${yambms_id}_warning).state == "OTP") can_mesg[4] = can_mesg[4] | 0x40;   // Over Temp Protection
-                          if (id(${yambms_id}_warning).state == "UTP") can_mesg[5] = can_mesg[5] | 0x01;   // Under Temp Protection
-                          if (id(${yambms_id}_warning).state == "DOCP") can_mesg[5] = can_mesg[5] | 0x40;  // Discharge Over Current Protection
-                          if (id(${yambms_id}_warning).state == "COCP") can_mesg[6] = can_mesg[6] | 0x01;  // Charge Over Current Protection
-                          if (id(${yambms_id}_warning).state == "BMS") can_mesg[6] = can_mesg[6] | 0x40;   // BMS Internal Error
-                          if (id(${yambms_id}_warning).state == "UBC") can_mesg[7] = can_mesg[7] | 0x01;   // UnBalanced Cell
+                        if (errors_bitmask_warning > 0)
+                        {
+                          if (errors_bitmask_warning & 0x0001) can_mesg[4] |= 0x0001;    // General warning
+                          if (errors_bitmask_warning & 0x0002) can_mesg[4] |= 0x0004;    // Battery high voltage warning
+                          if (errors_bitmask_warning & 0x0004) can_mesg[4] |= 0x0010;    // Battery low voltage warning
+                          if (errors_bitmask_warning & 0x0008) can_mesg[4] |= 0x0040;    // Battery high temperature warning
+                          if (errors_bitmask_warning & 0x0010) can_mesg[5] |= 0x0001;    // Battery low temperature warning
+                          if (errors_bitmask_warning & 0x0020) can_mesg[5] |= 0x0004;    // Battery high temperature charge warning
+                          if (errors_bitmask_warning & 0x0040) can_mesg[5] |= 0x0010;    // Battery low temperature charge warning
+                          if (errors_bitmask_warning & 0x0080) can_mesg[5] |= 0x0040;    // Battery high discharge current warning
+                          if (errors_bitmask_warning & 0x0100) can_mesg[6] |= 0x0001;    // Battery high charge current warning
+                          if (errors_bitmask_warning & 0x0200) can_mesg[6] |= 0x0004;    // Contactor warning
+                          if (errors_bitmask_warning & 0x0400) can_mesg[6] |= 0x0010;    // Short circuit warning
+                          if (errors_bitmask_warning & 0x0800) can_mesg[6] |= 0x0040;    // BMS internal warning
+                          if (errors_bitmask_warning & 0x1000) can_mesg[7] |= 0x0001;    // Cell imbalance warning
                         }
-                        
+                                                                        
                         ESP_LOGI("canbus", "send can_id: 0x35A hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 

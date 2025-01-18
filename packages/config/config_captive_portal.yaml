@@ -1,5 +1,5 @@
-# Updated : 2025.01.14
-# Version : 1.5.3
+# Updated : 2025.01.10
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,15 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-text_sensor:
-  # https://esphome.io/components/text_sensor/ethernet_info.html
-  - platform: ethernet_info
-    ip_address:
-      name: ${name} ESP32 IP address
-      id: esp32_ip_address
-    dns_address:
-      name: ${name} ESP32 DNS address
-      id: esp32_dns_address
-    mac_address:
-      name: ${name} ESP32 MAC WiFi address
-      id: esp32_mac_wifi_address
+wifi:
+  ap:
+    ssid: "YamBMS Fallback Hotspot"
+    password: "Y4mBM$85"
+
+captive_portal:

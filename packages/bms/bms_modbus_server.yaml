@@ -1,5 +1,6 @@
-# Updated : 2024.12.23
-# Version : 1.1.1
+# Updated : 2025.01.18
+# Version : 1.1.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -144,7 +145,7 @@ modbus_controller:
         - address: 28
           value_type: U_WORD
           read_lambda: |-
-            return uint16_t(id(bms${bms_id}_errors_bitmask).state);
+            return uint16_t(id(bms${bms_id}_yambms_errors_bitmask).state);
         # charging_power (mW)
         - address: 29
           value_type: U_DWORD

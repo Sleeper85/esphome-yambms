@@ -1,5 +1,5 @@
-# Updated : 2025.01.07
-# Version : 1.1.1
+# Updated : 2025.01.16
+# Version : 1.1.2
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -63,6 +63,7 @@ sensor:
     delta_cell_voltage:
       name: "${name} ${bms_name} delta cell voltage"
     average_cell_voltage:
+      id: bms${bms_id}_average_cell_voltage
       name: "${name} ${bms_name} average cell voltage"
     cell_voltage_1:
       name: "${name} ${bms_name} cell voltage 01"
@@ -215,7 +216,7 @@ sensor:
   # Alarm management is not supported at this time
   # Internal : only specifying an id without a name will implicitly set this to true.
   - platform: template
-    id: bms${bms_id}_errors_bitmask
+    id: bms${bms_id}_yambms_errors_bitmask
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline

@@ -1,10 +1,17 @@
-# Updated : 2024.12.23
-# Version : 1.2.5
+# Updated : 2025.01.16
+# Version : 1.2.6
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 
 substitutions:
   board_chip: "ESP32-S3"
   board_name: "PVbrain2"
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
+  board_rgb_led: !include board_options_rgb_led_status.yaml
+  # psram: !include board_options_psram_settings.yaml
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -15,25 +22,17 @@ esp32:
 esphome:
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
-    board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
 
-# PSRAM activation and settings
-psram:
-  mode: octal
-  speed: 80MHz
-
-# <<: !include board_psram_settings.yaml
+# PSRAM activation with default options
+# psram:
+#   mode: octal
+#   speed: 80MHz
 
 wifi:
   id: my_network
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret domain
-  ap:
-    ssid: "YamBMS Fallback Hotspot"
-    password: "Y4mBM$85"
-
-captive_portal:
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
@@ -44,22 +43,23 @@ light:
   - platform: status_led
     name: ${name}_led_light_1
     id: led_light_1
-    pin: GPIO01
+    pin: 1
     entity_category: config
 
   - platform: status_led
     name: ${name}_led_light_2
     id: led_light_2
-    pin: GPIO02    
+    pin: 2
     entity_category: config
 
   # https://esphome.io/components/light/esp32_rmt_led_strip
   - platform: esp32_rmt_led_strip
     name: ${name}_on_board_light_io48
-    id: on_board_light_io48
+    id: esp_light
     rgb_order: GRB
-    pin: GPIO48
+    pin: 48
     num_leds: 1
     rmt_channel: 0
     chipset: ws2812
     entity_category: config
+    default_transition_length: 0ms

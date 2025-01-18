@@ -81,8 +81,8 @@ With mode 2, the sniffer (ESP32) will automatically take the address 0x00 and ac
 
 ## JK-PB RS485 functions
 
-### Sniffer Broadcast changes to all BMS
+### Broadcasting JK-PB settings to all BMS
 
-![Image](../../images/YamBMS_JK-PB_RS485_Sniffer_Broadcast.png "YamBMS_JK-PB_RS485_Sniffer_Broadcast")
+![Image](../../images/YamBMS_JK-PB_RS485_Sniffer_Broadcast.png "Broadcasting JK-PB settings to all BMS")
 
 When enabled, this function synchronizes the settings of all your BMS connected to the same RS485 network as soon as you make parameter changes.
