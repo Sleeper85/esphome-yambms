@@ -51,6 +51,14 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+  - id: ${yambms_id}_var_bms_blocking_charge_counter
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: ${yambms_id}_var_bms_blocking_discharge_counter
+    type: int
+    restore_value: no
+    initial_value: '0'
   - id: ${yambms_id}_var_total_cell_count
     type: int
     restore_value: no
@@ -299,16 +307,18 @@ interval:
               id(${yambms_id}_charging_allowed).publish_state(true);
             else
               id(${yambms_id}_charging_allowed).publish_state(false);
-            // bms_blocking_charge
-            id(${yambms_id}_bms_blocking_charge).publish_state(id(${yambms_id}_var_bms_counter) - id(${yambms_id}_var_charging_allowed_counter));
-
+            
             // BMS discharging allowed
             if (id(${yambms_id}_var_to_combine_bms_counter) && id(${yambms_id}_var_discharging_allowed_counter) > 0)
               id(${yambms_id}_discharging_allowed).publish_state(true);
             else
               id(${yambms_id}_discharging_allowed).publish_state(false);
-            // bms_blocking_discharge
-            id(${yambms_id}_bms_blocking_discharge).publish_state(id(${yambms_id}_var_bms_counter) - id(${yambms_id}_var_discharging_allowed_counter));
+
+            // BMS blocking_charge_counter
+            id(${yambms_id}_bms_blocking_charge).publish_state(id(${yambms_id}_var_bms_blocking_charge_counter));
+
+            // BMS blocking_discharge_counter
+            id(${yambms_id}_bms_blocking_discharge).publish_state(id(${yambms_id}_var_bms_blocking_discharge_counter));
 
             // Global vars reset
             id(${yambms_id}_var_errors_bitmask) = 0;
@@ -340,6 +350,8 @@ interval:
             id(${yambms_id}_var_equalizing_counter) = 0;
             id(${yambms_id}_var_charging_allowed_counter) = 0;
             id(${yambms_id}_var_discharging_allowed_counter) = 0;
+            id(${yambms_id}_var_bms_blocking_charge_counter) = 0;
+            id(${yambms_id}_var_bms_blocking_discharge_counter) = 0;
 
             // The devices are once again authorized to communicate their informations
             id(${yambms_id}_var_to_combine_bms_number) = 1;
