@@ -1,4 +1,4 @@
-# Updated : 2025.01.18
+# Updated : 2025.01.19
 # Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -246,6 +246,9 @@ interval:
             id(${yambms_id}_state_of_charge).publish_state(soc);
             id(${yambms_id}_charging_cycles).publish_state(charging_cycles);
 
+            // TOTAL battery_capacity
+            id(${yambms_id}_battery_capacity).publish_state(id(${yambms_id}_var_total_battery_capacity));
+
             // TOTAL capacity_remaining_ah
             id(${yambms_id}_capacity_remaining_ah).publish_state(id(${yambms_id}_var_total_capacity_remaining_ah));
 
@@ -318,6 +321,7 @@ interval:
             id(${yambms_id}_var_shunt_total_power) = 0.0;
             id(${yambms_id}_var_bms_total_soc) = 0.0;
             id(${yambms_id}_var_shunt_total_soc) = 0.0;
+            id(${yambms_id}_var_total_battery_capacity) = 0.0;
             id(${yambms_id}_var_total_capacity_remaining_ah) = 0.0;
             id(${yambms_id}_var_total_max_charge_current) = 0.0;
             id(${yambms_id}_var_total_max_discharge_current) = 0.0;
@@ -539,7 +543,6 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(${yambms_id}_var_total_battery_capacity);
 
   # capacity_remaining_ah SUM
   - platform: template
