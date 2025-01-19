@@ -1,4 +1,4 @@
-# Updated : 2025.01.16
+# Updated : 2025.01.19
 # Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -67,10 +67,7 @@ interval:
               {
                 // To combine bms counter
                 id(${yambms_id}_var_to_combine_bms_counter) += 1;
-                              
-                // TOTAL battery_capacity
-                id(${yambms_id}_var_total_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
-                
+
                 // Combined
                 id(bms${bms_id}_combined) = true;
               }
@@ -112,7 +109,10 @@ interval:
               
               // TOTAL power
               id(${yambms_id}_var_bms_total_power) += id(bms${bms_id}_power).state;
-              
+
+              // TOTAL battery_capacity
+              id(${yambms_id}_var_total_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
+
               // TOTAL capacity_remaining_ah
               id(${yambms_id}_var_total_capacity_remaining_ah) += id(bms${bms_id}_capacity_remaining_ah).state;
 
@@ -178,10 +178,7 @@ interval:
             {
               // To combine bms counter
               id(${yambms_id}_var_to_combine_bms_counter) -= 1;
-
-              // TOTAL battery_capacity
-              id(${yambms_id}_var_total_battery_capacity) -= id(bms${bms_id}_battery_capacity).state;
-              
+                            
               // Uncombined
               id(bms${bms_id}_combined) = false;
             }
