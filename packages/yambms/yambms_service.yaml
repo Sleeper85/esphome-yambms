@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.5.2
+# Updated : 2025.01.20
+# Version : 1.5.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -70,12 +70,13 @@ interval:
             headers:
               Content-Type: application/json
             json: |-
-              root["mac"] = id(esp32_mac_wifi_address).state;
+              root["mac"] = id(esp32_mac_address).state;
               root["version"] = "${yambms_version}";
               root["board_chip"] = "${board_chip}";
               root["board_name"] = "${board_name}";
               root["bms_model"] = "${bms_model}";
               root["bms_protocol"] = "${bms_protocol}";
+              root["bms_count"] = id(${yambms_id}_var_bms_counter);
               root["canbus_name"] = id(${yambms_id}_canbus_name);
               root["canbus_protocol"] = id(${yambms_id}_canbus_protocol);
               root["uptime"] = id(esp32_uptime).state;
