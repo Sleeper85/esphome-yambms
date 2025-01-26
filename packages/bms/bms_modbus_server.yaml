@@ -60,7 +60,7 @@ modbus_controller:
         - address: 11
           value_type: U_WORD
           read_lambda: |-
-            return uint16_t(id(bms${bms_id}_state_of_charge).state);
+            return uint16_t(id(bms${bms_id}_battery_soc).state);
         # battery_capacity (Ah)
         - address: 12
           value_type: U_WORD

@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.5.3
+# Updated : 2025.01.25
+# Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -635,13 +635,15 @@ text_sensor:
               id(${yambms_id}_charge_status) = "Cut-Off";
 
               // If the EOC Timer switch is enabled
-              if (id(${yambms_id}_switch_eoc_timer).state) {
+              if (id(${yambms_id}_switch_eoc_timer).state)
+              {
                 // Start EOC timer : the charging process ends at the latest at the end of this timer (30min by default)
                 if (!id(${yambms_id}_script_eoc_timer).is_running()) id(${yambms_id}_script_eoc_timer).execute();
               }        
               // End Of Charge
               // Equalizing
-              if (id(${yambms_id}_equalizing).state) {
+              if (id(${yambms_id}_equalizing).state)
+              {
                 // Stop cut-off timer
                 if (id(${yambms_id}_script_cutoff_timer).is_running()) id(${yambms_id}_script_cutoff_timer).stop();
               }

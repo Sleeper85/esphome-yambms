@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.3
+# Updated : 2025.01.25
+# Version : 1.2.4
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,11 +43,12 @@ switch:
     precharging:
       name: "${name} ${bms_name} precharging"
     charging:
+      id: bms${bms_id}_charge_switch
       name: "${name} ${bms_name} charging"
     discharging:
+      id: bms${bms_id}_discharge_switch
       name: "${name} ${bms_name} discharging"
     balancing:
-      id: bms${bms_id}_switch_balancing
       name: "${name} ${bms_name} balancing"
     emergency:
       name: "${name} ${bms_name} emergency"

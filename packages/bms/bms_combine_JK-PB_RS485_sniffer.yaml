@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.01.25
+# Version : 1.2.7
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,9 +29,12 @@ logger:
 # +--------------------------------------+
 
 external_components:
- - source: github://txubelaxu/esphome-jk-bms@main
-   refresh: 0s
-   components: [ jk_rs485_sniffer , jk_rs485_bms ]
+  - source: github://Sleeper85/esphome-components@main
+    refresh: 0s
+    components: [ jk_rs485_sniffer , jk_rs485_bms ]
+  # - source:
+  #     type: local
+  #     path: ../esphome-components/components
 
 jk_rs485_sniffer:
   - id: ${sniffer_id}

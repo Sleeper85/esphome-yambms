@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.5
+# Updated : 2025.01.25
+# Version : 1.2.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -73,8 +73,10 @@ switch:
   - platform: jk_bms
     jk_bms_id: jk_bms${bms_id}
     charging:
+      id: bms${bms_id}_charge_switch
       name: "${name} ${bms_name} Charge switch"
     discharging:
+      id: bms${bms_id}_discharge_switch
       name: "${name} ${bms_name} Discharge switch"
     # It is not possible to control the balancer from UART-TTL (confirmed by @syssi)
 

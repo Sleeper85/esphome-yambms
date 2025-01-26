@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.1.1
+# Updated : 2025.01.25
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,10 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
+  # YamBMS settings
   yambms_id: 'yambms1'
   yambms_name: 'YamBMS 1'
+  # Shunt settings
   shunt_update_interval: '3s' # frequency at which Shunt data is refreshed
   shunt_combine_interval: '1s' # frequency at which data is combined in YamBMS
+  # BMS settings
+  bms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO
   bms_update_interval: '3s' # frequency at which BMS data is refreshed, going below '3s' can cause problems
   bms_combine_interval: '1s' # frequency at which data is combined in YamBMS
-  bms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO
+  bms_cutoff_timer: '60s'
