@@ -1,5 +1,5 @@
-# Updated : 2025.01.18
-# Version : 1.5.3
+# Updated : 2025.01.24
+# Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.5.3"
+  yambms_version: "1.5.4"
 
 external_components:
   # https://github.com/esphome/esphome/pull/7547

@@ -115,6 +115,11 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Changelog
 
+* YamBMS 1.5.4 :
+  * New low SoC corrected at each BMS level (the corrected SoC is the one transmitted to YamBMS)
+  * New BMS dashboard
+  * New end of charge logic at each BMS level, the charge switch turns off when the cells are equalized (disabled by default)
+  * Fixed `errors_bitamsk` for JK-PB RS485, test OK with YamBMS (forked component)
 * YamBMS 1.5.3 :
   * Broadcasting JK-PB settings to all BMS set to OFF by default
   * Reorganizing the `board` folder and YAMLs (device_base.yaml moved to board.yaml)

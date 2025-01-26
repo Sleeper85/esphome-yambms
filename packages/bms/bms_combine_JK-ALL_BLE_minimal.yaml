@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.5
+# Updated : 2025.01.25
+# Version : 1.2.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -91,8 +91,10 @@ switch:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     charging:
+      id: bms${bms_id}_charge_switch
       name: "${name} ${bms_name} Charge switch"
     discharging:
+      id: bms${bms_id}_discharge_switch
       name: "${name} ${bms_name} Discharge switch"
     balancer:
       name: "${name} ${bms_name} Balance switch"

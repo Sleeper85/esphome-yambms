@@ -1,5 +1,5 @@
-# Updated : 2024.08.08
-# Version : 1.2.1
+# Updated : 2025.01.25
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# packages:
+#   bms_charging_logic: !include bms_options_charging_logic.yaml
 
 sensor:
   # +--------------------------------------+
@@ -41,3 +44,23 @@ sensor:
     filters:
       # Multiplication factor from W to kW is 0.001
       - multiply: 0.001
+
+  - platform: template
+    name: ${name} ${bms_name} Battery SoC
+    id: bms${bms_id}_battery_soc
+    unit_of_measurement: "%"
+    device_class: battery
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float soc = id(bms${bms_id}_state_of_charge).state;
+      float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
+      float cell_low_v = id(bms${bms_id}_cell_uvp).state + 0.2;
+
+      if (min_cell_v <= cell_low_v) return 0;        // Real 0% => return 0%
+      else if (soc < 1) return 2;                    // False 0% => return 2%
+      else return soc;                               // Else => return BMS SoC

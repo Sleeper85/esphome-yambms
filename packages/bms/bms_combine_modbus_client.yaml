@@ -1,5 +1,5 @@
-# Updated : 2025.01.18
-# Version : 1.1.2
+# Updated : 2025.01.25
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -128,10 +128,10 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.01
-  # state_of_charge
+  # battery_soc
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_state_of_charge
+    id: bms${bms_id}_battery_soc
     name: "${name} ${bms_name} SoC"
     register_type: read
     address: 11
