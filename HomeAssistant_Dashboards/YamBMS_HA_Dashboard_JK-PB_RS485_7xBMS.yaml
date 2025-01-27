@@ -1,4 +1,4 @@
-# Updated : 2025.01.24
+# Updated : 2025.01.27
 # Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -414,7 +414,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_1_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_1_battery_capacity_total_charging_cycle')
@@ -760,7 +760,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_2_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_2_battery_capacity_total_charging_cycle')
@@ -1106,7 +1106,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_3_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_3_battery_capacity_total_charging_cycle')
@@ -1452,7 +1452,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_4_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_4_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_4_battery_capacity_total_charging_cycle')
@@ -1798,7 +1798,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_5_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_5_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_5_battery_capacity_total_charging_cycle')
@@ -2144,7 +2144,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_6_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_6_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_6_battery_capacity_total_charging_cycle')
@@ -2490,7 +2490,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_7_battery_capacity_total_setting')
+                  states('number.yambms_jk_bms_7_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_7_battery_capacity_total_charging_cycle')

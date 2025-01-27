@@ -1,5 +1,5 @@
-# Updated : 2025.01.25
-# Version : 1.1.1
+# Updated : 2025.01.27
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,20 +17,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# +--------------------------------------+
-# | Scripts                              |
-# +--------------------------------------+
 script:
   - id: bms${bms_id}_script_cutoff_timer
     then:
       - delay: ${bms_cutoff_timer}
       - switch.turn_off: bms${bms_id}_charge_switch
+      - logger.log: "BMS ${bms_id} charge_switch Turn OFF"
 
 interval:
   - interval: ${bms_combine_interval}
     then:
       - lambda: |-
-          if (id(${yambms_id}_charge_status) == "Cut-Off")
+          float battery_v = id(${yambms_id}_total_voltage).state;
+          float rebulk_v = id(${yambms_id}_rebulk_voltage).state;
+
+          // Charge switch `Turn ON` conditions (Charge switch OFF and ReBulk V.)
+          if (!id(bms${bms_id}_charge_switch).state && (battery_v <= rebulk_v))
+          {
+            id(bms${bms_id}_charge_switch).turn_on();
+            ESP_LOGD("main", "BMS ${bms_id} charge_switch Turn ON");
+          }
+          // Charge switch `Turn OFF` conditions
+          else if (id(${yambms_id}_charge_status) == "Cut-Off")
           {
             // The cells are equalizing
             if (id(bms${bms_id}_equalizing).state)
@@ -38,18 +46,16 @@ interval:
               // Stop cut-off timer
               if (id(bms${bms_id}_script_cutoff_timer).is_running()) id(bms${bms_id}_script_cutoff_timer).stop();
             }
-            // The cells are not equalizing
+            // The cells are not equalizing and Cut-Off timer not running
             else if (!id(bms${bms_id}_script_cutoff_timer).is_running())
             {
-              // Start cut-off timer : if the conditions continue to be respected the charging process will stop in 60s (default value)
+              // Start cut-off timer
+              // If the conditions continue to be respected the `Charge switch` will be turned OFF
               id(bms${bms_id}_script_cutoff_timer).execute();
             }
           }
-          else if (!id(bms${bms_id}_charge_switch).state) // Charge switch is OFF ?
-          {
-            id(bms${bms_id}_charge_switch).turn_on(); // Turn ON > Charge switch
-          }
-          else if (id(bms${bms_id}_script_cutoff_timer).is_running()) // Cut-off timer is running ?
+          // Cut-off timer is running ?
+          else if (id(bms${bms_id}_script_cutoff_timer).is_running())
           {
             id(bms${bms_id}_script_cutoff_timer).stop(); // Stop cut-off timer
           }
