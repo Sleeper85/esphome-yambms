@@ -20,7 +20,7 @@
 script:
   - id: bms${bms_id}_script_cutoff_timer
     then:
-      - delay: 30s # ${bms_cutoff_timer}
+      - delay: ${bms_cutoff_timer}
       - switch.turn_off: bms${bms_id}_charge_switch
       - logger.log: "BMS ${bms_id} charge_switch Turn OFF"
 
