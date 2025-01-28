@@ -100,5 +100,5 @@ sensor:
               // Variables
               double auto_dcl = round(min(id(auto_dcl_moving_average).state, x) * 10) / 10
               
-              id(${yambms_id}_auto_ccl) = auto_dcl;
+              id(${yambms_id}_auto_dcl) = auto_dcl;
               return auto_dcl; 
