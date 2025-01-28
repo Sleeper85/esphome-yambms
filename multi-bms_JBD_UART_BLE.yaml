@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.5.3
+# Updated : 2025.01.28
+# Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -112,12 +112,11 @@ packages:
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
   
   bms2: !include
-    file: packages/bms/bms_combine_JBD_UART_full.yaml
+    file: packages/bms/bms_combine_JBD_BLE_full.yaml
     vars:
       bms_id: '2' # must be a number
       bms_name: 'BMS 2'
-      bms_uart_id: 'uart_esp_2'
-      bms_rx_timeout: '150ms'
+      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
       # Required settings cannot be retrieved from BMS
       # These values ​​must match your BMS settings
       # LFP values example
