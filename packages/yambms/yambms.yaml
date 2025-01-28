@@ -108,15 +108,15 @@ globals:
   - id: ${yambms_id}_auto_cvl
     type: float
     restore_value: no
-    initial_value: '-1.0'
+    initial_value: '0.0'
   - id: ${yambms_id}_auto_ccl
     type: float
     restore_value: no
-    initial_value: '-1.0'
+    initial_value: '0.0'
   - id: ${yambms_id}_auto_dcl
     type: float
     restore_value: no
-    initial_value: '-1.0'
+    initial_value: '0.0'
   - id: ${yambms_id}_eoc
     type: bool
     restore_value: no
@@ -406,12 +406,7 @@ sensor:
         return 0;
       // Bulk
       else if (id(${yambms_id}_charging_instruction).state == "Bulk")
-      {
-        if(id(${yambms_id}_auto_cvl) == -1.0) // Auto CVL not used
-          return (id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_inverter_offset_v).state);
-        else
-          return (id(${yambms_id}_auto_cvl) + id(${yambms_id}_inverter_offset_v).state);
-      }
+        return (id(${yambms_id}_auto_cvl) + id(${yambms_id}_inverter_offset_v).state + id(${yambms_id}_auto_cvl);
       // Float
       else if (id(${yambms_id}_charging_instruction).state == "Float")
         return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state);
@@ -455,12 +450,7 @@ sensor:
     lambda: |-
       // Charging Allowed
       if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float"))
-      {
-        if(id(${yambms_id}_auto_ccl) == -1.0) // Auto CCL not used
-          return id(${yambms_id}_max_charge_current).state;
-        else
-          return id(${yambms_id}_auto_ccl);
-      }
+      return id(${yambms_id}_max_charge_current).state + id(${yambms_id}_auto_ccl);
       // Charging Not Allowed
       else return 0;
 
@@ -481,12 +471,7 @@ sensor:
     lambda: |-
       // Discharging Allowed
       if (id(${yambms_id}_discharging_instruction).state == true)
-      {
-        if(id(${yambms_id}_auto_dcl) == -1.0) // Auto DCL not used
-          return id(${yambms_id}_max_discharge_current).state;
-        else
-          return id(${yambms_id}_auto_dcl);
-      }
+      return id(${yambms_id}_max_discharge_current).state + id(${yambms_id}_auto_dcl);;
       // Discharging Not Allowed
       else return 0;
 
