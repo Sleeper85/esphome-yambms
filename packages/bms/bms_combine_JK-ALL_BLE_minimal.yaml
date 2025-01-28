@@ -1,4 +1,4 @@
-# Updated : 2025.01.25
+# Updated : 2025.01.28
 # Version : 1.2.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
@@ -58,8 +58,8 @@ esp32_ble_tracker:
           }
 
 ble_client:
-  - mac_address: ${bms_ble_mac_address}
-    id: ble_client${bms_id}
+  - id: ble_client${bms_id}
+    mac_address: ${bms_ble_mac_address}
 
 jk_bms_ble:
   - ble_client_id: ble_client${bms_id}
