@@ -66,7 +66,7 @@ sensor:
                 // Set DCL delta to maximum as min cell voltage too low
                 return -max_discharge_a;
               } else {
-                // Set CCL delta to automatic value
+                // Set DCL delta to automatic value
                 return max(0.0,(- pow(${discharge_a_factor_curve_end}, pow( max(0.0, ((x - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v}))),${discharge_a_factor_curve_shape}))+2) * max_discharge_a)
                 - max_discharge_a;
               }
