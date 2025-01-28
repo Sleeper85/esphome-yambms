@@ -6,6 +6,9 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+> [!NOTE]
+> Please read the documentation regarding the [charging settings](YamBMS_functions.md#charging-settings).
+
 ## Charging Logic Diagram
 
 The charging voltage and current correspond to the default values in the YAML script and can be modified.
