@@ -96,5 +96,9 @@ sensor:
     accuracy_decimals: 1                         
     internal: true
     filters:
-    lambda: |-
-      return (round(min(id(auto_dcl_moving_average).state, x) * 10) / 10);
+    - lambda: !lambda |-
+              // Variables
+              double auto_ccl = round(min(id(auto_ccl_moving_average).state, x) * 10) / 10
+              
+              id(${yambms_id}_auto_ccl) = auto_ccl;
+              return auto_ccl; 
