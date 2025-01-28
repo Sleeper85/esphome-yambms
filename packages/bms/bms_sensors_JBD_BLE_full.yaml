@@ -1,5 +1,5 @@
 # Updated : 2025.01.28
-# Version : 1.1.3
+# Version : 1.1.1
 # GitHub  : https://github.com/syssi/esphome-jdb-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,12 @@ packages:
   bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JBD.yaml
 
+ota:
+  on_begin:
+    then:
+      - switch.turn_off: bms${bms_id}_enable_bluetooth_connection
+      - logger.log: "BLE shutdown for flashing"
+
 # +--------------------------------------+
 # | Component settings                   |
 # +--------------------------------------+
@@ -30,29 +36,32 @@ external_components:
   - source: github://syssi/esphome-jbd-bms@main
     refresh: 0s
 
-uart:
-  - id: !extend ${bms_uart_id}
-    baud_rate: 9600
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
 
-jbd_bms:
-  - id: jbd_bms${bms_id}
-    uart_id: ${bms_uart_id}
-    update_interval: ${bms_update_interval}
-    rx_timeout: ${bms_rx_timeout}
+ble_client:
+  - id: ble_client${bms_id}
+    mac_address: ${bms_ble_mac_address}
+
+jbd_bms_ble:
+  - id: jbd_bms_ble${bms_id}
+    ble_client_id: ble_client${bms_id}
+    update_interval: ${bms_update_interval} # Some Liontron BMS models require an update interval of less than 8s
 
 # +--------------------------------------+
 # | Component entities                   |
 # +--------------------------------------+
 
 button:
-  - platform: jbd_bms
-    jbd_bms_id: jbd_bms${bms_id}
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms_ble${bms_id}
     retrieve_hardware_version:
       name: "${name} ${bms_name} retrieve hardware version"
 
 binary_sensor:
-  - platform: jbd_bms
-    jbd_bms_id: jbd_bms${bms_id}
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms_ble${bms_id}
     balancing:
       id: bms${bms_id}_equalizing
       name: "${name} ${bms_name} balancing"
@@ -67,18 +76,24 @@ binary_sensor:
       name: "${name} ${bms_name} online status"
 
 switch:
-  - platform: jbd_bms
-    jbd_bms_id: jbd_bms${bms_id}
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms_ble${bms_id}
     charging:
       id: bms${bms_id}_charge_switch
       name: "${name} ${bms_name} Charge switch"
     discharging:
       id: bms${bms_id}_discharge_switch
       name: "${name} ${bms_name} Discharge switch"
+  # +--------------------------------------+
+  - platform: ble_client
+    ble_client_id: ble_client${bms_id}
+    id: bms${bms_id}_enable_bluetooth_connection
+    name: "${name} ${bms_name} ${bms_name} Enable Bluetooth connection"
+  # +--------------------------------------+
 
 sensor:
-  - platform: jbd_bms
-    jbd_bms_id: jbd_bms${bms_id}
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms_ble${bms_id}
     battery_strings:
       name: "${name} ${bms_name} battery strings"
     current:
@@ -114,6 +129,7 @@ sensor:
       id: bms${bms_id}_average_cell_voltage
       name: "${name} ${bms_name} average cell voltage"
     delta_cell_voltage:
+      id: bms${bms_id}_delta_cell_voltage
       name: "${name} ${bms_name} delta cell voltage"
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
@@ -146,23 +162,23 @@ sensor:
       id: bms${bms_id}_temperature_sensor_6
       name: "${name} ${bms_name} temperature 6"
     cell_voltage_1:
-      name: "${name} ${bms_name} cell voltage 01"
+      name: "${name} ${bms_name} cell voltage 1"
     cell_voltage_2:
-      name: "${name} ${bms_name} cell voltage 02"
+      name: "${name} ${bms_name} cell voltage 2"
     cell_voltage_3:
-      name: "${name} ${bms_name} cell voltage 03"
+      name: "${name} ${bms_name} cell voltage 3"
     cell_voltage_4:
-      name: "${name} ${bms_name} cell voltage 04"
+      name: "${name} ${bms_name} cell voltage 4"
     cell_voltage_5:
-      name: "${name} ${bms_name} cell voltage 05"
+      name: "${name} ${bms_name} cell voltage 5"
     cell_voltage_6:
-      name: "${name} ${bms_name} cell voltage 06"
+      name: "${name} ${bms_name} cell voltage 6"
     cell_voltage_7:
-      name: "${name} ${bms_name} cell voltage 07"
+      name: "${name} ${bms_name} cell voltage 7"
     cell_voltage_8:
-      name: "${name} ${bms_name} cell voltage 08"
+      name: "${name} ${bms_name} cell voltage 8"
     cell_voltage_9:
-      name: "${name} ${bms_name} cell voltage 09"
+      name: "${name} ${bms_name} cell voltage 9"
     cell_voltage_10:
       name: "${name} ${bms_name} cell voltage 10"
     cell_voltage_11:
@@ -287,8 +303,8 @@ sensor:
     lambda: return ${bms_balance_trigger_voltage};
 
 text_sensor:
-  - platform: jbd_bms
-    jbd_bms_id: jbd_bms${bms_id}
+  - platform: jbd_bms_ble
+    jbd_bms_ble_id: jbd_bms_ble${bms_id}
     errors:
       name: "${name} ${bms_name} errors"
     operation_status:

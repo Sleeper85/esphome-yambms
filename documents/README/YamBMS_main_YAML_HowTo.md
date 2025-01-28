@@ -428,6 +428,25 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
 ```
 
+### [JBD (BLE)](https://github.com/syssi/esphome-jbd-bms)
+
+```YAML
+  bms1: !include
+    file: packages/bms/bms_combine_JBD_BLE_full.yaml # bms_modbus_JBD_UART_full.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'BMS 1'
+      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+```
+
 ### [Seplos V1/V2 (RS485)](https://github.com/syssi/esphome-seplos-bms)
 
 A single `RS485 bus` allows you to monitor up to `16` BMS.
