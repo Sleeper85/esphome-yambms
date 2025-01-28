@@ -98,7 +98,7 @@ sensor:
     filters:
     - lambda: !lambda |-
               // Variables
-              double auto_ccl = round(min(id(auto_ccl_moving_average).state, x) * 10) / 10
+              double auto_dcl = round(min(id(auto_dcl_moving_average).state, x) * 10) / 10
               
-              id(${yambms_id}_auto_ccl) = auto_ccl;
-              return auto_ccl; 
+              id(${yambms_id}_auto_ccl) = auto_dcl;
+              return auto_dcl; 
