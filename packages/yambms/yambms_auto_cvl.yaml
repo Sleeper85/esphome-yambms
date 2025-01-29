@@ -1,5 +1,5 @@
-# Updated : 2024.08.08
-# Version : 2.4.1
+# Updated : 2025.01.25
+# Version : 2.4.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -74,6 +74,7 @@ sensor:
             double max_CVL = id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_auto_cvl_boost_charge_v).state;  // Maximum CVL
             double min_CVL = id(${yambms_id}_float_voltage).state;                                                  // Minimum CVL
             double CVL = id(${yambms_id}_bulk_voltage).state;                                                       // Starting CVL
+            double CVL_orig = id(${yambms_id}_bulk_voltage).state;                                                  // Starting CVL snapshot
 
             double kp = ${charge_v_kp};                                               // Proportional gain, adjust as needed
             double ki = ${charge_v_ki};                                               // Integral gain, adjust as needed
@@ -83,7 +84,7 @@ sensor:
 
             // Check feature enabled
             if (!id(${yambms_id}_switch_auto_cvl).state){
-              id(${yambms_id}_auto_cvl) = -1.0;
+              id(${yambms_id}_auto_cvl) = 0.0;
               return id(${yambms_id}_bulk_voltage).state;
             } else {
               // PI Algorithm
@@ -94,7 +95,7 @@ sensor:
                 integral = 0;
               }
               // Check if max cell voltage is in deadband
-              if ((max_cell_v <= max_allowed_voltage) & (max_cell_v >= cell_bulk_v)) {
+              if ((max_cell_v <= max_allowed_voltage) && (max_cell_v >= cell_bulk_v)) {
                 // No integral error within deadband zone
               } else {
                   integral = prev_integral + error * dt;
@@ -114,8 +115,8 @@ sensor:
               else {
                 prev_integral = integral;
               }
-              id(${yambms_id}_auto_cvl) = CVL;
-              return CVL;
+              id(${yambms_id}_auto_cvl) = CVL - CVL_orig;
+              return CVL - CVL_orig;
             }
     filters:    
     - round: 1
