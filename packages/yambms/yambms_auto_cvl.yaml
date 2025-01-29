@@ -95,7 +95,7 @@ sensor:
                 integral = 0;
               }
               // Check if max cell voltage is in deadband
-              if ((max_cell_v <= max_allowed_voltage) & (max_cell_v >= cell_bulk_v)) {
+              if ((max_cell_v <= max_allowed_voltage) && (max_cell_v >= cell_bulk_v)) {
                 // No integral error within deadband zone
               } else {
                   integral = prev_integral + error * dt;
