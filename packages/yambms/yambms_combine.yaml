@@ -536,7 +536,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
+    icon: mdi:car-battery
     filters:
       - or:
         - throttle: 10s
@@ -550,7 +550,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
+    icon: mdi:car-battery
     filters:
       - or:
         - throttle: 10s
@@ -563,7 +563,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
+    icon: mdi:car-battery
     filters:
       - or:
         - throttle: 10s

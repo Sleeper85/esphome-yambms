@@ -72,9 +72,9 @@ sensor:
     temperature:
       name: ${name} ${shunt_name} Temperature
     charged_kwh:
-      name: ${name} ${shunt_name} Charged Power
+      name: ${name} ${shunt_name} Charged Energy
     discharged_kwh:
-      name: ${name} ${shunt_name} Discharged Power
+      name: ${name} ${shunt_name} Discharged Energy
     battery_capacity_ah:
       name: ${name} ${shunt_name} Battery Capacity
     soc100_voltage:
