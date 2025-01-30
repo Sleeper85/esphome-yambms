@@ -52,7 +52,7 @@ number:
 
 sensor:
   # +--------------------------------------+
-  # | Auto Discharge Power Limiter            |
+  # | Auto Discharge Power Limiter         |
   # +--------------------------------------+
   - platform: template
     id: auto_discharge_a
