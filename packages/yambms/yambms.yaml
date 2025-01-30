@@ -250,7 +250,7 @@ number:
   - platform: template
     name: "${name} ${yambms_name} Max charge current (%)"
     id: "${yambms_id}_max_charge_current_pct"
-    step: 0.1
+    step: 1
     min_value: 0
     max_value: 90
     restore_value: true
@@ -263,7 +263,7 @@ number:
   - platform: template
     name: "${name} ${yambms_name} Max discharge current (%)"
     id: "${yambms_id}_max_discharge_current_pct"
-    step: 0.1
+    step: 1
     min_value: 0
     max_value: 90
     restore_value: true
