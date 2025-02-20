@@ -111,7 +111,7 @@ This should prevent the runner cell from exceeding the max voltage cutoff, but d
 
 You can compare `Auto CCL` to a max speed limiter in a car.
 
-`Auto DCL` works the same way when a cell approaching `UVP + 0.02`.
+`Auto DCL` works the same way when a cell approaching `UVP + 0.2`.
 
 Current control should work with any inverter that uses `CAN` control.
 
@@ -123,7 +123,7 @@ These 4 sensors allow you to see what is being requested of your inverter.
 
 In the example below, we are in the `Float` phase at a voltage of `53.6V` and an `Inverter Offset V.` of `0.1V`. The `Requested Charge Voltage` is therefore `53.7V`.
 
-The `Requested Discharge Voltage` is the `UVP + 0.02` value of your BMS multiplied by the number of cells, in this example (3V * 16).
+The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplied by the number of cells, in this example (3V * 16).
 
 The `Requested Charge/Discharge Current` is the `OCP` value of your BMS multiplied by the `Max current` percentage, in this example (150A * 80%).
 
