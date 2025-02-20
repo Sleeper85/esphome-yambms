@@ -44,7 +44,7 @@
 You install `YamBMS` on a single ESP32 connected to your BMS and your inverter.
 
 * Max 3x BMS BLE
-* Max 3X BMS UART
+* Max 3x BMS UART
 * several RS485 BMS on the same bus
 
 ### Multi-node
