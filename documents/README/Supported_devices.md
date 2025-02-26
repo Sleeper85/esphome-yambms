@@ -43,6 +43,9 @@
 | --- | --- | --- |
 | <img src="../../images/MCU_ESP32-DevKitC_espBerry_2-CH-CAN.png" width="300"> | <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> |
 
+| [Olimex ESP32-EVB](https://github.com/OLIMEX/ESP32-EVB) |
+| --- |
+| <img src="../../images/MCU_ESP32-EVB.jpg" width="300">|
 ## Supported CAN bus transceiver
 
 **Note: some inverters only accept a CAN bus at 3.3V in this case please choose the SN65HVD230 chip.**
@@ -103,6 +106,7 @@ The following are confirmed and known to work:
 | EG4 | 12000XP | Working | [@andrewfraley](https://github.com/andrewfraley) |  Lithium 6  | JBD | RS485 | LilyGo T-CAN485 | Automatic | LuxPower | T-CAN485 (SN65HVD231DR) | T-CAN485 (MAX13487E) | no | set UART baud to 9600 |
 | EG4 | 18kPV | Working | [@Maintman](https://diysolarforum.com/members/maintman.19007/) |  Lithium 6  | JK-B | BLE | ESP32 DevKit V1 | Automatic | LuxPower |  MCP2515 | --- | yes | Connected via Bluetooth to Victron SmartShunt. |
 | Victron | MultiPlus-II 48/10000/140 | Working | [@cali-clim](https://diysolarforum.com/members/cali-clim.54284/) | CAN-bus BMS LV (500 kbit/s) | JK-PB (2) | RS485 | Atom S3 (display) | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | yes | --- |
+| Victron | MultiPlus-II 48/10000/140 | Working | [@20after4](https://github.com/20after4) | CAN-bus BMS LV (500 kbit/s) | JBD-BMS (2) | BLE | Olimex ESP32-EVB | Automatic | Victron | SIT1050T (Integrated) | --- | yes | Works well with the integrated Ethernet and CANBus hardware |
 | Victron | Multiplus 24/1200/25-16  | Working | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) | CAN-bus BMS LV (500 kbit/s) | JK-B (1) | BLE | Atom S3 Lite | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | Plugged into Cerbo Can port (must use supplied Victron terminator in the other port) |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@goldserve](https://diysolarforum.com/members/goldserve.52541/) | PYLON | JK-B | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | no | Stable with Victron Smartshunt, MQTT, BLE, Neopixel LED, Display also working. |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
