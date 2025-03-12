@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.03.12
+# Version : 1.2.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -25,6 +25,7 @@ packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
   device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
+  board_rgb_led: !include board_options_rgb_led_status.yaml
 
 # From platform-espressif32 6.1.0
 # https://github.com/espressif/esp-idf/releases
@@ -42,6 +43,7 @@ esp32:
     type: esp-idf
 
 esphome:
+  min_version: 2025.2.2
   platformio_options:
     board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
@@ -87,9 +89,7 @@ light:
     rgb_order: GRB
     pin: 35
     num_leds: 1
-    rmt_channel: 0
+    # rmt_channel: 0
     chipset: ws2812
     entity_category: config
     default_transition_length: 0ms
-
-<<: !include board_options_rgb_led_status.yaml
