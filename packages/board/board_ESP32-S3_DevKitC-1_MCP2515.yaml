@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.03.12
+# Version : 1.2.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -35,6 +35,7 @@ esp32:
     type: esp-idf
 
 esphome:
+  min_version: 2025.2.2
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
@@ -99,7 +100,7 @@ light:
     rgb_order: GRB
     pin: 48
     num_leds: 1
-    rmt_channel: 0
+    # rmt_channel: 0
     chipset: ws2812
     entity_category: config
     default_transition_length: 0ms
