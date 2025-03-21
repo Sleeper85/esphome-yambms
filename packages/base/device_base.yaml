@@ -1,4 +1,4 @@
-# Updated : 2025.01.24
+# Updated : 2025.03.21
 # Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -30,7 +30,7 @@ esphome:
   project:
     name: Sleeper85.YamBMS
     version: ${yambms_version}
-  min_version: 2024.6.0
+  min_version: 2025.3.0
 
 time:
   # https://esphome.io/components/time/homeassistant
