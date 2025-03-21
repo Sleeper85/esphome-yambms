@@ -1,4 +1,4 @@
-# Updated : 2025.03.12
+# Updated : 2025.03.21
 # Version : 1.2.7
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 
@@ -20,7 +20,6 @@ esp32:
     type: esp-idf
 
 esphome:
-  min_version: 2025.2.2
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 

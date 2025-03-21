@@ -20,8 +20,6 @@
 substitutions:
   yambms_version: "1.5.4"
 
-# external_components:
-
 esphome:
   name: ${name}
   # friendly_name: ${name}
