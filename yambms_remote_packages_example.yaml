@@ -1,4 +1,4 @@
-# Updated : 2025.03.21
+# Updated : 2025.03.24
 # Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -26,22 +26,62 @@ ota:
 api:
   reboot_timeout: 0s
 
+# Don't forget to configure your WiFi credentials in the secrets.yaml file
+#
+# If needed, configure a static IP here
+# wifi:
+#   manual_ip:
+#     static_ip: 192.168.0.85
+#     gateway: 192.168.0.1
+#     subnet: 255.255.255.0
+#     dns1: 8.8.8.8
+#     dns2: 8.8.4.4
+
 # +--------------------------------------+
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
   name: yambms                 # ESP32 name / hostname
-  # YamBMS settings
+  # +--------------------------------------+
+  # | YamBMS Settings                      |
+  # +--------------------------------------+
+  # Please read the cut-off charging logic README to understand how the YamBMS works
   yambms_id: 'yambms1'
   yambms_name: 'YamBMS 1'
-  # Shunt settings
+  yambms_update_interval: '1s'
+  # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
+  yambms_input_number_mode: 'slider'
+  # Please check and fill in the options below correctly according to your battery chemistry and number of cells in series.
+  # These parameters are important and used for charging logic.
+  # Battery Chemistry
+  yambms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO
+  # Number of cells in series
+  yambms_cell_count: '16'
+  # Bulk / Absorption Voltage : corresponds to the Bulk voltage that will be used to charge the battery. (LFP : 55.2V = 3.45V/Cell for 16S battery)
+  yambms_bulk_v: '55.2'
+  # Float Voltage : corresponds to the voltage at which the battery would be maintained at the end of charge. (LFP : 53.6V = 3.35V/Cell for 16S battery)
+  yambms_float_v: '53.6'
+  # Rebulk voltage, voltage from which a new Bulk charge can start. (LFP : 52.8V = 3.3V/Cell for 16S battery)
+  yambms_rebulk_v: '52.8'
+  # Maximum time in minutes that the cut-off step can last before charging is complete
+  # If your cells are properly balanced this step ends at the fastest after the `cut-off timer`
+  # This timer can be deactivated with a switch
+  yambms_eoc_timer: '30'
+  # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
+  yambms_cutoff_timer: '60'
+  # Maximum charging cycles is used to calculate the battey SOH, LF280K v3 =8000.0, LF280K v2 =6000.0, LF280=3000.0 (decimal is required)
+  yambms_max_cycles: '6000.0'
+  # +--------------------------------------+
+  # | Shunt Settings                      |
+  # +--------------------------------------+
   shunt_update_interval: '3s'  # frequency at which Shunt data is refreshed
   shunt_combine_interval: '1s' # frequency at which Shunt data is combined in YamBMS
-  # BMS settings
-  bms_battery_chemistry: '1'   # 1-LFP | 2-Li-ion | 3-LTO
+  # +--------------------------------------+
+  # | BMS Settings                         |
+  # +--------------------------------------+
   bms_update_interval: '3s'    # frequency at which BMS data is refreshed, going below '3s' can cause problems
   bms_combine_interval: '1s'   # frequency at which BMS data is combined in YamBMS
-  bms_cutoff_timer: '60s'      # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
+  bms_cutoff_timer: '50s'      # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
 
 # +--------------------------------------+
 # | Packages                             |
@@ -94,31 +134,9 @@ packages:
     refresh: 0s
     files:
       - path: 'packages/yambms/yambms.yaml'
-        vars:
-          # Please read the cut-off charging logic README to understand how the YamBMS works
-          yambms_update_interval: '1s'
-          # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
-          yambms_input_number_mode: 'slider'
-          # Please check and fill in the options below correctly according to your battery chemistry and number of cells in series.
-          # These parameters are important and used for charging logic.
-          # Battery Chemistry
-          yambms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO
-          # Number of cells in series
-          yambms_cell_count: '16'
-          # Bulk / Absorption Voltage : corresponds to the Bulk voltage that will be used to charge the battery. (LFP : 55.2V = 3.45V/Cell for 16S battery)
-          yambms_bulk_v: '55.2'
-          # Float Voltage : corresponds to the voltage at which the battery would be maintained at the end of charge. (LFP : 53.6V = 3.35V/Cell for 16S battery)
-          yambms_float_v: '53.6'
-          # Rebulk voltage, voltage from which a new Bulk charge can start. (LFP : 52.8V = 3.3V/Cell for 16S battery)
-          yambms_rebulk_v: '52.8'
-          # Maximum time in minutes that the cut-off step can last before charging is complete
-          # If your cells are properly balanced this step ends at the fastest after the `cut-off timer`
-          # This timer can be deactivated with a switch
-          yambms_eoc_timer: '30'
-          # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
-          yambms_cutoff_timer: '60'
-          # Maximum charging cycles is used to calculate the battey SOH, LF280K v3 =8000.0, LF280K v2 =6000.0, LF280=3000.0 (decimal is required)
-          yambms_max_cycles: '6000.0'
+      # - path: 'packages/yambms/yambms_custom.yaml'
+
+  # yambms_custom: !include packages/yambms/yambms_custom.yaml
 
   canbus1:
     url: https://github.com/Sleeper85/esphome-yambms
@@ -131,9 +149,9 @@ packages:
           canbus_name: 'CANBUS 1'
           canbus_node_id: 'canbus_node1'
           canbus_light_id: 'esp_light'
-          # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
-          # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
-          canbus_link_timer: '6s'
+          # The CANBUS link will be considered down if no response from the inverter (0x305 frame) for 5s
+          # The Deye inverter sends the ACK 0x305 only when it receives the 0x356 frame.
+          canbus_link_timer: '5s'
 
 # +--------------------------------------+
 # | DEBUG ( logger level must be DEBUG ) |
