@@ -1,4 +1,4 @@
-# Updated : 2025.03.24
+# Updated : 2025.03.26
 # Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -97,7 +97,6 @@ packages:
     refresh: 0s
     files:
       - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
-      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
       # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1.yaml'
