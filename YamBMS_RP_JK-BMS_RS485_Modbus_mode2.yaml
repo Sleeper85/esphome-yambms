@@ -1,4 +1,4 @@
-# Updated : 2025.03.26
+# Updated : 2025.04.01
 # Version : 1.5.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -96,15 +96,15 @@ packages:
     ref: main
     refresh: 0s
     files:
-      - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
+      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
       # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1.yaml'
       # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
       # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
-      # - path: 'packages/board/board_ESP32-S3_AtomS3.yaml'
-      #   vars:
-      #     display_auto_next_page_interval: '5s'
+      - path: 'packages/board/board_ESP32-S3_AtomS3.yaml'
+        vars:
+          display_auto_next_page_interval: '5s'
       # - path: 'packages/board/board_ESP32-S3_AtomS3R.yaml'
       #   vars:
       #     display_auto_next_page_interval: '5s'
@@ -116,16 +116,75 @@ packages:
     ref: main
     refresh: 0s
     files:
-      - path: 'packages/bms/bms_combine_JK-B_UART_full.yaml'
+      # RS485 Sniffer
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_sniffer.yaml'
         vars:
+          sniffer_id: 'sniffer1'
+          sniffer_protocol: 'JK02_32S'
+          sniffer_uart_id: 'uart_esp_1'
+      # BMS 1
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
           bms_id: '1' # must be a number
           bms_name: 'JK-BMS 1'
-          bms_uart_id: 'uart_esp_1'
-      - path: 'packages/bms/bms_combine_JK-B_UART_full.yaml'
+          bms_address: '0x01' # BMS 1 DIP switch
+      # BMS 2
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
         vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
           bms_id: '2' # must be a number
           bms_name: 'JK-BMS 2'
-          bms_uart_id: 'uart_esp_2'
+          bms_address: '0x02' # BMS 2 DIP switch
+      # BMS 3
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '3' # must be a number
+          bms_name: 'JK-BMS 3'
+          bms_address: '0x03' # BMS 3 DIP switch
+      # BMS 4
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '4' # must be a number
+          bms_name: 'JK-BMS 4'
+          bms_address: '0x04' # BMS 4 DIP switch
+      # BMS 5
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '5' # must be a number
+          bms_name: 'JK-BMS 5'
+          bms_address: '0x05' # BMS 5 DIP switch
+      # BMS 6
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '6' # must be a number
+          bms_name: 'JK-BMS 6'
+          bms_address: '0x06' # BMS 6 DIP switch
+      # BMS 7
+      - path: 'packages/bms/bms_combine_JK-PB_RS485_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '7' # must be a number
+          bms_name: 'JK-BMS 7'
+          bms_address: '0x07' # BMS 7 DIP switch
 
   yambms:
     url: https://github.com/Sleeper85/esphome-yambms
@@ -135,7 +194,8 @@ packages:
       - path: 'packages/yambms/yambms.yaml'
       # - path: 'packages/yambms/yambms_custom.yaml'
 
-  # yambms_custom: !include packages/yambms/yambms_custom.yaml
+  # Custom Local YAML
+  # yambms_custom: !include yambms_custom.yaml
 
   canbus1:
     url: https://github.com/Sleeper85/esphome-yambms
@@ -148,8 +208,8 @@ packages:
           canbus_name: 'CANBUS 1'
           canbus_node_id: 'canbus_node1'
           canbus_light_id: 'esp_light'
-          # The CANBUS link will be considered down if no response from the inverter (0x305 frame) for 5s
-          # The Deye inverter sends the ACK 0x305 only when it receives the 0x356 frame.
+          # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
+          # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
           canbus_link_timer: '5s'
 
 # +--------------------------------------+
