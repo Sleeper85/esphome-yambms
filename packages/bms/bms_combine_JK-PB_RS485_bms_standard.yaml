@@ -18,5 +18,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  bms_sensors: !include bms_sensors_JK-PB_RS485_bms_full.yaml
+  bms_sensors: !include bms_sensors_JK-PB_RS485_bms_standard.yaml
   bms_combine: !include bms_combine.yaml
