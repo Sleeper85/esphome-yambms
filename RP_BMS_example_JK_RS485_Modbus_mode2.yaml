@@ -1,0 +1,113 @@
+# Updated : 2025.04.01
+# Version : 1.5.5
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Remote Packages Example ###########################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
+  # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS)
+
+  bms:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # RS485 Sniffer
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml'
+        vars:
+          sniffer_id: 'sniffer1'
+          sniffer_protocol: 'JK02_32S'
+          sniffer_uart_id: 'uart_esp_1'
+      # BMS 1
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '1' # must be a number
+          bms_name: 'JK-BMS 1'
+          bms_address: '0x01' # BMS 1 DIP switch
+      # BMS 2
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '2' # must be a number
+          bms_name: 'JK-BMS 2'
+          bms_address: '0x02' # BMS 2 DIP switch
+      # BMS 3
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '3' # must be a number
+          bms_name: 'JK-BMS 3'
+          bms_address: '0x03' # BMS 3 DIP switch
+      # BMS 4
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '4' # must be a number
+          bms_name: 'JK-BMS 4'
+          bms_address: '0x04' # BMS 4 DIP switch
+      # BMS 5
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '5' # must be a number
+          bms_name: 'JK-BMS 5'
+          bms_address: '0x05' # BMS 5 DIP switch
+      # BMS 6
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '6' # must be a number
+          bms_name: 'JK-BMS 6'
+          bms_address: '0x06' # BMS 6 DIP switch
+      # BMS 7
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '7' # must be a number
+          bms_name: 'JK-BMS 7'
+          bms_address: '0x07' # BMS 7 DIP switch
+      # BMS 8
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Sniffer ID
+          sniffer_id: 'sniffer1'
+          # BMS vars
+          bms_id: '8' # must be a number
+          bms_name: 'JK-BMS 8'
+          bms_address: '0x08' # BMS 8 DIP switch

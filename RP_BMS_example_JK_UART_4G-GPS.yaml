@@ -1,0 +1,50 @@
+# Updated : 2025.04.01
+# Version : 1.5.5
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Remote Packages Example ###########################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  bms:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # BMS 1
+      - path: 'packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml'
+        vars:
+          bms_id: '1' # must be a number
+          bms_name: 'JK-BMS 1'
+          bms_uart_id: 'uart_esp_1'
+          # Maximum cell charging cycles is used to calculate the battey SoH.
+          # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+          bms_cell_max_cycles: '6000.0'
+      # BMS 2
+      - path: 'packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml'
+        vars:
+          bms_id: '2' # must be a number
+          bms_name: 'JK-BMS 2'
+          bms_uart_id: 'uart_esp_2'
+          # Maximum cell charging cycles is used to calculate the battey SoH.
+          # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+          bms_cell_max_cycles: '6000.0'
