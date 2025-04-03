@@ -1,5 +1,5 @@
-# Updated : 2025.01.24
-# Version : 1.5.4
+# Updated : 2025.04.01
+# Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -121,7 +121,10 @@ interval:
               id(${yambms_id}_var_total_capacity_remaining_ah) += id(bms${bms_id}_capacity_remaining_ah).state;
 
               // TOTAL SoC
-              id(${yambms_id}_var_bms_total_soc) += id(bms${bms_id}_battery_soc).state;
+              // id(${yambms_id}_var_bms_total_soc) += id(bms${bms_id}_battery_soc).state;
+
+              // TOTAL SoH
+              id(${yambms_id}_var_bms_total_soh) += id(bms${bms_id}_battery_soh).state;
                             
               // TOTAL charging_cycles
               id(${yambms_id}_var_total_charging_cycles) += id(bms${bms_id}_charging_cycles).state;

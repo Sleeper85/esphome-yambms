@@ -1,5 +1,5 @@
-# Updated : 2025.01.28
-# Version : 1.1.3
+# Updated : 2025.04.01
+# Version : 1.1.4
 # GitHub  : https://github.com/syssi/esphome-jdb-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,6 +21,7 @@ packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JBD.yaml
+  bms_battery_soh: !include bms_battery_soh.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
