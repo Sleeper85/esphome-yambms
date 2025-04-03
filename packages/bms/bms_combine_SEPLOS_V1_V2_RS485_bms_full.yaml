@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.1.2
+# Updated : 2025.04.01
+# Version : 1.1.3
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -143,6 +143,7 @@ sensor:
       id: bms${bms_id}_charging_cycles
       name: "${name} ${bms_name} charging cycles"
     state_of_health:
+      id: bms${bms_id}_battery_soh
       name: "${name} ${bms_name} state of health"
     port_voltage:
       name: "${name} ${bms_name} port voltage"

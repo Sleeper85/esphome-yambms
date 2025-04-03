@@ -45,6 +45,9 @@ sensor:
       # Multiplication factor from W to kW is 0.001
       - multiply: 0.001
 
+  # +--------------------------------------+
+  # | Battery State of Charge (SOC)        |
+  # +--------------------------------------+
   - platform: template
     name: ${name} ${bms_name} Battery SoC
     id: bms${bms_id}_battery_soc
