@@ -1,5 +1,5 @@
-# Updated : 2025.01.28
-# Version : 1.5.4
+# Updated : 2025.04.01
+# Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,8 +28,6 @@ packages:
   yambms_auto_cvl: !include yambms_auto_cvl.yaml
   yambms_auto_ccl: !include yambms_auto_ccl.yaml
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
-  # Custom user config
-  # yambms_custom: !include yambms_custom.yaml
 
 # Execute once
 esphome:
@@ -496,24 +494,6 @@ sensor:
       else if (id(${yambms_id}_eoc) == true) return soc;              // End Of Charge => sending SoC
       else return 98;                                                 // Otherwise => sending 98%
                                                                       // Useful for some inverters stopping charging when SoC reaches 100%
-
-  # +--------------------------------------+
-  # | Battery State of Health (SOH)        |
-  # +--------------------------------------+
-  - platform: template
-    name: ${name} ${yambms_name} Battery SoH
-    id: ${yambms_id}_battery_soh
-    unit_of_measurement: "%"
-    device_class: battery
-    update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: |-
-      if (id(${yambms_id}_bms_combined).state == 0) return 0; // no BMS combined
-      else return round(((id(${yambms_id}_charging_cycles).state/${yambms_max_cycles})-1)*-100);
 
   # +--------------------------------------+
   # | Cell Count                           |
