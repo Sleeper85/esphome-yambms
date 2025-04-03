@@ -1,0 +1,76 @@
+# Updated : 2025.04.01
+# Version : 1.5.5
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Remote Packages Example ###########################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  bms:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # Seplos Modbus 1
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_modbus.yaml'
+        vars:
+          seplos_modbus_id: 'seplos_modbus1'
+          seplos_modbus_uart_id: 'uart_esp_1'
+          seplos_modbus_baud_rate: '9600' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
+          seplos_modbus_rx_timeout: '150ms'
+      # BMS 1
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml'
+        vars:
+          # Seplos modbus ID
+          seplos_modbus_id: 'seplos_modbus1'
+          # BMS vars
+          bms_id: '1' # must be a number
+          bms_name: 'BMS 1'
+          bms_address: '0x01' # BMS 1 DIP switch
+          bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+          bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # BMS 2
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml'
+        vars:
+          # Seplos modbus ID
+          seplos_modbus_id: 'seplos_modbus1'
+          # BMS vars
+          bms_id: '2' # must be a number
+          bms_name: 'BMS 2'
+          bms_address: '0x02' # BMS 2 DIP switch
+          bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+          bms_uart_id: uart_esp_2
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+          bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
