@@ -44,6 +44,9 @@ To connect to your Victron device with BLE component you must have two informati
 
 Use [VictronConnect App v5.93](https://www.victronenergy.com/live/victronconnect:beta) (or later) released on 2023-08-25.
 
+Connect to the SmartShunt via Bluetooth under the `Local` tab.
+
+![VictronConnect App Local page](../../images/Victron_SmartShunt_App_00_Local.jpg)
 ![VictronConnect App Settings page](../../images/Victron_SmartShunt_App_01_Settings.png)
 ![VictronConnect App Product info page](../../images/Victron_SmartShunt_App_02_ProductInfo.png)
 ![VictronConnect App Instant readout encryption data](../../images/Victron_SmartShunt_App_03_EncryptionData.png)
