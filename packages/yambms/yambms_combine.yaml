@@ -1,5 +1,5 @@
-# Updated : 2025.01.19
-# Version : 1.5.3
+# Updated : 2025.04.01
+# Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -147,6 +147,10 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: ${yambms_id}_var_bms_total_soh
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   # Shunt
   - id: ${yambms_id}_var_shunt_use
     type: bool
@@ -214,6 +218,7 @@ interval:
             float current = 0.0;
             float power = 0.0;
             float soc = 0.0;
+            float soh = 0.0;
             float charging_cycles = 0.0;
 
             // At least one BMS can be combined
@@ -241,7 +246,10 @@ interval:
               if (id(${yambms_id}_var_shunt_use) == true)
                 soc = (id(${yambms_id}_var_shunt_total_soc) / id(${yambms_id}_var_to_combine_shunt_counter));
               else
-                soc = (id(${yambms_id}_var_bms_total_soc) / id(${yambms_id}_var_to_combine_bms_counter));
+                soc = round(id(${yambms_id}_var_total_capacity_remaining_ah) / id(${yambms_id}_var_total_battery_capacity) * 100);
+
+              // MEAN battery_soh
+              soh = (id(${yambms_id}_var_bms_total_soh) / id(${yambms_id}_var_to_combine_bms_counter));
 
               // MEAN charging_cycles
               charging_cycles = (id(${yambms_id}_var_total_charging_cycles) / id(${yambms_id}_var_to_combine_bms_counter));
@@ -252,6 +260,7 @@ interval:
             id(${yambms_id}_current).publish_state(current);
             id(${yambms_id}_power).publish_state(power);
             id(${yambms_id}_state_of_charge).publish_state(soc);
+            id(${yambms_id}_battery_soh).publish_state(soh);
             id(${yambms_id}_charging_cycles).publish_state(charging_cycles);
 
             // TOTAL battery_capacity
@@ -331,6 +340,7 @@ interval:
             id(${yambms_id}_var_shunt_total_power) = 0.0;
             id(${yambms_id}_var_bms_total_soc) = 0.0;
             id(${yambms_id}_var_shunt_total_soc) = 0.0;
+            id(${yambms_id}_var_bms_total_soh) = 0.0;
             id(${yambms_id}_var_total_battery_capacity) = 0.0;
             id(${yambms_id}_var_total_capacity_remaining_ah) = 0.0;
             id(${yambms_id}_var_total_max_charge_current) = 0.0;
@@ -528,6 +538,19 @@ sensor:
         - throttle: 10s
         - delta: 1
     internal: true # source for ${yambms_id}_battery_soc
+
+  # battery_soh MEAN
+  - platform: template
+    name: ${name} ${yambms_name} Battery SoH
+    id: ${yambms_id}_battery_soh
+    unit_of_measurement: "%"
+    device_class: battery
+    update_interval: ${yambms_update_interval}
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
 
   # installed_battery_capacity SUM
   - platform: template
