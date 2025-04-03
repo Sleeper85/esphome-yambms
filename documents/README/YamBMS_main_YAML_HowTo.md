@@ -154,9 +154,6 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
 ## YamBMS single-node example
 
 ```YAML
-  # Config : this YAML contains the settings shared between all ESP32s
-  config_yambms: !include packages/config/config_yambms.yaml
-
   shunt1: !include
     file: packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml
     vars:
@@ -166,7 +163,7 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
       # ...
 
   bms1: !include
-    file: packages/bms/bms_combine_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml
     vars:
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
@@ -190,10 +187,6 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
 ### YamBMS modbus client `node1`
 
 ```YAML
-  # Config : this YAMLs contains the settings shared between all ESP32s
-  config_yambms: !include packages/config/config_yambms.yaml
-  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
-
   modbus: !include
     file: packages/base/device_modbus.yaml
     vars:
@@ -228,10 +221,6 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
 ### ESP32 modbus server `node2`
 
 ```YAML
-  # Config : this YAMLs contains the settings shared between all ESP32s
-  config_yambms: !include packages/config/config_yambms.yaml
-  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
-
   modbus: !include
     file: packages/base/device_modbus.yaml
     vars:
@@ -247,7 +236,7 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
       # ...
 
   bms1: !include
-    file: packages/bms/bms_modbus_JK-B_UART_full.yaml
+    file: packages/bms/bms_modbus_JK_UART_4G-GPS_full.yaml
     vars:
       bms_id: '1' # must be a number, also represents the modbus server number !
       bms_name: 'BMS 1'
@@ -258,10 +247,6 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
 ### ESP32 modbus server `node3`
 
 ```YAML
-  # Config : this YAMLs contains the settings shared between all ESP32s
-  config_yambms: !include packages/config/config_yambms.yaml
-  config_multinode_modbus: !include packages/config/config_multi-node_modbus.yaml
-
   modbus: !include
     file: packages/base/device_modbus.yaml
     vars:
@@ -269,7 +254,7 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
       modbus_uart_id: 'uart_esp_1' # RS485 board
 
   bms2: !include
-    file: packages/bms/bms_modbus_JK-ALL_BLE_standard.yaml
+    file: packages/bms/bms_modbus_JK_BLE_standard.yaml
     vars:
       bms_id: '2' # must be a number, also represents the modbus server number !
       bms_name: 'BMS 2'
@@ -277,7 +262,7 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
       # ...
 
   bms3: !include
-    file: packages/bms/bms_modbus_JK-ALL_BLE_standard.yaml
+    file: packages/bms/bms_modbus_JK_BLE_standard.yaml
     vars:
       bms_id: '3' # must be a number, also represents the modbus server number !
       bms_name: 'BMS 3'
@@ -299,7 +284,7 @@ There are other `bms.yaml` not mentioned here, see in the [bms](../../packages/b
 
 The `full` / `standard` versions contain all available sensors while the `minimal` version contains the basic sensors without the voltages of each cell and other superfluous sensors.
 
-### [JK-ALL (BLE)](https://github.com/syssi/esphome-jk-bms)
+### [JK-BMS (BLE)](https://github.com/syssi/esphome-jk-bms)
 
 > [!IMPORTANT]
 > The BLE software stack on the ESP32 consumes a significant amount of RAM on the device.
@@ -308,28 +293,34 @@ The `full` / `standard` versions contain all available sensors while the `minima
 
 ```YAML
   bms1: !include
-    file: packages/bms/bms_combine_JK-ALL_BLE_standard.yaml # bms_modbus_JK-ALL_BLE_standard.yaml
+    file: packages/bms/bms_combine_JK_BLE_standard.yaml # bms_modbus_JK_BLE_standard.yaml
     vars:
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
       bms_ble_protocol_version: 'JK02_32S' # JK02_24S < hardware version 11.0 >= JK02_32S
       bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
 ```
 
-### [JK-B (UART)](https://github.com/syssi/esphome-jk-bms)
+### [JK-BMS (UART 4G-GPS)](https://github.com/syssi/esphome-jk-bms)
 
 [How to make the UART connection with the ESP32.](BMS_JK-B_UART_solution.md)
 
 ```YAML
   bms1: !include
-    file: packages/bms/bms_combine_JK-B_UART_full.yaml # bms_modbus_JK-B_UART_full.yaml
+    file: packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml # bms_modbus_JK_UART_4G-GPS_full.yaml
     vars:
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
       bms_uart_id: 'uart_esp_1'
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
 ```
 
-### [JK-B (RS485 DISPLAY)](https://github.com/syssi/esphome-jk-bms)
+### [JK-BMS (RS485 DISPLAY)](https://github.com/syssi/esphome-jk-bms)
 
 > [!CAUTION]
 > The `jk_bms_display` component does not provide all the information needed for an optimal operation of `YamBMS`.
@@ -340,7 +331,7 @@ The `full` / `standard` versions contain all available sensors while the `minima
 
 ```YAML
   bms1: !include
-    file: packages/bms/bms_combine_JK-B_RS485_DISPLAY_full.yaml
+    file: packages/bms/bms_combine_JK_RS485_DISPLAY_full.yaml
     vars:
       bms_id: '1' # must be a number
       bms_name: 'BMS 1'
@@ -353,15 +344,21 @@ The `full` / `standard` versions contain all available sensors while the `minima
       bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
 ```
 
-### [JK-PB (RS485)](https://github.com/txubelaxu/esphome-jk-bms/)
+### [JK-BMS (RS485 Modbus)](https://github.com/txubelaxu/esphome-jk-bms/)
+
+> [!TIP]
+> Compatible with JK-PB, JK-B HW. >= 11A
 
 A single `RS485 bus` allows you to monitor up to `16` BMS.
 
 [How to make the RS485 connection with the ESP32.](BMS_JK-PB_RS485_solution.md)
 
-#### JK-PB sniffer
+#### JK sniffer
 
 > [!IMPORTANT]
 > You need to import only one `sniffer` package of your choice.
@@ -374,7 +371,7 @@ Sniffer without `talk_pin` :
 
 ```YAML
   sniffer1: !include
-    file: packages/bms/bms_combine_JK-PB_RS485_sniffer.yaml
+    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml
     vars:
       sniffer_id: 'sniffer1'
       sniffer_protocol: 'JK02_32S'
@@ -385,7 +382,7 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
 
 ```YAML
   sniffer1: !include
-    file: packages/bms/bms_combine_JK-PB_RS485_sniffer_talk_pin.yaml
+    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer_talk_pin.yaml
     vars:
       sniffer_id: 'sniffer1'
       sniffer_protocol: 'JK02_32S'
@@ -393,12 +390,12 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
       sniffer_talk_pin: 8 # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
 ```
 
-#### JK-PB BMS
+#### JK-BMS (JK-PB, JK-B HW. >= 11A)
 
 ```YAML
   # Mode2 : configure the DIP switches of your BMS from 0x01 to 0x0F (don't use the 0x00 address, maximum 15 BMS)
   bms1: !include
-    file: packages/bms/bms_combine_JK-PB_RS485_bms_full.yaml
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
     vars:
       # Sniffer ID
       sniffer_id: 'sniffer1'
@@ -426,6 +423,9 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
 ```
 
 ### [JBD (BLE)](https://github.com/syssi/esphome-jbd-bms)
@@ -445,6 +445,9 @@ If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will b
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
 ```
 
 ### [Seplos V1/V2 (RS485)](https://github.com/syssi/esphome-seplos-bms)
@@ -585,8 +588,6 @@ Take the time to configure `YamBMS` correctly according to your battery chemistr
       yambms_eoc_timer: '30'
       # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
       yambms_cutoff_timer: '60'
-      # Maximum charging cycles is used to calculate the battey SOH, LF280K v3 =8000.0, LF280K v2 =6000.0, LF280=3000.0 (decimal is required)
-      yambms_max_cycles: '6000.0'
 ```
 
 ## CAN bus
@@ -606,7 +607,7 @@ You can keep the default configuration.
       # CANBUS vars
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
-      canbus_node_id: 'canbus_node1'
+      canbus_node_id: 'canbus_inverter_1'
       canbus_light_id: 'esp_light'
       # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
       # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356

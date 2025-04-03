@@ -115,6 +115,14 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Changelog
 
+
+* YamBMS 1.5.5 :
+  * New `main.yaml` with LP (local packages) and RP (remote packages) versions
+  * New `board.yaml` with modular UART/CAN interfaces
+  * The name of the JK `bms.yaml` is no longer linked to a specific model
+  * SoC calculation is now based on remaining capacity for more accuracy (BMS only) [issues #39](https://github.com/Sleeper85/esphome-yambms/issues/39)
+  * SoH calculation is moved to BMS level (for those who do not provide this information)
+  * Improvement of the Victron SmartShunt doc [issues #38](https://github.com/Sleeper85/esphome-yambms/issues/38)
 * YamBMS 1.5.4 :
   * New low SoC corrected at each BMS level (the corrected SoC is the one transmitted to YamBMS)
   * New BMS dashboard
