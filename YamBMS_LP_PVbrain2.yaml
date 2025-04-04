@@ -1,4 +1,4 @@
-# Updated : 2025.04.01
+# Updated : 2025.04.04
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -145,6 +145,14 @@ packages:
 
 # PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
 
+  ################ >>> CONFIG & CUSTOM LP <<< ################
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
+
   # You don't have to import a shunt but you must import at least one BMS.
 
   shunt1: !include
@@ -175,8 +183,6 @@ packages:
       bms_cell_max_cycles: '6000.0'
 
   yambms: !include packages/yambms/yambms.yaml
-
-  # yambms_custom: !include yambms_custom.yaml
 
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
