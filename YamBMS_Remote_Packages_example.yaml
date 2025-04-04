@@ -1,4 +1,4 @@
-# Updated : 2025.04.01
+# Updated : 2025.04.04
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -110,7 +110,18 @@ substitutions:
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+
 packages:
+
+  ################ >>> CONFIG & CUSTOM LP <<< ################
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
 
   ############### >>> UNCOMMENT YOUR BOARD <<< ###############
   ############### >>>   ONLY ONE BOARD !   <<< ###############
@@ -162,6 +173,8 @@ packages:
 
   ############################################################
 
+  # You don't have to import a shunt but you must import at least one BMS.
+
   shunt:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
@@ -198,15 +211,26 @@ packages:
           # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
           bms_cell_max_cycles: '6000.0'
 
+  # bms_options:
+  #   url: https://github.com/Sleeper85/esphome-yambms
+  #   ref: main
+  #   refresh: 0s
+  #   files:
+  #     # BMS 1
+  #     - path: 'packages/bms/bms_options_charging_logic.yaml'
+  #       vars:
+  #         bms_id: '1' # must be a number
+  #     # BMS 2
+  #     - path: 'packages/bms/bms_options_charging_logic.yaml'
+  #       vars:
+  #         bms_id: '2' # must be a number
+
   yambms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
       - path: 'packages/yambms/yambms.yaml'
-      # - path: 'packages/yambms/yambms_custom.yaml'
-
-  # yambms_custom: !include yambms_custom.yaml
 
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms

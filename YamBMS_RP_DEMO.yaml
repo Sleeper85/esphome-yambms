@@ -1,4 +1,4 @@
-# Updated : 2025.04.01
+# Updated : 2025.04.04
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -110,7 +110,18 @@ substitutions:
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+
 packages:
+
+  ################ >>> CONFIG & CUSTOM LP <<< ################
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
 
   ############### >>> UNCOMMENT YOUR BOARD <<< ###############
   ############### >>>   ONLY ONE BOARD !   <<< ###############
@@ -143,6 +154,8 @@ packages:
     ref: main
     refresh: 0s
     files:
+      # Captive Portal
+      - path: 'packages/board/board_options_captive_portal.yaml'
       # UART 1
       # - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
       # UART 2
@@ -271,9 +284,6 @@ packages:
     refresh: 0s
     files:
       - path: 'packages/yambms/yambms.yaml'
-      # - path: 'packages/yambms/yambms_custom.yaml'
-
-  # yambms_custom: !include yambms_custom.yaml
 
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms
