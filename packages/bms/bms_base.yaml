@@ -1,4 +1,4 @@
-# Updated : 2025.01.25
+# Updated : 2025.04.04
 # Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -16,9 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
-
-# packages:
-#   bms_charging_logic: !include bms_options_charging_logic.yaml
 
 sensor:
   # +--------------------------------------+
