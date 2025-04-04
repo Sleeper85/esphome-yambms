@@ -1,0 +1,63 @@
+# Updated : 2025.04.01
+# Version : 1.5.5
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  bms1: !include
+    file: packages/bms/bms_combine_JBD_UART_full.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'BMS 1'
+      bms_uart_id: 'uart_esp_1'
+      bms_rx_timeout: '150ms'
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
+
+  bms2: !include
+    file: packages/bms/bms_combine_JBD_BLE_full.yaml
+    vars:
+      bms_id: '2' # must be a number
+      bms_name: 'BMS 2'
+      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
+      # Required settings cannot be retrieved from BMS
+      # These values ​​must match your BMS settings
+      # LFP values example
+      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
