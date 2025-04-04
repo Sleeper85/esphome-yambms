@@ -1,5 +1,5 @@
-# Updated : 2025.04.02
-# Version : 1.1.1
+# Updated : 2025.04.14
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  canbus_can_id: '2'
+  canbus_bitrate: '500kbps'
+
 spi:
   - id: bus_spi1
     mosi_pin: ${spi_mosi_pin}
@@ -28,5 +32,5 @@ canbus:
     spi_id: bus_spi1
     id: ${canbus_node_id}
     cs_pin: ${mcp2515_cs_pin}
-    can_id: 2
-    bit_rate: 500kbps
+    can_id: ${canbus_can_id}
+    bit_rate: ${canbus_bitrate}
