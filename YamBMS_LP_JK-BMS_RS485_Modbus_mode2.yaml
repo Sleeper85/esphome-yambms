@@ -1,4 +1,4 @@
-# Updated : 2025.04.01
+# Updated : 2025.04.04
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -116,6 +116,14 @@ substitutions:
 
 packages:
 
+  ################ >>> CONFIG & CUSTOM LP <<< ################
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
+
   ############### >>> UNCOMMENT YOUR BOARD <<< ###############
   ############### >>>   ONLY ONE BOARD !   <<< ###############
 
@@ -155,6 +163,15 @@ packages:
   #     canbus_node_id: 'canbus_bms_1'
 
   ############################################################
+
+  # You don't have to import a shunt but you must import at least one BMS.
+
+  # shunt1: !include
+  #   file: packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml # shunt_combine_Junctek_KHF_UART.yaml
+  #   vars:
+  #     shunt_id: '1' # must be a number
+  #     shunt_name: 'Shunt 1'
+  #     shunt_uart_id: 'uart_esp_3'
 
   # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
   # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS)
@@ -256,8 +273,6 @@ packages:
       bms_address: '0x08' # BMS 8 DIP switch
 
   yambms: !include packages/yambms/yambms.yaml
-
-  # yambms_custom: !include yambms_custom.yaml
 
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
