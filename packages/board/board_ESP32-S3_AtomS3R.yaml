@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.7
+# Updated : 2025.04.07
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -172,4 +172,4 @@ display:
     eightbitcolor: true
     update_interval: 1s
     data_rate: 40Mhz
-    # rotation: 180   # use transform instead! https://esphome.io/components/display/ili9xxx.html
+    rotation: ${display_rotation}
