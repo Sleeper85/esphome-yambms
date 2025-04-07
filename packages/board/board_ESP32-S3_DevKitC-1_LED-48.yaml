@@ -28,16 +28,16 @@ substitutions:
   tx_pin_2: '15'
   rx_pin_2: '16'
   # uart_esp_3
-  tx_pin_3: '13'
-  rx_pin_3: '14'
+  tx_pin_3: '4'
+  rx_pin_3: '5'
   # canbus_esp32_can
-  tx_pin_4: '38'
-  rx_pin_4: '39'
+  tx_pin_4: '39'
+  rx_pin_4: '40'
   # canbus_mcp2515
-  spi_mosi_pin: '10'
-  spi_miso_pin: '11'
+  spi_mosi_pin: '11'
+  spi_miso_pin: '13'
   spi_clk_pin: '12'
-  mcp2515_cs_pin: '9'
+  mcp2515_cs_pin: '10'
 
 packages:
   device_base: !include ../base/device_base.yaml
