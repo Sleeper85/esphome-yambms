@@ -1,5 +1,5 @@
-# Updated : 2025.01.27
-# Version : 1.1.2
+# Updated : 2025.04.07
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,6 +28,7 @@ interval:
   - interval: ${bms_combine_interval}
     then:
       - lambda: |-
+          id(${yambms_id}_bms_charging_logic) = true;
           float battery_v = id(bms${bms_id}_total_voltage).state;
           float rebulk_v = id(${yambms_id}_rebulk_voltage).state;
 

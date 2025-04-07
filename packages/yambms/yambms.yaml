@@ -1,4 +1,4 @@
-# Updated : 2025.04.01
+# Updated : 2025.04.07
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -77,6 +77,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'true'
+  - id: ${yambms_id}_bms_charging_logic
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: ${yambms_id}_charge_status
     type: std::string
     restore_value: no
@@ -639,8 +643,8 @@ text_sensor:
           }
         }
       }
-      // Charging allowed (BMS or YamBMS)
-      else id(${yambms_id}_charge_status) = "Wait";
+      // Charging not allowed (BMS or YamBMS)
+      else if (id(${yambms_id}_bms_charging_logic) == false) id(${yambms_id}_charge_status) = "Wait";
       
       ESP_LOGI("yambms", "Charge Status : %s", id(${yambms_id}_charge_status).c_str());
       return id(${yambms_id}_charge_status);
