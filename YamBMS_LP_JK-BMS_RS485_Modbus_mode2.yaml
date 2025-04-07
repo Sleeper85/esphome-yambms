@@ -1,4 +1,4 @@
-# Updated : 2025.04.04
+# Updated : 2025.04.07
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -161,6 +161,7 @@ packages:
   #   file: packages/board/board_options_itf_canbus_mcp2515.yaml
   #   vars:
   #     canbus_node_id: 'canbus_bms_1'
+  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
 
   ############################################################
 
