@@ -1,4 +1,4 @@
-# Updated : 2025.04.04
+# Updated : 2025.04.07
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -142,10 +142,12 @@ packages:
       # - path: 'packages/board/board_ESP32-S3_AtomS3.yaml'
       #   vars:
       #     display_auto_next_page_interval: '5s'
+      #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
 
       # - path: 'packages/board/board_ESP32-S3_AtomS3R.yaml'
       #   vars:
       #     display_auto_next_page_interval: '5s'
+      #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
 
   ########### >>> UNCOMMENT YOUR BOARD OPTIONS <<< ###########
 
