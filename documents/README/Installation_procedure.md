@@ -10,7 +10,7 @@
 
 ### 1. Install ESPHome on your computer
 
-Before you can flash your ESP32 you need to install the [ESPHome 2024.6.0 or higher](https://github.com/esphome/esphome/releases) command line application.<br>
+Before you can flash your ESP32 you need to install the [ESPHome 2025.3.0 or higher](https://github.com/esphome/esphome/releases) command line application.<br>
 [Follow these instructions for installation on Windows, Mac or Linux.](https://esphome.io/guides/installing_esphome)
 
 > [!TIP]
@@ -23,6 +23,9 @@ pip3 install esphome
 ```
 
 ### 2. Download all YAML files to your computer
+
+> [!TIP]
+> This step is not necessary if you are compiling the `Remote Packages` version of the YAML.
 
 You can do this from the command line or in your preferred method.
 
@@ -48,23 +51,17 @@ domain : .local
 
 ### 4. Install the YamBMS application into your ESP32
 
-Choose the main YAML that best suits your needs like for example `multi-bms_JK-ALL_BLE.yaml`.<br>
-Validate the configuration, create a binary, upload it, and start logs.<br>
-**The only YAML that needs to be checked and configured is the main one like for example `multi-bms_JK-ALL_BLE.yaml` but you can modify other YAMLs if you want.<br>
-The goal is that the main YAML which contains all your specific parameters can be preserved and reused each time the other YAMLs classified in the `packaged` folder are updated.**
+Create a copy of `YamBMS_Remote_Packages_example.yaml` and modify it to match your configuration.
+Examples of BMS imports can be found in the [configuration_examples](configuration_examples/) folder.
+You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
 
 ```bash
-# To install the multi-bms JK-ALL Bluetooth version
-esphome run multi-bms_JK-ALL_BLE.yaml
-
-# To install the multi-bms JK-B UART version
-esphome run multi-bms_JK-B_UART.yaml
-
-# To install the multi-bms JK-PB RS485 version
-esphome run multi-bms_JK-PB_RS485_mode2.yaml
+# install your YamBMS.yaml
+# validate the configuration, create a binary, upload it, and start logs.
+esphome run YamBMS.yaml
 
 # upgrade via OTA by specifying the IP address of the ESP32
-esphome run multi-bms_JK-ALL_BLE.yaml --device 192.168.x.x
+esphome run YamBMS.yaml --device 192.168.x.x
 ```
 
 ### 5. Optional but recommended, add the ESP32 in your Home Assistant server
@@ -75,35 +72,26 @@ In Home Assistant under **" Settings > Devices and services > Add Intergration "
 
 ```bash
 # clean files before compiling again
-esphome clean multi-bms_JK-ALL_BLE.yaml
+esphome clean YamBMS.yaml
 
 # test the config
-esphome config multi-bms_JK-ALL_BLE.yaml
+esphome config YamBMS.yaml
 
 # install the config in ESP32
-esphome run multi-bms_JK-ALL_BLE.yaml
+esphome run YamBMS.yaml
 
 # compile the firmware.bin
-esphome compile multi-bms_JK-ALL_BLE.yaml
+esphome compile YamBMS.yaml
 
 # check the logs (the --device option is not required)
-esphome logs multi-bms_JK-ALL_BLE.yaml --device 192.168.x.x
+esphome logs YamBMS.yaml --device 192.168.x.x
 ```
 
 ## Debugging
 
-If this component doesn't work out of the box for your device please update your configuration to enable the debug output of the UART component and increase the log level to the see outgoing and incoming serial traffic:
+If this component doesn't work out of the box for your device please update your configuration to increase the log level to `DEBUG`.
 
-```
+```YAML
 logger:
   level: DEBUG
-
-uart:
-  id: uart_0
-  baud_rate: 115200
-  rx_buffer_size: 384
-  tx_pin: ${tx_pin}
-  rx_pin: ${rx_pin}
-  debug:
-    direction: BOTH
 ```
