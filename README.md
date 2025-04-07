@@ -9,9 +9,8 @@
 
 > [!TIP]
 > Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
-
-> [!TIP]
-> If compiling the source code is too difficult for you, I can provide you a `custom firmware` that is easy to install from a web page. You can [contact me privately](https://diysolarforum.com/direct-messages/add?to=Sleeper85) on the DIY solar forum.
+> Examples of BMS imports can be found in the [configuration_examples](configuration_examples/) folder.
+> You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
 
 | ESPHome application to monitor BMS and communicate with inverters<br>supporting CAN bus protocol compatible with Pylontech, GoodWe, SMA,<br>Victron or Luxpower (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
 | :--- | --- |
