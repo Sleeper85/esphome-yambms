@@ -134,8 +134,12 @@ packages:
       # - path: 'packages/board/board_ESP32_Generic.yaml'
       # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
+      # - path: 'packages/board/board_ESP32_EVB.yaml'
+      # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
+      # - path: 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
       # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
-      # - path: 'packages/board/board_ESP32-S3_DevKitC-1.yaml'
+      # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
+      # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
       - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
       # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
 
@@ -159,7 +163,7 @@ packages:
       # UART 1
       - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
       # UART 2
-      - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
+      # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
       # UART 3
       # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
 
@@ -171,7 +175,7 @@ packages:
       # MCP2515
       # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
       #   vars:
-      #     canbus_node_id: 'canbus_bms_1'
+      #     canbus_node_id: 'canbus_inverter_1'
 
   ############################################################
 
