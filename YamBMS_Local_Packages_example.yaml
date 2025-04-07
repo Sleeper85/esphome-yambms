@@ -134,8 +134,10 @@ packages:
   # device_board: !include packages/board/board_ESP32_LilyGo-T-CAN485.yaml
   # device_board: !include packages/board/board_ESP32_EVB.yaml
   # device_board: !include packages/board/board_ESP32_Atom-Lite.yaml
+  # device_board: !include packages/board/board_ESP32-C3_DevKitM-1.yaml
   # device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
-  # device_board: !include packages/board/board_ESP32-S3_DevKitC-1.yaml
+  # device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml
+  # device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml
   # device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
   # device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
   
@@ -161,7 +163,7 @@ packages:
   # canbus_node_2: !include
   #   file: packages/board/board_options_itf_canbus_mcp2515.yaml
   #   vars:
-  #     canbus_node_id: 'canbus_bms_1'
+  #     canbus_node_id: 'canbus_inverter_1'
 
   ############################################################
 
