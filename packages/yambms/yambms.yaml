@@ -81,6 +81,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+  - id: ${yambms_id}_force_float
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: ${yambms_id}_charge_status
     type: std::string
     restore_value: no
@@ -545,6 +549,8 @@ text_sensor:
       else if ((id(${yambms_id}_charge_status) == "Float") & (!id(${yambms_id}_switch_float).state)) id(${yambms_id}_charge_status) = "EOC";
       // No Force Bulk => Wait
       else if ((id(${yambms_id}_charge_status) == "Force Bulk") & (!id(${yambms_id}_switch_force_bulk).state)) id(${yambms_id}_charge_status) = "Wait";
+      // Force Float
+      else if (id(${yambms_id}_force_float) == true) id(${yambms_id}_charge_status) = "Float";
 
       // +-----------------------------------------------+
       // | Charging allowed (BMS and YamBMS)             |

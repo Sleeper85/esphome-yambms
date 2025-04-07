@@ -26,17 +26,16 @@ switch:
     entity_category: config
 
 interval:
-  # Force Float
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
-          // Force Float => Float
-          if (id(${yambms_id}_switch_force_float).state) id(${yambms_id}_charge_status) = "Float";
+          // Force Float
+          if (id(${yambms_id}_switch_force_float).state) id(${yambms_id}_force_float) = true;
+          else id(${yambms_id}_force_float) = false;
 
-  # Setup min/max value
   - interval: 24h # 60s
     then:
       - lambda: |-
-          // Float V.
+          // Set min/max Float slider
           id(${yambms_id}_float_voltage).traits.set_min_value(${yambms_cell_count} * 3.125);
           id(${yambms_id}_float_voltage).traits.set_max_value(${yambms_cell_count} * 3.375);
