@@ -94,7 +94,7 @@ The DEMO firmware is composed of `3x BMS` and `1x Shunt` (fake) for a `48V LFP` 
 
 > [!IMPORTANT] 
 > `YamBMS_DEMO_ESP32.factory.bin` is intended for a generic ESP32, does not work with ESP32-S3.
-> If you want to test `YamBMS DEMO` with another board you need to compile the firmware with the `multi-bms_DEMO.yaml`.
+> If you want to test `YamBMS DEMO` with another board you need to compile the firmware with the `YamBMS_RP_DEMO.yaml`.
 
 1) Download [YamBMS_DEMO_ESP32.factory.bin](firmware/YamBMS_DEMO_ESP32.factory.bin)
 2) Follow the [procedure explained in this document](https://docs.google.com/document/d/12pOpaG4Iyw3DjC_kB1q0jjBeSKJHK2FvXI1swebL2RI/edit?usp=sharing).

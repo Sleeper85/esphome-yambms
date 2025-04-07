@@ -1,10 +1,15 @@
-# YamBMS - How to create your YamBMS YAML
+# YamBMS - How to create your YamBMS YAML (Local Packages examples)
 
 [![Badge License: GPLv3](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Badge Version](https://img.shields.io/github/v/release/Sleeper85/esphome-yambms?include_prereleases&color=yellow&logo=DocuSign&logoColor=white)](https://github.com/Sleeper85/esphome-yambms/releases/latest)
 ![GitHub stars](https://img.shields.io/github/stars/Sleeper85/esphome-yambms)
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
+
+> [!TIP]
+> Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
+> Examples of BMS imports can be found in the [configuration_examples](configuration_examples/) folder.
+> You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
 
 > [!IMPORTANT]
 > BMS monitoring with `Bluetooth` as well as the `Web server` are RAM-intensive components.
