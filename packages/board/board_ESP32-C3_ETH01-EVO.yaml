@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.7
+# Updated : 2025.04.13
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,7 +43,7 @@ packages:
 esp32:
   board: esp32-c3-devkitm-1
   variant: esp32c3
-  flash_size: 2MB
+  # flash_size: 2MB
   framework:
     type: esp-idf
     version: latest
