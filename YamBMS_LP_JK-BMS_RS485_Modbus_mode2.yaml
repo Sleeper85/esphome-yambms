@@ -138,6 +138,7 @@ packages:
   # device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
   # device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml
   # device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml
+  # device_board: !include packages/board/board_YamBoard_Deye_JK.yaml
   device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
   # device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
   
@@ -175,7 +176,15 @@ packages:
   #     shunt_id: '1' # must be a number
   #     shunt_name: 'Shunt 1'
   #     shunt_uart_id: 'uart_esp_3'
-
+  
+  # shunt1: !include
+  #   file: packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml #
+  #   vars:
+  #     shunt_id: '1' # must be a number
+  #     shunt_name: 'Shunt'
+  #     shunt_mac_address: 'c9adfc3f5dc2'
+  #     shunt_encryption_key: '908b0661a62f36c026424b21080fa4ae'
+  
   # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
   # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS)
 
