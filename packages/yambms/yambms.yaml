@@ -1,4 +1,4 @@
-# Updated : 2025.04.07
+# Updated : 2025.04.14
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -496,7 +496,7 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
-      float soc = id(${yambms_id}_state_of_charge).state;
+      float soc = round(id(${yambms_id}_state_of_charge).state);
       if (id(${yambms_id}_bms_combined).state == 0) return 0;         // no BMS combined => sending 0%
       else if (soc < 99) return soc;                                  // SoC < 99% => sending SoC
       else if (id(${yambms_id}_eoc) == true) return soc;              // End Of Charge => sending SoC
