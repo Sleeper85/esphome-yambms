@@ -49,7 +49,7 @@
 
 | [YamBoard Deye / JK PB]|
 | --- |
-| <img src="../../images/Yamboard_Deye_JK.jpg" width="300">|
+| <img src="../../images/Yamboard_Deye_JK.png" width="300">|
 ## Supported CAN bus transceiver
 
 **Note: some inverters only accept a CAN bus at 3.3V in this case please choose the SN65HVD230 chip.**
