@@ -44,11 +44,11 @@
 | <img src="../../images/MCU_ESP32-DevKitC_espBerry_2-CH-CAN.png" width="300"> | <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> |
 
 | [Olimex ESP32-EVB](https://github.com/OLIMEX/ESP32-EVB) |
-| --- | --- |
+| --- |
 | <img src="../../images/MCU_ESP32-EVB.jpg" width="300">|
 
 | [YamBoard Deye / JK PB]|
-| --- | --- |
+| --- |
 | <img src="../../images/Yamboard_Deye_JK.png" width="300">|
 
 ## Supported CAN bus transceiver
