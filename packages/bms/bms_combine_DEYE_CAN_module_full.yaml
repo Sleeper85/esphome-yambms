@@ -1,6 +1,6 @@
 # Updated : 2025.04.14
-# Version : 1.1.2
-# GitHub  : https://github.com/Sleeper85/esphome-yambms
+# Version : 1.1.1
+# GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -18,19 +18,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  canbus_can_id: '2'
-  canbus_bitrate: '500kbps'
-
-spi:
-  - id: bus_spi1
-    mosi_pin: ${spi_mosi_pin}
-    miso_pin: ${spi_miso_pin}
-    clk_pin: ${spi_clk_pin}
-
-canbus:
-  - platform: mcp2515
-    spi_id: bus_spi1
-    id: ${canbus_node_id}
-    cs_pin: ${mcp2515_cs_pin}
-    can_id: ${canbus_can_id}
-    bit_rate: ${canbus_bitrate}
+  bms_model: "DEYE"
+  bms_protocol: "CAN"
+  
+packages:
+  bms_base: !include bms_base.yaml
+  bms_combine: !include bms_combine.yaml
+  bms_errors_bitmask: !include bms_errors_bitmask_DEYE_CAN.yaml
+  bms_module: !include bms_sensors_DEYE_CAN_module_full.yaml
