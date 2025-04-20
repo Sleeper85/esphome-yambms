@@ -1,4 +1,4 @@
-# YamBMS - JK-PB BMS RS485 Solution
+# YamBMS - JK-PB Inverter BMS
 
 [![Badge License: GPLv3](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Badge Version](https://img.shields.io/github/v/release/Sleeper85/esphome-yambms?include_prereleases&color=yellow&logo=DocuSign&logoColor=white)](https://github.com/Sleeper85/esphome-yambms/releases/latest)
@@ -6,11 +6,76 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
-## External component
+## JK-PB BMS overview
 
-[JK_RS485](https://github.com/txubelaxu/esphome-jk-bms/blob/main/components/jk_rs485_bms/README.md) by [@txubelaxu](https://github.com/txubelaxu)
+|![Image](../../images/BMS_JK-PB_Inverter_BMS.png)|
+|-|
+|![Image](../../images/BMS_JK-PB_communication_connectors.jpg)|
+|![Image](../../images/BMS_JK-PB_communication_board.png)|
 
-## Hardware
+## JK-PB BMS protocol
+
+The datas from this BMS can be retrieved from the `RS485-2 (UART2)` network using the component [JK_RS485](https://github.com/txubelaxu/esphome-jk-bms/blob/main/components/jk_rs485_bms/README.md) of [@txubelaxu](https://github.com/txubelaxu).
+
+The BMS DIP switches must be set from `1` to `15` (server mode) and connected to each other using the `RS485-2` network available on the **two ports at the right ends**. `YamBMS` also connects to one of these two ports.
+
+### **UART2 configuration**
+
+> [!NOTE]
+> The protocol of the `UART2` port is not selectable from the JK application.
+> It is automatically set based on the address (DIP switch) of the BMS.
+
+In the last software version only two protocols are available on the **RS485-2 (UART2)** ports:
+
+- **001** - JK BMS RS485 Modbus V1.0 **(DIP switch 1 to 15)**
+- **015** - UART Protocol 015 **(DIP switch 0)**
+
+### **UART1 configuration**
+
+The following protocols are supported on the **RS485-1 (UART1)** port:
+
+(*italic options ane not settable*)
+
+- **000** - 4G-GPS Remote module Common protocol V4.2
+- **001** - **JK BMS RS485 Modbus V1.0**
+- **002** - NIU U SERIES
+- **003** - China tower shared battery cabinet V1.1
+- **004** - PACE_RS485_Modbus_V1.3
+- **005** - PYLON_low_voltage_Protocol_RS485_V3.5
+- **006** - Growatt_BMS_RS485_Protocol_1xSxxP_ESS_Rev2.01
+- **007** - Voltronic_Inverter_and_BMS_485_communication_protocol_20200...
+- **008** - China tower shared battery cabinet V2.0
+- **009** - WOW_RS485_Modbus_V1.3
+- **010** - JK BMS LCD Protocol V2.0
+- **011** - *UART1 User customization*
+- **012** - *UART2 User customization*
+- **013** - (9600)JK BMS RS485 Modbus V1.0
+- **014** - (9600)PYLON_low_voltage_Protocol_RS485_V3.5
+- **015** - *UART Protocol 015*
+
+### **CAN port configuration**
+
+The following CAN protocols are supported on the CAN port:
+
+(*italic options ane not settable*)
+
+- **000** - JK BMS CAN Protocol (250K) V2.0
+- **001** - Deye Low-voltage hybrid inverter CAN communication protocol V1.0
+- **002** - PYLON-Low-voltage-V1.2
+- **003** - Growatt BMS CAN-Bus-protocol-low-voltage_Rev_05
+- **004** - Victron_CANbus_BMS_protocol_20170717
+- **005** - MEGAREVO_Hybird_BMSCAN_Protocol_V1.0
+- **006** - JK BMS CAN Protocol (500K) V2.0
+- **007** - INVT BMS CAN Bus protocol V1.02
+- **008** - GoodWe LV BMS Protocol (EX/EM/S-BP/BP)
+- **009** - FSS-ConnectingBat-Tl-en-10 | Version 1.0
+- **010** - MUST PV1800F-CAN communication Protocol1.04.04
+- **011** - LuxpowerTek Battery CAN protocol V01
+- **012** - *CAN BUS User customization*
+- **013** - *CAN BUS Protocol 013*
+- **014** - *CAN BUS Protocol 014*
+
+## YamBMS hardware
 
 > [!TIP]
 > This solution only requires an ESP32 with a CAN transceiver and a RS485 transceiver.

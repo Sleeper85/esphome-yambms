@@ -1,4 +1,4 @@
-# YamBMS - JK-B BMS UART Solution
+# YamBMS - JK-B BMS
 
 [![Badge License: GPLv3](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Badge Version](https://img.shields.io/github/v/release/Sleeper85/esphome-yambms?include_prereleases&color=yellow&logo=DocuSign&logoColor=white)](https://github.com/Sleeper85/esphome-yambms/releases/latest)
@@ -6,9 +6,40 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
-## External component
+## JK-B BMS overview
 
-[esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) by [@syssi](https://github.com/syssi)
+### UART1 (GPS) port
+
+The `GPS` port sometimes called `RS485` is not an `RS485` port but `3V3 UART-TTL` port.
+
+```
+# UART-TTL GPS port on JK-BMS (4 pin, JST 1.25mm pitch)
+┌─── ─────── ────┐
+│                │
+│ O   O   O   O  │
+│GND  RX  TX VBAT│ 
+└────────────────┘
+  │   │   │   └ VBAT is full battery volatge eg. 56V (possible to use it via an isolated DC-DC converter)
+  │   │   └──── TX  to TTL-isolator AI (input)
+  │   └──────── RX  to TTL-isolator AO (output)
+  └──────────── GND to TTL-isolator GND
+```
+
+The `UART1` (labeled as `GPS`) socket of the BMS can be attached to any UART pins of the ESP32.<br>
+A hardware UART should be preferred because of the high baudrate (115200 baud).<br>
+The connector is called 4 pin JST with 1.25mm pitch.
+
+![Image](../../images/JK-BMS_24S_GPS_port.png "JK-B BMS GPS port")
+
+## JK-B BMS protocol
+
+Historically it was not possible to change the protocol of the `UART1 (GPS)` port and the protocol used was `4G-GPS Remote module Common protocol V4.2` with the component [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) of [@syssi](https://github.com/syssi).
+
+If you cannot change the protocol of the `UART1 (GPS)` port you can only monitor one BMS per UART port of the ESP32, so a maximum of `3x BMS` without adding a UART expander.
+
+If you have a recent BMS, it is now possible to change the protocol of the `UART1 (GPS)` port and with the `JK BMS RS485 Modbus V1.0` protocol you can assign an address (via JK app) to your BMS and monitor several of them from a single `UART-RS485` connection in the same way as the [JK-PB](BMS_JK-PB.md). To use this protocol and monitor all your BMS on a single `RS485 bus` you will need to add the `UART to RS485 adapter` sold by JK or another RS485 board of your choice.
+
+<img src="../../images/BMS_JK_RS485_Modbus_protocol.png" width="400">
 
 ## Schematic and setup instructions
 
@@ -32,8 +63,8 @@ You need to import this YAML into the main YAML.
 ```
               UART-TTL               RS232-TTL                   CAN BUS
 ┌──────────┐            ┌──────────┐             ┌────────────┐              ┌──────────┐
-│          │<TX------RX>│2        5│<TX-------TX>|            |              |          |
-│  JK-BMS  │<RX------TX>│1        6│<RX-------RX>| CA-IS3050G |<---CAN H --->| Inverter |
+│          │<TX------RX>│1        5│<TX-------TX>|            |              |          |
+│  JK-BMS  │<RX------TX>│2        6│<RX-------RX>| CA-IS3050G |<---CAN H --->| Inverter |
 │          │<----GND--->│   ESP32  │             |    CAN     |<---CAN L --->|          |
 │          │     5V---->│5V     3V3|             |            |              |          |
 └──────────┘            └──────────┘             └────────────┘              └──────────┘
@@ -51,8 +82,8 @@ You need to import this YAML into the main YAML.
 ```
               UART-TTL               RS232-TTL                   CAN BUS
 ┌──────────┐            ┌──────────┐             ┌────────────┐              ┌──────────┐
-│          │<TX------RX>│26      22│<TX-------TX>|            |              |          |
-│  JK-BMS  │<RX------TX>│32      19│<RX-------RX>| CA-IS3050G |<---CAN H --->| Inverter |
+│          │<TX------RX>│32      22│<TX-------TX>|            |              |          |
+│  JK-BMS  │<RX------TX>│26      19│<RX-------RX>| CA-IS3050G |<---CAN H --->| Inverter |
 │          │<----GND--->│   ESP32  │             |    CAN     |<---CAN L --->|          |
 │          │     5V---->│5V     3V3|             |            |              |          |
 └──────────┘            └──────────┘             └────────────┘              └──────────┘
@@ -105,25 +136,3 @@ You need to import this YAML into the main YAML.
 
 ```
 
-### JK-B BMS UART-TTL GPS port
-
-The `GPS` port sometimes called `RS485` is not an `RS485` port but `3V3 UART-TTL`.
-
-```
-# UART-TTL GPS port on JK-BMS (4 pin, JST 1.25mm pitch)
-┌─── ─────── ────┐
-│                │
-│ O   O   O   O  │
-│GND  RX  TX VBAT│ 
-└────────────────┘
-  │   │   │   └ VBAT is full battery volatge eg 51.2V (possible to use it via an isolated DC-DC converter)
-  │   │   └──── TX  to TTL-isolator AI (input)
-  │   └──────── RX  to TTL-isolator AO (output)
-  └──────────── GND to TTL-isolator GND
-```
-
-The UART-TTL (labeled as `GPS`) socket of the BMS can be attached to any UART pins of the ESP.<br>
-A hardware UART should be preferred because of the high baudrate (115200 baud).<br>
-The connector is called 4 pin JST with 1.25mm pitch.
-
-![Image](../../images/JK-BMS_24S_GPS_port.png "JK-B BMS GPS port")
