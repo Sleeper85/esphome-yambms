@@ -41,6 +41,8 @@ If you have a recent BMS, it is now possible to change the protocol of the `UART
 
 <img src="../../images/BMS_JK_RS485_Modbus_protocol.png" width="400">
 
+![Image](../../images/BMS_JK_RS485_adapter.png "JK RS485 adapter")
+
 ## Schematic and setup instructions
 
 > [!CAUTION]
