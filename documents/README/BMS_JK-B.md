@@ -39,7 +39,7 @@ If you cannot change the protocol of the `UART1 (GPS)` port you can only monitor
 
 If you have a recent BMS, it is now possible to change the protocol of the `UART1 (GPS)` port and with the `JK BMS RS485 Modbus V1.0` protocol you can assign an address (via JK app) to your BMS and monitor several of them from a single `UART-RS485` connection in the same way as the [JK-PB](BMS_JK-PB.md). To use this protocol and monitor all your BMS on a single `RS485 bus` you will need to add the `UART to RS485 adapter` sold by JK or another RS485 board of your choice.
 
-<img src="../../images/BMS_JK_RS485_Modbus_protocol.png" width="400">
+<img src="../../images/BMS_JK_RS485_Modbus_protocol.png" width="600">
 
 ![Image](../../images/BMS_JK_RS485_adapter.png "JK RS485 adapter")
 
