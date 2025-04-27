@@ -115,6 +115,22 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 * Optional: 48V to 5V DC-DC converter to power the ESP32 from the JK-BMS VBAT pin (URB4805YMD-10WR3 or VRB4805S-6WR3)
 * Optional: JK RS485 adaptor and RS485 to TTL 3V3 adaptor (see schematic section)
 
+## Data collection
+
+If the ESP has an internet connection, the following data is sent to http://script.opentel.be/yambms.post.php
+for statistics collection:
+
+- ESP32 MAC address
+- YamBMS version
+- Board chip
+- Board name
+- BMS model
+- BMS count
+- CAN bus name
+- CAN bus protocol
+- Uptime
+- Current date and time
+
 ## Changelog
 
 
