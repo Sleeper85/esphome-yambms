@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# https://github.com/Xinyuan-LilyGO/T-Connect
+# https://github.com/Xinyuan-LilyGO/T-Connect-Pro
 
 substitutions:
   board_chip: "ESP32-S3"
@@ -37,8 +37,11 @@ packages:
   device_base_wifi: !include ../base/device_base_wifi.yaml
   #device_base_ethernet: !include ../base/device_base_ethernet.yaml
   device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
-  display: !include board_options_display_480x222.yaml
-  # psram: !include board_options_psram_settings.yaml
+  # When enabling display, also enable PSRAM here and below as it requires much memory.
+  # Also note that updating the display will take about ~120ms, which you will see
+  # in the logs: 'Component display took a long time for an operation (124 ms)'
+  #display: !include board_options_display_480x222.yaml
+  #psram: !include board_options_psram_settings.yaml
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -119,7 +122,7 @@ display:
       offset_width: 0
     invert_colors: true
     color_palette: 8BIT
-    update_interval: 1s
+    update_interval: 10s
     data_rate: 40Mhz
 
 # Define a PWM output for the display backlight

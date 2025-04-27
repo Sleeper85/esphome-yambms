@@ -68,7 +68,7 @@ font:
 # Auto next page interval
 interval:
   - interval: ${display_auto_next_page_interval}
-    startup_delay:  5s
+    startup_delay:  10s
     then:
       - display.page.show_next: my_display
       - component.update: my_display
