@@ -1,0 +1,79 @@
+# Updated : 2025.06.18
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# Raspberry Pi Pico RP2040 board
+# https://esphome.io/components/rp2040/rp2040.html
+# Documentation:
+# https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html
+#
+
+substitutions:
+  board_chip: "RP2040"
+  board_name: "RPi Pico"
+  tx_pin_1: '0'
+  rx_pin_1: '1'
+  tx_pin_2: '2'
+  rx_pin_2: '3'
+  tx_pin_3: '4'
+  rx_pin_3: '5'
+  tx_pin_4: '6'
+  rx_pin_4: '7'
+  tx_pin_5: '10'
+  rx_pin_5: '11'
+  tx_pin_6: '14'
+  rx_pin_6: '15'
+
+packages:
+  device_base: !include ../base/device_base_esphome.yaml
+
+rp2040:
+  board: rpipico
+  framework:
+    platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git
+    version: 4.5.2
+    # For the RP2040 PIO UARTs to work correctly with the Victron SmartShunt at 19200 baud
+    # we need a fix in the arduino-pico core. See:
+    # https://github.com/earlephilhower/arduino-pico/commit/5e74bbbbb2a22b5ae64fd6a4b0363c7f90a863d2
+    # and https://github.com/earlephilhower/arduino-pico/issues/2928 
+    #source: https://github.com/GHswitt/arduino-pico.git#uart_pio
+    source: https://github.com/earlephilhower/arduino-pico.git#5e74bbb
+
+# +--------------------------------------+
+# | Heartbeat Light                      |
+# +--------------------------------------+
+
+light:
+  # LED used to see the heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    output: rp2040_led
+    id: rp2040_light
+
+output:
+  # RP2040 LED
+  - platform: gpio
+    pin: 25
+    id: rp2040_led
+
+interval:
+  - interval: 1000ms
+    then:
+      - output.turn_on: rp2040_led
+      - delay: 500ms
+      - output.turn_off: rp2040_led
