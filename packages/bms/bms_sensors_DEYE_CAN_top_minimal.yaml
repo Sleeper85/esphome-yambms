@@ -1,5 +1,5 @@
-# Updated : 2025.04.14
-# Version : 1.1.1
+# Updated : 2025.05.05
+# Version : 1.1.2
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -107,6 +107,10 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 30s
+        - delta: 10
 
   # Maximum discharging current  
   - platform: template
@@ -116,6 +120,11 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 30s
+        - delta: 10
+    
     
   # SOC
   - platform: template
