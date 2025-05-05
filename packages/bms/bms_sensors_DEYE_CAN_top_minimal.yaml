@@ -107,6 +107,10 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 30s
+        - delta: 10
 
   # Maximum discharging current  
   - platform: template
@@ -116,6 +120,11 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 30s
+        - delta: 10
+    
     
   # SOC
   - platform: template
