@@ -1,4 +1,4 @@
-# Updated : 2025.04.14
+# Updated : 2025.05.13
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -67,8 +67,10 @@ api:
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # ESP32 name / hostname
-  name: yambms
+  # Name
+  name: '' # Name that can be added as a second prefix after the friendly name, you can leave it blank.
+  hostname: 'yambms' # This is the name of the node. It should always be unique in your ESPHome network.
+  friendly_name : 'YamBMS' # Prefix added in front of all entity names and also to classify them.
   # +--------------------------------------+
   # | YamBMS Settings                      |
   # +--------------------------------------+
@@ -135,6 +137,7 @@ packages:
   #   file: packages/board/board_ESP32-S3_AtomS3.yaml # board_ESP32-S3_AtomS3R.yaml
   #   vars:
   #     display_auto_next_page_interval: '5s'
+  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
 
   ########### >>> UNCOMMENT YOUR BOARD OPTIONS <<< ###########
 
@@ -152,12 +155,13 @@ packages:
     file: packages/board/board_options_itf_canbus_mcp2515.yaml
     vars:
       canbus_node_id: 'canbus_bms_1'
-      canbus_can_id: '4'
-      canbus_bitrate: '500kbps'
-      spi_mosi_pin: '12'
-      spi_miso_pin: '5'
-      spi_clk_pin: '18'
-      mcp2515_cs_pin: '32'
+      # If you do not want to use the default settings, uncomment the options below :
+      # canbus_can_id: '4'
+      # canbus_bitrate: '500kbps'
+      # spi_mosi_pin: '12'
+      # spi_miso_pin: '5'
+      # spi_clk_pin: '18'
+      # mcp2515_cs_pin: '32'
 
   ############################################################
 
