@@ -1,5 +1,5 @@
-# Updated : 2025.01.24
-# Version : 1.5.4
+# Updated : 2025.05.13
+# Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,7 +26,7 @@ views:
         cards:
           - graph: line
             type: sensor
-            entity: sensor.yambms_yambms_1_total_voltage_o
+            entity: sensor.yambms_yambms_1_total_voltage
             detail: 2
             layout_options:
               grid_columns: 2
@@ -40,7 +40,7 @@ views:
             name: SoC
             hours_to_show: 8
           - type: gauge
-            entity: sensor.yambms_yambms_1_current_s
+            entity: sensor.yambms_yambms_1_current
             needle: true
             severity:
               green: 0
@@ -53,7 +53,7 @@ views:
               grid_columns: 2
               grid_rows: 3
           - type: gauge
-            entity: sensor.yambms_yambms_1_power_s
+            entity: sensor.yambms_yambms_1_power
             needle: true
             severity:
               green: 0
@@ -66,16 +66,16 @@ views:
               grid_columns: 2
               grid_rows: 3
           - type: tile
-            entity: sensor.yambms_yambms_1_installed_battery_capacity_s
+            entity: sensor.yambms_yambms_1_installed_battery_capacity
             name: Installed Battery Capacity
           - type: tile
             entity: sensor.yambms_yambms_1_battery_soh
             name: Battery SoH
           - type: tile
-            entity: sensor.yambms_yambms_1_battery_capacity_s
+            entity: sensor.yambms_yambms_1_battery_capacity
             name: Battery Capacity
           - type: tile
-            entity: sensor.yambms_yambms_1_capacity_remaining_s
+            entity: sensor.yambms_yambms_1_capacity_remaining
             name: Capacity Remaining
           - type: tile
             entity: sensor.yambms_yambms_1_delta_cell_voltage

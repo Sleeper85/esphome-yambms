@@ -1,4 +1,4 @@
-# Updated : 2025.04.21
+# Updated : 2025.05.13
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -66,8 +66,10 @@ api:
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # ESP32 name / hostname
-  name: yambms
+  # Name
+  name: '' # Name that can be added as a second prefix after the friendly name, you can leave it blank.
+  hostname: 'yambms' # This is the name of the node. It should always be unique in your ESPHome network.
+  friendly_name : 'YamBMS' # Prefix added in front of all entity names and also to classify them.
   # +--------------------------------------+
   # | YamBMS Settings                      |
   # +--------------------------------------+
