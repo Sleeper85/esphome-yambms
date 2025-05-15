@@ -37,6 +37,18 @@
 
 [Dedicated topic on DIY Solar Forum](https://diysolarforum.com/threads/yambms-jk-bms-can-with-new-cut-off-charging-logic-open-source.79325/)
 
+## Contents
+
+1) [Supported devices](documents/README/Supported_devices.md)
+2) [YamBMS behavior](documents/README/YamBMS_behavior.md)
+3) [YamBMS functions](documents/README/YamBMS_functions.md)
+4) [Charging logic](documents/README/Charging_logic.md)
+5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
+6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
+7) [How to create your YamBMS YAML](documents/README/YamBMS_main_YAML_HowTo.md)
+8) [Installation procedure](documents/README/Installation_procedure.md)
+9) [Troubleshooting](documents/README/Troubleshooting.md)
+
 ## YamBMS
 
 ![Image](images/YamBMS_packaged_version.png "YamBMS packaged version")
@@ -75,18 +87,6 @@ The theoretical limit is `256` modbus server (BMS/Shunt) per `RS485 bus` but in 
 
 ![Image](images/YamBMS_HA_Dashboard.png "YamBMS HA Dashboard")
 
-## Contents
-
-1) [Supported devices](documents/README/Supported_devices.md)
-2) [YamBMS behavior](documents/README/YamBMS_behavior.md)
-3) [YamBMS functions](documents/README/YamBMS_functions.md)
-4) [Charging logic](documents/README/Charging_logic.md)
-5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
-6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
-7) [How to create your YamBMS YAML](documents/README/YamBMS_main_YAML_HowTo.md)
-8) [Installation procedure](documents/README/Installation_procedure.md)
-9) [Troubleshooting](documents/README/Troubleshooting.md)
-
 ## Try YamBMS with the DEMO firmware
 
 You can simply test the application with a `generic ESP32` without compiling and connecting anything on your ESP32.
@@ -117,8 +117,11 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Data collection
 
-If the ESP has an internet connection, the following data is sent to http://script.opentel.be/yambms.post.php
-for statistics collection:
+> [!NOTE]
+> For your information, in May 2025 there were `94` YamBMS users.
+
+If the ESP32 has an internet connection, the following data is sent to [this script](http://script.opentel.be/yambms.post.php)
+for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have access to this information for the production of statistics, the support and the update service.
 
 - ESP32 MAC address
 - YamBMS version
