@@ -6,6 +6,10 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+> [!IMPORTANT]  
+> The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
+> YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
+
 ## External component
 
 [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) by [@syssi](https://github.com/syssi)
