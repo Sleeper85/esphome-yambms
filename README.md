@@ -9,8 +9,14 @@
 
 > [!TIP]
 > Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
-> Examples of BMS imports can be found in the [configuration_examples](configuration_examples/) folder.
+> Examples of BMS and Shunt imports can be found in the [configuration_examples](configuration_examples/) folder.
 > You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
+
+> [!IMPORTANT]  
+> The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
+> YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
+> If you use YamBMS, the internal charging logic of the `JK-PB BMS` will not be used.
+> Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Schematic_and_setup_instructions.md).
 
 | ESPHome application to monitor BMS and communicate with inverters<br>supporting CAN bus protocol compatible with Pylontech, GoodWe, SMA,<br>Victron or Luxpower (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
 | :--- | --- |
