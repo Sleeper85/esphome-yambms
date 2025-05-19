@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.1.1
+# Updated : 2025.05.19
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -107,7 +107,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_soc
-    name: "${name} ${shunt_name} SoC"
+    name: "${name} ${shunt_name} State of Charge"
     register_type: read
     address: 8
     value_type: U_WORD
