@@ -1,4 +1,4 @@
-# Updated : 2025.05.13
+# Updated : 2025.05.19
 # Version : 1.5.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -2763,7 +2763,7 @@ views:
             hours_to_show: 8
           - graph: line
             type: sensor
-            entity: sensor.yambms_shunt_1_soc
+            entity: sensor.yambms_shunt_1_state_of_charge
             detail: 2
             name: SoC
             hours_to_show: 8
@@ -2801,7 +2801,7 @@ views:
                 name: Shunt 1 Current
               - entity: sensor.yambms_shunt_1_power
                 name: Shunt 1 Power
-              - entity: sensor.yambms_shunt_1_soc
+              - entity: sensor.yambms_shunt_1_state_of_charge
                 name: Shunt 1 SoC
               - entity: sensor.yambms_shunt_1_temperature
                 name: Shunt 1 Temperature
