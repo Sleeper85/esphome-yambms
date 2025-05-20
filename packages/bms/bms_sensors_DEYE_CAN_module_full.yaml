@@ -1,5 +1,5 @@
-# Updated : 2025.04.14
-# Version : 1.1.1
+# Updated : 2025.05.05
+# Version : 1.1.2
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -82,9 +82,7 @@ canbus:
       then:
         - lambda: |-
             // Process frame 
-            if(x[0] == 0) id(bms${bms_id}_operation_mode).publish_state("idle");
-            if(x[0] == 1) id(bms${bms_id}_operation_mode).publish_state("charging");
-            if(x[0] == 2) id(bms${bms_id}_operation_mode).publish_state("discharging");
+            id(bms${bms_id}_operation_mode_internal).publish_state(x[0]);
             if(x[1] == 0) id(bms${bms_id}_fault_level).publish_state("no fault");
             if(x[1] == 1) id(bms${bms_id}_fault_level).publish_state("minor fault");
             if(x[1] == 2) id(bms${bms_id}_fault_level).publish_state("serious fault");
@@ -597,11 +595,22 @@ sensor:
     filters:
       - throttle: 1s
       
+  - platform: template
+    id: "bms${bms_id}_operation_mode_internal"
+    filters:
+      - throttle: 30s
+
 text_sensor:
-  
   - platform: template
     name: "${name} ${bms_name} operation mode"
     id: "bms${bms_id}_operation_mode"
+    lambda: |-
+      switch ((int)id(bms${bms_id}_operation_mode_internal).state) {
+        default: return std::string("unknown");
+        case 0: return std::string("idle");
+        case 1: return std::string("charging");
+        case 2: return std::string("discharging");
+      }
 
   - platform: template
     name: "${name} ${bms_name} fault level"
