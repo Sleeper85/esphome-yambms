@@ -28,6 +28,7 @@ packages:
   yambms_auto_cvl: !include yambms_auto_cvl.yaml
   yambms_auto_ccl: !include yambms_auto_ccl.yaml
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
+  yambms_auto_float: !include yambms_auto_float.yaml
 
 # Execute once
 esphome:
@@ -120,6 +121,10 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: ${yambms_id}_auto_dcl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_auto_float
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -415,7 +420,7 @@ sensor:
         return (id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_inverter_offset_v).state + id(${yambms_id}_auto_cvl));
       // Float
       else if (id(${yambms_id}_charging_instruction).state == "Float")
-        return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state);
+        return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state) + id(${yambms_id}_auto_float);
       // Stop Charging
       else return (id(${yambms_id}_rebulk_voltage).state + id(${yambms_id}_inverter_offset_v).state);
 
