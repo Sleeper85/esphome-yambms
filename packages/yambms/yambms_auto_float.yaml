@@ -1,0 +1,101 @@
+# Updated : 2025.05.15
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # +--------------------------------------+
+  # | Use the settings below with caution  |
+  # +--------------------------------------+
+  # Time step
+  float_t_step: "300s"
+  
+switch:
+  - platform: template
+    name: ${name} ${yambms_name} Automatic Float Voltage
+    id: ${yambms_id}_switch_auto_float
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  - platform: template
+    name: "${name} ${yambms_name} Auto Float Voltage Step"
+    id: "${yambms_id}_auto_float_step_v"
+    step: 0.1
+    min_value: 0.1
+    max_value: 0.5
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0.1
+    unit_of_measurement: V
+    icon: mdi:sine-wave
+    optimistic: true
+    entity_category: config
+
+sensor:
+  # +--------------------------------------+
+  # | Auto Float Voltage Control           |
+  # +--------------------------------------+
+  - platform: template
+    name: ${name} ${yambms_name} Auto Float Voltage
+    id: auto_float
+    update_interval: ${float_t_step}
+    unit_of_measurement: V
+    device_class: voltage
+    internal: true
+    lambda: |-
+            // Variables
+            const double bulk_v = id(${yambms_id}_bulk_voltage).state;          // Bulk voltage
+            const double target_float_v = id(${yambms_id}_float_voltage).state; // Target float voltage
+            static double float_v = bulk_v;                                     // Current float voltage
+            
+            // Assert that bulk voltage is greater than float voltage
+            if (bulk_v <= target_float_v) {
+              ESP_LOGD("yambms", "Auto Float: Float voltage is greater than bulk voltage. Returning float voltage.");
+              id(${yambms_id}_auto_float) = 0;
+              return target_float_v;
+            }
+
+            // Check if feature is enabled
+            if (!id(${yambms_id}_switch_auto_float).state) {
+              // Return float voltage if feature is disabled
+              id(${yambms_id}_auto_float) = 0;
+              return target_float_v;
+            }
+            
+            // Detect charge status change to float
+            if (id(${yambms_id}_charge_status) != "Float") {
+              // Start with bulk voltage
+              float_v = bulk_v;
+            }
+
+            if (float_v > target_float_v) {
+              // Decrement float voltage
+              float_v -= id(${yambms_id}_auto_float_step_v).state;
+            }
+
+            if (float_v < target_float_v) {
+              float_v = target_float_v;
+            }
+
+            // Store difference for CVL calculation
+            id(${yambms_id}_auto_float) = float_v - target_float_v;
+
+            return float_v;
+    filters:    
+    - round: 1
