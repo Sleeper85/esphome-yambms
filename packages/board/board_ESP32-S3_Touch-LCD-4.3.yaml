@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-7
+# https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3
 
 substitutions:
   board_chip: "ESP32-S3"
