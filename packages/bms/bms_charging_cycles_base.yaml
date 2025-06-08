@@ -5,7 +5,7 @@ number:
     id: bms${bms_id}_charging_cycles_base
     step: 1
     min_value: 0
-    max_value: 65535
+    max_value: 200
     restore_value: true
     mode: "${yambms_input_number_mode}"
     initial_value: 0
@@ -25,7 +25,11 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
-      return id(bms${bms_id}_charging_cycles_raw).state + id(bms${bms_id}_charging_cycles_base).state;
+      float raw = id(bms${bms_id}_charging_cycles_raw).state;
+      if (isnan(raw)) {
+        raw = 0;
+      }
+      return raw + id(bms${bms_id}_charging_cycles_base).state;
 
   - platform: template
     name: "${name} ${bms_name} total charging cycle capacity"
@@ -37,6 +41,18 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
-      return id(bms${bms_id}_cycle_capacity_raw).state +
+      float raw_capacity = id(bms${bms_id}_cycle_capacity_raw).state;
+      if (isnan(raw_capacity)) {
+        float cycles_raw = id(bms${bms_id}_charging_cycles_raw).state;
+        if (isnan(cycles_raw)) {
+          cycles_raw = 0;
+        }
+        float cycles_total = cycles_raw + id(bms${bms_id}_charging_cycles_base).state;
+        if (isnan(id(bms${bms_id}_battery_capacity).state)) {
+          return NAN;
+        }
+        return cycles_total * id(bms${bms_id}_battery_capacity).state;
+      }
+      return raw_capacity +
              id(bms${bms_id}_charging_cycles_base).state *
              id(bms${bms_id}_battery_capacity).state;
