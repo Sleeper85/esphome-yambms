@@ -124,6 +124,8 @@ sensor:
       id: bms${bms_id}_capacity_remaining_ah
       name: "${name} ${bms_name} capacity remaining"
     battery_cycle_capacity:
+      id: bms${bms_id}_cycle_capacity_raw
+      internal: true
       name: "${name} ${bms_name} battery cycle capacity"
     total_voltage:
       id: bms${bms_id}_total_voltage

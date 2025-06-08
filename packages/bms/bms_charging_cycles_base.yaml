@@ -26,3 +26,17 @@ sensor:
         - delta: 1
     lambda: |-
       return id(bms${bms_id}_charging_cycles_raw).state + id(bms${bms_id}_charging_cycles_base).state;
+
+  - platform: template
+    name: "${name} ${bms_name} total charging cycle capacity"
+    id: bms${bms_id}_cycle_capacity
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      return id(bms${bms_id}_cycle_capacity_raw).state +
+             id(bms${bms_id}_charging_cycles_base).state *
+             id(bms${bms_id}_battery_capacity).state;

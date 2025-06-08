@@ -291,6 +291,8 @@ sensor:
       internal: true
       name: "${name} ${bms_name} charging cycles"
     total_charging_cycle_capacity:
+      id: bms${bms_id}_cycle_capacity_raw
+      internal: true
       name: "${name} ${bms_name} total charging cycle capacity"
     total_runtime:
       name: "${name} ${bms_name} total runtime"
