@@ -43,7 +43,7 @@ button:
     entity_category: config
 
 binary_sensor:
-  # https://esphome.io/components/binary_sensor/status  
+  # https://esphome.io/components/binary_sensor/status
   - platform: status
     name: ${name} ESP32 Online Status
     id: esp32_online_status

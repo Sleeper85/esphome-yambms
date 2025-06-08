@@ -22,7 +22,7 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
-          
+
 # +-----------------------------------------------+
 # | DEYE CAN PCS frames                           |
 # | Thanks to:                                    |
@@ -43,7 +43,7 @@ canbus:
             id(deye${deye_id}_max_discharge_current).publish_state(i_discharge);
             float u_min = ((x[7] << 8) | x[6]) / 10.0;
             id(deye${deye_id}_battery_discharge_voltage).publish_state(u_min);
-            
+
             if (!id(deye${deye_id}_send_flag)) {
               std::vector<uint8_t> data{0x01};
               id(${canbus_id})->send_data(0x18A2FF80, true, data);
@@ -61,41 +61,41 @@ canbus:
 
     - can_id: 0x359
       then:
-        - lambda: |- 
+        - lambda: |-
             id(deye${deye_id}_cell_under_temperature_charge).publish_state(x[0] & 0x80);
             id(deye${deye_id}_cell_over_temperature_charge).publish_state(x[0] & 0x40);
-            id(deye${deye_id}_discharge_over_current).publish_state(x[0] & 0x20); 
+            id(deye${deye_id}_discharge_over_current).publish_state(x[0] & 0x20);
             id(deye${deye_id}_charge_over_current).publish_state(x[0] & 0x10);
             id(deye${deye_id}_module_under_voltage).publish_state(x[0] & 0x8);
             id(deye${deye_id}_module_over_voltage).publish_state(x[0] & 0x4);
             id(deye${deye_id}_cell_under_voltage).publish_state(x[0] & 0x2);
             id(deye${deye_id}_cell_over_voltage).publish_state(x[0] & 0x1);
-            
+
             id(deye${deye_id}_heating_film_over_temperature).publish_state(x[1] & 0x20);
             id(deye${deye_id}_mos_over_temperature).publish_state(x[1] & 0x10);
             id(deye${deye_id}_cell_temperature_over_difference).publish_state(x[1] & 0x8);
             id(deye${deye_id}_cell_voltage_over_difference).publish_state(x[1] & 0x4);
             id(deye${deye_id}_cell_under_temperature_discharge).publish_state(x[1] & 0x2);
             id(deye${deye_id}_cell_over_temperature_discharge).publish_state(x[1] & 0x1);
-            
+
             id(deye${deye_id}_master_address_repeat).publish_state(x[3] & 0x80);
             id(deye${deye_id}_pcs_communication_fail).publish_state(x[3] & 0x40);
             id(deye${deye_id}_internal_communication_fail).publish_state(x[3] & 0x20);
             id(deye${deye_id}_eeprom_error).publish_state(x[3] & 0x10);
             id(deye${deye_id}_mosfet_short_circuit).publish_state(x[3] & 0x8);
             id(deye${deye_id}_temperature_sampling_fail).publish_state(x[3] & 0x4);
-            id(deye${deye_id}_cell_voltage_sampling_fail).publish_state(x[3] & 0x2); 
+            id(deye${deye_id}_cell_voltage_sampling_fail).publish_state(x[3] & 0x2);
             id(deye${deye_id}_afe_communication_fail).publish_state(x[3] & 0x1);
-            
+
             id(deye${deye_id}_cell_low_temperature_charge).publish_state(x[4] & 0x80);
             id(deye${deye_id}_cell_high_temperature_charge).publish_state(x[4] & 0x40);
-            id(deye${deye_id}_discharge_high_current).publish_state(x[4] & 0x20); 
+            id(deye${deye_id}_discharge_high_current).publish_state(x[4] & 0x20);
             id(deye${deye_id}_charge_high_current).publish_state(x[4] & 0x10);
             id(deye${deye_id}_module_low_voltage).publish_state(x[4] & 0x8);
             id(deye${deye_id}_module_high_voltage).publish_state(x[4] & 0x4);
             id(deye${deye_id}_cell_low_voltage).publish_state(x[4] & 0x2);
             id(deye${deye_id}_cell_high_voltage).publish_state(x[4] & 0x1);
-            
+
             id(deye${deye_id}_heat_error).publish_state(x[5] & 0x80);
             id(deye${deye_id}_heat_mos_adhession).publish_state(x[5] & 0x40);
             id(deye${deye_id}_heating_film_high_temperature).publish_state(x[5] & 0x20);
@@ -104,7 +104,7 @@ canbus:
             id(deye${deye_id}_cell_voltage_high_difference).publish_state(x[5] & 0x4);
             id(deye${deye_id}_cell_low_temperature_discharge).publish_state(x[5] & 0x2);
             id(deye${deye_id}_cell_high_temperature_discharge).publish_state(x[5] & 0x1);
-            
+
             uint64_t combined = x[0] | x[1] << 8 | x[3] << 16 | x[4] << 24 | (uint64_t)x[5] << 32;
             id(deye${deye_id}_bms_errors_bitmask).publish_state(combined);
 
@@ -121,7 +121,7 @@ canbus:
             if(x[5] == 5) id(deye${deye_id}_cell_manufacturer).publish_state("EVE 120Ah");
             if(x[5] == 6) id(deye${deye_id}_cell_manufacturer).publish_state("PH 100Ah(214R)");
             if(x[5] == 7) id(deye${deye_id}_cell_manufacturer).publish_state("ZENERGY 104Ah");
-            //ESP_LOGI("canid 0x35E:", "%02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]); 
+            //ESP_LOGI("canid 0x35E:", "%02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]);
 
     - can_id: 0x35C
       then:
@@ -132,7 +132,7 @@ canbus:
             id(deye${deye_id}_request_force_charge_1).publish_state(x[0] & 0x20);
             id(deye${deye_id}_request_force_charge_2).publish_state(x[0] & 0x10);
             id(deye${deye_id}_request_full_charge).publish_state(x[0] & 0x08);
-#            ESP_LOGI("canid 0x35C:", "%02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]); 
+#            ESP_LOGI("canid 0x35C:", "%02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]);
 
     - can_id: 0x356
       then:
@@ -177,7 +177,7 @@ canbus:
             id(deye${deye_id}_battery_array_discharge_current_limit).publish_state(i_discharge);
 
 binary_sensor:
-  # Force charge 1  
+  # Force charge 1
   - platform: template
     name: "${name} ${deye_name} Request force charge 1"
     id: deye${deye_id}_request_force_charge_1
@@ -195,7 +195,7 @@ binary_sensor:
   # Alarm/warning battery
   - platform: template
     id: "deye${deye_id}_charge_over_current"
-    name: "${name} ${deye_name} alarm charge overcurrent"  
+    name: "${name} ${deye_name} alarm charge overcurrent"
   - platform: template
     id: "deye${deye_id}_discharge_over_current"
     name: "${name} ${deye_name} alarm discharge overcurrent"
@@ -215,11 +215,11 @@ binary_sensor:
     id: "deye${deye_id}_module_high_voltage"
   - platform: template
     id: "deye${deye_id}_module_over_voltage"
-    name: "${name} ${deye_name} alarm module overvoltage"   
+    name: "${name} ${deye_name} alarm module overvoltage"
   - platform: template
     id: "deye${deye_id}_module_under_voltage"
     name: "${name} ${deye_name} alarm module undervoltage"
-  
+
   # Alarm/warning cells
   - platform: template
     name: "${name} ${deye_name} cell low voltage"
@@ -242,12 +242,12 @@ binary_sensor:
   - platform: template
     name: "${name} ${deye_name} cell voltage high difference"
     id: "deye${deye_id}_cell_voltage_high_difference"
-    
+
   # Temperature general
   - platform: template
     id: "deye${deye_id}_temperature_sampling_fail"
     name: "${name} ${deye_name} alarm temperature sampling fail"
-  
+
   # Temperature MOSFET
   - platform: template
     name: "${name} ${deye_name} Mosfet high temperature"
@@ -255,7 +255,7 @@ binary_sensor:
   - platform: template
     id: "deye${deye_id}_mos_over_temperature"
     name: "${name} ${deye_name} alarm MOSFET over temperature"
-  
+
   # Temperature cells
   - platform: template
     name: "${name} ${deye_name} cell low temperature charge"
@@ -286,8 +286,8 @@ binary_sensor:
     id: "deye${deye_id}_cell_temperature_high_difference"
   - platform: template
     name: "${name} ${deye_name} alarm cell temperature over difference"
-    id: "deye${deye_id}_cell_temperature_over_difference" 
-    
+    id: "deye${deye_id}_cell_temperature_over_difference"
+
   # Heating film
   - platform: template
     name: "${name} ${deye_name} alarm heating film overtemperature"
@@ -301,7 +301,7 @@ binary_sensor:
   - platform: template
     name: "${name} ${deye_name} heating film high temperature"
     id: "deye${deye_id}_heating_film_high_temperature"
-  
+
   # Misc
   - platform: template
     name: "${name} ${deye_name} master address_repeat"
@@ -321,13 +321,13 @@ binary_sensor:
 
   - platform: template
     name: "${name} ${deye_name} Mosfet short circuit"
-    id: "deye${deye_id}_mosfet_short_circuit"            
-  
+    id: "deye${deye_id}_mosfet_short_circuit"
+
   - platform: template
     name: "${name} ${deye_name} AFE communication fail"
     id: "deye${deye_id}_afe_communication_fail"
-    
-sensor:   
+
+sensor:
   # Charge voltage
   - platform: template
     name: "${name} ${deye_name} charge voltage"
@@ -335,8 +335,8 @@ sensor:
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
-    accuracy_decimals: 2    
-    
+    accuracy_decimals: 2
+
   # Discharge voltage
   - platform: template
     name: "${name} ${deye_name} discharge voltage"
@@ -344,8 +344,8 @@ sensor:
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
-    accuracy_decimals: 2   
-  
+    accuracy_decimals: 2
+
   # Maximum charging current
   - platform: template
     id: deye${deye_id}_max_charge_current
@@ -359,7 +359,7 @@ sensor:
         - throttle: 30s
         - delta: 10
 
-  # Maximum discharging current  
+  # Maximum discharging current
   - platform: template
     id: deye${deye_id}_max_discharge_current
     name: "${name} ${deye_name} max discharging current"
@@ -371,8 +371,8 @@ sensor:
       - or:
         - throttle: 30s
         - delta: 10
-    
-    
+
+
   # SOC
   - platform: template
     unit_of_measurement: '%'
@@ -390,14 +390,14 @@ sensor:
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 0
-    
+
   # Errors bitmask
   - platform: template
     id: deye${deye_id}_bms_errors_bitmask
     name: "${name} ${deye_name} BMS Errors Bitmask"
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline
- 
+
   # Total battery voltage
   - platform: template
     unit_of_measurement: 'V'
@@ -406,7 +406,7 @@ sensor:
     accuracy_decimals: 2
     id: deye${deye_id}_total_voltage
     name: "${name} ${deye_name} battery voltage"
-    
+
   # Battery current
   - platform: template
     unit_of_measurement: 'A'
@@ -415,7 +415,7 @@ sensor:
     accuracy_decimals: 2
     id: deye${deye_id}_current
     name: "${name} ${deye_name} battery current"
-      
+
   # Battery temperature
   - platform: template
     unit_of_measurement: '°C'
@@ -424,7 +424,7 @@ sensor:
     accuracy_decimals: 1
     id: deye${deye_id}_temperature_sensor_1
     name: "${name} ${deye_name} temperature"
-  
+
   # Array charge current limit
   - platform: template
     name: "${name} ${deye_name} battery array charge current limit"
@@ -450,8 +450,8 @@ sensor:
       - or:
         - throttle: 30s
         - delta: 10
-    
-  # Min. cell voltage  
+
+  # Min. cell voltage
   - platform: template
     unit_of_measurement: 'V'
     device_class: 'voltage'
@@ -459,7 +459,7 @@ sensor:
     accuracy_decimals: 3
     id: deye${deye_id}_min_cell_voltage
     name: "${name} ${deye_name} cell voltage min"
-    
+
   # Max. cell voltage
   - platform: template
     unit_of_measurement: 'V'
@@ -478,7 +478,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
 
-  # Max. temperature    
+  # Max. temperature
   - platform: template
     id: deye${deye_id}_max_temperature
     name: "${name} ${deye_name} max temperature"
@@ -486,7 +486,7 @@ sensor:
     accuracy_decimals: 1
     unit_of_measurement: °C
     device_class: temperature
-  
+
   # Modules in normal state
   - platform: template
     name: "${name} ${deye_name} Module amount normal state"
@@ -521,8 +521,8 @@ sensor:
     id: deye${deye_id}_module_amount
     state_class: 'measurement'
     accuracy_decimals: 0
-    
-  # Battery capacity  
+
+  # Battery capacity
   - platform: template
     name: "${name} ${deye_name} battery capacity"
     id: deye${deye_id}_battery_capacity

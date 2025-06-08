@@ -111,7 +111,7 @@ i2c:
     sda: 45
     scl: 0
     scan: true
-    
+
 lp5562:
   - i2c_id: atom_i2c_bus
 

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-  
+
   # +-----------------------------------------------+
   # | DEYE CAN PCS module frames                    |
   # | Thanks to:                                    |
@@ -34,7 +34,7 @@ canbus:
             id(bms${bms_id}_discharge_mos_state).publish_state(x[7] & 0x20);
             id(bms${bms_id}_charge_mos_state).publish_state(x[7] & 0x10);
 
-    - can_id: 0x15${deye_module_id} 
+    - can_id: 0x15${deye_module_id}
       then:
         - lambda: |-
             float voltage = ((x[1] << 8) | x[0]) / 10.0;
@@ -59,9 +59,9 @@ canbus:
             id(bms${bms_id}_max_temperature).publish_state(temp_max);
             float temp_min = ((x[7] << 8) | x[6]) / 10.0;
             id(bms${bms_id}_min_temperature).publish_state(temp_min);
-          #  ESP_LOGI("canid 0x200:", "U cell max: %.3f V, U cell min %.3f V, Temp max: %.1f, T_min %.1f V", cell_u_max, cell_u_min, temp_max, temp_min );     
+          #  ESP_LOGI("canid 0x200:", "U cell max: %.3f V, U cell min %.3f V, Temp max: %.1f, T_min %.1f V", cell_u_max, cell_u_min, temp_max, temp_min );
 
-    - can_id: 0x25${deye_module_id} 
+    - can_id: 0x25${deye_module_id}
       then:
         - lambda: |-
             int val3 = ((x[5] << 8) | x[4]);
@@ -72,7 +72,7 @@ canbus:
     - can_id: 0x40${deye_module_id}
       then:
         - lambda: |-
-            // Process frame 
+            // Process frame
             if(x[1] == 0) id(bms${bms_id}_fault_level).publish_state("no fault");
             if(x[1] == 1) id(bms${bms_id}_fault_level).publish_state("minor fault");
             if(x[1] == 2) id(bms${bms_id}_fault_level).publish_state("serious fault");
@@ -88,7 +88,7 @@ canbus:
             id(bms${bms_id}_charged).publish_state(charged);
             float discharged = ((x[7] << 24) | (x[6] << 16) | (x[5] << 8) | x[4]) / 1000.0;
             id(bms${bms_id}_discharged).publish_state(discharged);
-            
+
 binary_sensor:
   # Online status: TODO
   - platform: template
@@ -106,14 +106,14 @@ binary_sensor:
     name: "${name} ${bms_name} status balancing"
     filters:
       - delayed_off: 300s
-      
+
   # Charging allowed
   - platform: template
     id: bms${bms_id}_charging_allowed
     name: "${name} ${bms_name} charging allowed"
     lambda: |-
       return id(bms${bms_id}_charge_mos_state).state && !id(bms${bms_id}_fault).state;
-    
+
   # Discharging allowed
   - platform: template
     id: bms${bms_id}_discharging_allowed
@@ -124,11 +124,11 @@ binary_sensor:
   # Fault
   - platform: template
     name: "${name} ${bms_name} fault"
-    id: "bms${bms_id}_fault" 
-    
+    id: "bms${bms_id}_fault"
+
   - platform: template
     name: "${name} ${bms_name} precharge mos state"
-    id: "bms${bms_id}_precharge_mos_state"   
+    id: "bms${bms_id}_precharge_mos_state"
 
   - platform: template
     name: "${name} ${bms_name} discharge mos state"
@@ -160,7 +160,7 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 1
-  
+
   # Battery power (calculated)
   - platform: template
     id: bms${bms_id}_power
@@ -171,7 +171,7 @@ sensor:
     accuracy_decimals: 0
     lambda: |-
       return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
-  
+
   # Charging power: Calculated from voltage and current
   - platform: template
     name: "${name} ${bms_name} battery power charging"
@@ -183,8 +183,8 @@ sensor:
     lambda: |-
       if (id(bms${bms_id}_current).state > 0) return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
       else return 0;
-  
-  # Discharging power: Calculated from voltage and current  
+
+  # Discharging power: Calculated from voltage and current
   - platform: template
     name: "${name} ${bms_name} battery power discharging"
     id: bms${bms_id}_discharging_power
@@ -195,7 +195,7 @@ sensor:
     lambda: |-
       if (id(bms${bms_id}_current).state < 0) return id(bms${bms_id}_total_voltage).state * -id(bms${bms_id}_current).state;
       else return 0;
-  
+
   # SoC
   - platform: template
     name: "${name} ${bms_name} SoC"
@@ -204,8 +204,8 @@ sensor:
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 1
-    
-  # Battery capacity  
+
+  # Battery capacity
   - platform: template
     name: "${name} ${bms_name} battery capacity"
     id: bms${bms_id}_battery_capacity
@@ -217,7 +217,7 @@ sensor:
       uint8_t module_count = id(deye${deye_id}_module_amount).state;
       if (module_count < 1) module_count = 1;
       return id(deye${deye_id}_battery_capacity).state / module_count;
-    
+
   # Remaining capacity: Calculated from capacity and SoC
   - platform: template
     unit_of_measurement: 'Ah'
@@ -232,7 +232,7 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-      
+
   # Charging cycles
   - platform: template
     name: "${name} ${bms_name} cycles"
@@ -243,7 +243,7 @@ sensor:
       - or:
         - throttle: 600s
         - delta: 1
-   
+
   # Max. charge current
   - platform: template
     name: "${name} ${bms_name} max charge current"
@@ -253,7 +253,7 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
 
-  # Max. discharge current  
+  # Max. discharge current
   - platform: template
     name: "${name} ${bms_name} max discharge current"
     id: "bms${bms_id}_max_discharge_current"
@@ -261,7 +261,7 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
-    
+
   # Max. cell voltage
   - platform: template
     name: "${name} ${bms_name} max cell voltage"
@@ -269,7 +269,7 @@ sensor:
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
-    accuracy_decimals: 3    
+    accuracy_decimals: 3
 
   # Max. voltage cell: Only with InterCAN enabled
   - platform: template
@@ -279,7 +279,7 @@ sensor:
     name: "${name} ${bms_name} cell voltage max cell number"
     filters:
       - lambda: return 0;
-  
+
   # Min. cell voltage
   - platform: template
     name: "${name} ${bms_name} min cell voltage"
@@ -290,7 +290,7 @@ sensor:
     accuracy_decimals: 3
     on_value:
       then:
-        - component.update: bms${bms_id}_imbalance 
+        - component.update: bms${bms_id}_imbalance
 
   # Min. voltage cell: Only with InterCAN enabled
   - platform: template
@@ -300,7 +300,7 @@ sensor:
     name: "${name} ${bms_name} cell voltage min cell number"
     filters:
       - lambda: return 0;
-      
+
   # Min. temperature
   - platform: template
     name: "${name} ${bms_name} temp min"
@@ -309,7 +309,7 @@ sensor:
     device_class: 'temperature'
     state_class: 'measurement'
     accuracy_decimals: 1
-    
+
   # MIN temperature sensor (fixed)
   - platform: template
     id: bms${bms_id}_min_temperature_sensor
@@ -319,7 +319,7 @@ sensor:
     icon: mdi:numeric
     lambda: |-
       return (1 + ${bms_id} * 100 + ${deye_module_id}1);
-  
+
   # Max. temperature
   - platform: template
     name: "${name} ${bms_name} temp max"
@@ -328,7 +328,7 @@ sensor:
     device_class: 'temperature'
     state_class: 'measurement'
     accuracy_decimals: 1
-    
+
   # MAX temperature sensor (fixed)
   - platform: template
     id: bms${bms_id}_max_temperature_sensor
@@ -338,32 +338,32 @@ sensor:
     icon: mdi:numeric
     lambda: |-
       return (1 + ${bms_id} * 100 + ${deye_module_id}1);
-  
+
   # Cell OVP: Unsupported
   - platform: template
     unit_of_measurement: 'V'
     state_class: 'measurement'
-    accuracy_decimals: 2  
+    accuracy_decimals: 2
     id: bms${bms_id}_cell_ovp
     name: "${name} ${bms_name} cell overvoltage protection"
     lambda: |-
       return 3.7;
-  
+
   # Cell UVP: Unsupported
   - platform: template
     unit_of_measurement: 'V'
     state_class: 'measurement'
-    accuracy_decimals: 2  
+    accuracy_decimals: 2
     id: bms${bms_id}_cell_uvp
     name: "${name} ${bms_name} cell undervoltage protection"
     lambda: |-
       return 2.8;
-      
+
   # Cell balance trigger voltage: Unsupported
   - platform: template
     unit_of_measurement: 'V'
     state_class: 'measurement'
-    accuracy_decimals: 2  
+    accuracy_decimals: 2
     id: bms${bms_id}_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
     lambda: |-
@@ -384,7 +384,7 @@ sensor:
     unit_of_measurement: 'mV'
     device_class: 'voltage'
     state_class: 'measurement'
-    accuracy_decimals: 0 
+    accuracy_decimals: 0
     lambda: |-
       return ((id(bms${bms_id}_max_cell_voltage).state - id(bms${bms_id}_min_cell_voltage).state)) * 1000;
 
@@ -396,7 +396,7 @@ sensor:
     state_class: 'total_increasing'
     accuracy_decimals: 3
     filters:
-      - throttle: 1s  
+      - throttle: 1s
 
   - platform: template
     name: "${name} ${bms_name} discharged"
@@ -407,9 +407,9 @@ sensor:
     accuracy_decimals: 3
     filters:
       - throttle: 1s
-      
+
 text_sensor:
   - platform: template
     name: "${name} ${bms_name} fault level"
-    id: "bms${bms_id}_fault_level" 
+    id: "bms${bms_id}_fault_level"
 
