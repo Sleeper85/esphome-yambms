@@ -23,6 +23,7 @@ substitutions:
 
 packages:
   bms_combine: !include bms_combine.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -179,7 +180,8 @@ sensor:
   # charging_cycles
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_charging_cycles
+    id: bms${bms_id}_charging_cycles_raw
+    internal: true
     name: "${name} ${bms_name} charging cycles"
     register_type: read
     address: 14

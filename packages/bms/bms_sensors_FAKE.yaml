@@ -19,6 +19,7 @@
 
 packages:
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
 
 sensor:
   # battery_capacity
@@ -301,7 +302,8 @@ sensor:
 
   # charging_cycles
   - platform: template
-    id: bms${bms_id}_charging_cycles
+    id: bms${bms_id}_charging_cycles_raw
+    internal: true
     name: "${name} ${bms_name} charging cycles"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0

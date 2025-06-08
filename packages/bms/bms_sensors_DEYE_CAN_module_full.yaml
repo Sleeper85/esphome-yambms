@@ -16,6 +16,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+packages:
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
 
 
   # +-----------------------------------------------+
@@ -88,7 +90,7 @@ canbus:
             if(x[1] == 2) id(bms${bms_id}_fault_level).publish_state("serious fault");
             id(bms${bms_id}_fault).publish_state(x[1] & 3);
             float cycles = ((x[3] << 8) | x[2]);
-            id(bms${bms_id}_charging_cycles).publish_state(cycles);
+            id(bms${bms_id}_charging_cycles_raw).publish_state(cycles);
             // Set cell balancing states based on x[4] and x[5]
             //for (int i = 1; i <= 8; i++) {
             //  std::to_string(high_position).c_str()
@@ -361,7 +363,8 @@ sensor:
   # Charging cycles
   - platform: template
     name: "${name} ${bms_name} cycles"
-    id: "bms${bms_id}_charging_cycles"
+    id: "bms${bms_id}_charging_cycles_raw"
+    internal: true
     state_class: 'measurement'
     accuracy_decimals: 0
     filters:
