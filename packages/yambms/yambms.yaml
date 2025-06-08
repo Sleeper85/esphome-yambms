@@ -40,7 +40,7 @@ esphome:
           if (${yambms_battery_chemistry} == 1) // LFP
           {
             // LFP
-            id(${yambms_id}_cell_mominal_v) = 3.20;
+            id(${yambms_id}_cell_nominal_v) = 3.20;
             id(${yambms_id}_cell_min_charge_v) = 3.37; // Fully charged at rest
             id(${yambms_id}_cell_max_charge_v) = 3.65;
             id(${yambms_id}_cell_max_discharge_v) = 3.00; // Not used
@@ -48,7 +48,7 @@ esphome:
           else if (${yambms_battery_chemistry} == 2) // Li-ion
           {
             // Li-ion
-            id(${yambms_id}_cell_mominal_v) = 3.60;
+            id(${yambms_id}_cell_nominal_v) = 3.60;
             id(${yambms_id}_cell_min_charge_v) = 3.90;
             id(${yambms_id}_cell_max_charge_v) = 4.20;
             id(${yambms_id}_cell_max_discharge_v) = 3.20; // Not used
@@ -56,7 +56,7 @@ esphome:
           else if (${yambms_battery_chemistry} == 3) // LTO
           {
             // LTO
-            id(${yambms_id}_cell_mominal_v) = 2.40;
+            id(${yambms_id}_cell_nominal_v) = 2.40;
             id(${yambms_id}_cell_min_charge_v) = 2.55; // Fully charged at rest
             id(${yambms_id}_cell_max_charge_v) = 2.85;
             id(${yambms_id}_cell_max_discharge_v) = 2.00; // Not used
@@ -69,7 +69,7 @@ esphome:
           id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) - 0.1) * 10) / 10);
           id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) + 0.1) * 10) / 10);
           // Rebulk V.
-          id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_cell_mominal_v) * 10) / 10);
+          id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_cell_nominal_v) * 10) / 10);
           id(${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_cell_min_charge_v) * 10) / 10);
 
 globals:
@@ -95,7 +95,7 @@ globals:
   - id: ${yambms_id}_canbus_protocol
     type: std::string
     restore_value: no
-  - id: ${yambms_id}_cell_mominal_v
+  - id: ${yambms_id}_cell_nominal_v
     type: float
     restore_value: no
     initial_value: '0.0'
