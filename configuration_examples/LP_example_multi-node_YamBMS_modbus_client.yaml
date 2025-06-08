@@ -66,7 +66,7 @@ packages:
   #   vars:
   #     bms_id: '4' # must be a number
   #     bms_name: 'BMS 4'
-  
+
   # bms5: !include
   #   file: packages/bms/bms_combine_modbus_client.yaml
   #   vars:

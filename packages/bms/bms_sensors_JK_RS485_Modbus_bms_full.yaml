@@ -339,9 +339,9 @@ sensor:
       name: "${name} ${bms_name} powertube temperature protection"
     powertube_temperature_protection_recovery:
       name: "${name} ${bms_name} powertube temperature protection recovery"
-    battery_total_alarms_count:     
+    battery_total_alarms_count:
       name: "${name} ${bms_name} battery total alarms count"
-    battery_total_alarms_active:     
+    battery_total_alarms_active:
       name: "${name} ${bms_name} battery total alarms active"
     emergency_time_countdown:
       name: "${name} ${bms_name} emergency time countdown"
@@ -352,17 +352,17 @@ sensor:
     battery_soh_valuation:
       id: bms${bms_id}_battery_soh
       name: "${name} ${bms_name} battery soh valuation"
-    discharging_overcurrent_protection_release_time:    
+    discharging_overcurrent_protection_release_time:
       name: "${name} ${bms_name} discharging overcurrent protection release time"
-    discharging_short_circuit_protection_release_time:    
+    discharging_short_circuit_protection_release_time:
       name: "${name} ${bms_name} discharging short circuit protection release time"
-    charging_overcurrent_protection_release_time:    
+    charging_overcurrent_protection_release_time:
       name: "${name} ${bms_name} charging overcurrent protection release time"
-    charging_short_circuit_protection_release_time:    
+    charging_short_circuit_protection_release_time:
       name: "${name} ${bms_name} charging short circuit protection release time"
-    cell_undervoltage_protection_release_time:    
+    cell_undervoltage_protection_release_time:
       name: "${name} ${bms_name} cell undervoltage protection release time"
-    cell_overvoltage_protection_release_time:    
+    cell_overvoltage_protection_release_time:
       name: "${name} ${bms_name} cell overvoltage protection release time"
 
 text_sensor:
@@ -391,7 +391,7 @@ text_sensor:
     info_device_serial_number:
       name: "${name} ${bms_name} info device serial number"
     info_device_setup_passcode:
-      name: "${name} ${bms_name} info device setup passcode"         
+      name: "${name} ${bms_name} info device setup passcode"
 
 number:
   - platform: jk_rs485_bms
@@ -433,7 +433,7 @@ number:
       name: "${name} ${bms_name} cell power off voltage"
     cell_count_settings:
       id: bms${bms_id}_cell_count
-      name: "${name} ${bms_name} cell count settings"    
+      name: "${name} ${bms_name} cell count settings"
     battery_capacity_total_settings:
       id: bms${bms_id}_battery_capacity
       name: "${name} ${bms_name} battery capacity total setting"
@@ -468,7 +468,7 @@ number:
     charging_lowtemperature_protection:
       name: "${name} ${bms_name} charging lowtemperature protection"
     charging_lowtemperature_protection_recovery:
-      name: "${name} ${bms_name} charging lowtemperature protection recovery"      
+      name: "${name} ${bms_name} charging lowtemperature protection recovery"
     mos_overtemperature_protection:
       name: "${name} ${bms_name} mos overtemperature protection"
     mos_overtemperature_protection_recovery:

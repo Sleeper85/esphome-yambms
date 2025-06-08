@@ -28,7 +28,7 @@ ota:
     then:
       - switch.turn_off: bms${bms_id}_enable_bluetooth_connection
       - logger.log: "BLE shutdown for flashing"
-  
+
 # +--------------------------------------+
 # | Component settings                   |
 # +--------------------------------------+

@@ -33,7 +33,7 @@ ota:
     then:
       - switch.turn_off: bms${bms_id}_enable_bluetooth_connection
       - logger.log: "BLE shutdown for flashing"
-  
+
 # +--------------------------------------+
 # | Component settings                   |
 # +--------------------------------------+
@@ -321,7 +321,7 @@ sensor:
       name: "${name} ${bms_name} heating current"
     # Commits 2024.07.07 : Improve the support of the JK-PBs series (ALL)
     balancing:
-      name: "${name} ${bms_name} balancing"   
+      name: "${name} ${bms_name} balancing"
 
 text_sensor:
   - platform: jk_bms_ble

@@ -40,7 +40,7 @@ logger:
 
 ota:
   platform: esphome
-  
+
 # Please use the native `api` component instead of the `mqtt` section.
 # If you use Home Assistant, the native API is more lightweight.
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
@@ -112,14 +112,14 @@ substitutions:
   # +--------------------------------------+
   # | WK2168 UART expander                 |
   # +--------------------------------------+
-  uart0_baudrate: '2400'    #WKS         {RJ45-UART0} 
+  uart0_baudrate: '2400'    #WKS         {RJ45-UART0}
   uart1_baudrate: '38400'   #JSY193
   uart2_baudrate: '19200'   #SmartShunt
-  uart3_baudrate: '9600'    #SRNE        {RJ45-UART3} 
+  uart3_baudrate: '9600'    #SRNE        {RJ45-UART3}
   uart4_baudrate: '115200'  #JK-BMS 1
   uart5_baudrate: '115200'  #JK-BMS 2
   uart6_baudrate: '115200'  #Pylontech
-  uart7_baudrate: '9600'    #EPEVER      {RJ45-UART7} 
+  uart7_baudrate: '9600'    #EPEVER      {RJ45-UART7}
 
 # +--------------------------------------+
 # | PVbrain2 packages                    |
