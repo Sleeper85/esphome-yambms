@@ -417,7 +417,7 @@ views:
                   states('number.yambms_jk_bms_1_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_1_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_1_cell_average_voltage') }}
@@ -763,7 +763,7 @@ views:
                   states('number.yambms_jk_bms_2_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_2_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_2_cell_average_voltage') }}
@@ -1109,7 +1109,7 @@ views:
                   states('number.yambms_jk_bms_3_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_3_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_3_cell_average_voltage') }}
