@@ -137,7 +137,7 @@ packages:
   # device_board: !include packages/board/board_ESP32_Atom-Lite.yaml
   # device_board: !include packages/board/board_ESP32-C3_DevKitM-1.yaml
   # device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
-  device_board: !include packages/board/board_YamBoard_Deye_JK.yaml
+  device_board: !include packages/board/board_ESP32-S3_YBoard_DJK.yaml
   # device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml
   # device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
   # device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
