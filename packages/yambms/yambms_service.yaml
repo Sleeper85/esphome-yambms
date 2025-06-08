@@ -67,7 +67,7 @@ interval:
         
         - http_request.post:
             url: http://script.opentel.be/yambms.post.php
-            headers:
+            request_headers:
               Content-Type: application/json
             json: |-
               root["mac"] = id(esp32_mac_address).state;

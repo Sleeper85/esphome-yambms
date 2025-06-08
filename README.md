@@ -13,9 +13,7 @@
 > You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
 
 > [!IMPORTANT]  
-> The current code for `YamBMS` and other components needs to be fixed to work with `esphome 2025.5.0`.
-> This will be done as soon as I have more time to devote to it. In the meantime, you should compile with `esphome 2025.4.2` or lower.
-
+> This project is now compatible with `esphome 2025.5.0` or later.
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
