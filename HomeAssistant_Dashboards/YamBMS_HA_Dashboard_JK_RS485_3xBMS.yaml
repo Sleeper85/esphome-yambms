@@ -320,6 +320,13 @@ views:
           - entity: sensor.yambms_debug_reset_reason
             name: Debug Reset reason
         title: YamBMS - DEBUG
+      - type: entities
+        entities:
+          - entity: number.yambms_jk_bms_1_charging_cycles_base
+            name: BMS 1
+          - entity: number.yambms_jk_bms_2_charging_cycles_base
+            name: BMS 2
+        title: YamBMS - BMS Cycle Offset
   - title: BMS
     type: sections
     max_columns: 3
