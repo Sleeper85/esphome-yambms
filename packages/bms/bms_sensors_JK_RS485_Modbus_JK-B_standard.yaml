@@ -21,6 +21,7 @@ packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_RS485_Modbus.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -139,9 +140,12 @@ sensor:
       id: bms${bms_id}_capacity_remaining_ah
       name: "${name} ${bms_name} battery capacity remaining"
     charging_cycles:
-      id: bms${bms_id}_charging_cycles
+      id: bms${bms_id}_charging_cycles_raw
+      internal: true
       name: "${name} ${bms_name} charging cycles"
     battery_capacity_total_charging_cycle:
+      id: bms${bms_id}_cycle_capacity_raw
+      internal: true
       name: "${name} ${bms_name} battery capacity total charging cycle"
     battery_total_runtime:
       name: "${name} ${bms_name} battery total runtime"

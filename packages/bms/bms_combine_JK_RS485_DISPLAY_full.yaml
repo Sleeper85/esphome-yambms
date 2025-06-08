@@ -24,6 +24,7 @@ substitutions:
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_battery_soh: !include bms_battery_soh.yaml
 
@@ -327,7 +328,8 @@ sensor:
 
   # FAKE charging_cycles
   - platform: template
-    id: bms${bms_id}_charging_cycles
+    id: bms${bms_id}_charging_cycles_raw
+    internal: true
     name: "${name} ${bms_name} charging cycles"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
