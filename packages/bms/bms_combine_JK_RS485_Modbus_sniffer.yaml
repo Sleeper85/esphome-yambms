@@ -54,6 +54,6 @@ switch:
     optimistic: true
     entity_category: config
     turn_on_action:
-      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(true);  
+      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(true);
     turn_off_action:
-      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(false); 
+      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(false);

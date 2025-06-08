@@ -94,7 +94,7 @@ interval:
 
               // Shunt use (replace BMS infos)
               if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
-              
+
               // Uncombined
               id(shunt${shunt_id}_combined) = false;
             }

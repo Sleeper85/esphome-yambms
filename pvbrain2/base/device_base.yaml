@@ -43,7 +43,7 @@ button:
     entity_category: config
 
 binary_sensor:
-  # https://esphome.io/components/binary_sensor/status  
+  # https://esphome.io/components/binary_sensor/status
   - platform: status
     name: ${name} ESP32 Online Status
     id: esp32_online_status
@@ -60,7 +60,7 @@ sensor:
     update_interval: 10s
     internal: true
 
-  # https://esphome.io/components/sensor/wifi_signal 
+  # https://esphome.io/components/sensor/wifi_signal
   - platform: wifi_signal
     name: ${name} ESP32 WiFi power
     id: esp32_wifi_power

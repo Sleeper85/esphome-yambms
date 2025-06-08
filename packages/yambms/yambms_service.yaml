@@ -64,7 +64,7 @@ interval:
                     id(${yambms_id}_last_version).publish_state(root["version"]);
                     return true;
                   });
-        
+
         - http_request.post:
             url: http://script.opentel.be/yambms.post.php
             request_headers:

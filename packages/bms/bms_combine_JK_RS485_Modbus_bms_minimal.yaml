@@ -175,9 +175,9 @@ sensor:
       name: "${name} ${bms_name} errors bitmask"
     cell_count_real:
       name: "${name} ${bms_name} cell count real"
-    battery_total_alarms_count:     
+    battery_total_alarms_count:
       name: "${name} ${bms_name} battery total alarms count"
-    battery_total_alarms_active:     
+    battery_total_alarms_active:
       name: "${name} ${bms_name} battery total alarms active"
     uart1_protocol_number:
       name: "${name} ${bms_name} uart1 protocol number"
@@ -213,7 +213,7 @@ text_sensor:
     info_device_serial_number:
       name: "${name} ${bms_name} info device serial number"
     info_device_setup_passcode:
-      name: "${name} ${bms_name} info device setup passcode"         
+      name: "${name} ${bms_name} info device setup passcode"
 
 number:
   - platform: jk_rs485_bms
@@ -231,7 +231,7 @@ number:
       name: "${name} ${bms_name} max charging current"
     max_discharging_current:
       id: bms${bms_id}_max_discharge_current
-      name: "${name} ${bms_name} max discharging current"      
+      name: "${name} ${bms_name} max discharging current"
     cell_overvoltage_protection:
       id: bms${bms_id}_cell_ovp
       name: "${name} ${bms_name} cell overvoltage protection"
