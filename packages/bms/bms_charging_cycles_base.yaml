@@ -1,0 +1,28 @@
+# Charging cycles adjustment
+number:
+  - platform: template
+    name: "${name} ${bms_name} charging cycles base"
+    id: bms${bms_id}_charging_cycles_base
+    step: 1
+    min_value: 0
+    max_value: 65535
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0
+    icon: mdi:counter
+    optimistic: true
+    entity_category: config
+
+sensor:
+  - platform: template
+    name: "${name} ${bms_name} charging cycles"
+    id: bms${bms_id}_charging_cycles
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:counter
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      return id(bms${bms_id}_charging_cycles_raw).state + id(bms${bms_id}_charging_cycles_base).state;
