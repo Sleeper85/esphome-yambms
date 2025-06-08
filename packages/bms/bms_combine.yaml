@@ -107,10 +107,10 @@ interval:
 
               // TOTAL total_voltage
               id(${yambms_id}_var_bms_total_voltage) += id(bms${bms_id}_total_voltage).state;
-              
+
               // TOTAL current
               id(${yambms_id}_var_bms_total_current) += id(bms${bms_id}_current).state;
-              
+
               // TOTAL power
               id(${yambms_id}_var_bms_total_power) += id(bms${bms_id}_power).state;
 
@@ -125,18 +125,18 @@ interval:
 
               // TOTAL SoH
               id(${yambms_id}_var_bms_total_soh) += id(bms${bms_id}_battery_soh).state;
-                            
+
               // TOTAL charging_cycles
               id(${yambms_id}_var_total_charging_cycles) += id(bms${bms_id}_charging_cycles).state;
 
               // TOTAL equalizing_counter
               if (id(bms${bms_id}_equalizing).state) id(${yambms_id}_var_equalizing_counter) += 1;
-              
+
               // MIN/MAX values
               // MAX balance_trigger_voltage
               if (id(bms${bms_id}_balance_trigger_voltage).state > id(${yambms_id}_var_max_balance_trigger_voltage))
                 id(${yambms_id}_var_max_balance_trigger_voltage) = id(bms${bms_id}_balance_trigger_voltage).state;
-              
+
               // MIN min_cell_voltage
               // MIN min_voltage_cell (cell number)
               if (id(bms${bms_id}_min_cell_voltage).state < id(${yambms_id}_var_min_cell_voltage))
@@ -152,11 +152,11 @@ interval:
                 id(${yambms_id}_var_max_cell_voltage) = id(bms${bms_id}_max_cell_voltage).state;
                 id(${yambms_id}_var_max_voltage_cell) = id(bms${bms_id}_max_voltage_cell).state + (${bms_id} * 100);
               }
-              
+
               // MIN cell_ovp
               if (id(bms${bms_id}_cell_ovp).state < id(${yambms_id}_var_min_cell_ovp))
                 id(${yambms_id}_var_min_cell_ovp) = id(bms${bms_id}_cell_ovp).state;
-                            
+
               // MAX cell_uvp
               if (id(bms${bms_id}_cell_uvp).state > id(${yambms_id}_var_max_cell_uvp))
                 id(${yambms_id}_var_max_cell_uvp) = id(bms${bms_id}_cell_uvp).state;

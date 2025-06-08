@@ -39,7 +39,7 @@ logger:
 
 ota:
   platform: esphome
-  
+
 # Please use the native `api` component instead of the `mqtt` section.
 # If you use Home Assistant, the native API is more lightweight.
 # If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
@@ -175,7 +175,7 @@ packages:
       - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
         vars:
           canbus_node_id: 'canbus_inverter_1'
-      
+
       # MCP2515
       # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
       #   vars:

@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 sensor:
-  # https://esphome.io/components/sensor/wifi_signal 
+  # https://esphome.io/components/sensor/wifi_signal
   - platform: wifi_signal
     name: ${name} ESP32 WiFi power
     id: esp32_wifi_power

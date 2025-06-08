@@ -20,7 +20,7 @@
 substitutions:
   bms_model: "DEYE"
   bms_protocol: "CAN"
-  
+
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml

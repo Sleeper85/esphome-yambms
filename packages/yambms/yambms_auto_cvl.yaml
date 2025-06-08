@@ -118,5 +118,5 @@ sensor:
               id(${yambms_id}_auto_cvl) = CVL - CVL_orig;
               return CVL - CVL_orig;
             }
-    filters:    
+    filters:
     - round: 1

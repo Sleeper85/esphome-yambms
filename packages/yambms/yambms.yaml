@@ -540,9 +540,9 @@ text_sensor:
       // +-----------------------------------------------+
       // | Charging Logic                                |
       // +-----------------------------------------------+
-      
+
       // Warning : information from JK BMS is not available immediately after boot
-      
+
       // EOC => Float
       if ((id(${yambms_id}_charge_status) == "EOC") & (id(${yambms_id}_switch_float).state)) id(${yambms_id}_charge_status) = "Float";
       // No Float => EOC
@@ -556,12 +556,12 @@ text_sensor:
       // | Charging allowed (BMS and YamBMS)             |
       // +-----------------------------------------------+
       else if ((id(${yambms_id}_charging_allowed).state) & (id(${yambms_id}_switch_charging).state)) {
-      
+
         // Variables
         float cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
         float cell_rebulk_v = (id(${yambms_id}_rebulk_voltage).state / id(${yambms_id}_cell_count).state);
         float cutoff_offset_v = 0.005;
-        
+
         // +-----------------------------------------------+
         // | Force Bulk Logic                              |
         // +-----------------------------------------------+
@@ -576,7 +576,7 @@ text_sensor:
           // Force Bulk
           else id(${yambms_id}_charge_status) = "Force Bulk";
         }
-        
+
         // +-----------------------------------------------+
         // | Rebulk Logic                                  |
         // +-----------------------------------------------+
@@ -584,7 +584,7 @@ text_sensor:
         else if (id(${yambms_id}_max_cell_voltage).state <= cell_rebulk_v) id(${yambms_id}_charge_status) = "Bulk";
         // SoC <= 85% (default value)
         else if (id(${yambms_id}_battery_soc).state <= id(${yambms_id}_rebulk_soc).state) id(${yambms_id}_charge_status) = "Bulk";
-        
+
         // +-----------------------------------------------+
         // | Charging Logic (Bulk)                         |
         // +-----------------------------------------------+
@@ -599,7 +599,7 @@ text_sensor:
             float cv_max = id(${yambms_id}_cell_max_charge_v);
             float cutoff_current = (id(${yambms_id}_battery_capacity).state * 0.05 * (cell_bulk_v - cv_min) / (cv_max - cv_min));
             float cutoff_voltage = (cv_min + (cv_max - cv_min)/(0.05 + cutoff_offset_v) * (id(${yambms_id}_current).state / id(${yambms_id}_battery_capacity).state));
-            
+
             // Stop Charging
             if ((id(${yambms_id}_current).state <= cutoff_current) & (id(${yambms_id}_max_cell_voltage).state >= cutoff_voltage))
             {
@@ -614,7 +614,7 @@ text_sensor:
               {
                 // Start EOC timer : the charging process ends at the latest at the end of this timer (30min by default)
                 if (!id(${yambms_id}_script_eoc_timer).is_running()) id(${yambms_id}_script_eoc_timer).execute();
-              }        
+              }
               // End Of Charge
               // Equalizing
               if (id(${yambms_id}_equalizing).state)
@@ -651,7 +651,7 @@ text_sensor:
       }
       // Charging not allowed (BMS or YamBMS)
       else if (id(${yambms_id}_bms_charging_logic) == false) id(${yambms_id}_charge_status) = "Wait";
-      
+
       ESP_LOGI("yambms", "Charge Status : %s", id(${yambms_id}_charge_status).c_str());
       return id(${yambms_id}_charge_status);
 
@@ -688,7 +688,7 @@ text_sensor:
   # | YamBMS Errors Bitmask (16bit)        |
   # +--------------------------------------+
 
-  # Bit 0     General alarm                                0000 0000 0000 0001         0x0001 
+  # Bit 0     General alarm                                0000 0000 0000 0001         0x0001
   # Bit 1     Battery high voltage alarm                   0000 0000 0000 0010         0x0002
   # Bit 2     Battery low voltage alarm                    0000 0000 0000 0100         0x0004
   # Bit 3     Battery high temperature alarm               0000 0000 0000 1000         0x0008
@@ -745,10 +745,10 @@ text_sensor:
     update_interval: ${yambms_update_interval}
     entity_category: diagnostic
     icon: mdi:battery-alert
-    lambda: |-      
+    lambda: |-
       // Error Bitmask ?
       uint16_t errors_bitmask = id(${yambms_id}_errors_bitmask_warning).state;
-      
+
       if (errors_bitmask > 0)
       {
         if ((errors_bitmask & 0x0002)) return {"OVP"};         // Over Voltage Protection
@@ -782,7 +782,7 @@ binary_sensor:
       else if (id(${yambms_id}_total_voltage).state <= id(${yambms_id}_requested_discharge_voltage).state) return false;
       // Discharging allowed
       else return true;
-      
+
   # +--------------------------------------+
   # | Requested Force Charge               |
   # +--------------------------------------+
