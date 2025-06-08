@@ -120,7 +120,7 @@ canbus:
         - lambda: |-
             float charged = ((x[3] << 24) | (x[2] << 16) | (x[1] << 8) | x[0]) / 1000.0;
             id(bms${bms_id}_charged).publish_state(charged);
-            float discharged = ((x[7] << 24) | (x[6] << 16) | (x[5] << 8) | x[5]) / 1000.0;
+            float discharged = ((x[7] << 24) | (x[6] << 16) | (x[5] << 8) | x[4]) / 1000.0;
             id(bms${bms_id}_discharged).publish_state(discharged);
   #          ESP_LOGI("canid 0x550:", "%.3f kWh, %.3f kWh", charged, discharged );
   #          ESP_LOGI("canid 0x550:", "%02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]);
