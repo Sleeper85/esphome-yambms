@@ -144,7 +144,10 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 
 ## Changelog
 
-
+* YamBMS 1.5.6 :
+  * Compatibility with `esphome 2025.5.0`
+  * Fixed [issue #55](https://github.com/Sleeper85/esphome-yambms/issues/55)
+  * Added [feature #32](https://github.com/Sleeper85/esphome-yambms/issues/35) 
 * YamBMS 1.5.5 :
   * New `main.yaml` with LP (local packages) and RP (remote packages) versions
   * New `board.yaml` with modular UART/CAN interfaces
