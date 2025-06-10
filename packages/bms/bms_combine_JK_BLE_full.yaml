@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.7
+# Updated : 2025.06.10
+# Version : 1.2.8
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,6 +26,7 @@ packages:
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_BLE.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
   bms_battery_soh: !include bms_battery_soh.yaml
 
 ota:
@@ -33,7 +34,7 @@ ota:
     then:
       - switch.turn_off: bms${bms_id}_enable_bluetooth_connection
       - logger.log: "BLE shutdown for flashing"
-  
+
 # +--------------------------------------+
 # | Component settings                   |
 # +--------------------------------------+
@@ -281,9 +282,12 @@ sensor:
       id: bms${bms_id}_battery_capacity
       name: "${name} ${bms_name} total battery capacity setting"
     charging_cycles:
-      id: bms${bms_id}_charging_cycles
+      id: bms${bms_id}_charging_cycles_raw
+      internal: true
       name: "${name} ${bms_name} charging cycles"
     total_charging_cycle_capacity:
+      id: bms${bms_id}_cycle_capacity_raw
+      internal: true
       name: "${name} ${bms_name} total charging cycle capacity"
     total_runtime:
       name: "${name} ${bms_name} total runtime"

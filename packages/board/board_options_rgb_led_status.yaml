@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.1.1
+# Updated : 2025.06.10
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,7 +29,7 @@ interval:
                 call.set_rgb(0.0, 1.0, 1.0); // green + blue
               else
                 call.set_rgb(0.0, 0.0, 1.0); // blue
-              call.perform();                // perform action   
+              call.perform();                // perform action
             }
             else
             {
@@ -39,5 +39,5 @@ interval:
                 call.set_rgb(0.0, 1.0, 0.0); // green
               else
                 call.set_rgb(1.0, 0.0, 0.0); // red
-              call.perform();                // perform action          
+              call.perform();                // perform action
             }

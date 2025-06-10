@@ -6,7 +6,7 @@
               duration: 1s
             - state: false
               duration: 1s
-              
+
       - strobe:
           name: blink_fast
           colors:
@@ -18,7 +18,7 @@
               duration: 300ms
             - state: false
               duration: 1s
-              
+
       - strobe:
           name: blink_very_fast
           colors:

@@ -13,9 +13,7 @@
 > You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
 
 > [!IMPORTANT]  
-> The current code for `YamBMS` and other components needs to be fixed to work with `esphome 2025.5.0`.
-> This will be done as soon as I have more time to devote to it. In the meantime, you should compile with `esphome 2025.4.2` or lower.
-
+> This project is now compatible with `esphome 2025.5.0` or later.
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
@@ -146,7 +144,11 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 
 ## Changelog
 
-
+* YamBMS 1.5.6 :
+  * Compatibility with `esphome 2025.5.0`
+  * Fixed [issue #55](https://github.com/Sleeper85/esphome-yambms/issues/55)
+  * Added [feature #32](https://github.com/Sleeper85/esphome-yambms/issues/35)
+  * New `board_ESP32-S3_YBoard_DJK.yaml` board
 * YamBMS 1.5.5 :
   * New `main.yaml` with LP (local packages) and RP (remote packages) versions
   * New `board.yaml` with modular UART/CAN interfaces

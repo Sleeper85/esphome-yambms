@@ -27,13 +27,12 @@
 # Don't forget to configure your WiFi credentials in the secrets.yaml
 #
 # If needed, configure a static IP here
-# wifi:
-#   manual_ip:
-#     static_ip: 192.168.0.85
-#     gateway: 192.168.0.1
-#     subnet: 255.255.255.0
-#     dns1: 8.8.8.8
-#     dns2: 8.8.4.4
+wifi:
+  #power_save_mode: none
+   #manual_ip:
+   #  static_ip: 192.168.8.1
+   #  gateway: 192.168.8.1
+   #  subnet: 255.255.255.0
 
 logger:
   level: INFO # VERBOSE / DEBUG / INFO / WARN
@@ -50,27 +49,27 @@ api:
 
 # If you don't want to use ESPHome's native API you can use MQTT instead.
 # In this case don't forget to remove the 'api:' section.
-# mqtt:
-#   broker: !secret mqtt_host
-#   username: !secret mqtt_username
-#   password: !secret mqtt_password
-#   id: mqtt_client
+#mqtt:
+#  broker: broker ip
+#  username: user
+#  password: password
+  #id: yambms
 
 # Please note that enabling this component will take up a lot of memory and may decrease
 # stability and be the cause of reboot depending on the capabilities of the board used.
-# web_server:
-#   port: 80
-#   log: false
-#   ota: false
+#web_server:
+#  port: 80
+#  log: false
+#  ota: false
 
 # +--------------------------------------+
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # Name
-  name: '' # Name that can be added as a second prefix after the friendly name, you can leave it blank.
+  # ESP32 name / hostname
+  name: ''
   hostname: 'yambms' # This is the name of the node. It should always be unique in your ESPHome network.
-  friendly_name : 'YamBMS' # Prefix added in front of all entity names and also to classify them.
+  friendly_name : 'YamBMS'
   # +--------------------------------------+
   # | YamBMS Settings                      |
   # +--------------------------------------+
@@ -95,9 +94,9 @@ substitutions:
   # Maximum time in minutes that the cut-off step can last before charging is complete
   # If your cells are properly balanced this step ends at the fastest after the `cut-off timer`
   # This timer can be deactivated with a switch
-  yambms_eoc_timer: '30'
+  yambms_eoc_timer: '60'
   # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
-  yambms_cutoff_timer: '60'
+  yambms_cutoff_timer: '300'
   # +--------------------------------------+
   # | Shunt Settings                      |
   # +--------------------------------------+
@@ -118,30 +117,21 @@ substitutions:
 
 packages:
 
+  ################ >>> CONFIG & CUSTOM LP <<< ################
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
+
   ############### >>> UNCOMMENT YOUR BOARD <<< ###############
   ############### >>>   ONLY ONE BOARD !   <<< ###############
-
-  # This list is incomplete, other board.yaml are available in the board folder
-
-  # device_board: !include packages/board/board_ESP32_Generic.yaml
-  # device_board: !include packages/board/board_ESP32_DevKit-V1.yaml
-  device_board: !include packages/board/board_ESP32_LilyGo-T-CAN485.yaml
-  # device_board: !include packages/board/board_ESP32_EVB.yaml
-  # device_board: !include packages/board/board_ESP32_Atom-Lite.yaml
-  # device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
-  # device_board: !include packages/board/board_ESP32-S3_DevKitC-1.yaml
-  # device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
-  # device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
-
-  # device_board: !include
-  #   file: packages/board/board_ESP32-S3_AtomS3.yaml # board_ESP32-S3_AtomS3R.yaml
-  #   vars:
-  #     display_auto_next_page_interval: '5s'
-  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+  
+  device_board: !include packages/board/board_ESP32-S3_YBoard_DJK.yaml
 
   ########### >>> UNCOMMENT YOUR BOARD OPTIONS <<< ###########
 
-  # RS485
   uart_esp_1: !include packages/board/board_options_itf_uart_esp_1.yaml
 
   # ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
@@ -150,57 +140,43 @@ packages:
     vars:
       canbus_node_id: 'canbus_inverter_1'
 
-  # MCP2515
-  canbus_node_2: !include
-    file: packages/board/board_options_itf_canbus_mcp2515.yaml
+  shunt1: !include
+    file: packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml #
     vars:
-      canbus_node_id: 'canbus_bms_1'
-      # If you do not want to use the default settings, uncomment the options below :
-      # canbus_can_id: '4'
-      # canbus_bitrate: '500kbps'
-      # spi_mosi_pin: '12'
-      # spi_miso_pin: '5'
-      # spi_clk_pin: '18'
-      # mcp2515_cs_pin: '32'
+      shunt_id: '1' # must be a number
+      shunt_name: 'Shunt'
+      shunt_mac_address: 'c0960b5d8cba'
+      shunt_encryption_key: '1e196f635d4e5b0777afa79b47904937'
 
-  ############################################################
-
-  # Deye BMS top unit (required)
-  bms_top: !include
-    file: packages/bms/bms_sensors_DEYE_CAN_top_full.yaml
+  sniffer1: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml
     vars:
-      # CAN BUS ID
-      canbus_id: 'canbus_bms_1'
-      deye_name: 'DEYE-Top 1'
-      deye_id: '1'
+      sniffer_id: 'sniffer1'
+      sniffer_protocol: 'JK02_32S'
+      sniffer_uart_id: 'uart_esp_1'
 
-  # Deye module 1
+  # Mode2 : configure the DIP switches of your BMS from 0x01 to 0x0F (don't use the 0x00 address, maximum 15 BMS)
   bms1: !include
-    file: packages/bms/bms_combine_DEYE_CAN_module_full.yaml
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml
     vars:
-      # CAN BUS ID
-      canbus_id: 'canbus_bms_1'
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
       # BMS vars
       bms_id: '1' # must be a number
-      bms_name: 'DEYE-BMS 1'
-      deye_id: '1'
-      deye_module_id: '0'    # Modules are numbered with 0-9
+      bms_name: 'JK-BMS 1'
+      bms_address: '0x01' # BMS 1 DIP switch
 
-  # Deye module 2
   bms2: !include
-    file: packages/bms/bms_combine_DEYE_CAN_module_full.yaml
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml
     vars:
-      # CAN BUS ID
-      canbus_id: 'canbus_bms_1'
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
       # BMS vars
-      deye_id: '1'
       bms_id: '2' # must be a number
-      bms_name: 'DEYE-BMS 2'
-      deye_module_id: '1' # Second module
+      bms_name: 'JK-BMS 2'
+      bms_address: '0x02' # BMS 2 DIP switch
 
   yambms: !include packages/yambms/yambms.yaml
-
-  # yambms_custom: !include yambms_custom.yaml
 
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml

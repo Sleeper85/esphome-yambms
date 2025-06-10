@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.5.5
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -316,7 +316,7 @@ interval:
               id(${yambms_id}_charging_allowed).publish_state(true);
             else
               id(${yambms_id}_charging_allowed).publish_state(false);
-            
+
             // BMS discharging allowed
             if (id(${yambms_id}_var_to_combine_bms_counter) && id(${yambms_id}_var_discharging_allowed_counter) > 0)
               id(${yambms_id}_discharging_allowed).publish_state(true);

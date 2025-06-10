@@ -23,7 +23,7 @@ The `GPS` port sometimes called `RS485` is not an `RS485` port but `3V3 UART-TTL
 │ O   O   O   O  │
 │GND  RX  TX VBAT│ 
 └────────────────┘
-  │   │   │   └ VBAT is full battery volatge eg. 56V (possible to use it via an isolated DC-DC converter)
+  │   │   │   └ VBAT is full battery voltage eg. 56V (possible to use it via an isolated DC-DC converter)
   │   │   └──── TX  to TTL-isolator AI (input)
   │   └──────── RX  to TTL-isolator AO (output)
   └──────────── GND to TTL-isolator GND

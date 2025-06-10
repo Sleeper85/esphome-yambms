@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.5.5
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -51,7 +51,7 @@ packages:
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
-  
+
   bms2: !include
     file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:

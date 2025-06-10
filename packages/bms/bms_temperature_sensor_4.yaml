@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.1.1
+# Updated : 2025.06.10
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -15,8 +15,8 @@
 # See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.  
-  
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
   sensor:
   # MIN temperature
   - platform: template

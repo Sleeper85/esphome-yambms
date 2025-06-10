@@ -1,5 +1,5 @@
-# Updated : 2025.04.14
-# Version : 1.1.1
+# Updated : 2025.06.10
+# Version : 1.1.2
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,7 +20,7 @@
 substitutions:
   bms_model: "DEYE"
   bms_protocol: "CAN"
-  
+
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
