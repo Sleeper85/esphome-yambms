@@ -50,9 +50,9 @@ api:
 # If you don't want to use ESPHome's native API you can use MQTT instead.
 # In this case don't forget to remove the 'api:' section.
 #mqtt:
-#  broker: 192.168.0.57
-#  username: daniel
-#  password: daniel
+#  broker: broker ip
+#  username: user
+#  password: password
   #id: yambms
 
 # Please note that enabling this component will take up a lot of memory and may decrease
