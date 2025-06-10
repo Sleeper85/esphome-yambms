@@ -1,5 +1,5 @@
-# Updated : 2025.04.07
-# Version : 1.2.8
+# Updated : 2025.06.10
+# Version : 1.2.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,6 +20,7 @@
 substitutions:
   board_chip: "ESP32-S3"
   board_name: "Atom S3"
+  display_update_interval: "500ms"
   # Interfaces GPIOs
   # uart_esp_1 (Grove port)
   tx_pin_1: '2'
@@ -145,6 +146,6 @@ display:
     offset_height: 2
     offset_width: 1
     eightbitcolor: true
-    update_interval: 1s
+    update_interval: ${display_update_interval}
     data_rate: 40Mhz
     rotation: ${display_rotation}

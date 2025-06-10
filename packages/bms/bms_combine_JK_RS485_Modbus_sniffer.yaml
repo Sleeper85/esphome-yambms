@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.8
+# Updated : 2025.06.10
+# Version : 1.2.9
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -54,6 +54,6 @@ switch:
     optimistic: true
     entity_category: config
     turn_on_action:
-      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(true);  
+      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(true);
     turn_off_action:
-      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(false); 
+      - lambda: id(${sniffer_id}).set_broadcast_changes_to_all_bms(false);

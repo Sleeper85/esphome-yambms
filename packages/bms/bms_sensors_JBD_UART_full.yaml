@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.1.4
+# Updated : 2025.06.10
+# Version : 1.1.5
 # GitHub  : https://github.com/syssi/esphome-jdb-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,6 +21,7 @@ packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JBD.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
   bms_battery_soh: !include bms_battery_soh.yaml
 
 # +--------------------------------------+
@@ -101,12 +102,15 @@ sensor:
       id: bms${bms_id}_battery_capacity
       name: "${name} ${bms_name} nominal capacity"
     charging_cycles:
-      id: bms${bms_id}_charging_cycles
+      id: bms${bms_id}_charging_cycles_raw
+      internal: true
       name: "${name} ${bms_name} charging cycles"
     capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
       name: "${name} ${bms_name} capacity remaining"
     battery_cycle_capacity:
+      id: bms${bms_id}_cycle_capacity_raw
+      internal: true
       name: "${name} ${bms_name} battery cycle capacity"
     total_voltage:
       id: bms${bms_id}_total_voltage

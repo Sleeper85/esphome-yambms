@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.5
+# Updated : 2025.06.10
+# Version : 1.2.6
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@ packages:
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_5.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_RS485_Modbus.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -162,9 +163,12 @@ sensor:
       id: bms${bms_id}_capacity_remaining_ah
       name: "${name} ${bms_name} battery capacity remaining"
     charging_cycles:
-      id: bms${bms_id}_charging_cycles
+      id: bms${bms_id}_charging_cycles_raw
+      internal: true
       name: "${name} ${bms_name} charging cycles"
     battery_capacity_total_charging_cycle:
+      id: bms${bms_id}_cycle_capacity_raw
+      internal: true
       name: "${name} ${bms_name} battery capacity total charging cycle"
     battery_total_runtime:
       name: "${name} ${bms_name} battery total runtime"
@@ -175,9 +179,9 @@ sensor:
       name: "${name} ${bms_name} errors bitmask"
     cell_count_real:
       name: "${name} ${bms_name} cell count real"
-    battery_total_alarms_count:     
+    battery_total_alarms_count:
       name: "${name} ${bms_name} battery total alarms count"
-    battery_total_alarms_active:     
+    battery_total_alarms_active:
       name: "${name} ${bms_name} battery total alarms active"
     uart1_protocol_number:
       name: "${name} ${bms_name} uart1 protocol number"
@@ -213,7 +217,7 @@ text_sensor:
     info_device_serial_number:
       name: "${name} ${bms_name} info device serial number"
     info_device_setup_passcode:
-      name: "${name} ${bms_name} info device setup passcode"         
+      name: "${name} ${bms_name} info device setup passcode"
 
 number:
   - platform: jk_rs485_bms
@@ -231,7 +235,7 @@ number:
       name: "${name} ${bms_name} max charging current"
     max_discharging_current:
       id: bms${bms_id}_max_discharge_current
-      name: "${name} ${bms_name} max discharging current"      
+      name: "${name} ${bms_name} max discharging current"
     cell_overvoltage_protection:
       id: bms${bms_id}_cell_ovp
       name: "${name} ${bms_name} cell overvoltage protection"

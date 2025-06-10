@@ -1,5 +1,5 @@
-# Updated : 2025.04.14
-# Version : 1.1.1
+# Updated : 2025.06.10
+# Version : 1.1.2
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -20,7 +20,7 @@
   # | DEYE CAN PCS Errors Bitmask (64bit)  |
   # +--------------------------------------+
 
-  # Bit 0     Cell overvoltage                             0000 0000 0000 0001         0x0001 
+  # Bit 0     Cell overvoltage                             0000 0000 0000 0001         0x0001
   # Bit 1     Cell undervoltage                            0000 0000 0000 0010         0x0002
   # Bit 2     Module overvoltage                           0000 0000 0000 0100         0x0004
   # Bit 3     Module undervoltage                          0000 0000 0000 1000         0x0008
@@ -65,7 +65,7 @@
   # | YamBMS Errors Bitmask (16bit)        |
   # +--------------------------------------+
 
-  # Bit 0     General alarm                                0000 0000 0000 0001         0x0001 
+  # Bit 0     General alarm                                0000 0000 0000 0001         0x0001
   # Bit 1     Battery high voltage alarm                   0000 0000 0000 0010         0x0002
   # Bit 2     Battery low voltage alarm                    0000 0000 0000 0100         0x0004
   # Bit 3     Battery high temperature alarm               0000 0000 0000 1000         0x0008
@@ -99,7 +99,7 @@ sensor:
 
       if (bms_errors_bitmask > 0)
       {
-        // General alarm: 
+        // General alarm:
         // Unused
         // High voltage
         if (bms_errors_bitmask & 0x0005) yambms_errors_bitmask |= 0x0002; // Cell or module

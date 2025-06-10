@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.5.5
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -53,7 +53,7 @@ packages:
       bms_id: '1' # must be a number
       bms_name: 'JK-BMS 1'
       bms_address: '0x01' # BMS 1 DIP switch
-  
+
   bms2: !include
     file: packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml
     vars:
@@ -83,7 +83,7 @@ packages:
       bms_id: '4' # must be a number
       bms_name: 'JK-BMS 4'
       bms_address: '0x04' # BMS 4 DIP switch
-  
+
   bms5: !include
     file: packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml
     vars:

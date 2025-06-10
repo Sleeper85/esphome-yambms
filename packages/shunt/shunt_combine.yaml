@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.5.3
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -94,7 +94,7 @@ interval:
 
               // Shunt use (replace BMS infos)
               if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
-              
+
               // Uncombined
               id(shunt${shunt_id}_combined) = false;
             }

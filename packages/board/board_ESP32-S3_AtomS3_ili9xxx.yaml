@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.7
+# Updated : 2025.06.10
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -103,7 +103,7 @@ fan:
     name: "${name} ${board_name} Backlight control"
     # web_server:
       # sorting_weight:  ${web_server_sorting_group}00
-      # sorting_group_id: group_${web_server_sorting_group} 
+      # sorting_group_id: group_${web_server_sorting_group}
     restore_mode: RESTORE_DEFAULT_ON
     icon: mdi:brightness-6
 
@@ -260,8 +260,8 @@ script:
           }
 
 # web_server v3 needs to be added and sorting_groups must be defined to use grouping
-# web_server: 
-  # version: 3      
+# web_server:
+  # version: 3
   # sorting_groups:
   #   - id: group_666
   #     name: "${board_name} Backlight Control"

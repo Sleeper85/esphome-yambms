@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.1.3
+# Updated : 2025.06.10
+# Version : 1.1.4
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,6 +24,7 @@ substitutions:
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
+  bms_cycles_base: !include bms_charging_cycles_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
 
 # +--------------------------------------+
@@ -140,7 +141,8 @@ sensor:
       id: bms${bms_id}_state_of_charge
       name: "${name} ${bms_name} state of charge"
     charging_cycles:
-      id: bms${bms_id}_charging_cycles
+      id: bms${bms_id}_charging_cycles_raw
+      internal: true
       name: "${name} ${bms_name} charging cycles"
     state_of_health:
       id: bms${bms_id}_battery_soh

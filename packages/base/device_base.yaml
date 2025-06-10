@@ -1,5 +1,5 @@
-# Updated : 2025.05.11
-# Version : 1.5.5
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.5.5"
+  yambms_version: "1.5.6"
 
 esphome:
   name: ${hostname}
@@ -28,7 +28,7 @@ esphome:
   project:
     name: Sleeper85.YamBMS
     version: ${yambms_version}
-  min_version: 2025.3.0
+  min_version: 2025.5.0
 
 time:
   # https://esphome.io/components/time/homeassistant
@@ -43,7 +43,7 @@ button:
     entity_category: config
 
 binary_sensor:
-  # https://esphome.io/components/binary_sensor/status  
+  # https://esphome.io/components/binary_sensor/status
   - platform: status
     name: ${name} ESP32 Online Status
     id: esp32_online_status
