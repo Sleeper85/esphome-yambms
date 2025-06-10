@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 esp32:
+  cpu_frequency: 240MHz
   framework:
-    sdkconfig_options:
-      COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+    type: esp-idf
