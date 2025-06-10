@@ -13,8 +13,6 @@
 > You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
 
 > [!IMPORTANT]  
-> This project is now compatible with `esphome 2025.5.0` or later.
-> [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
 > If you use YamBMS, the internal charging logic of the `JK-PB BMS` will not be used.
@@ -115,7 +113,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2024.6.0 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2025.5.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
