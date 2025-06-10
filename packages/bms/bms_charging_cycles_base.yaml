@@ -19,6 +19,7 @@ sensor:
     id: bms${bms_id}_charging_cycles
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
+    state_class: total
     icon: mdi:counter
     filters:
       - or:
