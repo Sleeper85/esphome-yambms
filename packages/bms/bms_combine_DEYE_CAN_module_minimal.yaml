@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.11
 # Version : 1.1.2
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
@@ -22,7 +22,5 @@ substitutions:
   bms_protocol: "CAN"
 
 packages:
-  bms_base: !include bms_base.yaml
-  bms_combine: !include bms_combine.yaml
-  bms_errors_bitmask: !include bms_errors_bitmask_DEYE_CAN.yaml
   bms_module: !include bms_sensors_DEYE_CAN_module_minimal.yaml
+  bms_combine: !include bms_combine.yaml
