@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.11
 # Version : 1.1.4
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
@@ -24,7 +24,6 @@ substitutions:
 packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
-  bms_cycles_base: !include bms_charging_cycles_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_battery_soh: !include bms_battery_soh.yaml
 
@@ -339,6 +338,23 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: return 0;
+
+  # FAKE cycle capacity
+  - platform: template
+    name: "${name} ${bms_name} charging cycle capacity"
+    id: "bms${bms_id}_cycle_capacity_raw"
+    internal: true
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    icon: mdi:car-battery
+    filters:
+      - or:
+        - throttle: 600s
+        - delta: 1
+    lambda: |-
+      return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
 
   # FAKE errors_bitmask
   # Alarm management is not supported at this time

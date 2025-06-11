@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.11
 # Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -19,7 +19,6 @@
 
 packages:
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
-  bms_cycles_base: !include bms_charging_cycles_base.yaml
 
 sensor:
   # battery_capacity
@@ -302,7 +301,7 @@ sensor:
 
   # charging_cycles
   - platform: template
-    id: bms${bms_id}_charging_cycles_raw
+    id: bms${bms_id}_charging_cycles
     internal: true
     name: "${name} ${bms_name} charging cycles"
     update_interval: ${bms_update_interval}

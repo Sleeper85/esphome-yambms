@@ -1,5 +1,5 @@
-# Updated : 2025.04.22
-# Version : 1.1.1
+# Updated : 2025.06.11
+# Version : 1.1.2
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,5 @@ substitutions:
   bms_protocol: "CAN-Modbus"
 
 packages:
-  bms_base: !include bms_base.yaml
   bms_sensors: !include bms_sensors_DEYE_CAN_module_full.yaml
-  bms_errors_bitmask: !include bms_errors_bitmask_DEYE_CAN.yaml
   bms_combine: !include bms_modbus_server.yaml
