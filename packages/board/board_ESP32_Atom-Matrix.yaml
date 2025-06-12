@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.2.8
+# Updated : 2025.06.12
+# Version : 1.2.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,13 +42,13 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32.yaml
   board_rgb_led: !include board_options_rgb_led_status.yaml
 
 # Atom Matrix - SKU:C008-B
 # https://docs.m5stack.com/en/core/ATOM%20Matrix
 esp32:
   board: m5stack-atom
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 

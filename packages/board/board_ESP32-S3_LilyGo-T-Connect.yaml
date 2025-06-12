@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.1.2
+# Updated : 2025.06.12
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@
 substitutions:
   board_chip: "ESP32-S3"
   board_name: "LilyGo T-Connect"
+  # Interfaces GPIOs
   # uart_esp_1
   tx_pin_1: '4'
   rx_pin_1: '5'
@@ -43,14 +44,13 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
   board_rgb_led: !include board_options_rgb_led_status.yaml
-  # psram: !include board_options_psram_settings.yaml
 
 esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
   flash_size: 16MB # ajust according to your ESP32-S3 version
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 
@@ -58,17 +58,11 @@ esphome:
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
-# PSRAM activation with default options
-# psram:
-#   mode: octal
-#   speed: 80MHz
-
 wifi:
   id: my_network
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret domain
-  ap:
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"

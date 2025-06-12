@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.1.4
+# Updated : 2025.06.12
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,15 +23,16 @@ substitutions:
   board_chip: "ESP32"
   board_name: "LilyGo T-CAN485"
   # Interfaces GPIOs
+  # GPIO 34-39 does not support output pin mode.
   # uart_esp_1 (RS485 port)
   tx_pin_1: '22'
   rx_pin_1: '21'
   # uart_esp_2
-  tx_pin_2: '33'
-  rx_pin_2: '32'
+  tx_pin_2: '32'
+  rx_pin_2: '34'
   # uart_esp_3
-  tx_pin_3: '35'
-  rx_pin_3: '34'
+  tx_pin_3: '33'
+  rx_pin_3: '35'
   # canbus_esp32_can (CAN port)
   tx_pin_4: '27'
   rx_pin_4: '26'
@@ -44,11 +45,11 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32.yaml
   board_rgb_led: !include board_options_rgb_led_status.yaml
 
 esp32:
   board: esp32dev
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 
