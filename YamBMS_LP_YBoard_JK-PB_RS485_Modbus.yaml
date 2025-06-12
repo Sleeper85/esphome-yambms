@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.12
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -27,12 +27,13 @@
 # Don't forget to configure your WiFi credentials in the secrets.yaml
 #
 # If needed, configure a static IP here
-wifi:
-  #power_save_mode: none
-   #manual_ip:
-   #  static_ip: 192.168.8.1
-   #  gateway: 192.168.8.1
-   #  subnet: 255.255.255.0
+# wifi:
+#   manual_ip:
+#     static_ip: 192.168.0.85
+#     gateway: 192.168.0.1
+#     subnet: 255.255.255.0
+#     dns1: 8.8.8.8
+#     dns2: 8.8.4.4
 
 logger:
   level: INFO # VERBOSE / DEBUG / INFO / WARN
@@ -49,11 +50,11 @@ api:
 
 # If you don't want to use ESPHome's native API you can use MQTT instead.
 # In this case don't forget to remove the 'api:' section.
-#mqtt:
-#  broker: broker ip
-#  username: user
-#  password: password
-  #id: yambms
+# mqtt:
+#   broker: !secret mqtt_host
+#   username: !secret mqtt_username
+#   password: !secret mqtt_password
+#   id: mqtt_client
 
 # Please note that enabling this component will take up a lot of memory and may decrease
 # stability and be the cause of reboot depending on the capabilities of the board used.
@@ -128,7 +129,7 @@ packages:
   ############### >>> UNCOMMENT YOUR BOARD <<< ###############
   ############### >>>   ONLY ONE BOARD !   <<< ###############
   
-  device_board: !include packages/board/board_ESP32-S3_YBoard_DJK.yaml
+  device_board: !include packages/board/board_ESP32-S3_YBoard.yaml
 
   ########### >>> UNCOMMENT YOUR BOARD OPTIONS <<< ###########
 
@@ -140,8 +141,12 @@ packages:
     vars:
       canbus_node_id: 'canbus_inverter_1'
 
+  ############################################################
+
+  # You don't have to import a shunt but you must import at least one BMS.
+
   shunt1: !include
-    file: packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml #
+    file: packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml
     vars:
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt'
