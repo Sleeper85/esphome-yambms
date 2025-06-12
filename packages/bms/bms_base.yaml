@@ -1,4 +1,4 @@
-# Updated : 2025.06.11
+# Updated : 2025.06.12
 # Version : 1.2.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -26,10 +26,10 @@ number:
     id: bms${bms_id}_charging_cycles_offset
     step: 1
     min_value: 0
-    max_value: 10000
+    max_value: 3000
+    initial_value: 0
     restore_value: true
     mode: ${yambms_input_number_mode}
-    initial_value: 0
     icon: mdi:counter
     optimistic: true
     entity_category: config
