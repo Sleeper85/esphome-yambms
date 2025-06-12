@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.12
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -135,15 +135,19 @@ packages:
     files:
       - path: 'packages/board/board_ESP32_Generic.yaml'
       # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
-      # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
-      # - path: 'packages/board/board_ESP32_EVB.yaml'
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
+      # - path: 'packages/board/board_ESP32_EVB.yaml'
+      # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
       # - path: 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
       # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+      # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
       # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
-      # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
+      # - path: 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
+      # - path: 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
+      # - path: 'packages/board/board_ESP32-S3_XIAO.yaml'
+      # - path: 'packages/board/board_ESP32-S3_YBoard.yaml'
 
       # - path: 'packages/board/board_ESP32-S3_AtomS3.yaml'
       #   vars:
@@ -183,17 +187,32 @@ packages:
 
   # You don't have to import a shunt but you must import at least one BMS.
 
-  shunt:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 0s
-    files:
-      # Shunt 1
-      - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml' # shunt_combine_Junctek_KHF_UART.yaml
-        vars:
-          shunt_id: '1' # must be a number
-          shunt_name: 'Shunt 1'
-          shunt_uart_id: 'uart_esp_3'
+  # UART Shunt
+  # shunt:
+  #   url: https://github.com/Sleeper85/esphome-yambms
+  #   ref: main
+  #   refresh: 0s
+  #   files:
+  #     # Shunt 1
+  #     - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml' # shunt_combine_Junctek_KHF_UART.yaml
+  #       vars:
+  #         shunt_id: '1' # must be a number
+  #         shunt_name: 'Shunt 1'
+  #         shunt_uart_id: 'uart_esp_3'
+
+  # BLE Shunt
+  # shunt:
+  #   url: https://github.com/Sleeper85/esphome-yambms
+  #   ref: main
+  #   refresh: 0s
+  #   files:
+  #     # Shunt 1
+  #     - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml'
+  #       vars:
+  #         shunt_id: '1' # must be a number
+  #         shunt_name: 'Shunt 1'
+  #         shunt_mac_address: '60:A4:23:91:8F:55' # Your MAC address
+  #         shunt_encryption_key: '0df4d0395b7d1a876c0c33ecb9e70dcd' # Your encryption key
 
   bms:
     url: https://github.com/Sleeper85/esphome-yambms

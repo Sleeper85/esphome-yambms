@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.12
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -123,18 +123,30 @@ packages:
 
   # This list is incomplete, other board.yaml are available in the board folder
 
-  # device_board: !include packages/board/board_ESP32_Generic.yaml
-  # device_board: !include packages/board/board_ESP32_DevKit-V1.yaml
-  device_board: !include packages/board/board_ESP32_LilyGo-T-CAN485.yaml
-  # device_board: !include packages/board/board_ESP32_EVB.yaml
-  # device_board: !include packages/board/board_ESP32_Atom-Lite.yaml
-  # device_board: !include packages/board/board_ESP32-C3_ETH01-EVO.yaml
-  # device_board: !include packages/board/board_ESP32-S3_DevKitC-1.yaml
-  # device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
-  # device_board: !include packages/board/board_ESP32-S3_AtomS3-Lite.yaml
+  # device_board: !include 'packages/board/board_ESP32_Generic.yaml'
+  # device_board: !include 'packages/board/board_ESP32_DevKit-V1.yaml'
+  # device_board: !include 'packages/board/board_ESP32_Atom-Lite.yaml'
+  # device_board: !include 'packages/board/board_ESP32_EVB.yaml'
+  device_board: !include 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
+  # device_board: !include 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
+  # device_board: !include 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_XIAO.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_YBoard.yaml'
 
   # device_board: !include
-  #   file: packages/board/board_ESP32-S3_AtomS3.yaml # board_ESP32-S3_AtomS3R.yaml
+  #   file: 'packages/board/board_ESP32-S3_AtomS3.yaml'
+  #   vars:
+  #     display_auto_next_page_interval: '5s'
+  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+
+  # device_board: !include
+  #   file: 'packages/board/board_ESP32-S3_AtomS3R.yaml'
   #   vars:
   #     display_auto_next_page_interval: '5s'
   #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
