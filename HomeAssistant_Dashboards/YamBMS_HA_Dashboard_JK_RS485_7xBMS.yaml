@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.12
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -401,15 +401,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_1_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_battery_soc') }}
+                  states('sensor.yambms_jk_bms_1_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -417,7 +417,7 @@ views:
                   states('number.yambms_jk_bms_1_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_1_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_1_cell_average_voltage') }}
@@ -670,6 +670,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_1_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 2
         column_span: 1
@@ -747,15 +754,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_2_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_battery_soc') }}
+                  states('sensor.yambms_jk_bms_2_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -763,7 +770,7 @@ views:
                   states('number.yambms_jk_bms_2_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_2_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_2_cell_average_voltage') }}
@@ -1016,6 +1023,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_2_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 3
         column_span: 1
@@ -1093,15 +1107,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_3_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_battery_soc') }}
+                  states('sensor.yambms_jk_bms_3_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -1109,7 +1123,7 @@ views:
                   states('number.yambms_jk_bms_3_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_3_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_3_cell_average_voltage') }}
@@ -1362,6 +1376,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_3_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 4
         column_span: 1
@@ -1439,15 +1460,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_4_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_4_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_4_battery_soc') }}
+                  states('sensor.yambms_jk_bms_4_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -1455,7 +1476,7 @@ views:
                   states('number.yambms_jk_bms_4_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_4_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_4_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_4_cell_average_voltage') }}
@@ -1708,6 +1729,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_4_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 5
         column_span: 1
@@ -1785,15 +1813,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_5_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_5_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_5_battery_soc') }}
+                  states('sensor.yambms_jk_bms_5_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -1801,7 +1829,7 @@ views:
                   states('number.yambms_jk_bms_5_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_5_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_5_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_5_cell_average_voltage') }}
@@ -2054,6 +2082,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_5_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 6
         column_span: 1
@@ -2131,15 +2166,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_6_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_6_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_6_battery_soc') }}
+                  states('sensor.yambms_jk_bms_6_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -2147,7 +2182,7 @@ views:
                   states('number.yambms_jk_bms_6_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_6_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_6_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_6_cell_average_voltage') }}
@@ -2400,6 +2435,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_6_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 7
         column_span: 1
@@ -2477,15 +2519,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_7_battery_capacity_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_7_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_7_battery_soc') }}
+                  states('sensor.yambms_jk_bms_7_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -2493,7 +2535,7 @@ views:
                   states('number.yambms_jk_bms_7_battery_capacity_total_setting')
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_7_battery_capacity_total_charging_cycle')
+                  states('sensor.yambms_jk_bms_7_total_charging_cycle_capacity')
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
                   states('sensor.yambms_jk_bms_7_cell_average_voltage') }}
@@ -2746,6 +2788,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_7_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
   - title: Shunt
     type: sections
     max_columns: 3
