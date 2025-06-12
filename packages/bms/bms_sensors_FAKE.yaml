@@ -1,4 +1,4 @@
-# Updated : 2025.06.11
+# Updated : 2025.06.12
 # Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -302,7 +302,6 @@ sensor:
   # charging_cycles
   - platform: template
     id: bms${bms_id}_charging_cycles
-    internal: true
     name: "${name} ${bms_name} charging cycles"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
