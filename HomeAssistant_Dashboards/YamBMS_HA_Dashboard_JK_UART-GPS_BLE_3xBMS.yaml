@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.12
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -401,15 +401,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_1_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_battery_soc') }}
+                  states('sensor.yambms_jk_bms_1_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -670,6 +670,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_1_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 2
         column_span: 1
@@ -747,15 +754,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_2_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_battery_soc') }}
+                  states('sensor.yambms_jk_bms_2_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -1016,6 +1023,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_2_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         title: BMS 3
         column_span: 1
@@ -1093,15 +1107,15 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_state_of_charge') }}
+                  states('sensor.yambms_jk_bms_3_battery_soc') }}
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_battery_soc') }}
+                  states('sensor.yambms_jk_bms_3_battery_soh') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -1362,6 +1376,13 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 3
+          - type: entity-filter
+            entities:
+              - entity: number.yambms_jk_bms_3_charging_cycles_offset
+                name: Charging Cycles Offset
+            conditions:
+              - condition: state
+                state_not: unavailable
   - title: Shunt
     type: sections
     max_columns: 3

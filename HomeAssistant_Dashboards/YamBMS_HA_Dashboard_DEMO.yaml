@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.12
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -398,16 +398,14 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
-                  color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_1_battery_soc') }}
-                  %</font></font>
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
+                  size=4>{{ states('sensor.yambms_demo_bms_1_battery_soc')
+                  }} %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
-                  color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_1_battery_soc') }}
-                  %</font></font>
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
+                  size=4>{{ states('sensor.yambms_demo_bms_1_battery_soh')
+                  }} %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
@@ -557,16 +555,14 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
-                  color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_2_battery_soc') }}
-                  %</font></font>
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
+                  size=4>{{ states('sensor.yambms_demo_bms_2_battery_soc')
+                  }} %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
-                  color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_2_battery_soc') }}
-                  %</font></font>
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
+                  size=4>{{ states('sensor.yambms_demo_bms_2_battery_soh')
+                  }} %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
@@ -716,16 +712,14 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center><b><font size=4>BMS SoC :&nbsp;&nbsp;<font
-                  color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_3_battery_soc') }}
-                  %</font></font>
+                  <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
+                  size=4>{{ states('sensor.yambms_demo_bms_3_battery_soc')
+                  }} %</font></font>
               - type: markdown
                 content: >-
-                  <center><b><font size=4>Corrected SoC :&nbsp;&nbsp;<font
-                  color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_3_battery_soc') }}
-                  %</font></font>
+                  <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
+                  size=4>{{ states('sensor.yambms_demo_bms_3_battery_soh')
+                  }} %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
