@@ -1,4 +1,4 @@
-# Updated : 2025.06.12
+# Updated : 2025.06.13
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -409,7 +409,7 @@ views:
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_battery_soh') }}
+                  states('sensor.yambms_jk_bms_1_battery_soh_valuation') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -762,7 +762,7 @@ views:
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_battery_soh') }}
+                  states('sensor.yambms_jk_bms_2_battery_soh_valuation') }}
                   %</font></font>
               - type: markdown
                 content: >-
@@ -1115,7 +1115,7 @@ views:
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_battery_soh') }}
+                  states('sensor.yambms_jk_bms_3_battery_soh_valuation') }}
                   %</font></font>
               - type: markdown
                 content: >-
