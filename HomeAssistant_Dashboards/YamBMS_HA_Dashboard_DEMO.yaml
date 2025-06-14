@@ -247,6 +247,16 @@ views:
         title: YamBMS - Auto CCL / DCL
       - type: entities
         entities:
+          - entity: select.yambms_demo_yambms_1_automatic_float_voltage
+            name: Automatic Float Voltage
+          - entity: sensor.yambms_demo_yambms_1_auto_float_voltage
+            name: Auto Float Voltage
+          - entity: number.yambms_demo_yambms_1_auto_float_update_interval
+          - entity: number.yambms_demo_yambms_1_auto_float_voltage_step
+            name: Auto Float Voltage Step
+        title: YamBMS - Auto Float
+      - type: entities
+        entities:
           - entity: number.yambms_demo_yambms_1_rebulk_soc
             name: Rebulk SoC
           - entity: number.yambms_demo_yambms_1_rebulk_v
