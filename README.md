@@ -124,7 +124,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 ## Data collection
 
 > [!NOTE]
-> For your information, in May 2025 there were `94` YamBMS users.
+> For your information, in June 2025 there were `100` YamBMS users.
 
 If the ESP32 has an internet connection, the following data is sent to [this script](http://script.opentel.be/yambms.post.php)
 for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have access to this information for the production of statistics, the support and the update service.
