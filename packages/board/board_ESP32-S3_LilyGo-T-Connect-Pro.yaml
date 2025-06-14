@@ -1,4 +1,4 @@
-# Updated : 2025.04.16
+# Updated : 2025.06.14
 # Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -22,6 +22,7 @@
 substitutions:
   board_chip: "ESP32-S3"
   board_name: "LilyGo T-Connect Pro"
+  # Interfaces GPIOs
   # uart_esp_1: RS232
   tx_pin_1: '4'
   rx_pin_1: '5'
@@ -56,17 +57,17 @@ wifi:
 
 # ESPHome does not support W5500 and other SPI devices at the same SPI bus:
 # https://github.com/esphome/esphome/discussions/6720
-#ethernet:
-#  id: my_network
-#  type: W5500
-#  clk_pin: 12
-#  mosi_pin: 11
-#  miso_pin: 13
-#  cs_pin: 10
-#  interrupt_pin: 9
-#  reset_pin: 48
-#  clock_speed: 40MHz
-  
+# ethernet:
+#   id: my_network
+#   type: W5500
+#   clk_pin: 12
+#   mosi_pin: 11
+#   miso_pin: 13
+#   cs_pin: 10
+#   interrupt_pin: 9
+#   reset_pin: 48
+#   clock_speed: 40MHz
+
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
 
