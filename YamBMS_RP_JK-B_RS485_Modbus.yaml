@@ -1,4 +1,4 @@
-# Updated : 2025.06.12
+# Updated : 2025.06.14
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -158,6 +158,17 @@ packages:
       #   vars:
       #     display_auto_next_page_interval: '5s'
       #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+
+      # LilyGo T-Connect Pro
+      # Importing the display also activates PSRAM.
+      # Also note that the display update takes about 120 ms, as indicated in the logs:
+      # "Component display took a long time for an operation (124 ms)."
+      # Board
+      # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
+      # Display
+      # - path: 'packages/board/board_options_display_480x222.yaml'
+      #   vars:
+      #     display_auto_next_page_interval: '5s'
 
   ########### >>> UNCOMMENT YOUR BOARD OPTIONS <<< ###########
 
