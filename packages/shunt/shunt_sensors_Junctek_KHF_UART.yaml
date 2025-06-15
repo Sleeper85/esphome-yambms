@@ -1,5 +1,5 @@
-# Updated : 2025.06.10
-# Version : 1.1.5
+# Updated : 2025.05.19
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -95,23 +95,3 @@ sensor:
       name: ${name} ${shunt_name} Over Temperature Protection
     under_temperature_protection:
       name: ${name} ${shunt_name} Under Temperature Protection
-
-  - platform: template
-    id: shunt${shunt_id}_remaining_time
-    name: ${name} ${shunt_name} Remaining Time
-    update_interval: ${shunt_update_interval}
-    unit_of_measurement: h
-    device_class: duration
-    accuracy_decimals: 1
-    lambda: |-
-      if (isnan(id(shunt${shunt_id}_power).state) ||
-          isnan(id(shunt${shunt_id}_voltage).state) ||
-          isnan(id(shunt${shunt_id}_battery_capacity_ah).state) ||
-          isnan(id(shunt${shunt_id}_soc).state) ||
-          id(shunt${shunt_id}_power).state == 0) {
-        return NAN;
-      }
-      float remaining_ah = id(shunt${shunt_id}_battery_capacity_ah).state * id(shunt${shunt_id}_soc).state / 100.0;
-      float power = fabs(id(shunt${shunt_id}_power).state);
-      float voltage = id(shunt${shunt_id}_voltage).state;
-      return (remaining_ah * voltage) / power;
