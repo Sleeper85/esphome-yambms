@@ -1,5 +1,5 @@
-# Updated : 2025.06.16
-# Version : 1.1.5
+# Updated : 2025.06.17
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,7 +19,6 @@
 
 packages:
   bms_base: !include bms_base.yaml
-  bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
 
 # +--------------------------------------+
