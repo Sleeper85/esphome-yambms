@@ -1,4 +1,4 @@
-# Updated : 2025.06.10
+# Updated : 2025.06.16
 # Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -399,9 +399,9 @@ sensor:
   - platform: template
     name: ${name} ${yambms_name} Requested Charge Voltage
     id: ${yambms_id}_requested_charge_voltage
+    update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
-    update_interval: ${yambms_update_interval}
     accuracy_decimals: 1
     filters:
       - or:
@@ -425,9 +425,9 @@ sensor:
   - platform: template
     name: ${name} ${yambms_name} Requested Discharge Voltage
     id: ${yambms_id}_requested_discharge_voltage
+    update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
-    update_interval: ${yambms_update_interval}
     accuracy_decimals: 1
     filters:
       - or:
@@ -445,9 +445,9 @@ sensor:
   - platform: template
     name: ${name} ${yambms_name} Requested Charge Current
     id: ${yambms_id}_requested_charge_current
-    unit_of_measurement: A
-    icon: mdi:current-dc
     update_interval: ${yambms_update_interval}
+    unit_of_measurement: A
+    device_class: current
     accuracy_decimals: 1
     filters:
       - or:
@@ -466,9 +466,9 @@ sensor:
   - platform: template
     name: ${name} ${yambms_name} Requested Discharge Current
     id: ${yambms_id}_requested_discharge_current
-    unit_of_measurement: A
-    icon: mdi:current-dc
     update_interval: ${yambms_update_interval}
+    unit_of_measurement: A
+    device_class: current
     accuracy_decimals: 1
     filters:
       - or:
@@ -487,9 +487,9 @@ sensor:
   - platform: template
     name: ${name} ${yambms_name} Battery SoC
     id: ${yambms_id}_battery_soc
+    update_interval: ${yambms_update_interval}
     unit_of_measurement: "%"
     device_class: battery
-    update_interval: ${yambms_update_interval}
     accuracy_decimals: 0
     filters:
       - or:
@@ -507,11 +507,11 @@ sensor:
   # | Cell Count                           |
   # +--------------------------------------+
   - platform: template
-    id: ${yambms_id}_cell_count
     name: "${name} ${yambms_name} Cell Count"
+    id: ${yambms_id}_cell_count
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
