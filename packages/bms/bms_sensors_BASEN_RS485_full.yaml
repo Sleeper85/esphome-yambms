@@ -1,5 +1,5 @@
-# Updated : 2025.06.15
-# Version : 1.1.1
+# Updated : 2025.06.17
+# Version : 1.1.2
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -376,20 +376,19 @@ sensor:
 
   # Charging cycle capacity - Calculated from charging cycles and battery capacity
   - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
     name: "${name} ${bms_name} charging cycle capacity"
-    id: "bms${bms_id}_cycle_capacity_raw"
-    internal: true
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
-    state_class: 'measurement'
-    accuracy_decimals: 0
+    state_class: total
     icon: mdi:car-battery
+    accuracy_decimals: 0
+    internal: true
     filters:
       - or:
-        - throttle: 600s
+        - throttle: 10s
         - delta: 1
-    lambda: |-
-      return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
       
   # Charging power: Calculated from voltage and current
   - platform: template

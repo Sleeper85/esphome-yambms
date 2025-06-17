@@ -1,5 +1,5 @@
-# Updated : 2025.06.15
-# Version : 1.1.1
+# Updated : 2025.06.17
+# Version : 1.1.2
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,7 +20,6 @@
 substitutions:
   bms_model: "BASEN"
   bms_protocol: "RS485"
-  basen_controller_id: "basen_controller_1"
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -29,6 +28,10 @@ substitutions:
 external_components:
   - source: github://GHswitt/esphome-basen@main
     refresh: 0s
+
+uart:
+  - id: !extend ${basen_uart_id}
+    baud_rate: ${basen_uart_baud_rate}
 
 basen_controller:
   - uart_id: ${basen_uart_id}
