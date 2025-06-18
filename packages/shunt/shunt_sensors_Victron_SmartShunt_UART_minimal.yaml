@@ -1,5 +1,5 @@
-# Updated : 2025.04.23
-# Version : 1.1.1
+# Updated : 2025.06.18
+# Version : 1.1.2
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  shunt_base: !include shunt_base.yaml
+  shunt_base_minimal: !include shunt_base_minimal.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
