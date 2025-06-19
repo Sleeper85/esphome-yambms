@@ -1,5 +1,5 @@
-# Updated : 2025.06.13
-# Version : 1.5.6
+# Updated : 2025.06.19
+# Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -245,6 +245,17 @@ views:
           - entity: switch.yambms_yambms_1_automatic_discharge_current
             name: Automatic Discharge Current
         title: YamBMS - Auto CCL / DCL
+      - type: entities
+        entities:
+          - entity: select.yambms_yambms_1_automatic_float_voltage
+            name: Automatic Float Voltage
+          - entity: sensor.yambms_yambms_1_auto_float_voltage
+            name: Auto Float Voltage
+          - entity: number.yambms_yambms_1_auto_float_update_interval
+            name: Update Interval
+          - entity: number.yambms_yambms_1_auto_float_voltage_step
+            name: Voltage Step
+        title: YamBMS - Auto Float
       - type: entities
         entities:
           - entity: number.yambms_yambms_1_rebulk_soc
