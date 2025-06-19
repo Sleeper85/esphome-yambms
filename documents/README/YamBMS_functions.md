@@ -115,6 +115,20 @@ You can compare `Auto CCL` to a max speed limiter in a car.
 
 Current control should work with any inverter that uses `CAN` control.
 
+## Auto Float Voltage
+
+When switching from `Bulk` to `Float`, therefore lowering the `Requested Charge Voltage (CVL)`, some inverters (e.g. Deye SUN-12K) will start to discharge the battery (into the grid) with up to max. discharge current until the
+`Requested Charge Voltage (CVL)` is reached. The reason behind this is that the inverter sees this as battery overvoltage and wants to counter it. 
+As workaround, by enabling `Automatic Float Voltage`, it will lower the `Requested Charge Voltage (CVL)` gradually in small steps until the float voltage is reached, allowing the battery more time to settle down.
+There are two modes available: `Follow` and `Immediately`.
+
+- `Follow`: Waits until the battery voltage itself is below the current `Requested Charge Voltage (CVL)` before lowering `Requested Charge Voltage (CVL)` further. It follows the battery voltage until the target float voltage is reached.
+- `Immediately`: Immediately start lowering the `Requested Charge Voltage (CVL)`, independent of the current battery voltage. That means it can go below the current battery voltage.
+
+This feature might not work with all inverters as good or is not required if these do not discharge the battery.
+
+The voltage steps can be configured (default `0.1V`) with `Auto Float Voltage Step`. The update interval can be configured (default `3 minutes`) with `Auto Float Update Interval`.
+
 ## Requested Values
 
 ![Image](../../images/YamBMS_Requested_Values.png "YamBMS_Requested_Values")
