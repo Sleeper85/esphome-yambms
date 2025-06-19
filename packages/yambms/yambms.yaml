@@ -1,5 +1,5 @@
-# Updated : 2025.06.16
-# Version : 1.5.6
+# Updated : 2025.06.19
+# Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,6 +28,7 @@ packages:
   yambms_auto_cvl: !include yambms_auto_cvl.yaml
   yambms_auto_ccl: !include yambms_auto_ccl.yaml
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
+  yambms_auto_float: !include yambms_auto_float.yaml
 
 # Execute once
 esphome:
@@ -41,7 +42,7 @@ esphome:
           {
             // LFP
             id(${yambms_id}_cell_nominal_v) = 3.20;
-            id(${yambms_id}_cell_min_charge_v) = 3.37; // Fully charged at rest
+            id(${yambms_id}_cell_min_charge_v) = 3.35; // Fully charged at rest
             id(${yambms_id}_cell_max_charge_v) = 3.65;
             id(${yambms_id}_cell_max_discharge_v) = 3.00; // Not used
           }
@@ -66,8 +67,8 @@ esphome:
           id(${yambms_id}_bulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_cell_min_charge_v) * 10) / 10);
           id(${yambms_id}_bulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_cell_max_charge_v) * 10) / 10);
           // Float V.
-          id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) - 0.1) * 10) / 10);
-          id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) + 0.1) * 10) / 10);
+          id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) - 0.15) * 10) / 10);
+          id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_cell_min_charge_v) + 0.05) * 10) / 10);
           // Rebulk V.
           id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_cell_nominal_v) * 10) / 10);
           id(${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_cell_min_charge_v) * 10) / 10);
@@ -120,6 +121,10 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: ${yambms_id}_auto_dcl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_auto_float
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -415,7 +420,7 @@ sensor:
         return (id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_inverter_offset_v).state + id(${yambms_id}_auto_cvl));
       // Float
       else if (id(${yambms_id}_charging_instruction).state == "Float")
-        return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state);
+        return (id(${yambms_id}_float_voltage).state + id(${yambms_id}_inverter_offset_v).state) + id(${yambms_id}_auto_float);
       // Stop Charging
       else return (id(${yambms_id}_rebulk_voltage).state + id(${yambms_id}_inverter_offset_v).state);
 
