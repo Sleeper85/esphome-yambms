@@ -145,8 +145,16 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 * YamBMS 1.5.6 :
   * Fixed [issue 58](https://github.com/Sleeper85/esphome-yambms/issues/58) Compilation problem with `esphome 2025.5.0`
   * Fixed [issue 55](https://github.com/Sleeper85/esphome-yambms/issues/55) New CPU frequency option
-  * Added [feature 35](https://github.com/Sleeper85/esphome-yambms/issues/35) BMS Charging Cycles Offset
+  * Fixed [issue 65](https://github.com/Sleeper85/esphome-yambms/issues/65) JBD Circular dependency error 
+  * Fixed [issue 35](https://github.com/Sleeper85/esphome-yambms/issues/35) BMS Charging Cycles Offset
+  * Merged [PR 51](https://github.com/Sleeper85/esphome-yambms/pull/51) Support for RP2040 RPi Pico
+  * Merged [PR 56](https://github.com/Sleeper85/esphome-yambms/pull/56) Add support for Basengreen BMS
+  * Merged [PR 60](https://github.com/Sleeper85/esphome-yambms/pull/60) Fixes for new ESPHome and add of BMS Cycle Count offset
+  * Merged [PR 61](https://github.com/Sleeper85/esphome-yambms/pull/61) Set Modbus BMS values to 0 when BMS goes offline
+  * New `board_ESP32-S3_Touch-LCD-4.3.yaml` board
+  * New `board_ESP32-S3_Touch-LCD-7.yaml` board
   * New `board_ESP32-S3_YBoard_DJK.yaml` board
+  * New `board_RP2040_RPi_Pico.yaml` board
 * YamBMS 1.5.5 :
   * New `main.yaml` with LP (local packages) and RP (remote packages) versions
   * New `board.yaml` with modular UART/CAN interfaces
