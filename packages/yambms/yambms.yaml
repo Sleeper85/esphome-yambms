@@ -593,6 +593,8 @@ text_sensor:
         else if (id(${yambms_id}_max_cell_voltage).state <= cell_rebulk_v) id(${yambms_id}_charge_status) = "Bulk";
         // SoC <= 85% (default value)
         else if (id(${yambms_id}_battery_soc).state <= id(${yambms_id}_rebulk_soc).state) id(${yambms_id}_charge_status) = "Bulk";
+        // Force Charge requested
+        else if (id(${yambms_id}_requested_force_charge).state) id(${yambms_id}_charge_status) = "Bulk";
 
         // +-----------------------------------------------+
         // | Charging Logic (Bulk)                         |
