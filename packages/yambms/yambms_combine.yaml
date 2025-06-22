@@ -1,4 +1,4 @@
-# Updated : 2025.06.19
+# Updated : 2025.06.22
 # Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -386,6 +386,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -399,6 +400,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -411,6 +413,7 @@ sensor:
     name: "${name} ${yambms_name} Min Voltage Cell"
     update_interval: ${yambms_update_interval}
     icon: mdi:numeric
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -423,6 +426,7 @@ sensor:
     name: "${name} ${yambms_name} Max Voltage Cell"
     update_interval: ${yambms_update_interval}
     icon: mdi:numeric
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -436,6 +440,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 3
     filters:
       - or:
@@ -449,6 +454,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 3
     filters:
       - or:
@@ -462,6 +468,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 3
     filters:
       - or:
@@ -476,6 +483,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 2
     filters:
       - or:
@@ -489,6 +497,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -502,6 +511,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: W
     device_class: power
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -515,6 +525,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: '%'
     device_class: battery
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -529,6 +540,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: "%"
     device_class: battery
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -541,7 +553,7 @@ sensor:
     name: "${name} ${yambms_name} Installed Battery Capacity (Σ)"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
-    state_class: total
+    state_class: measurement
     icon: mdi:car-battery
     accuracy_decimals: 0
     filters:
@@ -556,7 +568,7 @@ sensor:
     name: "${name} ${yambms_name} Battery Capacity (Σ)"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
-    state_class: total
+    state_class: measurement
     icon: mdi:car-battery
     accuracy_decimals: 0
     filters:
@@ -570,7 +582,7 @@ sensor:
     name: "${name} ${yambms_name} Capacity Remaining (Σ)"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
-    state_class: total
+    state_class: measurement
     icon: mdi:car-battery
     accuracy_decimals: 0
     filters:
@@ -585,6 +597,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 3
     filters:
       - or:
@@ -598,6 +611,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 3
     filters:
       - or:
@@ -611,6 +625,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 3
     filters:
       - or:
@@ -624,6 +639,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: °C
     device_class: temperature
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -637,6 +653,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: °C
     device_class: temperature
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -649,6 +666,7 @@ sensor:
     name: "${name} ${yambms_name} Min temperature sensor"
     update_interval: ${yambms_update_interval}
     icon: mdi:numeric
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -661,6 +679,7 @@ sensor:
     name: "${name} ${yambms_name} Max temperature sensor"
     update_interval: ${yambms_update_interval}
     icon: mdi:numeric
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -673,6 +692,7 @@ sensor:
     name: "${name} ${yambms_name} Charging Cycles (Ø)"
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -685,6 +705,7 @@ sensor:
     name: "${name} ${yambms_name} Errors Bitmask Alarm"
     update_interval: ${yambms_update_interval}
     icon: mdi:alert-circle-outline
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -697,6 +718,7 @@ sensor:
     name: "${name} ${yambms_name} Errors Bitmask Warning"
     update_interval: ${yambms_update_interval}
     icon: mdi:alert-circle-outline
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -709,6 +731,7 @@ sensor:
     name: "${name} ${yambms_name} BMS in alarm"
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -721,6 +744,7 @@ sensor:
     id: ${yambms_id}_bms_count
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -734,6 +758,7 @@ sensor:
     id: ${yambms_id}_bms_combined
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -747,6 +772,7 @@ sensor:
     id: ${yambms_id}_bms_blocking_charge
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -759,6 +785,7 @@ sensor:
     id: ${yambms_id}_bms_blocking_discharge
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -771,6 +798,7 @@ sensor:
     id: ${yambms_id}_shunt_count
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
@@ -784,6 +812,7 @@ sensor:
     id: ${yambms_id}_shunt_combined
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
