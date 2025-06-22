@@ -1,4 +1,4 @@
-# Updated : 2025.06.19
+# Updated : 2025.06.22
 # Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -326,9 +326,6 @@ script:
           id(${yambms_id}_eoc_timestamp) = id(my_time).utcnow().timestamp;     // Store charge completion timestamp
 
 sensor:
-  # +--------------------------------------+
-  # | Total Daily Energy                   |
-  # +--------------------------------------+
   # Battery Charging Power
   - platform: template
     name: ${name} ${yambms_name} Battery Charging Power
@@ -336,6 +333,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: 'W'
     device_class: power
+    state_class: measurement
     accuracy_decimals: 0
     lambda: |-
       if (id(${yambms_id}_power).state > 0)
@@ -349,6 +347,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: 'W'
     device_class: power
+    state_class: measurement
     accuracy_decimals: 0
     lambda: |-
       if (id(${yambms_id}_power).state <= 0)
@@ -360,8 +359,8 @@ sensor:
     name: "${name} ${yambms_name} Daily Charging Energy"
     power_id: ${yambms_id}_battery_charging_power
     unit_of_measurement: 'kWh'
-    state_class: total_increasing
     device_class: energy
+    state_class: total_increasing
     accuracy_decimals: 3
     filters:
       # Multiplication factor from W to kW is 0.001
@@ -372,8 +371,8 @@ sensor:
     name: "${name} ${yambms_name} Daily Discharging Energy"
     power_id: ${yambms_id}_battery_discharging_power
     unit_of_measurement: 'kWh'
-    state_class: total_increasing
     device_class: energy
+    state_class: total_increasing
     accuracy_decimals: 3
     filters:
       # Multiplication factor from W to kW is 0.001
@@ -407,6 +406,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -433,6 +433,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -453,6 +454,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -474,6 +476,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
+    state_class: measurement
     accuracy_decimals: 1
     filters:
       - or:
@@ -495,6 +498,7 @@ sensor:
     update_interval: ${yambms_update_interval}
     unit_of_measurement: "%"
     device_class: battery
+    state_class: measurement
     accuracy_decimals: 0
     filters:
       - or:
