@@ -146,8 +146,9 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
   * New dashboard for `Auto Float Voltage` function.
-  * Defining state_class for all YamBMS sensors
+  * Defining `state_class` for all YamBMS sensors
   * Set esphome `min_version` to `2025.6.0` for loop time improvment
+  * Fixed: change `Charge Status` to `Bulk` when `Force Charge` is requested
 * YamBMS 1.5.6 :
   * Fixed [issue 58](https://github.com/Sleeper85/esphome-yambms/issues/58) Compilation problem with `esphome 2025.5.0`
   * Fixed [issue 55](https://github.com/Sleeper85/esphome-yambms/issues/55) New CPU frequency option
