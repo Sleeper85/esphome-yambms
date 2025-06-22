@@ -113,7 +113,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2025.5.0 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2025.6.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
@@ -146,6 +146,8 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
   * New dashboard for `Auto Float Voltage` function.
+  * Defining state_class for all YamBMS sensors
+  * Set esphome `min_version` to `2025.6.0` for loop time improvment
 * YamBMS 1.5.6 :
   * Fixed [issue 58](https://github.com/Sleeper85/esphome-yambms/issues/58) Compilation problem with `esphome 2025.5.0`
   * Fixed [issue 55](https://github.com/Sleeper85/esphome-yambms/issues/55) New CPU frequency option
