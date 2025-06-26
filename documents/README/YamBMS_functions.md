@@ -21,7 +21,7 @@ Other configurations are possible, don't hesitate to communicate what works well
 | Inverter | Battery mode | CAN protocol |
 | --- | --- | --- |
 | Deye | Lithium 00 | PYLON 1.2 |
-| GoodWe | LX U5.4-L | PYLON + |
+| GoodWe | LX U5.4-L | PYLON V2 |
 | Sofar | Automatic | PYLON 1.2 |
 | Growatt | CAN L52 | PYLON 1.2 |
 | Solis | AoBo | SMA |
