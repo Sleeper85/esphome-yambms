@@ -1,5 +1,5 @@
-# Updated : 2025.06.12
-# Version : 1.1.5
+# Updated : 2025.06.28
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -311,6 +311,30 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: return ${bms_charging_cycles};
+
+  # Charging power: Calculated from voltage and current
+  - platform: template
+    name: "${name} ${bms_name} battery power charging"
+    id: bms${bms_id}_charging_power
+    unit_of_measurement: 'W'
+    device_class: 'current'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_current).state > 0) return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
+      else return 0;
+
+  # Discharging power: Calculated from voltage and current
+  - platform: template
+    name: "${name} ${bms_name} battery power discharging"
+    id: bms${bms_id}_discharging_power
+    unit_of_measurement: 'W'
+    device_class: 'current'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_current).state < 0) return id(bms${bms_id}_total_voltage).state * -id(bms${bms_id}_current).state;
+      else return 0;
 
 number:
   # errors_bitmask (16bits)
