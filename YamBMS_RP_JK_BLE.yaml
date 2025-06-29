@@ -1,5 +1,5 @@
-# Updated : 2025.06.26
-# Version : 1.5.7
+# Updated : 2025.06.29
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -97,6 +97,10 @@ substitutions:
   yambms_eoc_timer: '30'
   # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
   yambms_cutoff_timer: '60'
+  # Max. charge current : corresponds to the maximum charge current that the inverter can deliver.
+  yambms_max_inverter_charge_current: '200' # in Ampere
+  # Max. discharge current : corresponds to the maximum discharge current that the inverter can use.
+  yambms_max_inverter_discharge_current: '250' # in Ampere
   # +--------------------------------------+
   # | Shunt Settings                      |
   # +--------------------------------------+

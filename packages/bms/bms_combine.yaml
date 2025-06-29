@@ -1,5 +1,5 @@
-# Updated : 2025.06.19
-# Version : 1.5.7
+# Updated : 2025.06.29
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -90,7 +90,11 @@ interval:
                 id(${yambms_id}_var_charging_allowed_counter) += 1;
                 // TOTAL max_charge_current
                 id(${yambms_id}_var_total_max_charge_current) += id(bms${bms_id}_max_charge_current).state;
-
+                // Limit to inverter charge current
+                if(id(${yambms_id}_var_total_max_charge_current) > ${yambms_max_inverter_charge_current})
+                {
+                  id(${yambms_id}_var_total_max_charge_current) = ${yambms_max_inverter_charge_current};
+                }
               }
               // TOTAL bms_blocking_charge_counter
               else id(${yambms_id}_var_bms_blocking_charge_counter) += 1;
@@ -101,6 +105,11 @@ interval:
                 id(${yambms_id}_var_discharging_allowed_counter) += 1;
                 // TOTAL max_discharge_current
                 id(${yambms_id}_var_total_max_discharge_current) += id(bms${bms_id}_max_discharge_current).state;
+                // Limit to inverter discharge current
+                if(id(${yambms_id}_var_total_max_discharge_current) > ${yambms_max_inverter_discharge_current})
+                {
+                  id(${yambms_id}_var_total_max_discharge_current) = ${yambms_max_inverter_discharge_current};
+                }
               }
               // TOTAL bms_blocking_discharge_counter
               else id(${yambms_id}_var_bms_blocking_discharge_counter) += 1;
