@@ -38,6 +38,7 @@ packages:
   yambms_auto_ccl: !include yambms_auto_ccl.yaml
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
   yambms_auto_float: !include yambms_auto_float.yaml
+  yambms_auto_eoc: !include yambms_auto_eoc.yaml
 
 # Execute once
 esphome:
@@ -130,6 +131,10 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: ${yambms_id}_auto_dcl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_auto_eoc
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -471,8 +476,12 @@ sensor:
         - delta: 0.1
     lambda: |-
       // Charging Allowed
-      if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float"))
-        return (id(${yambms_id}_max_charge_current).state + id(${yambms_id}_auto_ccl));
+      if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float")) {
+        float requested_charge_current = id(${yambms_id}_max_charge_current).state + id(${yambms_id}_auto_ccl) + id(${yambms_id}_auto_eoc);
+        if (requested_charge_current < 0) 
+          return 0;
+        return requested_charge_current;
+      }
       // Charging Not Allowed
       else return 0;
 
