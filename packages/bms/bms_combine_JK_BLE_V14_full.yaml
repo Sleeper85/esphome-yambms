@@ -1,5 +1,5 @@
-# Updated : 2025.06.11
-# Version : 1.2.8
+# Updated : 2025.07.07
+# Version : 1.2.9
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -101,6 +101,7 @@ switch:
       id: bms${bms_id}_discharge_switch
       name: "${name} ${bms_name} Discharge switch"
     balancer:
+      id: bms${bms_id}_balance_switch
       name: "${name} ${bms_name} Balance switch"
     # Commits 2024.01.20 : Add new switch entities of firmware version 14 (from V11)
     heating:
