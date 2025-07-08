@@ -1,4 +1,4 @@
-# Updated : 2025.06.19
+# Updated : 2025.07.08
 # Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -366,43 +366,43 @@ views:
               - type: markdown
                 content: >-
                   <center>Charge : <b>{% if
-                  states('switch.yambms_demo_bms_1_charge_switch') == 'on'
+                  states('switch.yambms_demo_bms_1_charge_switch', rounded=True) == 'on'
                   %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_1_charge_switch') | upper
+                  states('switch.yambms_demo_bms_1_charge_switch', rounded=True) | upper
                   }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_1_charge_switch') | upper
+                  states('switch.yambms_demo_bms_1_charge_switch', rounded=True) | upper
                   }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('switch.yambms_demo_bms_1_discharge_switch') ==
+                  states('switch.yambms_demo_bms_1_discharge_switch', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_1_discharge_switch') |
+                  states('switch.yambms_demo_bms_1_discharge_switch', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_1_discharge_switch') |
+                  states('switch.yambms_demo_bms_1_discharge_switch', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.yambms_demo_bms_1_balance_switch') ==
+                  states('switch.yambms_demo_bms_1_balance_switch', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_1_balance_switch') |
+                  states('switch.yambms_demo_bms_1_balance_switch', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_1_balance_switch') |
+                  states('switch.yambms_demo_bms_1_balance_switch', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_1_total_voltage') }}
+                  states('sensor.yambms_demo_bms_1_total_voltage', rounded=True) }}
                   V</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_1_current') }} A</font></b>
+                  states('sensor.yambms_demo_bms_1_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_1_power') }} W</font>
+                  states('sensor.yambms_demo_bms_1_power', rounded=True) }} W</font>
           - type: grid
             square: false
             columns: 2
@@ -410,32 +410,32 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.yambms_demo_bms_1_battery_soc')
+                  size=4>{{ states('sensor.yambms_demo_bms_1_battery_soc', rounded=True)
                   }} %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.yambms_demo_bms_1_battery_soh')
+                  size=4>{{ states('sensor.yambms_demo_bms_1_battery_soh', rounded=True)
                   }} %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_1_battery_capacity') }} Ah</font><br>
+                  states('sensor.yambms_demo_bms_1_battery_capacity', rounded=True) }} Ah</font><br>
                   Cycle Capacity :&nbsp;&nbsp;<font color=#41CD52>12532 Ah</font><br>
                   Ave. Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br>
                   Balance Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br>
                   Max temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_1_max_temperature') }} °C</font>
+                  states('sensor.yambms_demo_bms_1_max_temperature', rounded=True) }} °C</font>
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_1_capacity_remaining') }} Ah</font><br>
+                  states('sensor.yambms_demo_bms_1_capacity_remaining', rounded=True) }} Ah</font><br>
                   Cycle Count :&nbsp;&nbsp;<font color=#41CD52>
-                  {{ states('sensor.yambms_demo_bms_1_charging_cycles') }}</font><br>
+                  {{ states('sensor.yambms_demo_bms_1_charging_cycles', rounded=True) }}</font><br>
                   Delta Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>0.007 V</font><br>
                   MOS temp. :&nbsp;&nbsp;<font color=#41CD52>25.6 °C</font><br>
                   Min temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_1_min_temperature') }} °C</font>
+                  states('sensor.yambms_demo_bms_1_min_temperature', rounded=True) }} °C</font>
           - type: grid
             square: false
             columns: 2
@@ -523,43 +523,43 @@ views:
               - type: markdown
                 content: >-
                   <center>Charge : <b>{% if
-                  states('switch.yambms_demo_bms_2_charge_switch') == 'on'
+                  states('switch.yambms_demo_bms_2_charge_switch', rounded=True) == 'on'
                   %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_2_charge_switch') | upper
+                  states('switch.yambms_demo_bms_2_charge_switch', rounded=True) | upper
                   }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_2_charge_switch') | upper
+                  states('switch.yambms_demo_bms_2_charge_switch', rounded=True) | upper
                   }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('switch.yambms_demo_bms_2_discharge_switch') ==
+                  states('switch.yambms_demo_bms_2_discharge_switch', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_2_discharge_switch') |
+                  states('switch.yambms_demo_bms_2_discharge_switch', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_2_discharge_switch') |
+                  states('switch.yambms_demo_bms_2_discharge_switch', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.yambms_demo_bms_2_balance_switch') ==
+                  states('switch.yambms_demo_bms_2_balance_switch', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_2_balance_switch') |
+                  states('switch.yambms_demo_bms_2_balance_switch', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_2_balance_switch') |
+                  states('switch.yambms_demo_bms_2_balance_switch', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_2_total_voltage') }}
+                  states('sensor.yambms_demo_bms_2_total_voltage', rounded=True) }}
                   V</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_2_current') }} A</font></b>
+                  states('sensor.yambms_demo_bms_2_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_2_power') }} W</font>
+                  states('sensor.yambms_demo_bms_2_power', rounded=True) }} W</font>
           - type: grid
             square: false
             columns: 2
@@ -567,32 +567,32 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.yambms_demo_bms_2_battery_soc')
+                  size=4>{{ states('sensor.yambms_demo_bms_2_battery_soc', rounded=True)
                   }} %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.yambms_demo_bms_2_battery_soh')
+                  size=4>{{ states('sensor.yambms_demo_bms_2_battery_soh', rounded=True)
                   }} %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_2_battery_capacity') }} Ah</font><br>
+                  states('sensor.yambms_demo_bms_2_battery_capacity', rounded=True) }} Ah</font><br>
                   Cycle Capacity :&nbsp;&nbsp;<font color=#41CD52>12532 Ah</font><br>
                   Ave. Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br>
                   Balance Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br>
                   Max temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_2_max_temperature') }} °C</font>
+                  states('sensor.yambms_demo_bms_2_max_temperature', rounded=True) }} °C</font>
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_2_capacity_remaining') }} Ah</font><br>
+                  states('sensor.yambms_demo_bms_2_capacity_remaining', rounded=True) }} Ah</font><br>
                   Cycle Count :&nbsp;&nbsp;<font color=#41CD52>
-                  {{ states('sensor.yambms_demo_bms_2_charging_cycles') }}</font><br>
+                  {{ states('sensor.yambms_demo_bms_2_charging_cycles', rounded=True) }}</font><br>
                   Delta Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>0.007 V</font><br>
                   MOS temp. :&nbsp;&nbsp;<font color=#41CD52>25.6 °C</font><br>
                   Min temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_2_min_temperature') }} °C</font>
+                  states('sensor.yambms_demo_bms_2_min_temperature', rounded=True) }} °C</font>
           - type: grid
             square: false
             columns: 2
@@ -680,43 +680,43 @@ views:
               - type: markdown
                 content: >-
                   <center>Charge : <b>{% if
-                  states('switch.yambms_demo_bms_3_charge_switch') == 'on'
+                  states('switch.yambms_demo_bms_3_charge_switch', rounded=True) == 'on'
                   %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_3_charge_switch') | upper
+                  states('switch.yambms_demo_bms_3_charge_switch', rounded=True) | upper
                   }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_3_charge_switch') | upper
+                  states('switch.yambms_demo_bms_3_charge_switch', rounded=True) | upper
                   }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('switch.yambms_demo_bms_3_discharge_switch') ==
+                  states('switch.yambms_demo_bms_3_discharge_switch', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_3_discharge_switch') |
+                  states('switch.yambms_demo_bms_3_discharge_switch', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_3_discharge_switch') |
+                  states('switch.yambms_demo_bms_3_discharge_switch', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.yambms_demo_bms_3_balance_switch') ==
+                  states('switch.yambms_demo_bms_3_balance_switch', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('switch.yambms_demo_bms_3_balance_switch') |
+                  states('switch.yambms_demo_bms_3_balance_switch', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.yambms_demo_bms_3_balance_switch') |
+                  states('switch.yambms_demo_bms_3_balance_switch', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_3_total_voltage') }}
+                  states('sensor.yambms_demo_bms_3_total_voltage', rounded=True) }}
                   V</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_3_current') }} A</font></b>
+                  states('sensor.yambms_demo_bms_3_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_demo_bms_3_power') }} W</font>
+                  states('sensor.yambms_demo_bms_3_power', rounded=True) }} W</font>
           - type: grid
             square: false
             columns: 2
@@ -724,32 +724,32 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.yambms_demo_bms_3_battery_soc')
+                  size=4>{{ states('sensor.yambms_demo_bms_3_battery_soc', rounded=True)
                   }} %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.yambms_demo_bms_3_battery_soh')
+                  size=4>{{ states('sensor.yambms_demo_bms_3_battery_soh', rounded=True)
                   }} %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_3_battery_capacity') }} Ah</font><br>
+                  states('sensor.yambms_demo_bms_3_battery_capacity', rounded=True) }} Ah</font><br>
                   Cycle Capacity :&nbsp;&nbsp;<font color=#41CD52>12532 Ah</font><br>
                   Ave. Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br>
                   Balance Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br>
                   Max temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_3_max_temperature') }} °C</font>
+                  states('sensor.yambms_demo_bms_3_max_temperature', rounded=True) }} °C</font>
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_3_capacity_remaining') }} Ah</font><br>
+                  states('sensor.yambms_demo_bms_3_capacity_remaining', rounded=True) }} Ah</font><br>
                   Cycle Count :&nbsp;&nbsp;<font color=#41CD52>
-                  {{ states('sensor.yambms_demo_bms_3_charging_cycles') }}</font><br>
+                  {{ states('sensor.yambms_demo_bms_3_charging_cycles', rounded=True) }}</font><br>
                   Delta Cell Vol. :&nbsp;&nbsp;<font color=#41CD52>0.007 V</font><br>
                   MOS temp. :&nbsp;&nbsp;<font color=#41CD52>25.6 °C</font><br>
                   Min temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_3_min_temperature') }} °C</font>
+                  states('sensor.yambms_demo_bms_3_min_temperature', rounded=True) }} °C</font>
           - type: grid
             square: false
             columns: 2
