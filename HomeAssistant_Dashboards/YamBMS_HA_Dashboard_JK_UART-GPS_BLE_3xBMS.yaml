@@ -1,4 +1,4 @@
-# Updated : 2025.07.08
+# Updated : 2025.07.10
 # Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -459,29 +459,29 @@ views:
 
                   {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
-                  {% if states('sensor.{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% if states('sensor{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
-                  {% elif states('sensor.{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% elif states('sensor{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
                   
-                  {{ states('sensor.{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor.{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor.{}_cell_r{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
+                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
                   <br>
                   
                   {% endmacro %}
                   
                   <center>
 
-                  {{ cell_v(lead_zero=1, num=1, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=2, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=3, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=4, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=5, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=6, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=7, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=8, entity='yambms_jk_bms_1') }}                  
+                  {{ cell_v(lead_zero=1, num=1, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=2, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=3, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=4, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=5, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=6, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=7, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=8, entity='.yambms_jk_bms_1') }}                  
 
                   </center>
               - type: markdown
@@ -489,29 +489,29 @@ views:
                   
                   {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
-                  {% if states('sensor.{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% if states('sensor{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
-                  {% elif states('sensor.{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% elif states('sensor{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
                   
-                  {{ states('sensor.{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor.{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor.{}_cell_r{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
+                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
                   <br>
                   
                   {% endmacro %}
                   
                   <center>
                   
-                  {{ cell_v(lead_zero=1, num=9, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=10, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=11, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=12, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=13, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=14, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=15, entity='yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=16, entity='yambms_jk_bms_1') }}              
+                  {{ cell_v(lead_zero=1, num=9, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=10, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=11, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=12, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=13, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=14, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=15, entity='.yambms_jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=16, entity='.yambms_jk_bms_1') }}              
                   
                   </center>
           - type: entity-filter
@@ -673,56 +673,56 @@ views:
                 content: >-
                   {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
-                  {% if states('sensor.{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% if states('sensor{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
-                  {% elif states('sensor.{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% elif states('sensor{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
                   
-                  {{ states('sensor.{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor.{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor.{}_cell_r{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
+                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
                   <br>
                   
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=1, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=2, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=3, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=4, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=5, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=6, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=7, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=8, entity='yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=1, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=2, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=3, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=4, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=5, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=6, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=7, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=8, entity='.yambms_jk_bms_2') }}
                   
                   </center>
               - type: markdown
                 content: >-
                   {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
-                  {% if states('sensor.{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% if states('sensor{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
-                  {% elif states('sensor.{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% elif states('sensor{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
                   
-                  {{ states('sensor.{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor.{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor.{}_cell_r{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
+                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
                   <br>
                   
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=9, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=10, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=11, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=12, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=13, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=14, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=15, entity='yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=16, entity='yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=9, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=10, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=11, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=12, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=13, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=14, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=15, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=16, entity='.yambms_jk_bms_2') }}
                   
                   </center>
           - type: entity-filter
@@ -884,56 +884,56 @@ views:
                 content: >-
                   {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
-                  {% if states('sensor.{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% if states('sensor{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
-                  {% elif states('sensor.{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% elif states('sensor{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
                   
-                  {{ states('sensor.{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor.{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor.{}_cell_r{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
+                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
                   <br>
                   
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=1, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=2, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=3, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=4, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=5, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=6, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=7, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=8, entity='yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=1, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=2, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=3, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=4, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=5, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=6, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=7, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=8, entity='.yambms_jk_bms_3') }}
                   
                   </center>
               - type: markdown
                 content: >-
                   {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
-                  {% if states('sensor.{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% if states('sensor{}_max_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
-                  {% elif states('sensor.{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
+                  {% elif states('sensor{}_min_voltage_cell'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
                   
-                  {{ states('sensor.{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor.{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor.{}_cell_r{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
+                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
                   <br>
                   
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=9, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=10, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=11, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=12, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=13, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=14, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=15, entity='yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=16, entity='yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=9, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=10, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=11, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=12, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=13, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=14, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=15, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=16, entity='.yambms_jk_bms_3') }}
                   
                   </center>
           - type: entity-filter
