@@ -1,4 +1,4 @@
-# Updated : 2025.06.22
+# Updated : 2025.07.10
 # Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -382,7 +382,7 @@ sensor:
   # max_charge_current SUM
   - platform: template
     id: ${yambms_id}_max_charge_current
-    name: "${name} ${yambms_name} Max Charge current (Σ)"
+    name: "${name} ${yambms_name} Max Charge current"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
@@ -396,7 +396,7 @@ sensor:
   # max_discharge_current SUM
   - platform: template
     id: ${yambms_id}_max_discharge_current
-    name: "${name} ${yambms_name} Max Discharge Current (Σ)"
+    name: "${name} ${yambms_name} Max Discharge Current"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
@@ -479,7 +479,7 @@ sensor:
   # total_voltage MEAN
   - platform: template
     id: ${yambms_id}_total_voltage
-    name: "${name} ${yambms_name} Total Voltage (Ø)"
+    name: "${name} ${yambms_name} Total Voltage"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: V
     device_class: voltage
@@ -493,7 +493,7 @@ sensor:
   # current SUM
   - platform: template
     id: ${yambms_id}_current
-    name: "${name} ${yambms_name} Current (Σ)"
+    name: "${name} ${yambms_name} Current"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: A
     device_class: current
@@ -507,7 +507,7 @@ sensor:
   # power SUM
   - platform: template
     id: ${yambms_id}_power
-    name: "${name} ${yambms_name} Power (Σ)"
+    name: "${name} ${yambms_name} Power"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: W
     device_class: power
@@ -521,7 +521,7 @@ sensor:
   # state_of_charge MEAN
   - platform: template
     id: ${yambms_id}_state_of_charge
-    name: "${name} ${yambms_name} SoC (Ø)"
+    name: "${name} ${yambms_name} SoC"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: '%'
     device_class: battery
@@ -550,7 +550,7 @@ sensor:
   # installed_battery_capacity SUM
   - platform: template
     id: ${yambms_id}_installed_battery_capacity
-    name: "${name} ${yambms_name} Installed Battery Capacity (Σ)"
+    name: "${name} ${yambms_name} Installed Battery Capacity"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
     state_class: measurement
@@ -565,7 +565,7 @@ sensor:
   # battery_capacity SUM
   - platform: template
     id: ${yambms_id}_battery_capacity
-    name: "${name} ${yambms_name} Battery Capacity (Σ)"
+    name: "${name} ${yambms_name} Battery Capacity"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
     state_class: measurement
@@ -579,7 +579,7 @@ sensor:
   # capacity_remaining_ah SUM
   - platform: template
     id: ${yambms_id}_capacity_remaining_ah
-    name: "${name} ${yambms_name} Capacity Remaining (Σ)"
+    name: "${name} ${yambms_name} Capacity Remaining"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
     state_class: measurement
@@ -689,7 +689,7 @@ sensor:
   # charging_cycles MEAN
   - platform: template
     id: ${yambms_id}_charging_cycles
-    name: "${name} ${yambms_name} Charging Cycles (Ø)"
+    name: "${name} ${yambms_name} Charging Cycles"
     update_interval: ${yambms_update_interval}
     icon: mdi:counter
     state_class: measurement
