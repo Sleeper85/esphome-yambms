@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.1.2
+# Updated : 2025.10.11
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -79,7 +79,7 @@ sensor:
   # state_of_charge
   - platform: template
     id: shunt${shunt_id}_soc
-    name: "${name} ${shunt_name} SoC"
+    name: "${name} ${shunt_name} State of Charge"
     update_interval: ${shunt_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: '%'
