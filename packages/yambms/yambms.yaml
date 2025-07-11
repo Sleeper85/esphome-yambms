@@ -1,4 +1,4 @@
-# Updated : 2025.07.09
+# Updated : 2025.07.11
 # Version : 1.5.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -24,7 +24,7 @@ substitutions:
   yambms_max_requested_charge_current: '300' # in Ampere
   # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
   # The current requested will be proportional to the BMS count without ever exceeding this value.
-  yambms_max_requested_discharge_current: '300' # in Amper
+  yambms_max_requested_discharge_current: '300' # in Ampere
 
 # +--------------------------------------+
 # | Packages                             |
@@ -258,7 +258,7 @@ number:
     entity_category: config
     # internal: true
   - platform: template
-    name: "${name} ${yambms_name} Max charge current (%)"
+    name: "${name} ${yambms_name} Max charge current percent"
     id: "${yambms_id}_max_charge_current_pct"
     step: 1
     min_value: 0
@@ -271,7 +271,7 @@ number:
     optimistic: true
     entity_category: config
   - platform: template
-    name: "${name} ${yambms_name} Max discharge current (%)"
+    name: "${name} ${yambms_name} Max discharge current percent"
     id: "${yambms_id}_max_discharge_current_pct"
     step: 1
     min_value: 0
