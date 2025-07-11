@@ -267,9 +267,9 @@ views:
         title: YamBMS - ReBulk
       - type: entities
         entities:
-          - entity: number.yambms_yambms_1_max_charge_current
+          - entity: number.yambms_yambms_1_max_charge_current_percent
             name: Max charge current (%)
-          - entity: number.yambms_yambms_1_max_discharge_current
+          - entity: number.yambms_yambms_1_max_discharge_current_percent
             name: Max discharge current (%)
         title: YamBMS - Max current (%)
       - type: entities
@@ -317,19 +317,29 @@ views:
             name: CANBUS 1 Inverter Heartbeat
         title: YamBMS - Inverter Heartbeat
       - type: entities
+      - type: entity-filter
         entities:
-          - entity: sensor.yambms_debug_heap_free
+          - entity: sensor.yambms_debug_free_psram_percent
+            name: Debug Free PSRAM (%)
+          - entity: sensor.yambms_debug_free_psram
+            name: Debug Free PSRAM
+          - entity: sensor.yambms_debug_heap_free_percent
             name: Debug Heap free (%)
-          - entity: sensor.yambms_debug_heap_free_2
+          - entity: sensor.yambms_debug_heap_free
             name: Debug Heap free
-          - entity: sensor.yambms_debug_heap_max_block
+          - entity: sensor.yambms_debug_heap_max_block_percent
             name: Debug Heap max block (%)
-          - entity: sensor.yambms_debug_heap_max_block_2
+          - entity: sensor.yambms_debug_heap_max_block
             name: Debug Heap max block
           - entity: sensor.yambms_debug_loop_time
             name: Debug Loop time
+          - entity: sensor.yambms_esp32_esphome_version
+            name: ESPHome version
           - entity: sensor.yambms_debug_reset_reason
             name: Debug Reset reason
+        conditions:
+          - condition: state
+            state_not: unavailable
         title: YamBMS - DEBUG
   - title: BMS
     type: sections

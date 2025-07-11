@@ -267,9 +267,9 @@ views:
         title: YamBMS - ReBulk
       - type: entities
         entities:
-          - entity: number.yambms_demo_yambms_1_max_charge_current
+          - entity: number.yambms_demo_yambms_1_max_charge_current_percent
             name: Max charge current (%)
-          - entity: number.yambms_demo_yambms_1_max_discharge_current
+          - entity: number.yambms_demo_yambms_1_max_discharge_current_percent
             name: Max discharge current (%)
         title: YamBMS - Max current (%)
       - type: entities
@@ -316,20 +316,29 @@ views:
           - entity: sensor.yambms_demo_canbus_1_inverter_heartbeat
             name: CANBUS 1 Inverter Heartbeat
         title: YamBMS - Inverter Heartbeat
-      - type: entities
+      - type: entity-filter
         entities:
-          - entity: sensor.yambms_demo_debug_heap_free
+          - entity: sensor.yambms_debug_free_psram_percent
+            name: Debug Free PSRAM (%)
+          - entity: sensor.yambms_debug_free_psram
+            name: Debug Free PSRAM
+          - entity: sensor.yambms_debug_heap_free_percent
             name: Debug Heap free (%)
-          - entity: sensor.yambms_demo_debug_heap_free_2
+          - entity: sensor.yambms_debug_heap_free
             name: Debug Heap free
-          - entity: sensor.yambms_demo_debug_heap_max_block
+          - entity: sensor.yambms_debug_heap_max_block_percent
             name: Debug Heap max block (%)
-          - entity: sensor.yambms_demo_debug_heap_max_block_2
+          - entity: sensor.yambms_debug_heap_max_block
             name: Debug Heap max block
-          - entity: sensor.yambms_demo_debug_loop_time
+          - entity: sensor.yambms_debug_loop_time
             name: Debug Loop time
-          - entity: sensor.yambms_demo_debug_reset_reason
+          - entity: sensor.yambms_esp32_esphome_version
+            name: ESPHome version
+          - entity: sensor.yambms_debug_reset_reason
             name: Debug Reset reason
+        conditions:
+          - condition: state
+            state_not: unavailable
         title: YamBMS - DEBUG
   - title: BMS
     type: sections
@@ -823,7 +832,7 @@ views:
             hours_to_show: 8
           - graph: line
             type: sensor
-            entity: sensor.yambms_demo_shunt_1_soc
+            entity: sensor.yambms_demo_shunt_1_state_of_charge
             detail: 2
             name: SoC
             hours_to_show: 8
@@ -861,7 +870,7 @@ views:
                 name: Shunt 1 Current
               - entity: sensor.yambms_demo_shunt_1_power
                 name: Shunt 1 Power
-              - entity: sensor.yambms_demo_shunt_1_soc
+              - entity: sensor.yambms_demo_shunt_1_state_of_charge
                 name: Shunt 1 SoC
               - entity: sensor.yambms_demo_shunt_1_temperature
                 name: Shunt 1 Temperature
