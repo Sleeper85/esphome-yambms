@@ -177,17 +177,8 @@ packages:
     ref: main
     refresh: 0s
     files:
-      # UART 1
-      # - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
-      # UART 2
-      # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
-      # UART 3
-      # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
-
-      # ESP32_RS485 (M5Stack RS485 base/unit)
-      - path: 'packages/board/board_options_itf_esp32_rs485.yaml'
-        vars:
-          rs485_node_id: 'rs485_inverter_1'
+      # UART 4 - M5Stack RS485 base (id: uart_4)
+      - path: 'packages/board/board_options_itf_uart_4.yaml'
 
   ############################################################
 
@@ -267,16 +258,19 @@ packages:
     files:
       - path: 'packages/yambms/yambms.yaml'
 
-  rs485:
+  rs485_pylon:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
-      - path: 'packages/yambms/yambms_rs485.yaml'
+      - path: 'packages/yambms/yambms_rs485_pylon.yaml'
         vars:
           rs485_id: 'rs485_1'
-          rs485_node_id: 'rs485_inverter_1'
+          rs485_name: 'RS485 1'
+          rs485_uart_id: 'uart_4'
+          rs485_uart_baud_rate: '9600'
           rs485_update_timeout: '5s'
+
 
 # +--------------------------------------+
 # | DEBUG ( logger level must be DEBUG ) |

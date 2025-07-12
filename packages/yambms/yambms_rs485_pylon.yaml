@@ -21,9 +21,13 @@ external_components:
   - source: github://fahmula/esphome-pylontech-rs485@main
     refresh: 0s
 
+uart:
+  - id: !extend ${rs485_uart_id}
+    baud_rate: ${rs485_uart_baud_rate}
+
 select:
   - platform: template
-    name: "${name} RS485 Protocol"
+    name: "${name} ${rs485_name} Protocol"
     id: ${rs485_id}_protocol
     options:
       - "Pylontech"
@@ -177,7 +181,7 @@ interval:
                 }
 
 pylontech_rs485:
-  uart_id: ${rs485_node_id}
+  uart_id: ${rs485_uart_id}
   update_timeout: ${rs485_update_timeout}
   # --- Link to PROXY sensors ---
   state_of_charge: yambms_proxy_soc
