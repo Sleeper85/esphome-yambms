@@ -142,6 +142,10 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 
 ## Changelog
 
+* YamBMS 1.5.8 :
+  * New Dashboards `1.5.8`
+  * Merged [PR 67](https://github.com/Sleeper85/esphome-yambms/pull/67) Add options to restrict max. charge and discharge current
+  * Merged [PR 72](https://github.com/Sleeper85/esphome-yambms/pull/72) Add Pylontech RS485 inverter protocol
 * YamBMS 1.5.7 :
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
