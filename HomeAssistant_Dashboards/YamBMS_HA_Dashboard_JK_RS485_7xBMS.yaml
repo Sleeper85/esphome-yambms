@@ -1,5 +1,5 @@
-# Updated : 2025.07.10
-# Version : 1.5.7
+# Updated : 2025.07.13
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -345,9 +345,26 @@ views:
     max_columns: 3
     sections:
       - type: grid
-        title: BMS 1
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 1
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_1_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_1_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -526,43 +543,40 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_1_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_1_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_1_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_1_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_1_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_1_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_1_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_1_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_1_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_1_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
                 state_not: unavailable
       - type: grid
-        title: BMS 2
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 2
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_2_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_2_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -741,43 +755,40 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_2_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_2_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_2_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_2_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_2_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_2_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_2_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_2_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_2_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_2_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
                 state_not: unavailable
       - type: grid
-        title: BMS 3
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 3
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_3_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_3_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -956,43 +967,40 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_3_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_3_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_3_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_3_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_3_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_3_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_3_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_3_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_3_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_3_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
                 state_not: unavailable
       - type: grid
-        title: BMS 4
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 4
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_4_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_4_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -1171,43 +1179,40 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_4_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_4_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_4_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_4_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_4_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_4_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_4_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_4_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_4_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_4_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
                 state_not: unavailable
       - type: grid
-        title: BMS 5
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 5
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_5_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_5_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -1386,43 +1391,40 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_5_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_5_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_5_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_5_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_5_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_5_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_5_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_5_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_5_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_5_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
                 state_not: unavailable
       - type: grid
-        title: BMS 6
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 6
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_6_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_6_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -1601,43 +1603,40 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_6_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_6_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_6_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_6_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_6_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_6_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_6_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_6_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_6_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_6_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
                 state_not: unavailable
       - type: grid
-        title: BMS 7
         column_span: 1
         cards:
+          - type: heading
+            heading: BMS 7
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_7_online_status
+                color: state
+                name: Online
+                state_content: name
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: binary_sensor.yambms_jk_bms_7_can_be_combined
+                color: state
+                name: Combined
+                state_content: name
           - type: grid
             square: false
             columns: 1
@@ -1816,34 +1815,14 @@ views:
                   </center>
           - type: entity-filter
             entities:
+              - entity: switch.yambms_jk_bms_7_charge_switch
+                name: Charge switch
+              - entity: switch.yambms_jk_bms_7_discharge_switch
+                name: Discharge switch
+              - entity: switch.yambms_jk_bms_7_balance_switch
+                name: Balance switch
               - entity: switch.yambms_jk_bms_7_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: binary_sensor.yambms_jk_bms_7_status_online
-                name: Online ?
-              - entity: binary_sensor.yambms_jk_bms_7_can_be_combined
-                name: Can be combined
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
-              - entity: switch.yambms_jk_bms_7_charging
-                name: Charge
-              - entity: switch.yambms_jk_bms_7_discharging
-                name: Discharge
-              - entity: switch.yambms_jk_bms_7_balancing
-                name: Balance
-            conditions:
-              - condition: state
-                state_not: unavailable
-            layout_options:
-              grid_columns: 2
-              grid_rows: 3
-          - type: entity-filter
-            entities:
               - entity: number.yambms_jk_bms_7_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
