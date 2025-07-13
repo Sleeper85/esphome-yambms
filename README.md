@@ -145,12 +145,12 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 * YamBMS 1.5.7 :
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
-  * New dashboard for `Auto Float Voltage` function.
+  * New dashboard for `Auto Float Voltage` function
   * Defining `state_class` for all YamBMS sensors
-  * Set esphome `min_version` to `2025.6.0` for loop time improvment
+  * Set esphome `min_version` to `2025.6.0`
   * Fixed: change `Charge Status` to `Bulk` when `Force Charge` is requested
   * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/70) Dashboards compatible with `HA 2025.7`
-  * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/71) Dashboard max/min cell voltage in color using macro
+  * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/71) Dashboard `max/min` cell voltage in color using macro
   * Removed all special characters in entities name + dashboards correction
 * YamBMS 1.5.6 :
   * Fixed [issue 58](https://github.com/Sleeper85/esphome-yambms/issues/58) Compilation problem with `esphome 2025.5.0`
