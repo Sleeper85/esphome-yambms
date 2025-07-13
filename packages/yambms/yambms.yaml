@@ -1,5 +1,5 @@
-# Updated : 2025.07.11
-# Version : 1.5.7
+# Updated : 2025.07.12
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.5.7"
+  yambms_version: "1.5.8"
   # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
   # The current requested will be proportional to the BMS count without ever exceeding this value.
   yambms_max_requested_charge_current: '300' # in Ampere
