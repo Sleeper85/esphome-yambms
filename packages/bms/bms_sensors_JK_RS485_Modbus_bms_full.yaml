@@ -30,6 +30,9 @@ jk_rs485_bms:
   - id: jk_rs485_bms${bms_id}
     rs485_address: ${bms_address}
     jk_rs485_sniffer_id: ${sniffer_id}
+    cell_info_update_interval: ${bms_update_interval}
+    settings_update_interval: 10s
+    device_info_update_interval: 3600s
     update_interval: ${bms_update_interval}
 
 # +--------------------------------------+
