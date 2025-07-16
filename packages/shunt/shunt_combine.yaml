@@ -35,6 +35,7 @@ switch:
     id: shunt${shunt_id}_switch_combine
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
+    device_id: ${shunt_device_id}
 
 binary_sensor:
   # Indicates whether the Shunt can be combined
@@ -42,6 +43,7 @@ binary_sensor:
     name: "${name} ${shunt_name} Can be combined"
     id: shunt${shunt_id}_can_be_combined
     lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
+    device_id: ${shunt_device_id}
 
 interval:
   - interval: ${shunt_combine_interval}
