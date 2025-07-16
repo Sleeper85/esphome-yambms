@@ -30,6 +30,7 @@ sensor:
       if (id(shunt${shunt_id}_power).state > 0)
         return id(shunt${shunt_id}_power).state;
       else return 0;
+    device_id: ${shunt_device_id}
 
   # Battery Discharging Power
   - platform: template
@@ -43,3 +44,4 @@ sensor:
       if (id(shunt${shunt_id}_power).state <= 0)
         return (id(shunt${shunt_id}_power).state * -1); // Must be positive energy
       else return 0;
+    device_id: ${shunt_device_id}
