@@ -8,10 +8,11 @@
 
 ## Supported BMS
 
-* All `JK-B` BMS models with software version `>=6.0`, see [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms)
-* `JK-PB` BMS, see [esphome-jk-bms](https://github.com/txubelaxu/esphome-jk-bms/)
-* `JBD` BMS, see [esphome-jbd-bms](https://github.com/syssi/esphome-jbd-bms)
-* `Seplos V1 V2` BMS, see [esphome-seplos-bms](https://github.com/syssi/esphome-seplos-bms)
+* `JK` BMS (BLE / UART / RS485)
+* `JBD` BMS (BLE / UART)
+* `Seplos V1 V2 V3` BMS (RS485)
+* `BASEN` BMS (RS485)
+* `DEYE` BMS (CAN)
 
 **Note: other BMS brands already integrated with ESPhome can be added easily.**
 
@@ -19,7 +20,7 @@
 
 * `Victron Smartshunt` (UART)
 * `Victron Smartshunt` (BLE)
-* `Junctek KH-F` (UART/RS485)
+* `Junctek KH-F` (UART / RS485)
 
 **Note: other Shunt brands already integrated with ESPhome can be added easily.**
 
