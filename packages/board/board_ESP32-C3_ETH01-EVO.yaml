@@ -1,5 +1,5 @@
-# Updated : 2025.04.13
-# Version : 1.2.8
+# Updated : 2025.07.17
+# Version : 1.2.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,11 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
-
-external_components:
-  - source: github://pr#6861
-    components:
-      - ethernet
 
 substitutions:
   board_chip: "ESP32-C3"
@@ -54,14 +49,14 @@ esphome:
 
 ethernet:
   id: my_network
-  type: DM9051 # W5500
+  type: DM9051
   clk_pin: 7
   mosi_pin: 10
   miso_pin: 3
   cs_pin: 9
   interrupt_pin: 8
   reset_pin: 6
-  clock_speed: 20MHz
+  clock_speed: 8MHz
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
