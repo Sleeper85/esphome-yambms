@@ -1,4 +1,4 @@
-# Updated : 2025.07.13
+# Updated : 2025.07.17
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -69,7 +69,7 @@ api:
 substitutions:
   # Name
   friendly_name : 'YamBMS Demo' # Prefix added in front of the `entity display name`, also used to classify them.
-  hostname: 'yambms' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
+  hostname: 'yambms-demo' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
   name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
   # +--------------------------------------+
   # | YamBMS Settings                      |
