@@ -1,0 +1,799 @@
+# Updated : 2025.07.24
+# Version : 1.1.1
+# GitHub  : https://github.com/syssi/esphome-seplos-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  bms_base: !include bms_base.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+modbus_controller:
+  - id: modbus_controller_bms${bms_id}
+    address: ${bms_id}
+    modbus_id: ${seplos_modbus_id}
+    command_throttle: ${seplos_modbus_command_throttle}
+    update_interval: ${seplos_modbus_update_interval}
+    on_online:
+      then:
+        - logger.log: "Seplos BMS ${bms_id} back online !"
+        - lambda: |-
+            id(bms${bms_id}_online_status).publish_state(true);
+    on_offline:
+      then:
+        - logger.log: "Seplos BMS ${bms_id} goes offline !"
+        - lambda: |-
+            id(bms${bms_id}_online_status).publish_state(false);
+            id(bms${bms_id}_charging_allowed).publish_state(false);
+            id(bms${bms_id}_discharging_allowed).publish_state(false);
+            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_total_voltage).publish_state(0);
+            id(bms${bms_id}_current).publish_state(0);
+            id(bms${bms_id}_power).publish_state(0);
+            id(bms${bms_id}_battery_soc).publish_state(0);
+            id(bms${bms_id}_battery_soh).publish_state(0);
+            id(bms${bms_id}_battery_capacity).publish_state(0);
+            id(bms${bms_id}_capacity_remaining_ah).publish_state(0);
+            id(bms${bms_id}_charging_cycles).publish_state(0);
+            id(bms${bms_id}_max_charge_current).publish_state(0);
+            id(bms${bms_id}_max_discharge_current).publish_state(0);
+            id(bms${bms_id}_max_cell_voltage).publish_state(0);
+            id(bms${bms_id}_max_voltage_cell).publish_state(0);
+            id(bms${bms_id}_min_cell_voltage).publish_state(0);
+            id(bms${bms_id}_min_voltage_cell).publish_state(0);
+            id(bms${bms_id}_min_temperature).publish_state(0);
+            id(bms${bms_id}_min_temperature_sensor).publish_state(0);
+            id(bms${bms_id}_max_temperature).publish_state(0);
+            id(bms${bms_id}_max_temperature_sensor).publish_state(0);
+            id(bms${bms_id}_cell_ovp).publish_state(0);
+            id(bms${bms_id}_cell_uvp).publish_state(0);
+            id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
+            id(bms${bms_id}_yambms_errors_bitmask).publish_state(0);
+            id(bms${bms_id}_charging_power).publish_state(0);
+            id(bms${bms_id}_discharging_power).publish_state(0);
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: template
+    id: bms${bms_id}_online_status
+    name: "${name} ${bms_name} online status"
+
+  # 1278 TB07 Bit 0 - Discharge FET on
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_discharging_allowed
+    name: "${name} ${bms_name} Discharge FET"
+    register_type: read
+    address: 0x1278
+    bitmask: 1 # bit 0
+
+  # 1278 TB07 Bit 1 - Charge FET on
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_charging_allowed
+    name: "${name} ${bms_name} Charge FET"
+    register_type: read
+    address: 0x1278
+    bitmask: 2 # bit 1
+
+  # 1280 TB12 Bit 0 - Equilibrium module to open
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} Equalizing"
+    register_type: read
+    address: 0x1280
+    bitmask: 1 # bit 0
+
+sensor:
+  # 1000    Pack Voltage                R    UINT16    2    10mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_total_voltage
+    name: "${name} ${bms_name} total voltage"
+    address: 0x1000
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+  # 1001    Current                     R     INT16    2    10mA
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_current
+    name: "${name} ${bms_name} current"
+    address: 0x1001
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+  # 1002    Remaining capacity          R    UINT16    2    10mAH
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_capacity_remaining_ah
+    name: "${name} ${bms_name} remaining capacity"
+    address: 0x1002
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "Ah"
+    state_class: measurement
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+  # 1003    Total Capacity              R    UINT16    2    10mAH
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_battery_capacity
+    name: "${name} ${bms_name} total capacity"
+    address: 0x1003
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "Ah"
+    state_class: measurement
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+  # 1004    Total Discharge Capacity    R    UINT16    2    10AH
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} total discharge capacity"
+    address: 0x1004
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "Ah"
+    state_class: measurement
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.01
+
+  # 1005    SOC                         R    UINT16    2    0.1%
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_state_of_charge
+    name: "${name} ${bms_name} state of charge"
+    address: 0x1005
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    device_class: battery
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - multiply: 0.1
+
+  # 1006    SOH                         R    UINT16    2    0.1%
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_battery_soh
+    name: "${name} ${bms_name} state of health"
+    address: 0x1006
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "%"
+    state_class: measurement
+    accuracy_decimals: 0
+
+  # 1007    Cycle                       R    UINT16    2    1
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_charging_cycles_raw
+    name: "${name} ${bms_name} cycle"
+    address: 0x1007
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: ""
+    state_class: measurement
+    accuracy_decimals: 0
+    internal: true
+
+  # 1008    Averag of Cell Votage       R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_average_cell_voltage
+    name: "${name} ${bms_name} average cell voltage"
+    address: 0x1008
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1009    Averag of Cell Temperature  R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} average cell temperature"
+    address: 0x1009
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 100A    Max Cell Voltage            R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_max_cell_voltage
+    name: "${name} ${bms_name} max cell voltage"
+    address: 0x100A
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 100B    Min Cell Voltage            R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_min_cell_voltage
+    name: "${name} ${bms_name} min cell voltage"
+    address: 0x100B
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 100C    Max Cell Temperature        R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} max cell temperature"
+    address: 0x100C
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 100D    Min Cell Temperature        R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} min cell temperature"
+    address: 0x100D
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 100F    Max Discharging Current     R    UINT16    2    1A
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_max_discharge_current
+    name: "${name} ${bms_name} max discharging current"
+    address: 0x100F
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 0
+
+  # 1010    Max Charging Current        R    UINT16    2    1A
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_max_charge_current
+    name: "${name} ${bms_name} max charging current"
+    address: 0x1010
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 0   
+
+  # 1100    Cell1 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 01"
+    address: 0x1100
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1101    Cell2 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 02"
+    address: 0x1101
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1102    Cell3 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 03"
+    address: 0x1102
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1103    Cell4 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 04"
+    address: 0x1103
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1104    Cell5 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 05"
+    address: 0x1104
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1105    Cell6 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 06"
+    address: 0x1105
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1106    Cell7 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 07"
+    address: 0x1106
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1107    Cell8 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 08"
+    address: 0x1107
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1108    Cell9 Voltage               R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 09"
+    address: 0x1108
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1109    Cell10 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 10"
+    address: 0x1109
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 110A    Cell11 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 11"
+    address: 0x110A
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 110B    Cell12 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 12"
+    address: 0x110B
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 110C    Cell13 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 13"
+    address: 0x110C
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 110D    Cell14 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 14"
+    address: 0x110D
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 110E    Cell15 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 15"
+    address: 0x110E
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 110F    Cell16 Voltage              R    UINT16    2    1mV
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell voltage 16"
+    address: 0x110F
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1110    Cell temperature 1          R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_temperature_sensor_1
+    name: "${name} ${bms_name} cell temperature 1"
+    address: 0x1110
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 1111    Cell temperature 2          R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_temperature_sensor_2
+    name: "${name} ${bms_name} cell temperature 2"
+    address: 0x1111
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 1112    Cell temperature 3          R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_temperature_sensor_3
+    name: "${name} ${bms_name} cell temperature 3"
+    address: 0x1112
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 1113    Cell temperature 4          R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_temperature_sensor_4
+    name: "${name} ${bms_name} cell temperature 4"
+    address: 0x1113
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 1118    Environment Temperature     R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} environment temperature"
+    address: 0x1118
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 1119    Power temperature           R    UINT16    2    0.1K
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} mosfet temperature"
+    address: 0x1119
+    register_type: read
+    value_type: S_WORD
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - offset: -2731.5
+      - multiply: 0.1
+
+  # 130D   Cell over voltage protection  R    UINT16    2    0.001V
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_cell_ovp
+    name: "${name} ${bms_name} Cell over voltage protection"
+    address: 0x130D
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1311   Cell under voltage protection  R    UINT16    2    0.001V
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_cell_uvp
+    name: "${name} ${bms_name} Cell under voltage protection"
+    address: 0x1311
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # 1351   Equalization open voltage difference  R    UINT16    2    0.001V
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_balance_trigger_voltage
+    name: "${name} ${bms_name} Equalization open voltage difference"
+    address: 0x1351
+    register_type: read
+    value_type: U_WORD
+    unit_of_measurement: "V"
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  # Required sensors cannot be retrieved from BMS
+
+  # Power
+  - platform: template
+    id: bms${bms_id}_power
+    name: "${name} ${bms_name} Power"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
+
+  # Charging Power
+  - platform: template
+    name: ${name} ${bms_name} Charging Power
+    id: bms${bms_id}_charging_power
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_power).state > 0)
+        return id(bms${bms_id}_power).state;
+      else return 0;
+
+  # Discharging Power
+  - platform: template
+    name: ${name} ${bms_name} Discharging Power
+    id: bms${bms_id}_discharging_power
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_power).state <= 0)
+        return (id(bms${bms_id}_power).state * -1); // Must be positive energy
+      else return 0;
+
+  # Charging cycle capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    name: "${name} ${bms_name} charging cycle capacity"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    internal: true
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+  
+  # FAKE errors_bitmask
+  # Alarm management is not supported at this time
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
+
+  # FAKE min_voltage_cell
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_min_voltage_cell
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 1;
+
+  # FAKE max_voltage_cell
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_max_voltage_cell
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 2;
