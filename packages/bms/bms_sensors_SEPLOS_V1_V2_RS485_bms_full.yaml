@@ -1,5 +1,5 @@
-# Updated : 2025.06.17
-# Version : 1.1.6
+# Updated : 2025.07.25
+# Version : 1.1.7
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -39,6 +39,30 @@ seplos_bms:
 # +--------------------------------------+
 # | Component entities                   |
 # +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: seplos_bms
+    seplos_bms_id: seplos_bms${bms_id}
+    online_status:
+      id: bms${bms_id}_online_status
+      name: "${name} ${bms_name} online status"
+  # Required sensors cannot be retrieved from BMS
+  # equalizing
+  - platform: template
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} balancing"
+    lambda: return false;
+  # bms_switch_charging
+  - platform: template
+    id: bms${bms_id}_charging_allowed
+    name: "${name} ${bms_name} charging"
+    lambda: return true;
+  # bms_switch_discharging
+  - platform: template
+    id: bms${bms_id}_discharging_allowed
+    name: "${name} ${bms_name} discharging"
+    lambda: return true;
 
 sensor:
   - platform: seplos_bms
@@ -238,30 +262,3 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
-
-binary_sensor:
-  # Required sensors cannot be retrieved from BMS
-  # online_status
-  - platform: template
-    id: bms${bms_id}_online_status
-    name: "${name} ${bms_name} online status"
-    lambda: |-
-      if (id(bms${bms_id}_total_voltage).state > 0)
-        return true;
-      else
-        return false;
-  # equalizing
-  - platform: template
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} balancing"
-    lambda: return false;
-  # bms_switch_charging
-  - platform: template
-    id: bms${bms_id}_charging_allowed
-    name: "${name} ${bms_name} charging"
-    lambda: return true;
-  # bms_switch_discharging
-  - platform: template
-    id: bms${bms_id}_discharging_allowed
-    name: "${name} ${bms_name} discharging"
-    lambda: return true;
