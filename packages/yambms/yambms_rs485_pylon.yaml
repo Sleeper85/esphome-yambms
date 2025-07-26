@@ -158,7 +158,7 @@ binary_sensor:
     name: "${name} ${rs485_name} Inverter Online"
     lambda: |-
       // Inverter is online if last update was within timeout period
-      return (millis() - id(rs485_inverter_ack_ms_previous)) < (${rs485_update_timeout} * 1000);
+      return (millis() - id(rs485_inverter_ack_ms_previous)) < 5000;
     entity_category: diagnostic
 
 interval:
