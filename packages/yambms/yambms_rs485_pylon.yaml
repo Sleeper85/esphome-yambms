@@ -94,6 +94,7 @@ sensor:
   - platform: template
     id: yambms_proxy_max_discharge_i
     internal: true
+  # --- Inverter Heartbeat ---
   - platform: template
     id: inverter_heartbeat
     name: "${name} ${rs485_name} Inverter Heartbeat"
@@ -153,6 +154,7 @@ binary_sensor:
   - platform: template
     id: yambms_proxy_system_fault_protection
     internal: true
+  # --- Inverter Online Status ---
   - platform: template
     id: inverter_online
     name: "${name} ${rs485_name} Inverter Online"
