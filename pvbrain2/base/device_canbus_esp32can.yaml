@@ -1,7 +1,0 @@
-canbus:
-  - platform: esp32_can
-    id: canbus_node1
-    tx_pin: 38
-    rx_pin: 39
-    can_id: 1
-    bit_rate: 500kbps
