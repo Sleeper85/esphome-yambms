@@ -9,7 +9,7 @@
 
 > [!TIP]
 > Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
-> Examples of `BMS` and `Shunt` packages can be found in the [examples](examples/) folder.
+> Examples of `BMS` and `Shunt` packages can be found in the [examples](examples/single-node/) folder.
 > You don't have to import a shunt but you must import at least `one BMS`.
 > You can mix different `BMS` models, the only condition is that the `bms_id` are numbered in order starting from `1` !
 
