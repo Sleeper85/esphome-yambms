@@ -1,3 +1,7 @@
+# Updated : 2025.07.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
 # Used for the MCP2515 (CANBUS)
 spi:
   - id: spi1_bus
