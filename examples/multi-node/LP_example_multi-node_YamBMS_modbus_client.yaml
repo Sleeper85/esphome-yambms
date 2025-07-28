@@ -1,0 +1,104 @@
+# Updated : 2025.06.10
+# Version : 1.5.6
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+substitutions:
+  modbus_update_interval: '5s' # frequency with which BMS/Shunt modbus servers are queried
+  modbus_baud_rate: '19200' # 9600 / 19200 / 115200
+  modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
+  modbus_send_wait_time: '250ms' # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+
+packages:
+
+  modbus: !include
+    file: packages/base/device_modbus.yaml
+    vars:
+      modbus_role: 'client' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  shunt1: !include
+    file: packages/shunt/shunt_combine_modbus_client.yaml
+    vars:
+      shunt_id: '1' # must be a number
+      shunt_name: 'Shunt 1'
+
+  bms1: !include
+    file: packages/bms/bms_combine_modbus_client.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'BMS 1'
+
+  bms2: !include
+    file: packages/bms/bms_combine_modbus_client.yaml
+    vars:
+      bms_id: '2' # must be a number
+      bms_name: 'BMS 2'
+
+  bms3: !include
+    file: packages/bms/bms_combine_modbus_client.yaml
+    vars:
+      bms_id: '3' # must be a number
+      bms_name: 'BMS 3'
+
+  # bms4: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '4' # must be a number
+  #     bms_name: 'BMS 4'
+
+  # bms5: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '5' # must be a number
+  #     bms_name: 'BMS 5'
+
+  # bms6: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '6' # must be a number
+  #     bms_name: 'BMS 6'
+
+  # bms7: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '7' # must be a number
+  #     bms_name: 'BMS 7'
+
+  # bms8: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '8' # must be a number
+  #     bms_name: 'BMS 8'
+
+  # bms9: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '9' # must be a number
+  #     bms_name: 'BMS 9'
+
+  # bms10: !include
+  #   file: packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '10' # must be a number
+  #     bms_name: 'BMS 10'

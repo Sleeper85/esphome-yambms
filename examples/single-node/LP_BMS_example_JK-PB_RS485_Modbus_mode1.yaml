@@ -1,0 +1,115 @@
+# Updated : 2025.07.27
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
+  # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 1, max 16 BMS)
+
+  # sniffer1: !include
+  #   file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer_talk_pin.yaml
+  #   vars:
+  #     sniffer_id: 'sniffer1'
+  #     sniffer_protocol: 'JK02_32S'
+  #     sniffer_uart_id: 'uart_esp_1'
+  #     sniffer_talk_pin: 8 # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
+
+  sniffer1: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml
+    vars:
+      sniffer_id: 'sniffer1'
+      sniffer_protocol: 'JK02_32S'
+      sniffer_uart_id: 'uart_esp_1'
+
+  # Mode1 : configure the DIP switches of your BMS from 0x00 to 0x0F (max 16 BMS)
+  bms1: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '1' # must be a number
+      bms_name: 'JK-BMS 1'
+      bms_address: '0x00' # BMS 1 DIP switch
+  
+  bms2: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '2' # must be a number
+      bms_name: 'JK-BMS 2'
+      bms_address: '0x01' # BMS 2 DIP switch
+
+  bms3: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '3' # must be a number
+      bms_name: 'JK-BMS 3'
+      bms_address: '0x02' # BMS 3 DIP switch
+
+  bms4: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '4' # must be a number
+      bms_name: 'JK-BMS 4'
+      bms_address: '0x03' # BMS 4 DIP switch
+  
+  bms5: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '5' # must be a number
+      bms_name: 'JK-BMS 5'
+      bms_address: '0x04' # BMS 5 DIP switch
+
+  bms6: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '6' # must be a number
+      bms_name: 'JK-BMS 6'
+      bms_address: '0x05' # BMS 6 DIP switch
+
+  bms7: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '7' # must be a number
+      bms_name: 'JK-BMS 7'
+      bms_address: '0x06' # BMS 7 DIP switch

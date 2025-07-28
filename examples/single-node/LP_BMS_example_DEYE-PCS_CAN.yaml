@@ -1,0 +1,59 @@
+# Updated : 2025.07.27
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  # Deye BMS top unit (required)
+  bms_top: !include
+    file: packages/bms/bms_sensors_DEYE_CAN_top_full.yaml
+    vars:
+      # CAN BUS ID
+      canbus_id: 'canbus_bms_1'
+      deye_name: 'DEYE-Top 1'
+      deye_id: '1'
+
+  # Deye module 1
+  bms1: !include
+    file: packages/bms/bms_combine_DEYE_CAN_module_full.yaml
+    vars:
+      # CAN BUS ID
+      canbus_id: 'canbus_bms_1'
+      # BMS vars
+      bms_id: '1' # must be a number
+      bms_name: 'DEYE-BMS 1'
+      deye_id: '1'
+      deye_module_id: '0' # Modules are numbered with 0-9
+
+  # Deye module 2
+  bms2: !include
+    file: packages/bms/bms_combine_DEYE_CAN_module_full.yaml
+    vars:
+      # CAN BUS ID
+      canbus_id: 'canbus_bms_1'
+      # BMS vars
+      deye_id: '1'
+      bms_id: '2' # must be a number
+      bms_name: 'DEYE-BMS 2'
+      deye_module_id: '1' # Modules are numbered with 0-9
