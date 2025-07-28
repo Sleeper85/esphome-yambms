@@ -1,5 +1,5 @@
-# Updated : 2025.06.14
-# Version : 1.1.1
+# Updated : 2025.07.28
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@
 # +--------------------------------------+
 
 packages:
-  psram: !include board_options_ESP32-S3_PSRAM.yaml
+  psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 color:
   - id: my_black

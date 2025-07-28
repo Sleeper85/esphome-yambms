@@ -22,11 +22,6 @@
 # The configuration presented here already seems stable for several users and
 # visibly offers better behavior of the esp when it contains a lot of entities.
 
-# PSRAM activation with default options
-psram:
-  mode: octal
-  speed: 80MHz
-
 # PSRAM extras options
 esp32:
   framework:
