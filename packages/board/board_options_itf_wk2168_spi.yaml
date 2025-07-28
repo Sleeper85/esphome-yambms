@@ -1,0 +1,70 @@
+# Updated : 2025.07.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  uart_hub_bus: 'spi'
+  spi_data_rate: '4Mhz'
+
+spi:
+  - id: spi0_bus
+    mosi_pin: 6  
+    miso_pin: 41
+    clk_pin: 40
+
+wk2168_spi:
+  - id: uart_bridge0
+    spi_id: spi0_bus
+    cs_pin: 19
+    data_rate: ${spi_data_rate}
+    #test_mode: 1
+    uart:
+      - id: uart_spi_0
+        channel: 0
+        baud_rate: ${uart0_baudrate}
+        #parity: even
+      - id: uart_spi_1
+        channel: 1
+        baud_rate: ${uart1_baudrate}
+      - id: uart_spi_2
+        channel: 2
+        baud_rate: ${uart2_baudrate}
+        #parity: even
+      - id: uart_spi_3
+        channel: 3
+        baud_rate: ${uart3_baudrate}       
+      
+  - id: uart_bridge1
+    spi_id: spi0_bus
+    cs_pin: 20
+    data_rate: ${spi_data_rate}
+    uart:
+      - id: uart_spi_4
+        channel: 0
+        baud_rate: ${uart4_baudrate}
+        #parity: even
+      - id: uart_spi_5
+        channel: 1
+        baud_rate: ${uart5_baudrate}
+      - id: uart_spi_6
+        channel: 2
+        baud_rate: ${uart6_baudrate}
+        #parity: even
+      - id: uart_spi_7
+        channel: 3
+        baud_rate: ${uart7_baudrate}
