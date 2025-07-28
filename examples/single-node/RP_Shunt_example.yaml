@@ -1,0 +1,64 @@
+# Updated : 2025.07.27
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+  # Junctek KHF UART
+  shunt:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # Shunt 1
+      - path: 'packages/shunt/shunt_combine_Junctek_KHF_UART.yaml'
+        vars:
+          shunt_id: '1' # must be a number
+          shunt_name: 'Shunt 1'
+          shunt_uart_id: 'uart_esp_1'
+
+  # Victron SmartShunt UART
+  shunt:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # Shunt 1
+      - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml'
+        vars:
+          shunt_id: '1' # must be a number
+          shunt_name: 'Shunt 1'
+          shunt_uart_id: 'uart_esp_1'
+
+  # Victron SmartShunt BLE
+  shunt:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # Shunt 1
+      - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml'
+        vars:
+          shunt_id: '1' # must be a number
+          shunt_name: 'Shunt 1'
+          shunt_mac_address: '60:A4:23:91:8F:55' # Your MAC address
+          shunt_encryption_key: '0df4d0395b7d1a876c0c33ecb9e70dcd' # Your encryption key

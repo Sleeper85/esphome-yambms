@@ -1,0 +1,58 @@
+# Updated : 2025.06.10
+# Version : 1.5.6
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Remote Packages Example ###########################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+substitutions:
+  modbus_update_interval: '5s' # frequency with which BMS/Shunt modbus servers are queried
+  modbus_baud_rate: '19200' # 9600 / 19200 / 115200
+  modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
+  modbus_send_wait_time: '250ms' # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+
+packages:
+
+  yambms_modbus_server:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # Modbus server
+      - path: 'packages/base/device_modbus.yaml'
+        vars:
+          modbus_role: 'server' # client / server
+          modbus_uart_id: 'uart_esp_1' # RS485 board
+      # Shunt 1
+      - path: 'packages/shunt/shunt_modbus_Victron_SmartShunt_UART.yaml'
+        vars:
+          shunt_id: '1' # must be a number
+          shunt_name: 'Shunt 1'
+          shunt_uart_id: 'uart_esp_2'
+      # BMS 1
+      - path: 'packages/bms/bms_modbus_JK_UART_4G-GPS_full.yaml'
+        vars:
+          bms_id: '1' # must be a number
+          bms_name: 'JK-BMS 1'
+          bms_uart_id: 'uart_esp_3'
+          # Maximum cell charging cycles is used to calculate the battey SoH.
+          # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+          bms_cell_max_cycles: '6000.0'
