@@ -1,4 +1,4 @@
-# YamBMS - How to create your YamBMS YAML (Local Packages examples)
+# YamBMS - How to create your YamBMS Local Packages YAML
 
 [![Badge License: GPLv3](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Badge Version](https://img.shields.io/github/v/release/Sleeper85/esphome-yambms?include_prereleases&color=yellow&logo=DocuSign&logoColor=white)](https://github.com/Sleeper85/esphome-yambms/releases/latest)
@@ -7,9 +7,11 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
 > [!TIP]
-> Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
-> Examples of BMS imports can be found in the [configuration_examples](configuration_examples/) folder.
-> You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
+> Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](../../YamBMS_Remote_Packages_example.yaml)
+> is a good basis for creating your custom YAML.
+> Examples of `BMS` and `Shunt` packages can be found in the [examples](../../examples/single-node/) folder.
+> You don't have to import a shunt but you must import at least `one BMS`.
+> You can mix different `BMS` models, the only condition is that the `bms_id` are numbered in order starting from `1` !
 
 > [!IMPORTANT]
 > BMS monitoring with `Bluetooth` as well as the `Web server` are RAM-intensive components.
@@ -72,7 +74,7 @@ If you don't use `Home Assistant`, you can activate the `Web Server` and have ac
 
 [ESPHome Web Server Component](https://esphome.io/components/web_server.html)
 
-## Importing YamBMS packages
+## Importing YamBMS Local Packages
 
 Package imports are done below this line:
 
@@ -289,219 +291,7 @@ There are other `bms.yaml` not mentioned here, see in the [bms](../../packages/b
 
 The `full` / `standard` versions contain all available sensors while the `minimal` version contains the basic sensors without the voltages of each cell and other superfluous sensors.
 
-### [JK-BMS (BLE)](https://github.com/syssi/esphome-jk-bms)
-
-> [!IMPORTANT]
-> The BLE software stack on the ESP32 consumes a significant amount of RAM on the device.
-> Crashes are likely to occur if you include too many additional components in your device’s configuration.
-> I recommend using `UART` or `RS485` if possible.
-
-```YAML
-  bms1: !include
-    file: packages/bms/bms_combine_JK_BLE_standard.yaml # bms_modbus_JK_BLE_standard.yaml
-    vars:
-      bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
-      bms_ble_protocol_version: 'JK02_32S' # JK02_24S < hardware version 11.0 >= JK02_32S
-      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
-      # Maximum cell charging cycles is used to calculate the battey SoH.
-      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
-      bms_cell_max_cycles: '6000.0'
-```
-
-### [JK-BMS (UART 4G-GPS)](https://github.com/syssi/esphome-jk-bms)
-
-[How to make the UART connection with the ESP32.](BMS_JK-B_UART_solution.md)
-
-```YAML
-  bms1: !include
-    file: packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml # bms_modbus_JK_UART_4G-GPS_full.yaml
-    vars:
-      bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
-      bms_uart_id: 'uart_esp_1'
-      # Maximum cell charging cycles is used to calculate the battey SoH.
-      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
-      bms_cell_max_cycles: '6000.0'
-```
-
-### [JK-BMS (RS485 DISPLAY)](https://github.com/syssi/esphome-jk-bms)
-
-> [!CAUTION]
-> The `jk_bms_display` component does not provide all the information needed for an optimal operation of `YamBMS`.
-> The missing information has been added in the code by fixed values.
-> e.g. it's not possible to know if the BMS is `online` or if the BMS is `equalizing` the cells.
-
-[How to make the RS485 connection with the ESP32.](BMS_JK-B_RS485_DISPLAY_solution.md)
-
-```YAML
-  bms1: !include
-    file: packages/bms/bms_combine_JK_RS485_DISPLAY_full.yaml
-    vars:
-      bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
-      bms_uart_id: 'uart_esp_1'
-      # Required settings cannot be retrieved from BMS
-      # These values ​​must match your BMS settings
-      # LFP values example
-      bms_battery_capacity: '280' # Ah
-      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
-      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
-      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      # Maximum cell charging cycles is used to calculate the battey SoH.
-      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
-      bms_cell_max_cycles: '6000.0'
-```
-
-### [JK-BMS (RS485 Modbus)](https://github.com/txubelaxu/esphome-jk-bms/)
-
-> [!TIP]
-> Compatible with JK-PB, JK-B HW. >= 11A
-
-A single `RS485 bus` allows you to monitor up to `16` BMS.
-
-[How to make the RS485 connection with the ESP32.](BMS_JK-PB_RS485_solution.md)
-
-#### JK sniffer
-
-> [!IMPORTANT]
-> You need to import only one `sniffer` package of your choice.
-> Depending on which `RS485` board you have, you should use the version of the `sniffer` with or without `talk_pin`.
-
-The sniffer represents the ESP node connected to the JK-PB RS485 bus
-If address `0x00` is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS).
-
-Sniffer without `talk_pin` :
-
-```YAML
-  sniffer1: !include
-    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml
-    vars:
-      sniffer_id: 'sniffer1'
-      sniffer_protocol: 'JK02_32S'
-      sniffer_uart_id: 'uart_esp_1'
-```
-
-If your `RS485` board requires a `talk_pin` you must specify which `GPIO` will be used :
-
-```YAML
-  sniffer1: !include
-    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer_talk_pin.yaml
-    vars:
-      sniffer_id: 'sniffer1'
-      sniffer_protocol: 'JK02_32S'
-      sniffer_uart_id: 'uart_esp_1'
-      sniffer_talk_pin: 8 # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
-```
-
-#### JK-BMS (JK-PB, JK-B HW. >= 11A)
-
-```YAML
-  # Mode2 : configure the DIP switches of your BMS from 0x01 to 0x0F (don't use the 0x00 address, maximum 15 BMS)
-  bms1: !include
-    file: packages/bms/bms_combine_JK_RS485_Modbus_bms_full.yaml
-    vars:
-      # Sniffer ID
-      sniffer_id: 'sniffer1'
-      # BMS vars
-      bms_id: '1' # must be a number
-      bms_name: 'JK-BMS 1'
-      bms_address: '0x01' # BMS 1 DIP switch
-```
-
-### [JBD (UART)](https://github.com/syssi/esphome-jbd-bms)
-
-```YAML
-  bms1: !include
-    file: packages/bms/bms_combine_JBD_UART_full.yaml # bms_modbus_JBD_UART_full.yaml
-    vars:
-      bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
-      bms_uart_id: 'uart_esp_1'
-      bms_rx_timeout: '150ms'
-      # Required settings cannot be retrieved from BMS
-      # These values ​​must match your BMS settings
-      # LFP values example
-      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
-      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
-      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
-      # Maximum cell charging cycles is used to calculate the battey SoH.
-      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
-      bms_cell_max_cycles: '6000.0'
-```
-
-### [JBD (BLE)](https://github.com/syssi/esphome-jbd-bms)
-
-```YAML
-  bms1: !include
-    file: packages/bms/bms_combine_JBD_BLE_full.yaml # bms_modbus_JBD_UART_full.yaml
-    vars:
-      bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
-      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
-      # Required settings cannot be retrieved from BMS
-      # These values ​​must match your BMS settings
-      # LFP values example
-      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
-      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
-      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
-      # Maximum cell charging cycles is used to calculate the battey SoH.
-      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
-      bms_cell_max_cycles: '6000.0'
-```
-
-### [Seplos V1/V2 (RS485)](https://github.com/syssi/esphome-seplos-bms)
-
-A single `RS485 bus` allows you to monitor up to `16` BMS.
-
-> [!CAUTION]
-> The `seplos_bms` component does not provide all the information needed for an optimal operation of `YamBMS`.
-> The missing information has been added in the code by fixed values.
-> e.g. it's not possible to know if the BMS **blocks** the `charge` or the `discharge` or if the BMS is `equalizing` the cells.
-> The `online` status has not been tested.
-
-> [!IMPORTANT]
-> You need to import only one `seplos_modbus`.
-
-#### Seplos modbus
-
-```YAML
-  seplos_modbus1: !include
-    file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_modbus.yaml
-    vars:
-      seplos_modbus_id: 'seplos_modbus1'
-      seplos_modbus_uart_id: 'uart_esp_1'
-      seplos_modbus_baud_rate: '9600' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
-      seplos_modbus_rx_timeout: '150ms'
-```
-
-#### Seplos V1/V2 BMS
-
-```YAML
-  bms1: !include
-    file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
-    vars:
-      # Seplos modbus ID
-      seplos_modbus_id: 'seplos_modbus1'
-      # BMS vars
-      bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
-      bms_address: '0x01' # BMS 1 DIP switch
-      bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
-      # Required settings cannot be retrieved from BMS
-      # These values ​​must match your BMS settings
-      # LFP values example
-      bms_max_charge_current: '100' # A. Used to calculate maximum charge current
-      bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
-      bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-      bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-      bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
-```
+You can find `BMS` import `LP` examples in the [examples/single-node](../../examples/single-node/) folder.
 
 ## Shunt
 
@@ -513,49 +303,7 @@ A single `RS485 bus` allows you to monitor up to `16` BMS.
 
 As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_behavior.md#shunt)) the values ​​`Voltage`, `Current`, `Power` and `SoC` of the shunt(s) will take precedence over the BMS values.
 
-
-### [Victron Smartshunt (UART)](https://github.com/KinDR007/VictronMPPT-ESPHOME)
-
-[How to make the UART connection with the ESP32.](Shunt_Victron_SmartShunt_HowTo.md)
-
-```YAML
-  shunt1: !include
-    file: packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml # shunt_modbus_Victron_SmartShunt_UART.yaml
-    vars:
-      shunt_id: '1' # must be a number
-      shunt_name: 'Shunt 1'
-      shunt_uart_id: 'uart_esp_1'
-```
-
-### [Victron Smartshunt (BLE)](https://github.com/Fabian-Schmidt/esphome-victron_ble)
-
-> [!IMPORTANT]
-> The BLE software stack on the ESP32 consumes a significant amount of RAM on the device.
-> Crashes are likely to occur if you include too many additional components in your device’s configuration.
-> I recommend using `UART` or `RS485` if possible.
-
-[How to make the BLE connection with the ESP32.](Shunt_Victron_SmartShunt_HowTo.md)
-
-```YAML
-  shunt1: !include
-    file: packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml # shunt_modbus_Victron_SmartShunt_BLE.yaml
-    vars:
-      shunt_id: '1' # must be a number
-      shunt_name: 'Shunt 1'
-      shunt_mac_address: '60:A4:23:91:8F:55' # Your MAC address
-      shunt_encryption_key: '0df4d0395b7d1a876c0c33ecb9e70dcd' # Your encryption key
-```
-
-### [Junctek KH-F (UART/RS485)](https://github.com/Sleeper85/esphome-junctek_khf)
-
-```YAML
-  shunt1: !include
-    file: packages/shunt/shunt_combine_Junctek_KHF_UART.yaml # shunt_modbus_Junctek_KHF_UART.yaml
-    vars:
-      shunt_id: '1' # must be a number
-      shunt_name: 'Shunt 1'
-      shunt_uart_id: 'uart_esp_1'
-```
+You can find `Shunt` import `LP` examples in the [examples/single-node](../../examples/single-node/) folder.
 
 ## YamBMS
 
@@ -572,6 +320,8 @@ Take the time to configure `YamBMS` correctly according to your battery chemistr
     file: packages/yambms/yambms.yaml
     vars:
       # Please read the cut-off charging logic README to understand how the YamBMS works
+      yambms_id: 'yambms1'
+      yambms_name: 'YamBMS 1'
       yambms_update_interval: '1s'
       # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
       yambms_input_number_mode: 'slider'
@@ -593,15 +343,21 @@ Take the time to configure `YamBMS` correctly according to your battery chemistr
       yambms_eoc_timer: '30'
       # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
       yambms_cutoff_timer: '60'
+      # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
+      # The current requested will be proportional to the BMS count without ever exceeding this value.
+      yambms_max_requested_charge_current: '300' # in Ampere
+      # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
+      # The current requested will be proportional to the BMS count without ever exceeding this value.
+      yambms_max_requested_discharge_current: '300' # in Ampere
 ```
 
-## CAN bus
+## CAN bus to Inverter
 
 > [!TIP]
 > This package is only used with the `YamBMS` main node.
-> It's possible to use this package multiple times in order to send information on two different CAN bus.
+> It's possible to use this package multiple times in order to send information on two different `CAN` bus.
 
-The CAN bus connected to your inverter via the CAN transceiver `canbus_node1`.
+You can keep the default configuration and adapt the `canbus` node on which the component must connect.
 
 You can keep the default configuration.
 
@@ -619,25 +375,35 @@ You can keep the default configuration.
       canbus_link_timer: '5s'
 ```
 
+# RS485 bus to Inverter
+
+> [!TIP]
+> This package is only used with the `YamBMS` main node.
+> It's possible to use this package multiple times in order to send information on two different `RS485` bus.
+
+The RS485 bus connected to your inverter via the RS485 transceiver `uart_esp_3`.
+
+You can keep the default configuration and adapt the `uart` port on which the component must connect.
+
+```YAML
+  rs485_pylon: !include
+    file: packages/yambms/yambms_rs485_pylon.yaml
+    vars:
+      rs485_id: 'rs485_1'
+      rs485_name: 'RS485 1'
+      rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
+      rs485_uart_baud_rate: '9600'
+      rs485_update_timeout: '5s'
+```
+
 ## Debug
 
 The `debug` package will add useful information to refer to if problems occur.
 
-### ESP32 and AtomS3
-
 ```YAML
   device_debug: !include
     file: packages/base/device_debug_ESP32.yaml
-    vars:
-      debug_name: 'Debug'
-      debug_update_interval: '5s'
-```
-
-### ESP32 with PSRAM memory like ESP32-S3 / AtomS3R
-
-```YAML
-  device_debug: !include
-    file: packages/base/device_debug_ESP32-S3.yaml
+    # file: packages/base/device_debug_ESP32_PSRAM.yaml # for ESP32 with PSRAM
     vars:
       debug_name: 'Debug'
       debug_update_interval: '5s'

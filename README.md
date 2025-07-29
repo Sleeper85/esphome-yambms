@@ -8,7 +8,8 @@
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
 > [!TIP]
-> Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
+> Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](YamBMS_Remote_Packages_example.yaml)
+> is a good basis for creating your custom YAML.
 > Examples of `BMS` and `Shunt` packages can be found in the [examples](examples/single-node/) folder.
 > You don't have to import a shunt but you must import at least `one BMS`.
 > You can mix different `BMS` models, the only condition is that the `bms_id` are numbered in order starting from `1` !
@@ -52,9 +53,8 @@
 4) [Charging logic](documents/README/Charging_logic.md)
 5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
 6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
-7) [How to create your YamBMS YAML](documents/README/YamBMS_main_YAML_HowTo.md)
-8) [Installation procedure](documents/README/Installation_procedure.md)
-9) [Troubleshooting](documents/README/Troubleshooting.md)
+7) [Installation procedure](documents/README/Installation_procedure.md)
+8) [Troubleshooting](documents/README/Troubleshooting.md)
 
 ## YamBMS ( Yet another multi-BMS Merging Solution )
 

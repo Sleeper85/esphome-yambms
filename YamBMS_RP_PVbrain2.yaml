@@ -1,4 +1,4 @@
-# Updated : 2025.07.28
+# Updated : 2025.07.29
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -125,7 +125,7 @@ substitutions:
 # | Packages                             |
 # +--------------------------------------+
 
-# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_RP_YAML.md
 
 packages:
 
