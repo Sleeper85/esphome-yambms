@@ -1,5 +1,5 @@
-# Updated : 2025.06.10
-# Version : 1.2.4
+# Updated : 2025.07.30
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -98,7 +98,7 @@ sensor:
     filters:
     - lambda: !lambda |-
               // Variables
-              double auto_dcl = round(min(id(auto_dcl_moving_average).state, x) * 10) / 10;
+              double auto_dcl = round((min(id(auto_dcl_moving_average).state, x) * 10) / 10);
 
               id(${yambms_id}_auto_dcl) = auto_dcl;
               return auto_dcl;
