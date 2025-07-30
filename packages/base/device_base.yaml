@@ -1,5 +1,5 @@
-# Updated : 2025.06.12
-# Version : 1.5.6
+# Updated : 2025.07.30
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -40,6 +40,7 @@ binary_sensor:
     entity_category: diagnostic
   # Inverter communication status (CANBUS / RS485)
   - platform: template
+    name: ${name} Inverter communication status
     id: inverter_com_status
     entity_category: diagnostic
 
