@@ -78,13 +78,15 @@ Works only with `PYLON`, `LuxPower` and `Victron` protocols.
 
 ## Auto functions
 
-Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing these features.
+Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing `Auto CVL`, `Auto CCL` and `Auto DCL` functions.
 
-A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto functions` works.
+A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto CVL, CCL & DCL` works.
 
-![Image](../../images/YamBMS_Auto_CVL_CCL_DCL.png "YamBMS_Auto_CVL_CCL_DCL")
+Thanks to [@GHswitt](https://github.com/GHswitt) for developing `Auto Float` function.
 
 ## Auto CVL
+
+![Image](../../images/YamBMS_Auto_CVL.png "YamBMS Auto CVL")
 
 > [!IMPORTANT]
 > The `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
@@ -99,6 +101,8 @@ You can compare `Auto CVL` to cruise control in a car.
 `Boost Charge V.` allows you to increase the charging voltage to charge your battery faster, the `Auto CVL` function will itself reduce the charging voltage at the end of charging so that it does not exceed the target voltage `Bulk Voltage`.
 
 ## Auto CCL & DCL
+
+![Image](../../images/YamBMS_Auto_CCL_DCL.png "YamBMS Auto CCL & DCL")
 
 > [!IMPORTANT]
 > The `Auto CCL` function uses the `OVP` value of your BMS.
@@ -116,6 +120,8 @@ You can compare `Auto CCL` to a max speed limiter in a car.
 Current control should work with any inverter that uses `CAN` control.
 
 ## Auto Float Voltage
+
+![Image](../../images/YamBMS_Auto_Float.png "YamBMS Auto Float")
 
 When switching from `Bulk` to `Float`, therefore lowering the `Requested Charge Voltage (CVL)`, some inverters (e.g. Deye SUN-12K) will start to discharge the battery (into the grid) with up to max. discharge current until the
 `Requested Charge Voltage (CVL)` is reached. The reason behind this is that the inverter sees this as battery overvoltage and wants to counter it. 
