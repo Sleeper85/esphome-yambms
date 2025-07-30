@@ -1,4 +1,4 @@
-# Updated : 2025.07.13
+# Updated : 2025.07.30
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -365,7 +365,8 @@ views:
         conditions:
           - condition: state
             state_not: unavailable
-        title: YamBMS - DEBUG
+        card: 
+          title: YamBMS DEBUG
   - title: BMS
     type: sections
     max_columns: 3
