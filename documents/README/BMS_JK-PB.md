@@ -173,11 +173,17 @@ When enabled, this function synchronizes the settings of all your BMS connected 
 
 > [!NOTE]
 > During the `Bulk` phase the YamBMS `SoC` cannot be more than `98%`.
-> When the battery is fully charged, the `real SoC` will be sent.
+> When the battery is fully charged, the average `SoC` of your BMS will be sent.
 
-The `RCV`, `RFV`, and `RCV timer` values are not used by YamBMS.
-But they are used by the `JK-BMS` to reset the SOC to `100%`.
-If you are instructing YamBMS to charge at `3.45V/cell`, set the JK `RCV` value lower to `3.40V` and reduce the `RCV timer` to `15` minutes.
+The new `JK-PB` parameters `RCV` and `RCV timer` are not used by `YamBMS`, but you can adjust them to reach the `100%` faster, a little before `YamBMS` completes charging.
+
+If you are instructing YamBMS to charge at `3.45V/cell`, set the JK-PB `RCV` value lower to `3.40V` and reduce the `RCV timer` to `0.1` hour.
 This will reset the `SoC` to `100%` faster.
+
+The `SoC` at the end of charge is easy to understand, it's the average `SoC` of your BMS, but it won't go higher than `98%` until charging is complete.
+
+Then, when charging is complete before switching to `Float`, `YamBMS` will again send the average `SoC` of your BMS, which is assumed to have reached `100%`. It's up to you to ensure this is the case by configuring your BMS.
+
+On the `YamBMS` side, disabling the `EOC Timer` (which will end charging after max `30min` in the `Cut-Off` phase without waiting for all `cells` to be `equalized`) will prolong charging until all your `cells` are `equalized` and the active balancer is no longer working for `60s`. This can give more time to the `JK-PB` to reset to `100%`.
 
 ![Image](../../images/BMS_JK-PB_SoC_100pct_Logic.png "Broadcasting JK-PB settings to all BMS")
