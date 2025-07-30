@@ -177,7 +177,12 @@ When enabled, this function synchronizes the settings of all your BMS connected 
 
 The new `JK-PB` parameters `RCV` and `RCV timer` are not used by `YamBMS`, but you can adjust them to reach the `100%` faster, a little before `YamBMS` completes charging.
 
-If you are instructing YamBMS to charge at `3.45V/cell`, set the JK-PB `RCV` value lower to `3.40V` and reduce the `RCV timer` to `0.1` hour.
+If you are instructing `YamBMS` to Bulk charge at `3.5V/cell`, configure the `JK-PB` parameters like this:
+
+* JK RCV V. : `3.45V/cell`
+* JK RCV timer to `0.1` hour
+* JK SOC 100% V. : `3.449V`
+
 This will reset the `SoC` to `100%` faster.
 
 The `SoC` at the end of charge is easy to understand, it's the average `SoC` of your BMS, but it won't go higher than `98%` until charging is complete.
