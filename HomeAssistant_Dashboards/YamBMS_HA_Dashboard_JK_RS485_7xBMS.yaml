@@ -24,6 +24,8 @@ views:
     sections:
       - type: grid
         cards:
+          - type: heading
+            heading: YamBMS - Battery
           - graph: line
             type: sensor
             entity: sensor.yambms_yambms_1_total_voltage
@@ -119,16 +121,17 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 2
-        title: YamBMS - Battery
         column_span: 1
       - type: grid
         cards:
+          - type: heading
+            heading: YamBMS - Status
           - type: tile
-            entity: binary_sensor.yambms_canbus_1_status
-            name: CANBUS Status
+            entity: binary_sensor.yambms_inverter_communication_status
+            name: Inverter comm. status
           - type: tile
             entity: binary_sensor.yambms_esp32_online_status
-            name: ESP32 Status
+            name: ESP32 status
           - type: tile
             entity: sensor.yambms_yambms_1_charging_status
             name: Charging Status
@@ -162,9 +165,6 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 4
-          - type: tile
-            entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
           - type: entities
             entities:
               - entity: sensor.yambms_yambms_1_shunt_count
@@ -173,7 +173,13 @@ views:
                 name: Shunt combined
             layout_options:
               grid_columns: 2
-              grid_rows: 3
+              grid_rows: 2
+          - type: tile
+            entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
+          - type: tile
+            entity: sensor.yambms_esp32_esphome_version
+            name: ESPHome version
           - type: entities
             entities:
               - entity: sensor.yambms_yambms_1_requested_charge_voltage
@@ -192,17 +198,22 @@ views:
           - type: tile
             entity: sensor.yambms_yambms_1_last_version
             name: Last version
-        title: YamBMS - Status
         column_span: 1
   - title: Control
     cards:
-      - type: entities
+      - type: entity-filter
         entities:
           - entity: select.yambms_canbus_1_bms_name
             name: CANBUS 1 BMS Name
           - entity: select.yambms_canbus_1_protocol
             name: CANBUS 1 Protocol
-        title: YamBMS - CANBUS Protocol
+          - entity: select.yambms_rs485_1_protocol
+            name: RS485 1 Protocol
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - Inverter Comm. Protocol
       - type: entities
         entities:
           - entity: switch.yambms_yambms_1_charge_enabled
@@ -307,7 +318,7 @@ views:
           - entity: button.yambms_esp32_restart
             name: ESP32 Restart
         title: YamBMS - Diagnostic
-      - type: entities
+      - type: entity-filter
         entities:
           - entity: binary_sensor.yambms_canbus_1_status
             name: CANBUS 1 Status
@@ -315,7 +326,17 @@ views:
             name: CANBUS 1 Inverter Heartbeat Monitoring
           - entity: sensor.yambms_canbus_1_inverter_heartbeat
             name: CANBUS 1 Inverter Heartbeat
-        title: YamBMS - Inverter Heartbeat
+          - entity: binary_sensor.yambms_rs485_1_status
+            name: RS485 1 Status
+          - entity: switch.yambms_rs485_1_inverter_heartbeat_monitoring
+            name: RS485 1 Inverter Heartbeat Monitoring
+          - entity: sensor.yambms_rs485_1_inverter_heartbeat
+            name: RS485 1 Inverter Heartbeat
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - Inverter Status & Heartbeat
       - type: entity-filter
         entities:
           - entity: sensor.yambms_debug_free_psram_percent
@@ -332,6 +353,8 @@ views:
             name: Debug Heap max block
           - entity: sensor.yambms_debug_loop_time
             name: Debug Loop time
+          - entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
           - entity: sensor.yambms_esp32_esphome_version
             name: ESPHome version
           - entity: sensor.yambms_debug_reset_reason
@@ -339,8 +362,8 @@ views:
         conditions:
           - condition: state
             state_not: unavailable
-        card: 
-          title: YamBMS DEBUG
+        card:
+          title: YamBMS - DEBUG
   - title: BMS
     type: sections
     max_columns: 3

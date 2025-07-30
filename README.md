@@ -144,7 +144,7 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 ## Changelog
 
 * YamBMS 1.5.8 :
-  * New Dashboards `1.5.8`
+  * New Dashboards `1.5.8` compatible with CANBUS / RS485 inverter communication protocol
   * Merged [PR 67](https://github.com/Sleeper85/esphome-yambms/pull/67) Add options to restrict max. charge and discharge current
   * Merged [PR 72](https://github.com/Sleeper85/esphome-yambms/pull/72) Add Pylontech RS485 inverter protocol
   * Fixed [issue 8](https://github.com/Sleeper85/esphome-yambms/issues/8) ETH01-EVO board - Davicom DM9051 SPI Ethernet Controller is now integrated in esphome `2025.7`
