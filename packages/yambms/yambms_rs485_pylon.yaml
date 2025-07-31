@@ -25,12 +25,6 @@ uart:
   - id: !extend ${rs485_uart_id}
     baud_rate: ${rs485_uart_baud_rate}
 
-globals:
-  - id: rs485_inverter_ack_ms_previous
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-
 select:
   - platform: template
     name: "${name} ${rs485_name} Protocol"
@@ -154,13 +148,10 @@ binary_sensor:
   - platform: template
     id: yambms_proxy_system_fault_protection
     internal: true
-  # --- Inverter Online Status ---
+  # --- Inverter Communication Status ---
   - platform: template
-    id: inverter_online
-    name: "${name} ${rs485_name} Inverter Online"
-    lambda: |-
-      // Inverter is online if last update was within timeout period
-      return (millis() - id(rs485_inverter_ack_ms_previous)) < 5000;
+    id: inverter_com_status
+    name: "Inverter Communication Status"
     entity_category: diagnostic
 
 interval:
@@ -210,14 +201,6 @@ interval:
                   id(yambms_proxy_discharge_overcurrent_protection).publish_state((mask & 0x0080) > 0);
                   id(yambms_proxy_system_fault_protection).publish_state((mask & 0x0800) > 0);
                 }
-                if (id(rs485_switch_inverter_heartbeat_monitoring).state) {
-                  uint32_t now = millis();
-                  uint32_t interval = now - id(rs485_inverter_ack_ms_previous);
-                  id(rs485_inverter_ack_ms_previous) = now;
-                  id(inverter_heartbeat).publish_state(interval);
-                  ESP_LOGI("rs485", "Inverter heartbeat: %d ms", interval);
-                }
-
 
 pylontech_rs485:
   uart_id: ${rs485_uart_id}
@@ -259,3 +242,7 @@ pylontech_rs485:
   min_voltage: yambms_proxy_min_discharge_v
   max_charge_current: yambms_proxy_max_charge_i
   max_discharge_current: yambms_proxy_max_discharge_i
+  # --- Inverter Heartbeat & Com Status ---
+  inverter_heartbeat: inverter_heartbeat
+  inverter_com_status: inverter_com_status
+  heartbeat_switch: rs485_switch_inverter_heartbeat_monitoring
