@@ -52,7 +52,7 @@
 3) [YamBMS functions](documents/README/YamBMS_functions.md)
 4) [Charging logic](documents/README/Charging_logic.md)
 5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
-6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
+6) [Hardware and schematic instructions](documents/README/Hardware_and_schematic_instructions.md)
 7) [Installation procedure](documents/README/Installation_procedure.md)
 8) [Troubleshooting](documents/README/Troubleshooting.md)
 
