@@ -1,5 +1,5 @@
-# Updated : 2025.07.10
-# Version : 1.2.0
+# Updated : 2025.07.31
+# Version : 1.2.1
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -148,7 +148,17 @@ binary_sensor:
   - platform: template
     id: yambms_proxy_system_fault_protection
     internal: true
-    
+  # --- Inverter Communication Status ---
+  - platform: template
+    id: ${rs485_id}_status
+    name: "${name} ${rs485_name} Status"
+    entity_category: diagnostic
+    lambda: |-
+      if (id(rs485_switch_inverter_heartbeat_monitoring).state) {
+        return id(inverter_com_status).state;
+      }
+      return false;
+
 interval:
   - interval: 100ms
     then:
