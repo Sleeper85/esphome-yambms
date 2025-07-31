@@ -148,12 +148,7 @@ binary_sensor:
   - platform: template
     id: yambms_proxy_system_fault_protection
     internal: true
-  # --- Inverter Communication Status ---
-  - platform: template
-    id: inverter_com_status
-    name: "Inverter Communication Status"
-    entity_category: diagnostic
-
+    
 interval:
   - interval: 100ms
     then:
