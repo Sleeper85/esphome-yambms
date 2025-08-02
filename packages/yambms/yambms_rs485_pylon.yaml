@@ -245,6 +245,7 @@ pylontech_rs485:
   min_voltage: ${rs485_id}_proxy_min_discharge_v
   max_charge_current: ${rs485_id}_proxy_max_charge_i
   max_discharge_current: ${rs485_id}_proxy_max_discharge_i
+  requested_force_charge: ${yambms_id}_requested_force_charge
   # --- Inverter Heartbeat & Com Status ---
   inverter_heartbeat: ${rs485_id}_inverter_heartbeat
   rs485_status: ${rs485_id}_status
