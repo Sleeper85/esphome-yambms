@@ -151,6 +151,7 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
   * Fixed [issue 24](https://github.com/Sleeper85/esphome-yambms/issues/24) [JK-PB] SoC never reaches 100%
   * Fixed [issue 63](https://github.com/Sleeper85/esphome-yambms/issues/63) [JK RS485 component] Fix *.*_SCHEMA deprecations
   * Integration of BMS SEPLOS V3 (beta)
+  * Merged [PR 74](https://github.com/Sleeper85/esphome-yambms/pull/74) `PYLON RS485` link status, Heartbeat and Requested Force Charge.
 * YamBMS 1.5.7 :
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
