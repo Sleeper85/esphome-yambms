@@ -1,5 +1,5 @@
-# Updated : 2025.07.28
-# Version : 1.1.1
+# Updated : 2025.08.02
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,10 +24,8 @@
 ################################################################################
 
 substitutions:
-  modbus_update_interval: '5s' # frequency with which BMS/Shunt modbus servers are queried
-  modbus_baud_rate: '19200' # 9600 / 19200 / 115200
-  modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
-  modbus_send_wait_time: '250ms' # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+  friendly_name : 'YamBMS Modbus Server 1' # Prefix added in front of the `entity display name`, also used to classify them.
+  hostname: 'yambms-modbus-server-1' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
 
 packages:
 
@@ -37,7 +35,7 @@ packages:
     refresh: 0s
     files:
       # Modbus server
-      - path: 'packages/base/device_modbus.yaml'
+      - path: 'packages/board/board_options_itf_modbus.yaml'
         vars:
           modbus_role: 'server' # client / server
           modbus_uart_id: 'uart_esp_1' # RS485 board
