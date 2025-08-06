@@ -162,10 +162,12 @@ interval:
             lambda: 'return id(${rs485_id}_protocol).state == "Pylontech";'
           then:
             - lambda: !lambda |-
+                // Mirror RS485 status into inverter_com_status
+                if (id(${rs485_id}_status).has_state()) id(inverter_com_status).publish_state(id(${rs485_id}_status).state);
+
+                // --- Check BMS ONLINE/OFFLINE Status ---  
                 if (id(${yambms_id}_bms_combined).has_state() && id(${yambms_id}_bms_combined).state > 0) {
                 // --- STATE 1: BMS is ONLINE ---
-                  // Mirror RS485 status into inverter_com_status
-                  if (id(${rs485_id}_status).has_state()) id(inverter_com_status).publish_state(id(${rs485_id}_status).state);
                   // Sensor Values
                   if (id(${yambms_id}_battery_soc).has_state()) id(${rs485_id}_proxy_soc).publish_state(id(${yambms_id}_battery_soc).state);
                   if (id(${yambms_id}_total_voltage).has_state()) id(${rs485_id}_proxy_voltage).publish_state(id(${yambms_id}_total_voltage).state);
