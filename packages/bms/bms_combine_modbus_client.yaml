@@ -1,5 +1,5 @@
-# Updated : 2025.08.02
-# Version : 1.1.7
+# Updated : 2025.08.07
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -92,6 +92,7 @@ binary_sensor:
     name: "${name} ${bms_name} Charging allowed"
     register_type: read
     address: 2
+    lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # discharging_allowed
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
@@ -106,6 +107,7 @@ binary_sensor:
     name: "${name} ${bms_name} Equalizing state"
     register_type: read
     address: 4
+    lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
 
 sensor:
   # total_voltage
@@ -120,6 +122,7 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -136,6 +139,7 @@ sensor:
     unit_of_measurement: A
     device_class: current
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -152,6 +156,7 @@ sensor:
     unit_of_measurement: W
     device_class: power
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -168,6 +173,7 @@ sensor:
     unit_of_measurement: '%'
     device_class: battery
     filters:
+      - lambda: if(!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -184,6 +190,7 @@ sensor:
     unit_of_measurement: Ah
     device_class: energy_storage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -200,6 +207,7 @@ sensor:
     unit_of_measurement: Ah
     device_class: energy_storage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -215,6 +223,7 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:counter
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -231,6 +240,7 @@ sensor:
     unit_of_measurement: A
     icon: mdi:current-dc
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -247,6 +257,7 @@ sensor:
     unit_of_measurement: A
     icon: mdi:current-dc
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -263,6 +274,7 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -278,6 +290,7 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:numeric
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -294,6 +307,7 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -309,6 +323,7 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:numeric
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -325,6 +340,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.1
       - or:
         - throttle: 10s
@@ -340,6 +356,7 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:numeric
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -356,6 +373,7 @@ sensor:
     unit_of_measurement: °C
     device_class: temperature
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.1
       - or:
         - throttle: 10s
@@ -371,6 +389,7 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:numeric
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -387,6 +406,7 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -403,6 +423,7 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -419,6 +440,7 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -434,6 +456,7 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
@@ -450,6 +473,7 @@ sensor:
     unit_of_measurement: W
     device_class: power
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -466,6 +490,7 @@ sensor:
     unit_of_measurement: W
     device_class: power
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
       - or:
         - throttle: 10s
@@ -482,6 +507,7 @@ sensor:
     unit_of_measurement: '%'
     device_class: battery
     filters:
+      - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
       - or:
         - throttle: 10s
