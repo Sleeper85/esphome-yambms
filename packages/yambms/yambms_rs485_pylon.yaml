@@ -1,5 +1,5 @@
-# Updated : 2025.08.02
-# Version : 1.3.0
+# Updated : 2025.08.06
+# Version : 1.3.1
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -159,50 +159,88 @@ interval:
     then:
       - if:
           condition:
-            lambda: 'return id(${rs485_id}_protocol).state == "Pylontech"  && (id(${yambms_id}_bms_combined).state > 0);'
+            lambda: 'return id(${rs485_id}_protocol).state == "Pylontech";'
           then:
             - lambda: !lambda |-
-                // --- PROTOCOL ENABLED: Pass real data if available ---
-                // The .has_state() check prevents race conditions at startup.
                 // Mirror RS485 status into inverter_com_status
                 if (id(${rs485_id}_status).has_state()) id(inverter_com_status).publish_state(id(${rs485_id}_status).state);
-                // Sensor Values
-                if (id(${yambms_id}_battery_soc).has_state()) id(${rs485_id}_proxy_soc).publish_state(id(${yambms_id}_battery_soc).state);
-                if (id(${yambms_id}_total_voltage).has_state()) id(${rs485_id}_proxy_voltage).publish_state(id(${yambms_id}_total_voltage).state);
-                if (id(${yambms_id}_current).has_state()) id(${rs485_id}_proxy_current).publish_state(id(${yambms_id}_current).state);
-                if (id(${yambms_id}_max_temperature).has_state()) id(${rs485_id}_proxy_temperature).publish_state(id(${yambms_id}_max_temperature).state);
-                if (id(${yambms_id}_battery_soh).has_state()) id(${rs485_id}_proxy_soh).publish_state(id(${yambms_id}_battery_soh).state);
-                if (id(${yambms_id}_charging_cycles).has_state()) id(${rs485_id}_proxy_cycle_count).publish_state(id(${yambms_id}_charging_cycles).state);
-                if (id(${yambms_id}_max_cell_voltage).has_state()) id(${rs485_id}_proxy_max_cell_v).publish_state(id(${yambms_id}_max_cell_voltage).state);
-                if (id(${yambms_id}_min_cell_voltage).has_state()) id(${rs485_id}_proxy_min_cell_v).publish_state(id(${yambms_id}_min_cell_voltage).state);
-                if (id(${yambms_id}_max_temperature).has_state()) id(${rs485_id}_proxy_max_temp).publish_state(id(${yambms_id}_max_temperature).state);
-                if (id(${yambms_id}_min_temperature).has_state()) id(${rs485_id}_proxy_min_temp).publish_state(id(${yambms_id}_min_temperature).state);
-                if (id(${yambms_id}_requested_charge_voltage).has_state()) id(${rs485_id}_proxy_max_charge_v).publish_state(id(${yambms_id}_requested_charge_voltage).state);
-                if (id(${yambms_id}_requested_discharge_voltage).has_state()) id(${rs485_id}_proxy_min_discharge_v).publish_state(id(${yambms_id}_requested_discharge_voltage).state);
-                if (id(${yambms_id}_requested_charge_current).has_state()) id(${rs485_id}_proxy_max_charge_i).publish_state(id(${yambms_id}_requested_charge_current).state);
-                if (id(${yambms_id}_requested_discharge_current).has_state()) id(${rs485_id}_proxy_max_discharge_i).publish_state(id(${yambms_id}_requested_discharge_current).state);
-                // Binary Sensors (Alarms/Protections)
-                if (id(${yambms_id}_errors_bitmask_warning).has_state()) {
-                  uint16_t mask = id(${yambms_id}_errors_bitmask_warning).state;
-                  id(${rs485_id}_proxy_total_voltage_high_alarm).publish_state((mask & 0x0002) > 0);
-                  id(${rs485_id}_proxy_total_voltage_low_alarm).publish_state((mask & 0x0004) > 0);
-                  id(${rs485_id}_proxy_cell_temp_high_alarm).publish_state((mask & 0x0008) > 0);
-                  id(${rs485_id}_proxy_cell_temp_low_alarm).publish_state((mask & 0x0010) > 0);
-                  id(${rs485_id}_proxy_charge_overcurrent_alarm).publish_state((mask & 0x0100) > 0);
-                  id(${rs485_id}_proxy_discharge_overcurrent_alarm).publish_state((mask & 0x0080) > 0);
-                  id(${rs485_id}_proxy_cell_imbalance_alarm).publish_state((mask & 0x1000) > 0);
-                  id(${rs485_id}_proxy_cell_voltage_high_alarm).publish_state((mask & 0x0002) > 0);
-                  id(${rs485_id}_proxy_cell_voltage_low_alarm).publish_state((mask & 0x0004) > 0);
-                }
-                if (id(${yambms_id}_errors_bitmask_alarm).has_state()) {
-                  uint16_t mask = id(${yambms_id}_errors_bitmask_alarm).state;
-                  id(${rs485_id}_proxy_cell_overvoltage_protection).publish_state((mask & 0x0002) > 0);
-                  id(${rs485_id}_proxy_cell_undervoltage_protection).publish_state((mask & 0x0004) > 0);
-                  id(${rs485_id}_proxy_cell_overtemp_protection).publish_state((mask & 0x0008) > 0);
-                  id(${rs485_id}_proxy_cell_undertemp_protection).publish_state((mask & 0x0010) > 0);
-                  id(${rs485_id}_proxy_charge_overcurrent_protection).publish_state((mask & 0x0100) > 0);
-                  id(${rs485_id}_proxy_discharge_overcurrent_protection).publish_state((mask & 0x0080) > 0);
-                  id(${rs485_id}_proxy_system_fault_protection).publish_state((mask & 0x0800) > 0);
+
+                // --- Check BMS ONLINE/OFFLINE Status ---  
+                if (id(${yambms_id}_bms_combined).has_state() && id(${yambms_id}_bms_combined).state > 0) {
+                // --- STATE 1: BMS is ONLINE ---
+                  // Sensor Values
+                  if (id(${yambms_id}_battery_soc).has_state()) id(${rs485_id}_proxy_soc).publish_state(id(${yambms_id}_battery_soc).state);
+                  if (id(${yambms_id}_total_voltage).has_state()) id(${rs485_id}_proxy_voltage).publish_state(id(${yambms_id}_total_voltage).state);
+                  if (id(${yambms_id}_current).has_state()) id(${rs485_id}_proxy_current).publish_state(id(${yambms_id}_current).state);
+                  if (id(${yambms_id}_max_temperature).has_state()) id(${rs485_id}_proxy_temperature).publish_state(id(${yambms_id}_max_temperature).state);
+                  if (id(${yambms_id}_battery_soh).has_state()) id(${rs485_id}_proxy_soh).publish_state(id(${yambms_id}_battery_soh).state);
+                  if (id(${yambms_id}_charging_cycles).has_state()) id(${rs485_id}_proxy_cycle_count).publish_state(id(${yambms_id}_charging_cycles).state);
+                  if (id(${yambms_id}_max_cell_voltage).has_state()) id(${rs485_id}_proxy_max_cell_v).publish_state(id(${yambms_id}_max_cell_voltage).state);
+                  if (id(${yambms_id}_min_cell_voltage).has_state()) id(${rs485_id}_proxy_min_cell_v).publish_state(id(${yambms_id}_min_cell_voltage).state);
+                  if (id(${yambms_id}_max_temperature).has_state()) id(${rs485_id}_proxy_max_temp).publish_state(id(${yambms_id}_max_temperature).state);
+                  if (id(${yambms_id}_min_temperature).has_state()) id(${rs485_id}_proxy_min_temp).publish_state(id(${yambms_id}_min_temperature).state);
+                  if (id(${yambms_id}_requested_charge_voltage).has_state()) id(${rs485_id}_proxy_max_charge_v).publish_state(id(${yambms_id}_requested_charge_voltage).state);
+                  if (id(${yambms_id}_requested_discharge_voltage).has_state()) id(${rs485_id}_proxy_min_discharge_v).publish_state(id(${yambms_id}_requested_discharge_voltage).state);
+                  if (id(${yambms_id}_requested_charge_current).has_state()) id(${rs485_id}_proxy_max_charge_i).publish_state(id(${yambms_id}_requested_charge_current).state);
+                  if (id(${yambms_id}_requested_discharge_current).has_state()) id(${rs485_id}_proxy_max_discharge_i).publish_state(id(${yambms_id}_requested_discharge_current).state);
+                  // Binary Sensors (Alarms/Protections)
+                  if (id(${yambms_id}_errors_bitmask_warning).has_state()) {
+                    uint16_t mask = id(${yambms_id}_errors_bitmask_warning).state;
+                    id(${rs485_id}_proxy_total_voltage_high_alarm).publish_state((mask & 0x0002) > 0);
+                    id(${rs485_id}_proxy_total_voltage_low_alarm).publish_state((mask & 0x0004) > 0);
+                    id(${rs485_id}_proxy_cell_temp_high_alarm).publish_state((mask & 0x0008) > 0);
+                    id(${rs485_id}_proxy_cell_temp_low_alarm).publish_state((mask & 0x0010) > 0);
+                    id(${rs485_id}_proxy_charge_overcurrent_alarm).publish_state((mask & 0x0100) > 0);
+                    id(${rs485_id}_proxy_discharge_overcurrent_alarm).publish_state((mask & 0x0080) > 0);
+                    id(${rs485_id}_proxy_cell_imbalance_alarm).publish_state((mask & 0x1000) > 0);
+                    id(${rs485_id}_proxy_cell_voltage_high_alarm).publish_state((mask & 0x0002) > 0);
+                    id(${rs485_id}_proxy_cell_voltage_low_alarm).publish_state((mask & 0x0004) > 0);
+                  }
+                  if (id(${yambms_id}_errors_bitmask_alarm).has_state()) {
+                    uint16_t mask = id(${yambms_id}_errors_bitmask_alarm).state;
+                    id(${rs485_id}_proxy_cell_overvoltage_protection).publish_state((mask & 0x0002) > 0);
+                    id(${rs485_id}_proxy_cell_undervoltage_protection).publish_state((mask & 0x0004) > 0);
+                    id(${rs485_id}_proxy_cell_overtemp_protection).publish_state((mask & 0x0008) > 0);
+                    id(${rs485_id}_proxy_cell_undertemp_protection).publish_state((mask & 0x0010) > 0);
+                    id(${rs485_id}_proxy_charge_overcurrent_protection).publish_state((mask & 0x0100) > 0);
+                    id(${rs485_id}_proxy_discharge_overcurrent_protection).publish_state((mask & 0x0080) > 0);
+                    id(${rs485_id}_proxy_system_fault_protection).publish_state((mask & 0x0800) > 0);
+                  }
+                } else {
+                  // --- STATE 2: BMS is OFFLINE ---
+                  // Invalidate all proxy sensors to trigger component's fail-safe.
+                  id(${rs485_id}_proxy_soc).publish_state(NAN);
+                  id(${rs485_id}_proxy_voltage).publish_state(NAN);
+                  id(${rs485_id}_proxy_current).publish_state(NAN);
+                  id(${rs485_id}_proxy_temperature).publish_state(NAN);
+                  id(${rs485_id}_proxy_soh).publish_state(NAN);
+                  id(${rs485_id}_proxy_cycle_count).publish_state(NAN);
+                  id(${rs485_id}_proxy_max_cell_v).publish_state(NAN);
+                  id(${rs485_id}_proxy_min_cell_v).publish_state(NAN);
+                  id(${rs485_id}_proxy_max_temp).publish_state(NAN);
+                  id(${rs485_id}_proxy_min_temp).publish_state(NAN);
+                  id(${rs485_id}_proxy_max_charge_v).publish_state(NAN);
+                  id(${rs485_id}_proxy_min_discharge_v).publish_state(NAN);
+                  id(${rs485_id}_proxy_max_charge_i).publish_state(NAN);
+                  id(${rs485_id}_proxy_max_discharge_i).publish_state(NAN);
+
+                  // Publish 'false' to clear any alarms/protections.
+                  id(${rs485_id}_proxy_total_voltage_high_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_total_voltage_low_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_cell_temp_high_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_cell_temp_low_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_charge_overcurrent_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_discharge_overcurrent_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_cell_imbalance_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_cell_voltage_high_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_cell_voltage_low_alarm).publish_state(false);
+                  id(${rs485_id}_proxy_cell_overvoltage_protection).publish_state(false);
+                  id(${rs485_id}_proxy_cell_undervoltage_protection).publish_state(false);
+                  id(${rs485_id}_proxy_cell_overtemp_protection).publish_state(false);
+                  id(${rs485_id}_proxy_cell_undertemp_protection).publish_state(false);
+                  id(${rs485_id}_proxy_charge_overcurrent_protection).publish_state(false);
+                  id(${rs485_id}_proxy_discharge_overcurrent_protection).publish_state(false);
+                  id(${rs485_id}_proxy_system_fault_protection).publish_state(false);
                 }
 
 pylontech_rs485:
