@@ -1,5 +1,5 @@
-# Updated : 2025.06.11
-# Version : 1.1.2
+# Updated : 2025.08.08
+# Version : 1.1.3
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -388,7 +388,7 @@ sensor:
     id: bms${bms_id}_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
     lambda: |-
-      return 3.45;
+      return 0.03;
 
   # Misc. information
   - platform: template
