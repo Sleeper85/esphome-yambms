@@ -53,16 +53,16 @@ modbus_controller:
             id(bms${bms_id}_min_temperature_sensor).publish_state(0);
             id(bms${bms_id}_max_temperature).publish_state(0);
             id(bms${bms_id}_max_temperature_sensor).publish_state(0);
-##
-#            id(bms${bms_id}_online_status).publish_state(false);
-#            id(bms${bms_id}_charging_allowed).publish_state(false);
-#            id(bms${bms_id}_discharging_allowed).publish_state(false);
-#            id(bms${bms_id}_equalizing).publish_state(false);
-#            id(bms${bms_id}_max_discharge_current).publish_state(0);
-#            id(bms${bms_id}_online_status).publish_state(false);
-#            id(bms${bms_id}_charging_allowed).publish_state(false);
-#            id(bms${bms_id}_discharging_allowed).publish_state(false);
-#            id(bms${bms_id}_equalizing).publish_state(false);
+
+            id(bms${bms_id}_online_status).publish_state(false);
+            id(bms${bms_id}_charging_allowed).publish_state(false);
+            id(bms${bms_id}_discharging_allowed).publish_state(false);
+            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_max_discharge_current).publish_state(0);
+            id(bms${bms_id}_online_status).publish_state(false);
+            id(bms${bms_id}_charging_allowed).publish_state(false);
+            id(bms${bms_id}_discharging_allowed).publish_state(false);
+            id(bms${bms_id}_equalizing).publish_state(false);
 
 
 
@@ -76,22 +76,22 @@ binary_sensor:
     id: bms${bms_id}_online_status
     name: "${name} ${bms_name} online status"
 
-  # 1278 TB07 Bit 0 - Discharge FET on
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    id: bms${bms_id}_discharging_allowed
-
-  # 1278 TB07 Bit 1 - Charge FET on
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    id: bms${bms_id}_charging_allowed
-    name: "${name} ${bms_name} Charge FET"
-
-  # 1280 TB12 Bit 0 - Equilibrium module to open
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
+  # Required sensors cannot be retrieved from BMS
+  # equalizing
+  - platform: template
     id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} Equalizing"
+    name: "${name} ${bms_name} balancing"
+    lambda: return false;
+  # bms_switch_charging
+  - platform: template
+    id: bms${bms_id}_charging_allowed
+    name: "${name} ${bms_name} charging"
+    lambda: return true;
+  # bms_switch_discharging
+  - platform: template
+    id: bms${bms_id}_discharging_allowed
+    name: "${name} ${bms_name} discharging"
+    lambda: return true;
 
 sensor:   
   - platform: modbus_controller
