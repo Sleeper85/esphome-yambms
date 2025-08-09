@@ -1,0 +1,321 @@
+# Updated : 2025.07.29
+# Version : 1.5.8
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+######################## YamBMS Remote Packages Version ########################
+
+# You can compile this YAML directly without the `packages` folder.
+# The packages will be automatically downloaded from GitHub.
+# Don't forget to configure your WiFi credentials in the secrets.yaml
+
+################################################################################
+
+# If needed, configure a static IP here
+# wifi:
+#   manual_ip:
+#     static_ip: 192.168.0.85
+#     gateway: 192.168.0.1
+#     subnet: 255.255.255.0
+#     dns1: 8.8.8.8
+#     dns2: 8.8.4.4
+
+logger:
+  level: DEBUG # VERBOSE / DEBUG / INFO / WARN
+
+ota:
+  platform: esphome
+
+# Please use the native `api` component instead of the `mqtt` section.
+# If you use Home Assistant, the native API is more lightweight.
+# If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
+# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
+api:
+  reboot_timeout: 0s
+
+# If you don't want to use ESPHome's native API you can use MQTT instead.
+# In this case don't forget to remove the 'api:' section.
+# mqtt:
+#   broker: !secret mqtt_host
+#   username: !secret mqtt_username
+#   password: !secret mqtt_password
+#   id: mqtt_client
+
+# +--------------------------------------+
+# | Global Settings                      |
+# +--------------------------------------+
+substitutions:
+  # Name
+  friendly_name : 'YamBMS_Test' # Prefix added in front of the `entity display name`, also used to classify them.
+  hostname: 'yambms-test' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
+  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
+  # +--------------------------------------+
+  # | YamBMS Settings                      |
+  # +--------------------------------------+
+  # Please read the cut-off charging logic README to understand how the YamBMS works
+  yambms_id: 'yambms2'
+  yambms_name: 'YamBMS 2'
+  yambms_update_interval: '1s'
+  # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
+  yambms_input_number_mode: 'slider'
+  # Please check and fill in the options below correctly according to your battery chemistry and number of cells in series.
+  # These parameters are important and used for charging logic.
+  # Battery Chemistry
+  yambms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO
+  # Number of cells in series
+  yambms_cell_count: '16'
+  # Bulk / Absorption Voltage : corresponds to the Bulk voltage that will be used to charge the battery. (LFP : 55.2V = 3.45V/Cell for 16S battery)
+  yambms_bulk_v: '55.2'
+  # Float Voltage : corresponds to the voltage at which the battery would be maintained at the end of charge. (LFP : 53.6V = 3.35V/Cell for 16S battery)
+  yambms_float_v: '53.6'
+  # Rebulk voltage, voltage from which a new Bulk charge can start. (LFP : 52.8V = 3.3V/Cell for 16S battery)
+  yambms_rebulk_v: '52.8'
+  # Maximum time in minutes that the cut-off step can last before charging is complete
+  # If your cells are properly balanced this step ends at the fastest after the `cut-off timer`
+  # This timer can be deactivated with a switch
+  yambms_eoc_timer: '30'
+  # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
+  yambms_cutoff_timer: '60'
+  # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
+  # The current requested will be proportional to the BMS count without ever exceeding this value.
+  yambms_max_requested_charge_current: '300' # in Ampere
+  # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
+  # The current requested will be proportional to the BMS count without ever exceeding this value.
+  yambms_max_requested_discharge_current: '300' # in Ampere
+  # +--------------------------------------+
+  # | Shunt Settings                       |
+  # +--------------------------------------+
+  shunt_update_interval: '3s'  # frequency at which Shunt data is refreshed
+  shunt_combine_interval: '1s' # frequency at which Shunt data is combined in YamBMS
+  # +--------------------------------------+
+  # | BMS Settings                         |
+  # +--------------------------------------+
+  bms_update_interval: '3s'    # frequency at which BMS data is refreshed, going below '3s' can cause problems
+  bms_combine_interval: '1s'   # frequency at which BMS data is combined in YamBMS
+  bms_cutoff_timer: '50s'      # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
+
+
+
+# +--------------------------------------+
+# | Packages                             |
+# +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_RP_YAML.md
+
+packages:
+
+  # +------------------------------------------------------------------------------+
+  # | >>> UNCOMMENT YOUR BOARD
+  # | >>> ONLY ONE BOARD !
+  # +------------------------------------------------------------------------------+
+
+  board:
+    url: https://github.com/RAR/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # - path: 'packages/board/board_ESP32_Generic.yaml'
+      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
+      # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
+      # - path: 'packages/board/board_ESP32_EVB.yaml'
+      # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
+      # - path: 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
+      # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+      - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
+      # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
+      # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
+      # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+      # - path: 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
+      # - path: 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
+      # - path: 'packages/board/board_ESP32-S3_XIAO.yaml'
+      # - path: 'packages/board/board_ESP32-S3_YBoard.yaml'
+
+      # - path: 'packages/board/board_ESP32-S3_AtomS3.yaml' # 'packages/board/board_ESP32-S3_AtomS3R.yaml'
+      #   vars:
+      #     display_auto_next_page_interval: '5s'
+      #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+
+      # # LilyGo T-Connect Pro - Board
+      # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
+      # # LilyGo T-Connect Pro - Display - Importing the display also activates PSRAM
+      # - path: 'packages/board/board_options_display_480x222.yaml'
+      #   vars:
+      #     display_auto_next_page_interval: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Options
+  # | >>> Uncomment your interfaces and options
+  # +------------------------------------------------------------------------------+
+
+  board_options:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # UART 1 (uart_id: uart_esp_1)
+      - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
+      # UART 2 (uart_id: uart_esp_2)
+      # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
+      # UART 3 (uart_id: uart_esp_3)
+      # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
+
+      # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
+      #- path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
+      #  vars:
+      #    # to bms = canbus_bms_1
+      #    # to inverter = canbus_inverter_1
+      #    canbus_node_id: 'canbus_inverter_1'
+      
+      # CAN transceiver - MCP2515
+      # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
+      #   vars:
+      #     # to bms = canbus_bms_1
+      #     # to inverter = canbus_inverter_1
+      #     canbus_node_id: 'canbus_inverter_1'
+
+      # PSRAM octal 80Mhz
+      # - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
+
+      # Web Server
+      # - path: 'packages/yambms/yambms_web_server.yaml'
+
+      # Captive Portal
+      # - path: 'packages/board/board_options_captive_portal.yaml'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> BMS and Shunt
+  # +------------------------------------------------------------------------------+
+
+  # You don't have to import a shunt but you must import at least one BMS.
+  # You can mix different BMS models, the only condition is that the `bms_id` are numbered in order starting from 1 !
+
+  # >>> Copy your BMS and Shunt packages here
+  # >>> You can find examples at this address :
+  # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
+
+  bms:
+    url: https://github.com/RAR/esphome-yambms
+    ref: main
+    refresh: 0s
+    files: 
+      # EG4 Modbus
+      - path: 'packages/bms/bms_combine_EG4_RS485_modbus.yaml'
+        vars:
+          eg4_modbus_uart_id: 'uart_esp_1'
+          eg4_modbus_baud_rate: '9600' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
+      # BMS 2
+#      - path: !include 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
+#        vars:
+#          bms_id: '2' # BMS id and modbus address
+#          bms_name: 'EG4 BMS 2'
+      # BMS 2
+      #- path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_bms_full.yaml'
+      #  vars:
+      #    bms_id: '2' # BMS id and modbus address
+      #    bms_name: 'BMS 2'
+      # BMS 3
+      #- path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_bms_full.yaml'
+      #  vars:
+      #    bms_id: '3' # BMS id and modbus address
+      #    bms_name: 'BMS 3'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> YamBMS core
+  # +------------------------------------------------------------------------------+
+
+  yambms:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      - path: 'packages/yambms/yambms.yaml'
+
+  # +------------------------------------------------------------------------------+
+  # | >>> CAN bus to Inverter
+  # +------------------------------------------------------------------------------+
+
+#  canbus:
+#    url: https://github.com/Sleeper85/esphome-yambms
+#    ref: main
+#    refresh: 0s
+#    files:
+#      - path: 'packages/yambms/yambms_canbus.yaml'
+#        vars:
+#          canbus_id: 'canbus1'
+#          canbus_name: 'CANBUS 1'
+#          canbus_node_id: 'canbus_inverter_1'
+#          canbus_light_id: 'esp_light'
+#          # The CANBUS link will be considered down if no response from the inverter (0x305 frame) for 5s
+#          # The Deye inverter sends the ACK 0x305 only when it receives the 0x356 frame.
+#          canbus_link_timer: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> RS485 bus to Inverter
+  # +------------------------------------------------------------------------------+
+
+  # rs485_pylon:
+  #   url: https://github.com/Sleeper85/esphome-yambms
+  #   ref: main
+  #   refresh: 0s
+  #   files:
+  #     - path: 'packages/yambms/yambms_rs485_pylon.yaml'
+  #       vars:
+  #         rs485_id: 'rs485_1'
+  #         rs485_name: 'RS485 1'
+  #         rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
+  #         rs485_uart_baud_rate: '9600'
+  #         rs485_update_timeout: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> DEBUG ( logger level must be DEBUG )
+  # +------------------------------------------------------------------------------+
+
+  debug:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      - path: packages/base/device_debug_ESP32.yaml
+      # - path: packages/base/device_debug_ESP32_PSRAM.yaml
+        vars:
+          debug_name: 'Debug'
+          debug_update_interval: '5s'
+          # Size of your PSRAM in bits
+          # 8Mb='8388608' | 6Mb='6291456' | 4Mb='4194304' | 2Mb='2097152' | NoPSRAM='0'
+          debug_psram_size: '8388608'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Config and Custom Local Packages
+  # +------------------------------------------------------------------------------+
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
