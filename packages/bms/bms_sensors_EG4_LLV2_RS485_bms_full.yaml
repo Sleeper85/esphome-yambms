@@ -599,7 +599,7 @@ sensor:
   - platform: template
     name: ${name} ${bms_name} Charging Power
     id: bms${bms_id}_charging_power
-    pdate_interval: ${bms_update_interval}
+    update_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
     device_class: power
     state_class: measurement
