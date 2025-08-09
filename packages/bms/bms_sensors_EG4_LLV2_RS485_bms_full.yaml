@@ -554,11 +554,15 @@ sensor:
   - platform: template
     id: bms${bms_id}_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
-    accuracy_decimals: 3    
+    accuracy_decimals: 3
+    unit_of_measurement: "V"
+    state_class: measurement
     lambda: return 3.400;
   - platform: template
     id: bms${bms_id}_min_cell_voltage
     name: "${name} ${bms_name} min cell voltage"
+    unit_of_measurement: "V"
+    state_class: measurement
     lambda: return true;
   - platform: template
     id: bms${bms_id}_min_voltage_cell
@@ -567,6 +571,8 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_cell_voltage
     name: "${name} ${bms_name} max cell voltage"
+    unit_of_measurement: "V"
+    state_class: measurement
     lambda: return true;
   - platform: template
     id: bms${bms_id}_max_voltage_cell
@@ -576,16 +582,22 @@ sensor:
     id: bms${bms_id}_cell_ovp
     name: "${name} ${bms_name} cell ovp"
     accuracy_decimals: 3
+    unit_of_measurement: "V"
+    state_class: measurement
     lambda: return 3.700;
   - platform: template
     id: bms${bms_id}_cell_uvp
     name: "${name} ${bms_name} cell uvp"
-    accuracy_decimals: 3    
+    accuracy_decimals: 3
+    unit_of_measurement: "V"
+    state_class: measurement
     lambda: return 2.500;
   - platform: template
     id: bms${bms_id}_max_discharge_current
     name: "${name} ${bms_name} max discharge current"
     accuracy_decimals: 0
+    unit_of_measurement: "A"
+    state_class: measurement
     lambda: return 200;
 
   # Power
