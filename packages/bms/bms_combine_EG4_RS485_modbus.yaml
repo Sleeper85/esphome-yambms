@@ -22,11 +22,11 @@ substitutions:
   bms_model: "EG4 LLV2"
   bms_protocol: "RS485"
   # Modbus
-  seplos_modbus_id: modbus_eg4
-  seplos_modbus_send_wait_time: 250ms # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+  eg4_modbus_id: modbus_eg4
+  eg4_modbus_send_wait_time: 250ms # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
   # Modbus Controller
-  seplos_modbus_update_interval: '5s' # frequency with which BMS modbus servers are queried
-  seplos_modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
+  eg4_modbus_update_interval: '5s' # frequency with which BMS modbus servers are queried
+  eg4_modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
 
 uart:
   - id: !extend ${eg4_modbus_uart_id}
