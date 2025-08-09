@@ -577,7 +577,7 @@ sensor:
     lambda: return true;
   - platform: template
     id: bms${bms_id}_cell_uvp
-    name: "${name} ${bms_name} cell ovp"
+    name: "${name} ${bms_name} cell uvp"
     lambda: return true;
 
   # Power
