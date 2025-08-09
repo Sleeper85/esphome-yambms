@@ -30,8 +30,8 @@ modbus_controller:
     on_online:
       then:
         - logger.log: "EG4 BMS ${bms_id} back online !"
-        - lambda: |-
-            id(bms${bms_id}_online_status).publish_state(true);
+#        - lambda: |-
+#            id(bms${bms_id}_online_status).publish_state(true);
     on_offline:
       then:
         - logger.log: "EG4 BMS ${bms_id} goes offline !"
