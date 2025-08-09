@@ -30,8 +30,8 @@ modbus_controller:
     on_online:
       then:
         - logger.log: "EG4 BMS ${bms_id} back online !"
-#        - lambda: |-
-#            id(bms${bms_id}_online_status).publish_state(true);
+        - lambda: |-
+            id(bms${bms_id}_online_status).publish_state(true);
     on_offline:
       then:
         - logger.log: "EG4 BMS ${bms_id} goes offline !"
@@ -69,6 +69,29 @@ modbus_controller:
 # +--------------------------------------+
 # | Component entities                   |
 # +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: template
+    id: bms${bms_id}_online_status
+    name: "${name} ${bms_name} online status"
+
+  # 1278 TB07 Bit 0 - Discharge FET on
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_discharging_allowed
+
+  # 1278 TB07 Bit 1 - Charge FET on
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_charging_allowed
+    name: "${name} ${bms_name} Charge FET"
+
+  # 1280 TB12 Bit 0 - Equilibrium module to open
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} Equalizing"
 
 sensor:   
   - platform: modbus_controller
@@ -525,6 +548,82 @@ sensor:
     register_type: holding
     address: 38
     accuracy_decimals: 0
+
+## Either Temp till I figure out errors or unavailable from the BMS
+#
+# Power
+  - platform: template
+    id: bms${bms_id}_power
+    name: "${name} ${bms_name} Power"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
+
+  # Charging Power
+  - platform: template
+    name: ${name} ${bms_name} Charging Power
+    id: bms${bms_id}_charging_power
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_power).state > 0)
+        return id(bms${bms_id}_power).state;
+      else return 0;
+
+  # Discharging Power
+  - platform: template
+    name: ${name} ${bms_name} Discharging Power
+    id: bms${bms_id}_discharging_power
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: 'W'
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_power).state <= 0)
+        return (id(bms${bms_id}_power).state * -1); // Must be positive energy
+      else return 0;
+
+  # Charging cycle capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    name: "${name} ${bms_name} charging cycle capacity"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    internal: true
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+
+  # FAKE errors_bitmask
+  # Alarm management is not supported at this time
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
+     
 
 ## Product
 text_sensor:
