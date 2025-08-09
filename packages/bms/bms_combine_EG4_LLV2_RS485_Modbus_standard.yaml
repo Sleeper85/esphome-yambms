@@ -14,5 +14,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  bms_sensors: !include bms_sensors_EG4_RS485_Modbus_LLV2_standard.yaml
+  bms_sensors: !include bms_sensors_EG4_LLV2_RS485_Modbus_standard.yaml
   bms_combine: !include bms_combine.yaml

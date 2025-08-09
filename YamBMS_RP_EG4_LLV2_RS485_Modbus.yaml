@@ -222,10 +222,10 @@ packages:
           eg4_modbus_uart_id: 'uart_esp_1'
           eg4_modbus_baud_rate: '9600' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
       # BMS 2
-#      - path: !include 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
-#        vars:
-#          bms_id: '2' # BMS id and modbus address
-#          bms_name: 'EG4 BMS 2'
+      - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
+        vars:
+          bms_id: '2' # BMS id and modbus address
+          bms_name: 'EG4 BMS 2'
       # BMS 2
       #- path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_bms_full.yaml'
       #  vars:
