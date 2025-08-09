@@ -549,9 +549,38 @@ sensor:
     address: 38
     accuracy_decimals: 0
 
-## Either Temp till I figure out errors or unavailable from the BMS
+## Either Temp till I figure out bitmasks or unavailable from the BMS
 #
-# Power
+  - platform: template
+    id: bms${bms_id}_balance_trigger_voltage
+    name: "${name} ${bms_name} balance trigger voltage"
+    lambda: return 3.4;
+  - platform: template
+    id: bms${bms_id}_min_cell_voltage
+    name: "${name} ${bms_name} min cell voltage"
+    lambda: return true;
+  - platform: template
+    id: bms${bms_id}_min_voltage_cell
+    name: "${name} ${bms_name} min voltage cell"
+    lambda: return true;
+  - platform: template
+    id: bms${bms_id}_max_cell_voltage
+    name: "${name} ${bms_name} max cell voltage"
+    lambda: return true;
+  - platform: template
+    id: bms${bms_id}_max_voltage_cell
+    name: "${name} ${bms_name} max voltage cell"
+    lambda: return true;
+  - platform: template
+    id: bms${bms_id}_cell_ovp
+    name: "${name} ${bms_name} cell ovp"
+    lambda: return true;
+  - platform: template
+    id: bms${bms_id}_cell_uvp
+    name: "${name} ${bms_name} cell ovp"
+    lambda: return true;
+
+  # Power
   - platform: template
     id: bms${bms_id}_power
     name: "${name} ${bms_name} Power"
@@ -570,7 +599,7 @@ sensor:
   - platform: template
     name: ${name} ${bms_name} Charging Power
     id: bms${bms_id}_charging_power
-    update_interval: ${bms_update_interval}
+    pdate_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
     device_class: power
     state_class: measurement
