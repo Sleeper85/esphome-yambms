@@ -693,10 +693,7 @@ text_sensor:
     address: 105
     response_size: 24
     raw_encode: ANSI
-    filters:
-      - or:
-        - throttle: 60s
-        - delta: 1
+    skip_updates: 60
     
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -706,10 +703,7 @@ text_sensor:
     address: 117
     response_size: 6
     raw_encode: ANSI
-    filters:
-      - or:
-        - throttle: 60s
-        - delta: 1    
+    skip_updates: 60
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -719,8 +713,4 @@ text_sensor:
     address: 120
     response_size: 16
     raw_encode: ANSI
-    filters:
-      - or:
-        - throttle: 60s
-        - delta: 1
-    
+    skip_updates: 60
