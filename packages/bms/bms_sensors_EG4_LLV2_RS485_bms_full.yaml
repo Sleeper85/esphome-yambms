@@ -311,8 +311,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(1); 
       }
 
-      # ESP_LOGI("Cell Voltage 1:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
       
   - platform: modbus_controller
@@ -339,8 +337,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(2);
       }
-
-      # ESP_LOGI("Cell Voltage 2:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
     
@@ -369,8 +365,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(3);
       }
 
-      # ESP_LOGI("Cell Voltage 3:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -397,8 +391,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(4);
       }
-
-      # ESP_LOGI("Cell Voltage 4:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
@@ -427,8 +419,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(5);
       }
 
-      # ESP_LOGI("Cell Voltage 5:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -455,8 +445,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(6);
       }
-
-      # ESP_LOGI("Cell Voltage 6:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
@@ -485,8 +473,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(7);
       }
 
-      # ESP_LOGI("Cell Voltage 7:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -513,8 +499,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(8);
       }
-
-      # ESP_LOGI("Cell Voltage 8:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
@@ -543,8 +527,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(9);
       }
 
-      # ESP_LOGI("Cell Voltage 9:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -571,8 +553,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(10);
       }
-
-      # ESP_LOGI("Cell Voltage 10:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
@@ -601,8 +581,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(11);
       }
 
-      # ESP_LOGI("Cell Voltage 11:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -629,8 +607,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(12);
       }
-
-      # ESP_LOGI("Cell Voltage 12:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
@@ -659,8 +635,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(13);
       }
 
-      # ESP_LOGI("Cell Voltage 13:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -687,8 +661,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(14);
       }
-
-      # ESP_LOGI("Cell Voltage 14:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
@@ -717,8 +689,6 @@ sensor:
         id(bms${bms_id}_max_voltage_cell).publish_state(15);
       }
 
-      # ESP_LOGI("Cell Voltage 15:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
-
       return our_cell;
 
   - platform: modbus_controller
@@ -745,8 +715,6 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(16);
       }
-
-      # ESP_LOGI("Cell Voltage 16:", "Max : %.3f V, Min : %.3f V, Current : %.3f V", cell_v_max, cell_v_min, our_cell);
 
       return our_cell;
 
