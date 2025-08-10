@@ -302,11 +302,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) { 
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(1);
       }
       if (our_cell > cell_v_max) { 
-        id(bms${bms_id}_max_cell_voltage).publish_state(x); 
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell); 
         id(bms${bms_id}_max_voltage_cell).publish_state(1); 
       }
 
@@ -328,14 +328,14 @@ sensor:
       float our_cell = (x * 0.001);
 
       if (isnan(cell_v_max)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
-      if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
+      if (isnan(cell_v_min)) id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(2);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(2);
       }
 
@@ -360,11 +360,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(3);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(3);
       }
 
@@ -389,11 +389,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(4);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(4);
       }
 
@@ -418,11 +418,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(5);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(5);
       }
 
@@ -447,11 +447,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(6);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(6);
       }
 
@@ -476,11 +476,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(7);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(7);
       }
 
@@ -505,11 +505,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(8);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(8);
       }
 
@@ -534,11 +534,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(9);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(9);
       }
 
@@ -563,11 +563,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(10);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(10);
       }
 
@@ -592,11 +592,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(11);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(11);
       }
 
@@ -621,11 +621,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(12);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(12);
       }
 
@@ -650,11 +650,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(13);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(13);
       }
 
@@ -679,11 +679,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(14);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(14);
       }
 
@@ -708,11 +708,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(15);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(15);
       }
 
@@ -737,11 +737,11 @@ sensor:
       if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) {
-        id(bms${bms_id}_min_cell_voltage).publish_state(x);
+        id(bms${bms_id}_min_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_min_voltage_cell).publish_state(16);
       }
       if (our_cell > cell_v_max) {
-        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
         id(bms${bms_id}_max_voltage_cell).publish_state(16);
       }
 
