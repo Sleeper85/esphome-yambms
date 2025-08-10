@@ -15,7 +15,7 @@
 
 packages:
   bms_base: !include bms_base.yaml
-  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -191,6 +191,7 @@ sensor:
     register_type: holding
     address: 33
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     lambda: |-
         return "%d", data[0];
@@ -201,6 +202,7 @@ sensor:
     register_type: holding
     address: 33
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     lambda: |-
         return "%d", data[1];
@@ -211,6 +213,7 @@ sensor:
     register_type: holding
     address: 34
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     lambda: |-
         return "%d", data[0];
@@ -221,6 +224,7 @@ sensor:
     register_type: holding
     address: 34
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     lambda: |-
         return "%d", data[1];
@@ -231,6 +235,7 @@ sensor:
     register_type: holding
     address: 35
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     lambda: |-
         return "%d", data[0];
@@ -241,6 +246,7 @@ sensor:
     register_type: holding
     address: 35
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     lambda: |-
         return "%d", data[1];
@@ -251,6 +257,7 @@ sensor:
     register_type: holding
     address: 20
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     value_type: S_WORD
     accuracy_decimals: 0
@@ -261,6 +268,7 @@ sensor:
     register_type: holding
     address: 19
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     value_type: S_WORD
     accuracy_decimals: 0
@@ -271,6 +279,7 @@ sensor:
     register_type: holding
     address: 18
     unit_of_measurement: "°C"
+    device_class: temperature
     state_class: measurement
     value_type: S_WORD
     accuracy_decimals: 0
@@ -684,7 +693,11 @@ text_sensor:
     address: 105
     response_size: 24
     raw_encode: ANSI
-
+    filters:
+      - or:
+        - throttle: 60s
+        - delta: 1
+    
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} version"
@@ -693,6 +706,10 @@ text_sensor:
     address: 117
     response_size: 6
     raw_encode: ANSI
+    filters:
+      - or:
+        - throttle: 60s
+        - delta: 1    
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -702,3 +719,8 @@ text_sensor:
     address: 120
     response_size: 16
     raw_encode: ANSI
+    filters:
+      - or:
+        - throttle: 60s
+        - delta: 1
+    
