@@ -293,23 +293,26 @@ sensor:
     unit_of_measurement: "V"
     state_class: measurement
     accuracy_decimals: 3
-    filters:
-      - multiply: 0.001
     lambda: |-
-      float cell_current_max = id(bms${bms_id}_max_cell_voltage).state;
-      float cell_current_min = id(bms${bms_id}_min_cell_voltage).state;
-      if (x < cell_current_min) { 
+      float cell_v_max = id(bms${bms_id}_max_cell_voltage).state;
+      float cell_v_min = id(bms${bms_id}_min_cell_voltage).state;
+      float our_cell = (x * 0.001);
+
+      if (isnan(cell_v_max)) bms${bms_id}_max_cell_voltage).publish_state(our_cell);
+      if (isnan(cell_v_min)) bms${bms_id}_max_cell_voltage).publish_state(our_cell);
+
+      if (our_cell < cell_v_min) { 
         id(bms${bms_id}_max_cell_voltage).publish_state(x);
         id(bms${bms_id}_max_voltage_cell).publish_state(1);
       }
-      if (x > cell_current_max) { 
+      if (our_cell > cell_v_max) { 
         id(bms${bms_id}_max_cell_voltage).publish_state(x); 
         id(bms${bms_id}_max_voltage_cell).publish_state(1); 
       }
 
-      ESP_LOGI("Cell Voltage 1:", "U : %.3f V, I %.3f V, Value: %.3f", cell_current_max, cell_current_min, x);
+      ESP_LOGI("Cell Voltage 1:", "U : %.3f V, I %.3f V, Value: %.3f", cell_v_max, cell_v_min, our_cell);
 
-      return x;
+      return our_cell;
       
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
