@@ -295,6 +295,18 @@ sensor:
     accuracy_decimals: 3
     filters:
       - multiply: 0.001
+    lambda: |-
+      float cell_current_max = id(bms${bms_id}_max_cell_voltage).state
+      float cell_current_min = id(bms${bms_id}_min_cell_voltage).state
+      if (x < cell_current_min) { 
+        id(bms${bms_id}_max_cell_voltage).publish_state(x);
+        id(bms${bms_id}_max_voltage_cell).publish_state(1);
+      }
+      if (x > cell_current_max) { 
+        id(bms${bms_id}_max_cell_voltage).publish_state(x); 
+        id(bms${bms_id}_max_voltage_cell).publish_state(1); 
+      }
+      
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 02"
@@ -446,6 +458,36 @@ sensor:
     filters:
       - multiply: 0.001
 
+   # Min. cell voltage
+  - platform: template
+    name: "${name} ${bms_name} min cell voltage"
+    id: "bms${bms_id}_min_cell_voltage"
+    unit_of_measurement: 'V'
+    device_class: 'voltage'
+    state_class: 'measurement'
+    accuracy_decimals: 3
+
+  # Max. cell voltage
+  - platform: template
+    name: "${name} ${bms_name} max cell voltage"
+    id: "bms${bms_id}_max_cell_voltage"
+    unit_of_measurement: 'V'
+    device_class: 'voltage'
+    state_class: 'measurement'
+    accuracy_decimals: 3
+
+  # Min. voltage cell
+  - platform: template
+    name: "${name} ${bms_name} min voltage cell"
+    id: "bms${bms_id}_min_voltage_cell"
+    accuracy_decimals: 0
+
+  # Max. voltage cell
+  - platform: template
+    name: "${name} ${bms_name} max voltage cell"
+    id: "bms${bms_id}_max_voltage_cell"
+    accuracy_decimals: 0
+
 ## Status
 #0x0000:Inactive/Stand by
 #0x0001:Inactive/Charging
@@ -558,6 +600,7 @@ sensor:
     address: 38
     accuracy_decimals: 0
 
+
 ## Either Temp till I figure out bitmasks or unavailable from the BMS
 #
   - platform: template
@@ -567,26 +610,6 @@ sensor:
     unit_of_measurement: "V"
     state_class: measurement
     lambda: return 3.400;
-  - platform: template
-    id: bms${bms_id}_min_cell_voltage
-    name: "${name} ${bms_name} min cell voltage"
-    unit_of_measurement: "V"
-    state_class: measurement
-    lambda: return true;
-  - platform: template
-    id: bms${bms_id}_min_voltage_cell
-    name: "${name} ${bms_name} min voltage cell"
-    lambda: return true;
-  - platform: template
-    id: bms${bms_id}_max_cell_voltage
-    name: "${name} ${bms_name} max cell voltage"
-    unit_of_measurement: "V"
-    state_class: measurement
-    lambda: return true;
-  - platform: template
-    id: bms${bms_id}_max_voltage_cell
-    name: "${name} ${bms_name} max voltage cell"
-    lambda: return true;
   - platform: template
     id: bms${bms_id}_cell_ovp
     name: "${name} ${bms_name} cell ovp"
