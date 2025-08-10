@@ -296,8 +296,8 @@ sensor:
     filters:
       - multiply: 0.001
     lambda: |-
-      float cell_current_max = id(bms${bms_id}_max_cell_voltage).state
-      float cell_current_min = id(bms${bms_id}_min_cell_voltage).state
+      float cell_current_max = id(bms${bms_id}_max_cell_voltage).state;
+      float cell_current_min = id(bms${bms_id}_min_cell_voltage).state;
       if (x < cell_current_min) { 
         id(bms${bms_id}_max_cell_voltage).publish_state(x);
         id(bms${bms_id}_max_voltage_cell).publish_state(1);
