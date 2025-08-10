@@ -298,8 +298,8 @@ sensor:
       float cell_v_min = id(bms${bms_id}_min_cell_voltage).state;
       float our_cell = (x * 0.001);
 
-      if (isnan(cell_v_max)) bms${bms_id}_max_cell_voltage).publish_state(our_cell);
-      if (isnan(cell_v_min)) bms${bms_id}_max_cell_voltage).publish_state(our_cell);
+      if (isnan(cell_v_max)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
+      if (isnan(cell_v_min)) id(bms${bms_id}_max_cell_voltage).publish_state(our_cell);
 
       if (our_cell < cell_v_min) { 
         id(bms${bms_id}_max_cell_voltage).publish_state(x);
