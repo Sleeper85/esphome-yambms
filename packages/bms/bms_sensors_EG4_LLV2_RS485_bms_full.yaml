@@ -306,6 +306,9 @@ sensor:
         id(bms${bms_id}_max_cell_voltage).publish_state(x); 
         id(bms${bms_id}_max_voltage_cell).publish_state(1); 
       }
+
+      ESP_LOGI("Cell Voltage 1:", "U : %.3f V, I %.3f V, Value: %.3f", cell_current_max, cell_current_min, x);
+
       return x;
       
   - platform: modbus_controller
