@@ -75,7 +75,6 @@ binary_sensor:
   - platform: template
     id: bms${bms_id}_online_status
     name: "${name} ${bms_name} online status"
-    lambda: return true;
 
   # Required sensors cannot be retrieved from BMS
   # equalizing
