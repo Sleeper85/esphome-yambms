@@ -152,7 +152,7 @@ sensor:
     
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
-    id: bms${bms_id}_state_of_charge
+    id: bms${bms_id}_battery_soc
     name: "${name} ${bms_name} state of charge"
     register_type: holding
     address: 24
