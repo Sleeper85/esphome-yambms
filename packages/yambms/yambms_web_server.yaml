@@ -1,5 +1,5 @@
 # Updated : 2025.08.11
-# Version : 1.1.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@ web_server:
   version: 3
   log: true
   ota: false
+  local: true
   # Sorting groups
   sorting_groups:
     # YamBMS - Requested values
