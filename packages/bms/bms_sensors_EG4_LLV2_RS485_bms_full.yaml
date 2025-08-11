@@ -83,7 +83,7 @@ binary_sensor:
     id: bms${bms_id}_equalizing
     name: "${name} ${bms_name} balancing"
     filters:
-      - delayed_off: 300s
+      - delayed_off: 10s
 
   # bms_switch_charging
   - platform: template
@@ -111,6 +111,7 @@ binary_sensor:
     bitmask: 0x0001
     address: 38
     lambda: |-
+      ESP_LOGE("", "got %d for x from cell 1 balance",x);
       if(x) id(bms${bms_id}_equalizing).publish_state(true);
       return x;
 
