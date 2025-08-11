@@ -387,6 +387,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 01"
+    id: "bms${bms_id}_cell_voltage_1"
     register_type: holding
     address: 2
     unit_of_measurement: "V"
@@ -398,6 +399,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 02"
+    id: "bms${bms_id}_cell_voltage_2"
     register_type: holding
     address: 3
     unit_of_measurement: "V"
@@ -409,6 +411,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 03"
+    id: "bms${bms_id}_cell_voltage_3"
     register_type: holding
     address: 4
     unit_of_measurement: "V"
@@ -420,6 +423,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 04"
+    id: "bms${bms_id}_cell_voltage_4"
     register_type: holding
     address: 5
     unit_of_measurement: "V"
@@ -431,6 +435,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 05"
+    id: "bms${bms_id}_cell_voltage_5"
     register_type: holding
     address: 6
     unit_of_measurement: "V"
@@ -442,6 +447,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 06"
+    id: "bms${bms_id}_cell_voltage_6"
     register_type: holding
     address: 7
     unit_of_measurement: "V"
@@ -453,6 +459,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 07"
+    id: "bms${bms_id}_cell_voltage_7"
     register_type: holding
     address: 8
     unit_of_measurement: "V"
@@ -464,6 +471,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 08"
+    id: "bms${bms_id}_cell_voltage_8"
     register_type: holding
     address: 9
     unit_of_measurement: "V"
@@ -475,6 +483,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 09"
+    id: "bms${bms_id}_cell_voltage_9"
     register_type: holding
     address: 10
     unit_of_measurement: "V"
@@ -486,6 +495,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 10"
+    id: "bms${bms_id}_cell_voltage_10"
     register_type: holding
     address: 11
     unit_of_measurement: "V"
@@ -497,6 +507,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 11"
+    id: "bms${bms_id}_cell_voltage_11"
     register_type: holding
     address: 12
     unit_of_measurement: "V"
@@ -508,6 +519,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 12"
+    id: "bms${bms_id}_cell_voltage_12"
     register_type: holding
     address: 13
     unit_of_measurement: "V"
@@ -519,6 +531,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 13"
+    id: "bms${bms_id}_cell_voltage_13"
     register_type: holding
     address: 14
     unit_of_measurement: "V"
@@ -530,6 +543,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 14"
+    id: "bms${bms_id}_cell_voltage_14"
     register_type: holding
     address: 15
     unit_of_measurement: "V"
@@ -541,6 +555,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 15"
+    id: "bms${bms_id}_cell_voltage_15"
     register_type: holding
     address: 16
     unit_of_measurement: "V"
@@ -552,6 +567,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 16"
+    id: "bms${bms_id}_cell_voltage_16"
     register_type: holding
     address: 17
     unit_of_measurement: "V"
@@ -575,7 +591,7 @@ sensor:
       float c_max = NAN;
 
       for (int i = 1; i <= 16; i++) {
-        float t_cell = id(bms${bms_id}_cell_${i}_balancing).state;
+        float t_cell = id(bms${bms_id}_cell_voltage_${i}).state;
         if (t_cell < v_min || isnan(v_min)) {
           v_min = t_cell;
           c_min = i;
