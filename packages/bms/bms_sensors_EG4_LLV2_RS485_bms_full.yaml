@@ -92,6 +92,121 @@ binary_sensor:
     name: "${name} ${bms_name} discharging"
     lambda: return true;
 
+
+## Errors
+#0x0001：Voltage error
+#0x0002：Temperature error
+#0x0004: Current Flow Error
+#0x0010：Cell unbalance
+    
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} voltage error"
+    register_type: holding
+    address: 28
+    bitmask: 0x0001
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} temperature error"
+    register_type: holding
+    address: 28
+    bitmask: 0x0002
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} current flow error"
+    register_type: holding
+    address: 28
+    bitmask: 0x0004
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} cell unbalance"
+    register_type: holding
+    address: 28
+    bitmask: 0x0010
+
+## Status
+#0x0000:Inactive/Stand by
+#0x0001:Inactive/Charging
+#0x0002:Inactive/Discharging
+#0x0004:Inactive/Protect
+#0x0008:Inactive/Charging Lmt
+#0x8000:Active/Stand by
+#0x8001:Active/Charging
+#0x8002:Active/Discharging
+#0x8004:Active/Protect
+#0x8008:Active/Charging Lmt
+
+#Front Byte 0x00: Heat State-Off
+#Front Byte 0x80：Heat State-On
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} status"
+    register_type: holding
+    address: 25
+
+## Warning
+#0x0001：Pack OV
+#0x0002：Cell OV
+#0x0004：Pack UV
+#0x0008：Cell UV
+#0x0010：Charge OC
+#0x0020：Discharge OC
+#0x0040:Abnormal Ambient Temp
+#0x0080: MOS Overheating
+#0x0100：Charge OT
+#0x0200：Discharge OT
+#0x0400：Charge UT
+#0x0800：Discharge UT
+#0x1000：Low capacity
+#0x2000: Float Stoped
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} warning"
+    register_type: holding
+    address: 26
+
+## Protection
+#0x0001：Pack OV
+#0x0002：Cell OV
+#0x0004：Pack UV
+#0x0008：Cell UV
+#0x0010：Charge OC
+#0x0020：Discharge OC
+#0x0040: Abnormal Ambient Temp
+#0x0080: MOS Overheating
+#0x0100：Charge OT
+#0x0200：Discharge OT
+#0x0400：Charge UT
+#0x0800：Discharge UT
+#0x1000：Low capacity
+#0x2000：Discharge SC
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} protection"
+    register_type: holding
+    address: 27
+
+## Balancer Status
+#0001:Cell 1Balanced
+#0002: Cell 2Balanced
+#0004
+# ...
+#0008
+#8000：Cell 16 Balanced
+
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    name: "${name} ${bms_name} balance status"
+    register_type: holding
+    address: 38
+    bitmask: 0x0001
+
 sensor:   
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -746,118 +861,6 @@ sensor:
     id: "bms${bms_id}_max_voltage_cell"
     accuracy_decimals: 0
 
-## Status
-#0x0000:Inactive/Stand by
-#0x0001:Inactive/Charging
-#0x0002:Inactive/Discharging
-#0x0004:Inactive/Protect
-#0x0008:Inactive/Charging Lmt
-#0x8000:Active/Stand by
-#0x8001:Active/Charging
-#0x8002:Active/Discharging
-#0x8004:Active/Protect
-#0x8008:Active/Charging Lmt
-
-#Front Byte 0x00: Heat State-Off
-#Front Byte 0x80：Heat State-On
-
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} status"
-    register_type: holding
-    address: 25
-
-## Error
-#0x0001：Voltage error
-#0x0002：Temperature error
-#0x0004: Current Flow Error
-#0x0010：Cell unbalance
-
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} error"
-    register_type: holding
-    address: 28
-    bitmask: 0x0001
-    lambda: |-
-        ESP_LOGI("","Error Lambda incoming value=%f - data array size is %d",x,data.size());
-        ESP_LOGI("","Sensor properties: adress = 0x%X, offset = 0x%X value type=%d",item->start_address,item->offset,item->sensor_value_type);
-        int i=0 ;
-        for (auto val : data) {
-          ESP_LOGI("","data[%d]=0x%02X (%d)",i,data[i],data[i]);
-          i++;
-        }
-        return x ;    
-
-## Warning
-#0x0001：Pack OV
-#0x0002：Cell OV
-#0x0004：Pack UV
-#0x0008：Cell UV
-#0x0010：Charge OC
-#0x0020：Discharge OC
-#0x0040:Abnormal Ambient Temp
-#0x0080: MOS Overheating
-#0x0100：Charge OT
-#0x0200：Discharge OT
-#0x0400：Charge UT
-#0x0800：Discharge UT
-#0x1000：Low capacity
-#0x2000: Float Stoped
-
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} warning"
-    register_type: holding
-    address: 26
-
-## Protection
-#0x0001：Pack OV
-#0x0002：Cell OV
-#0x0004：Pack UV
-#0x0008：Cell UV
-#0x0010：Charge OC
-#0x0020：Discharge OC
-#0x0040: Abnormal Ambient Temp
-#0x0080: MOS Overheating
-#0x0100：Charge OT
-#0x0200：Discharge OT
-#0x0400：Charge UT
-#0x0800：Discharge UT
-#0x1000：Low capacity
-#0x2000：Discharge SC
-
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} protection"
-    register_type: holding
-    address: 27
-
-## Balancer Status
-#0001:Cell 1Balanced
-#0002: Cell 2Balanced
-#0004
-# ...
-#0008
-#8000：Cell 16 Balanced
-
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} balance status"
-    register_type: holding
-    address: 38
-    bitmask: 0x0001
-    lambda: |-
-        ESP_LOGI("","Cell Balance Lambda incoming value=%f - data array size is %d",x,data.size());
-        ESP_LOGI("","Sensor properties: adress = 0x%X, offset = 0x%X value type=%d",item->start_address,item->offset,item->sensor_value_type);
-        int i=0 ;
-        for (auto val : data) {
-          ESP_LOGI("","data[%d]=0x%02X (%d)",i,data[i],data[i]);
-          i++;
-        }
-        return x ;    
-
-
 ## Either Temp till I figure out bitmasks or unavailable from the BMS
 #
   - platform: template
@@ -961,7 +964,6 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: return 0;
-     
 
 ## Product
 text_sensor:
