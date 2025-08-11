@@ -944,6 +944,40 @@ sensor:
         - delta: 1
     lambda: return 0;
 
+
+## Status
+#0x0000:Inactive/Stand by
+#0x0001:Inactive/Charging
+#0x0002:Inactive/Discharging
+#0x0004:Inactive/Protect
+#0x0008:Inactive/Charging Lmt
+#0x8000:Active/Stand by
+#0x8001:Active/Charging
+#0x8002:Active/Discharging
+#0x8004:Active/Protect
+#0x8008:Active/Charging Lmt
+
+#Front Byte 0x00: Heat State-Off
+#Front Byte 0x80：Heat State-On
+    
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_bms${bms_id}
+    id: bms${bms_id}_status_internal    
+    name: "${name} ${bms_name} status internal"
+    register_type: holding
+    address: 25
+    lambda: |-
+      if (bms_errors_bitmask & 0x0000) return 0;
+      if (bms_errors_bitmask & 0x0001) return 1;
+      if (bms_errors_bitmask & 0x0002) return 2;
+      if (bms_errors_bitmask & 0x0004) return 3;  
+      if (bms_errors_bitmask & 0x0008) return 4;  
+      if (bms_errors_bitmask & 0x0000) return 5;  
+      if (bms_errors_bitmask & 0x0001) return 6;  
+      if (bms_errors_bitmask & 0x0002) return 7;  
+      if (bms_errors_bitmask & 0x0004) return 8;  
+      if (bms_errors_bitmask & 0x0008) return 9;  
+
 ## Product
 text_sensor:
   - platform: modbus_controller
@@ -976,36 +1010,21 @@ text_sensor:
     raw_encode: ANSI
     skip_updates: 60
 
-## Status
-#0x0000:Inactive/Stand by
-#0x0001:Inactive/Charging
-#0x0002:Inactive/Discharging
-#0x0004:Inactive/Protect
-#0x0008:Inactive/Charging Lmt
-#0x8000:Active/Stand by
-#0x8001:Active/Charging
-#0x8002:Active/Discharging
-#0x8004:Active/Protect
-#0x8008:Active/Charging Lmt
-
-#Front Byte 0x00: Heat State-Off
-#Front Byte 0x80：Heat State-On
-
-  - platform: modbus_controller
+  - platform: template
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} status"
-    register_type: holding
-    raw_encode: NONE
-    response_size: 2
-    address: 25
+    id: bms${bms_id}_status    
     lambda: |-
-      if (x & 0x0000) return std::string("Inactive/Standby");
-      if (x & 0x0001) return std::string("Inactive/Charging");
-      if (x & 0x0002) return std::string("Inactive/Discharging");
-      if (x & 0x0004) return std::string("Inactive/Protect");
-      if (x & 0x0008) return std::string("Inactive/Charging Limit");
-      if (x & 0x8000) return std::string("Active/Standby");
-      if (x & 0x8001) return std::string("Active/Charging");
-      if (x & 0x8002) return std::string("Active/Discharging");
-      if (x & 0x8004) return std::string("Active/Protect");
-      if (x & 0x8008) return std::string("Active/Charging Limit");
+      switch ((int)id(bms${bms_id}_status_internal).state) {
+        default: return std::string("Unknown");
+        case 0: return std::string("Inactive/Standby");
+        case 1: return std::string("Inactive/Charging");
+        case 2: return std::string("Inactive/Discharging");
+        case 3: return std::string("Inactive/Protect");
+        case 4: return std::string("Inactive/Charging Limit");
+        case 5: return std::string("Active/Standby");
+        case 6: return std::string("Active/Charging");
+        case 7: return std::string("Active/Discharging");
+        case 8: return std::string("Active/Protect");
+        case 9: return std::string("Active/Charging Limit");
+      }
