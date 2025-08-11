@@ -111,7 +111,7 @@ binary_sensor:
     bitmask: 0x0001
     address: 38
     lambda: |-
-      ESP_LOGE("", "got %d for x from cell 1 balance",x);
+      ESP_LOGE("", "%d is the current state of equalizing",id(bms${bms_id}_equalizing).state);
       if(x) id(bms${bms_id}_equalizing).publish_state(true);
       return x;
 
