@@ -375,6 +375,7 @@ sensor:
     address: 1
     unit_of_measurement: "A"
     state_class: measurement
+    device_class: 'current'
     value_type: S_WORD
     accuracy_decimals: 2
     filters:
@@ -398,6 +399,7 @@ sensor:
     address: 22
     unit_of_measurement: "A"
     state_class: measurement
+    device_class: 'current'
     accuracy_decimals: 0
 
   - platform: modbus_controller
@@ -924,21 +926,6 @@ sensor:
         - delta: 1
     lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
 
-  # FAKE errors_bitmask
-  # Alarm management is not supported at this time
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: template
-    id: bms${bms_id}_yambms_errors_bitmask
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 0
-    icon: mdi:alert-circle-outline
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: return 0;
-
-
 ## Status
 #0x0000:Stand by
 #0x0001:Charging
@@ -959,6 +946,20 @@ sensor:
     lambda: |-
       id(bms${bms_id}_status_heating).publish_state((bool)data[item->offset]);
       return data[item->offset+1];
+
+number:
+  # errors_bitmask (16bits)
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask
+    name: "${name} ${bms_name} YamBMS Errors Bitmask"
+    step: 1
+    min_value: 0
+    max_value: 65535
+    restore_value: true
+    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
+    icon: mdi:alert-circle-outline
+    optimistic: true
+    entity_category: config      
 
 ## Product
 text_sensor:
