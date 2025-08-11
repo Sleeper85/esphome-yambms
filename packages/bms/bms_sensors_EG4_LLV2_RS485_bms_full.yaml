@@ -75,12 +75,11 @@ binary_sensor:
     id: bms${bms_id}_online_status
     name: "${name} ${bms_name} online status"
 
-  # Required sensors cannot be retrieved from BMS
   # equalizing
   - platform: template
     id: bms${bms_id}_equalizing
     name: "${name} ${bms_name} balancing"
-    lambda: return false;
+
   # bms_switch_charging
   - platform: template
     id: bms${bms_id}_charging_allowed
@@ -105,6 +104,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0001
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
