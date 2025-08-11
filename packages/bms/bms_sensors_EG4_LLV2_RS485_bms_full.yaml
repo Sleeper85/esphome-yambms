@@ -967,16 +967,16 @@ sensor:
     register_type: holding
     address: 25
     lambda: |-
-      if (bms_errors_bitmask & 0x0000) return 0;
-      if (bms_errors_bitmask & 0x0001) return 1;
-      if (bms_errors_bitmask & 0x0002) return 2;
-      if (bms_errors_bitmask & 0x0004) return 3;  
-      if (bms_errors_bitmask & 0x0008) return 4;  
-      if (bms_errors_bitmask & 0x0000) return 5;  
-      if (bms_errors_bitmask & 0x0001) return 6;  
-      if (bms_errors_bitmask & 0x0002) return 7;  
-      if (bms_errors_bitmask & 0x0004) return 8;  
-      if (bms_errors_bitmask & 0x0008) return 9;  
+      if (x & 0x0000) return 0;
+      if (x & 0x0001) return 1;
+      if (x & 0x0002) return 2;
+      if (x & 0x0004) return 3;  
+      if (x & 0x0008) return 4;  
+      if (x & 0x0000) return 5;  
+      if (x & 0x0001) return 6;  
+      if (x & 0x0002) return 7;  
+      if (x & 0x0004) return 8;  
+      if (x & 0x0008) return 9;  
 
 ## Product
 text_sensor:
