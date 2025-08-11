@@ -967,7 +967,7 @@ sensor:
     register_type: holding
     address: 25
     lambda: |-
-      uint32_t status = uint32_t(x)
+      uint32_t status = uint32_t(x);
       if (status & 0x0000) return 0;
       if (status & 0x0001) return 1;
       if (status & 0x0002) return 2;
