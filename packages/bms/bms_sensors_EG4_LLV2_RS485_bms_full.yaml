@@ -968,7 +968,7 @@ sensor:
     register_type: holding
     address: 25
     lambda: |-
-      id(bms${bms_id}_status_heating).publish_state((bool)item->offset);
+      id(bms${bms_id}_status_heating).publish_state((bool)data[item->offset]);
       return data[item->offset+1];
 
 ## Product
