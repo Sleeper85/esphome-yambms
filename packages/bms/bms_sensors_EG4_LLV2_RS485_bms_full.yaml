@@ -995,6 +995,8 @@ text_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} status"
     register_type: holding
+    raw_encode: NONE
+    response_size: 2
     address: 25
     lambda: |-
       if (x & 0x0000) return std::string("Inactive/Standby");
