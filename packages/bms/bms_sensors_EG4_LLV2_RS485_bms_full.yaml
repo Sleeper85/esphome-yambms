@@ -591,7 +591,7 @@ sensor:
       float c_max = NAN;
 
       for (int i = 1; i <= 16; i++) {
-        float t_cell = id(bms${bms_id}_cell_voltage_${i}).state;
+        float t_cell = id(bms${bms_id}_cell_voltage_+ i).state;
         if (t_cell < v_min || isnan(v_min)) {
           v_min = t_cell;
           c_min = i;
