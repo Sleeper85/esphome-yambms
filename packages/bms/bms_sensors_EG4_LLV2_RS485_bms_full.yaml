@@ -1011,7 +1011,6 @@ text_sensor:
     skip_updates: 60
 
   - platform: template
-    modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} status"
     id: bms${bms_id}_status    
     lambda: |-
