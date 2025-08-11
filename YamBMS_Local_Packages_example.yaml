@@ -1,4 +1,4 @@
-# Updated : 2025.07.29
+# Updated : 2025.08.11
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -222,7 +222,7 @@ packages:
   # +------------------------------------------------------------------------------+
 
   canbus1: !include
-    file: packages/yambms/yambms_canbus.yaml
+    file: packages/yambms/yambms_canbus.yaml # yambms_canbus_web_server.yaml
     vars:
       canbus_id: 'canbus1'
       canbus_name: 'CANBUS 1'
@@ -239,7 +239,7 @@ packages:
   # +------------------------------------------------------------------------------+
 
   # rs485_pylon: !include
-  #   file: packages/yambms/yambms_rs485_pylon.yaml
+  #   file: packages/yambms/yambms_rs485_pylon.yaml # yambms_rs485_pylon_web_server.yaml
   #   vars:
   #     rs485_id: 'rs485_1'
   #     rs485_name: 'RS485 1'
