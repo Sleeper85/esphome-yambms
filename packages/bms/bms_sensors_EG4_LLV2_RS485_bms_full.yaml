@@ -613,11 +613,11 @@ sensor:
         float t_cell = cells[i];
         if (t_cell < v_min || isnan(v_min)) {
           v_min = t_cell;
-          c_min = i;
+          c_min = i+1;
         }
         if (t_cell > v_max || isnan(v_max)) {
           v_max = t_cell;
-          c_max = i;
+          c_max = i+1;
         }
       }
 
