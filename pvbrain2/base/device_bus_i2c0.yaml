@@ -1,3 +1,7 @@
+# Updated : 2025.07.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
 # Used for the two SX1509 and BME280/BMP280
 i2c:  
   - id: i2c0_bus

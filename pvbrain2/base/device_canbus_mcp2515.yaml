@@ -1,8 +1,0 @@
-
-canbus:
-  - platform: mcp2515
-    spi_id: spi1_bus
-    id: canbus_node2
-    cs_pin: 21
-    can_id: 2
-    bit_rate: 500kbps

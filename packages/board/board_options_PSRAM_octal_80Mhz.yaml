@@ -1,0 +1,31 @@
+# Updated : 2025.07.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# This file optimizes the use of the ESP32-S3 PSRAM by authorizing or forcing
+# certain data to be written to the PSRAM rather than to the internal RAM.
+# The configuration presented here already seems stable for several users and
+# visibly offers better behavior of the esp when it contains a lot of entities.
+
+# PSRAM activation with default options
+psram:
+  mode: octal
+  speed: 80MHz
+
+packages:
+  psram_options: !include board_options_PSRAM_options.yaml

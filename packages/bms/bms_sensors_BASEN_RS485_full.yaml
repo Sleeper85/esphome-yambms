@@ -1,5 +1,5 @@
-# Updated : 2025.06.17
-# Version : 1.1.2
+# Updated : 2025.08.08
+# Version : 1.1.3
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -56,10 +56,10 @@ binary_sensor:
       float max_cell_voltage = id(bms${bms_id}_max_cell_voltage).state;
       float delta_cell_voltage = id(bms${bms_id}_delta_voltage_cell).state;
       float balance_trigger_voltage = id(bms${bms_id}_balance_trigger_voltage).state;
-      float balance_trigger_difference = id(bms${bms_id}_balance_trigger_difference).state;
-      if (max_cell_voltage < balance_trigger_voltage)
+      float balance_starting_voltage = id(bms${bms_id}_balance_starting_voltage).state;
+      if (max_cell_voltage < balance_starting_voltage)
         return false;
-      if (delta_cell_voltage >= balance_trigger_difference)
+      if (delta_cell_voltage >= balance_trigger_voltage)
         return true;
       return false;
     filters:
@@ -262,11 +262,11 @@ sensor:
     ENV_UT_STOP:
       name: "${name} ${bms_name} ENV_UT_STOP"
     Balance_Start_Vol:
-      id: bms${bms_id}_balance_trigger_voltage
-      name: "${name} ${bms_name} balancing trigger voltage"
+      id: bms${bms_id}_balance_starting_voltage
+      name: "${name} ${bms_name} balancing starting voltage"
     Balance_Start_Diff:
-      id: bms${bms_id}_balance_trigger_difference
-      name: "${name} ${bms_name} Balance_Start_Diff"
+      id: bms${bms_id}_balance_trigger_voltage
+      name: "${name} ${bms_name} balance trigger voltage"
     Sleep_Cell_Volt:
       name: "${name} ${bms_name} Sleep_Cell_Volt"
     Shorts_Delay:

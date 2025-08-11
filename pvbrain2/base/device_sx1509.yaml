@@ -1,3 +1,7 @@
+# Updated : 2025.07.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
 sx1509:
   - id: sx1509_hub0
     address: 0x3E

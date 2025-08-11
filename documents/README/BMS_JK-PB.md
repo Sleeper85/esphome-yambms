@@ -105,6 +105,11 @@ The example below uses an `AtomS3` (display) with the `Atomic CAN base` and `RS4
 > Galvanic isolation of the `RS485` connection is strongly recommended.
 > The diagrams below does not show the galvanic isolation of the `RS485` connection !
 
+> [!IMPORTANT]
+> If you are unable to read your BMS from the `RS485` bus, add a `120 Ohm`
+> resistor between the `A` and `B` wires connected to your `RS485` board.
+> This must be done with the `M5Stack RS485 unit`, some boards have a switch to enable the bus termination resistor.
+
 **Note:** the choice of RS485 board is not related to the chosen ESP32.
 
 ### AtomS3 with unisolated RS485 board
@@ -142,12 +147,19 @@ The example below uses an `AtomS3` (display) with the `Atomic CAN base` and `RS4
 
 ## BMS DIP switch config (mode 2)
 
-With mode 2, the sniffer (ESP32) will automatically take the address 0x00 and act as master BMS (max 15 BMS).
+With `mode 2`, the sniffer (ESP32) will automatically take the address `0x00` and act as master BMS (max 15 BMS).
+This is the preferred mode with YamBMS.
 
 - BMS 1 RS485 address : 0x01
 - BMS 2 RS485 address : 0x02
 - BMS 3 RS485 address : 0x03
 - etc.
+
+## MODE 1 vs MODE 2
+
+`MODE 1`. If there is a JK-BMS acting as REAL MASTER (i.e. it has set 0x00 address), the code will be sniffing all the traffic in the network. The problem is that there is some information that is NEVER in the sniffed traffic information (device info frame type 03): device-name, hw version, sw version, password, RCV Time, RFV Time... So, periodically, ESP code will act as a PSEUDO-MASTER to try to get this information. It works for every slave device, but not for master device. At this moment, master device does NOT broadcast by itself the "frame type 03" info. And it does not answer to a "frame type 03" request sent by PSEUDO MASTER.
+
+`MODE 2`. If every JK-BMS are set as SLAVES (all of them), the ESP code will act as MASTER. So, if ESP code does not detect any REAL MASTER in the network, it will act as a MASTER. Remember to adapt DIP switches and the YAML (addresses) as well. Changing the addreses of the devices does not affect to the historic data gathered from that device, because the config is based on the NAME of the device and not on the address of the device. So, change the address, but not the name. In this mode, ESP will gather all the information (cell info, device settings and device info). If anytime, a REAL MASTER arrives to the network, ESP will detect it and will stop acting as MASTER.
 
 ## JK-PB RS485 functions
 
@@ -156,3 +168,27 @@ With mode 2, the sniffer (ESP32) will automatically take the address 0x00 and ac
 ![Image](../../images/YamBMS_JK-PB_RS485_Sniffer_Broadcast.png "Broadcasting JK-PB settings to all BMS")
 
 When enabled, this function synchronizes the settings of all your BMS connected to the same RS485 network as soon as you make parameter changes.
+
+## JK-PB SoC 100% reset
+
+> [!NOTE]
+> During the `Bulk` phase the YamBMS `SoC` cannot be more than `98%`.
+> When the battery is fully charged, the average `SoC` of your BMS will be sent.
+
+The new `JK-PB` parameters `RCV` and `RCV timer` are not used by `YamBMS`, but you can adjust them to reach the `100%` faster, a little before `YamBMS` completes charging.
+
+If you are instructing `YamBMS` to Bulk charge at `3.5V/cell`, configure the `JK-PB` parameters like this:
+
+* JK RCV V. : `3.45V/cell`
+* JK RCV timer to `0.1` hour
+* JK SOC 100% V. : `3.449V`
+
+This will reset the `SoC` to `100%` faster.
+
+The `SoC` at the end of charge is easy to understand, it's the average `SoC` of your BMS, but it won't go higher than `98%` until charging is complete.
+
+Then, when charging is complete before switching to `Float`, `YamBMS` will again send the average `SoC` of your BMS, which is assumed to have reached `100%`. It's up to you to ensure this is the case by configuring your BMS.
+
+On the `YamBMS` side, disabling the `EOC Timer` (which will end charging after max `30min` in the `Cut-Off` phase without waiting for all `cells` to be `equalized`) will prolong charging until all your `cells` are `equalized` and the active balancer is no longer working for `60s`. This can give more time to the `JK-PB` to reset to `100%`.
+
+![Image](../../images/BMS_JK-PB_SoC_100pct_Logic.png "Broadcasting JK-PB settings to all BMS")

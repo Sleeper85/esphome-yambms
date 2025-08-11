@@ -8,14 +8,16 @@
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
 > [!TIP]
-> Not sure which YAML to choose ? ... `YamBMS_Remote_Packages_example.yaml` is a good basis for creating your custom YAML.
-> Examples of BMS and Shunt imports can be found in the [configuration_examples](configuration_examples/) folder.
-> You can mix different BMS models, the only condition is that they are numbered in order starting from `1`.
+> Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](YamBMS_Remote_Packages_example.yaml)
+> is a good basis for creating your custom YAML.
+> Examples of `BMS` and `Shunt` packages can be found in the [examples](examples/single-node/) folder.
+> You don't have to import a shunt but you must import at least `one BMS`.
+> You can mix different `BMS` models, the only condition is that the `bms_id` are numbered in order starting from `1` !
 
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
-> YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
-> If you use YamBMS, the internal charging logic of the `JK-PB BMS` will not be used.
+> YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your `BMS`.
+> If you use `YamBMS`, the internal charging logic of the `JK-PB BMS` will not be used.
 > Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Schematic_and_setup_instructions.md).
 
 | ESPHome application to monitor BMS and communicate with inverters<br>supporting CAN bus protocol compatible with Pylontech, GoodWe, SMA,<br>Victron or Luxpower (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
@@ -50,14 +52,13 @@
 3) [YamBMS functions](documents/README/YamBMS_functions.md)
 4) [Charging logic](documents/README/Charging_logic.md)
 5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
-6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
-7) [How to create your YamBMS YAML](documents/README/YamBMS_main_YAML_HowTo.md)
-8) [Installation procedure](documents/README/Installation_procedure.md)
-9) [Troubleshooting](documents/README/Troubleshooting.md)
+6) [Hardware and schematic instructions](documents/README/Hardware_and_schematic_instructions.md)
+7) [Installation procedure](documents/README/Installation_procedure.md)
+8) [Troubleshooting](documents/README/Troubleshooting.md)
 
-## YamBMS
+## YamBMS ( Yet another multi-BMS Merging Solution )
 
-![Image](images/YamBMS_packaged_version.png "YamBMS packaged version")
+![Image](images/YamBMS_Overview.png "YamBMS Overview")
 
 ### Single-node
 
@@ -143,9 +144,14 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 ## Changelog
 
 * YamBMS 1.5.8 :
-  * New Dashboards `1.5.8`
+  * New Dashboards `1.5.8` compatible with CANBUS / RS485 inverter communication protocol
   * Merged [PR 67](https://github.com/Sleeper85/esphome-yambms/pull/67) Add options to restrict max. charge and discharge current
   * Merged [PR 72](https://github.com/Sleeper85/esphome-yambms/pull/72) Add Pylontech RS485 inverter protocol
+  * Fixed [issue 8](https://github.com/Sleeper85/esphome-yambms/issues/8) ETH01-EVO board - Davicom DM9051 SPI Ethernet Controller is now integrated in esphome `2025.7`
+  * Fixed [issue 24](https://github.com/Sleeper85/esphome-yambms/issues/24) [JK-PB] SoC never reaches 100%
+  * Fixed [issue 63](https://github.com/Sleeper85/esphome-yambms/issues/63) [JK RS485 component] Fix *.*_SCHEMA deprecations
+  * Integration of BMS SEPLOS V3 (beta)
+  * Merged [PR 74](https://github.com/Sleeper85/esphome-yambms/pull/74) `PYLON RS485` link status, Heartbeat and Requested Force Charge.
 * YamBMS 1.5.7 :
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`

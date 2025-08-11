@@ -1,4 +1,4 @@
-# Updated : 2025.07.13
+# Updated : 2025.08.11
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -55,13 +55,6 @@ api:
 #   password: !secret mqtt_password
 #   id: mqtt_client
 
-# Please note that enabling this component will take up a lot of memory and may decrease
-# stability and be the cause of reboot depending on the capabilities of the board used.
-# web_server:
-#   port: 80
-#   log: false
-#   ota: false
-
 # +--------------------------------------+
 # | Global Settings                      |
 # +--------------------------------------+
@@ -104,7 +97,7 @@ substitutions:
   # The current requested will be proportional to the BMS count without ever exceeding this value.
   yambms_max_requested_discharge_current: '300' # in Ampere
   # +--------------------------------------+
-  # | Shunt Settings                      |
+  # | Shunt Settings                       |
   # +--------------------------------------+
   shunt_update_interval: '3s'  # frequency at which Shunt data is refreshed
   shunt_combine_interval: '1s' # frequency at which Shunt data is combined in YamBMS
@@ -115,31 +108,27 @@ substitutions:
   bms_combine_interval: '1s'   # frequency at which BMS data is combined in YamBMS
   bms_cutoff_timer: '50s'      # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
 
+
+
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
 
-# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_main_YAML_HowTo.md
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_RP_YAML.md
 
 packages:
 
-  ################ >>> CONFIG & CUSTOM LP <<< ################
-
-  # Local Packages intended for creating custom codes
-  # or sharing settings between several main.yaml
-
-  # yambms_config: !include yambms_config.yaml
-  # yambms_custom: !include yambms_custom.yaml
-
-  ############### >>> UNCOMMENT YOUR BOARD <<< ###############
-  ############### >>>   ONLY ONE BOARD !   <<< ###############
+  # +------------------------------------------------------------------------------+
+  # | >>> UNCOMMENT YOUR BOARD
+  # | >>> ONLY ONE BOARD !
+  # +------------------------------------------------------------------------------+
 
   board:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
-      # - path: 'packages/board/board_ESP32_Generic.yaml'
+      - path: 'packages/board/board_ESP32_Generic.yaml'
       # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
       # - path: 'packages/board/board_ESP32_EVB.yaml'
@@ -149,87 +138,78 @@ packages:
       # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
-      - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+      # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
       # - path: 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
       # - path: 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
       # - path: 'packages/board/board_ESP32-S3_XIAO.yaml'
       # - path: 'packages/board/board_ESP32-S3_YBoard.yaml'
 
-      # - path: 'packages/board/board_ESP32-S3_AtomS3.yaml'
+      # - path: 'packages/board/board_ESP32-S3_AtomS3.yaml' # 'packages/board/board_ESP32-S3_AtomS3R.yaml'
       #   vars:
       #     display_auto_next_page_interval: '5s'
       #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
 
-      # - path: 'packages/board/board_ESP32-S3_AtomS3R.yaml'
-      #   vars:
-      #     display_auto_next_page_interval: '5s'
-      #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
-
-      # LilyGo T-Connect Pro
-      # Importing the display also activates PSRAM.
-      # Also note that the display update takes about 120 ms, as indicated in the logs:
-      # "Component display took a long time for an operation (124 ms)."
-      # Board
+      # # LilyGo T-Connect Pro - Board
       # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
-      # Display
+      # # LilyGo T-Connect Pro - Display - Importing the display also activates PSRAM
       # - path: 'packages/board/board_options_display_480x222.yaml'
       #   vars:
       #     display_auto_next_page_interval: '5s'
 
-  ########### >>> UNCOMMENT YOUR BOARD OPTIONS <<< ###########
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Options
+  # | >>> Uncomment your interfaces and options
+  # +------------------------------------------------------------------------------+
 
   board_options:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
-      # UART 1
+      # UART 1 (uart_id: uart_esp_1)
       - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
-      # UART 2
+      # UART 2 (uart_id: uart_esp_2)
       # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
-      # UART 3
+      # UART 3 (uart_id: uart_esp_3)
       # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
 
-      # ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
+      # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
       - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
         vars:
+          # to bms = canbus_bms_1
+          # to inverter = canbus_inverter_1
           canbus_node_id: 'canbus_inverter_1'
-
-      # MCP2515
+      
+      # CAN transceiver - MCP2515
       # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
       #   vars:
+      #     # to bms = canbus_bms_1
+      #     # to inverter = canbus_inverter_1
       #     canbus_node_id: 'canbus_inverter_1'
 
-  ############################################################
+      # PSRAM octal 80Mhz
+      # - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
+
+      # Web Server
+      # - path: 'packages/yambms/yambms_web_server.yaml'
+
+      # Captive Portal
+      # - path: 'packages/board/board_options_captive_portal.yaml'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> BMS and Shunt
+  # +------------------------------------------------------------------------------+
 
   # You don't have to import a shunt but you must import at least one BMS.
+  # You can mix different BMS models, the only condition is that the `bms_id` are numbered in order starting from 1 !
 
-  # UART Shunt
-  # shunt:
-  #   url: https://github.com/Sleeper85/esphome-yambms
-  #   ref: main
-  #   refresh: 0s
-  #   files:
-  #     # Shunt 1
-  #     - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_UART.yaml' # shunt_combine_Junctek_KHF_UART.yaml
-  #       vars:
-  #         shunt_id: '1' # must be a number
-  #         shunt_name: 'Shunt 1'
-  #         shunt_uart_id: 'uart_esp_3'
-
-  # BLE Shunt
-  # shunt:
-  #   url: https://github.com/Sleeper85/esphome-yambms
-  #   ref: main
-  #   refresh: 0s
-  #   files:
-  #     # Shunt 1
-  #     - path: 'packages/shunt/shunt_combine_Victron_SmartShunt_BLE.yaml'
-  #       vars:
-  #         shunt_id: '1' # must be a number
-  #         shunt_name: 'Shunt 1'
-  #         shunt_mac_address: '60:A4:23:91:8F:55' # Your MAC address
-  #         shunt_encryption_key: '0df4d0395b7d1a876c0c33ecb9e70dcd' # Your encryption key
+  # >>> Copy your BMS and Shunt packages here
+  # >>> You can find examples at this address :
+  # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
   bms:
     url: https://github.com/Sleeper85/esphome-yambms
@@ -315,6 +295,12 @@ packages:
           bms_name: 'JK-BMS 8'
           bms_address: '0x08' # BMS 8 ( JK app `Device Addr.` setting )
 
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> YamBMS core
+  # +------------------------------------------------------------------------------+
+
   yambms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
@@ -322,12 +308,18 @@ packages:
     files:
       - path: 'packages/yambms/yambms.yaml'
 
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> CAN bus to Inverter
+  # +------------------------------------------------------------------------------+
+
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
-      - path: 'packages/yambms/yambms_canbus.yaml'
+      - path: 'packages/yambms/yambms_canbus.yaml' # yambms_canbus_web_server.yaml
         vars:
           canbus_id: 'canbus1'
           canbus_name: 'CANBUS 1'
@@ -337,9 +329,30 @@ packages:
           # The Deye inverter sends the ACK 0x305 only when it receives the 0x356 frame.
           canbus_link_timer: '5s'
 
-# +--------------------------------------+
-# | DEBUG ( logger level must be DEBUG ) |
-# +--------------------------------------+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> RS485 bus to Inverter
+  # +------------------------------------------------------------------------------+
+
+  # rs485_pylon:
+  #   url: https://github.com/Sleeper85/esphome-yambms
+  #   ref: main
+  #   refresh: 0s
+  #   files:
+  #     - path: 'packages/yambms/yambms_rs485_pylon.yaml' # yambms_rs485_pylon_web_server.yaml
+  #       vars:
+  #         rs485_id: 'rs485_1'
+  #         rs485_name: 'RS485 1'
+  #         rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
+  #         rs485_uart_baud_rate: '9600'
+  #         rs485_update_timeout: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> DEBUG ( logger level must be DEBUG )
+  # +------------------------------------------------------------------------------+
 
   debug:
     url: https://github.com/Sleeper85/esphome-yambms
@@ -347,6 +360,22 @@ packages:
     refresh: 0s
     files:
       - path: packages/base/device_debug_ESP32.yaml
+      # - path: packages/base/device_debug_ESP32_PSRAM.yaml
         vars:
           debug_name: 'Debug'
           debug_update_interval: '5s'
+          # Size of your PSRAM in bits
+          # 8Mb='8388608' | 6Mb='6291456' | 4Mb='4194304' | 2Mb='2097152' | NoPSRAM='0'
+          debug_psram_size: '8388608'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Config and Custom Local Packages
+  # +------------------------------------------------------------------------------+
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
