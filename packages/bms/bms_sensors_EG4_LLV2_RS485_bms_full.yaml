@@ -29,12 +29,16 @@ modbus_controller:
     update_interval: ${eg4_modbus_update_interval}
     on_online:
       then:
-        - logger.log: "EG4 BMS ${bms_id} back online !"
+        - logger.log: 
+            format: "EG4 BMS ${bms_id} back online !"
+            level: INFO
         - lambda: |-
             id(bms${bms_id}_online_status).publish_state(true);
     on_offline:
       then:
-        - logger.log: "EG4 BMS ${bms_id} goes offline !"
+        - logger.log: 
+            format: "EG4 BMS ${bms_id} goes offline !"
+            level: INFO
         - lambda: |-
             id(bms${bms_id}_total_voltage).publish_state(0);
             id(bms${bms_id}_current).publish_state(0);
@@ -304,7 +308,7 @@ binary_sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} cell unbalance"
+    name: "${name} ${bms_name} cell imbalance"
     register_type: holding
     address: 28
     bitmask: 0x0010
@@ -949,6 +953,7 @@ sensor:
 
 number:
   # errors_bitmask (16bits)
+  # Dummy for now.
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
     name: "${name} ${bms_name} YamBMS Errors Bitmask"
