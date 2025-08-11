@@ -568,6 +568,29 @@ sensor:
     device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 3
+    lambda: |-
+      float v_min = NAN;
+      float v_max = NAN;
+      float c_min = NAN;
+      float c_max = NAN;
+
+      for (int i = 1; i <= 16; i++) {
+        float t_cell = id(bms${bms_id}_cell_${i}_balancing).state;
+        if (t_cell < v_min || isnan(v_min)) {
+          v_min = t_cell;
+          c_min = i;
+        }
+        if (t_cell > v_max || isnan(v_max)) {
+          v_max = t_cell;
+          c_max = i;
+        }
+      }
+
+      id(bms${bms_id}_min_voltage_cell).publish_state(c_min);
+      id(bms${bms_id}_max_voltage_cell).publish_state(c_max);
+      id(bms${bms_id}_max_cell_voltage).publish_state(v_max);      
+      
+      return v_min;
 
   # Max. cell voltage
   - platform: template
