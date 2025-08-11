@@ -92,6 +92,12 @@ binary_sensor:
     name: "${name} ${bms_name} discharging"
     lambda: return true;
 
+  # status heating
+  - platform: template
+    id: bms${bms_id}_status_heating
+    name: "${name} ${bms_name} status heating"
+    
+
 
 ## Errors
 #0x0001：Voltage error
@@ -951,11 +957,6 @@ sensor:
 #0x0002:Inactive/Discharging
 #0x0004:Inactive/Protect
 #0x0008:Inactive/Charging Lmt
-#0x8000:Active/Stand by
-#0x8001:Active/Charging
-#0x8002:Active/Discharging
-#0x8004:Active/Protect
-#0x8008:Active/Charging Lmt
 
 #Front Byte 0x00: Heat State-Off
 #Front Byte 0x80：Heat State-On
@@ -967,25 +968,8 @@ sensor:
     register_type: holding
     address: 25
     lambda: |-
-      ESP_LOGI("","Lambda incoming value=%f - data array size is %d",x,data.size());
-      ESP_LOGI("","Sensor properties: adress = 0x%X, offset = 0x%X value type=%d",item->start_address,item->offset,item->sensor_value_type);
-      int i=item->offset ;
-      for (auto val : data) {
-        ESP_LOGI("","data[%d]=0x%02X (%d)",i,data[i],data[i]);
-        i++;
-      }
-      uint16_t status = uint16_t(data[item->offset+1]);
-      if (status & 0x0000) return 0;
-      if (status & 0x0001) return 1;
-      if (status & 0x0002) return 2;
-      if (status & 0x0004) return 3;  
-      if (status & 0x0008) return 4;  
-      if (status & 0x8000) return 5;  
-      if (status & 0x8001) return 6;  
-      if (status & 0x8002) return 7;  
-      if (status & 0x8004) return 8;  
-      if (status & 0x8008) return 9;
-      return false;
+      id(bms${bms_id}_status_heating).publish_state(item->offset);
+      return data[item->offset+1];
 
 ## Product
 text_sensor:
@@ -1025,14 +1009,9 @@ text_sensor:
     lambda: |-
       switch ((int)id(bms${bms_id}_status_internal).state) {
         default: return std::string("Unknown");
-        case 0: return std::string("Inactive/Standby");
-        case 1: return std::string("Inactive/Charging");
-        case 2: return std::string("Inactive/Discharging");
-        case 3: return std::string("Inactive/Protect");
-        case 4: return std::string("Inactive/Charging Limit");
-        case 5: return std::string("Active/Standby");
-        case 6: return std::string("Active/Charging");
-        case 7: return std::string("Active/Discharging");
-        case 8: return std::string("Active/Protect");
-        case 9: return std::string("Active/Charging Limit");
+        case 0: return std::string("Standby");
+        case 1: return std::string("Charging");
+        case 2: return std::string("Discharging");
+        case 3: return std::string("Protect");
+        case 4: return std::string("Charging Limit");
       }
