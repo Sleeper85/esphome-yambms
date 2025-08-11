@@ -97,7 +97,118 @@ binary_sensor:
     id: bms${bms_id}_status_heating
     name: "${name} ${bms_name} status heating"
     
+## Balancer Status
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 01 balancing"
+    id: "bms${bms_id}_cell_1_balancing"
+    register_type: holding
+    bitmask: 0x0001
+    address: 38
 
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 02 balancing"
+    id: "bms${bms_id}_cell_2_balancing"
+    register_type: holding
+    bitmask: 0x0002
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 03 balancing"
+    id: "bms${bms_id}_cell_3_balancing"
+    register_type: holding
+    bitmask: 0x0004
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 04 balancing"
+    id: "bms${bms_id}_cell_4_balancing"
+    register_type: holding
+    bitmask: 0x0008
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 05 balancing"
+    id: "bms${bms_id}_cell_5_balancing"
+    register_type: holding
+    bitmask: 0x0010
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 06 balancing"
+    id: "bms${bms_id}_cell_6_balancing"
+    register_type: holding
+    bitmask: 0x0020
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 07 balancing"
+    id: "bms${bms_id}_cell_7_balancing"
+    register_type: holding
+    bitmask: 0x0040
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 08 balancing"
+    id: "bms${bms_id}_cell_8_balancing"
+    register_type: holding
+    bitmask: 0x0080
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 09 balancing"
+    id: "bms${bms_id}_cell_9_balancing"
+    register_type: holding
+    bitmask: 0x0100
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 10 balancing"
+    id: "bms${bms_id}_cell_10_balancing"
+    register_type: holding
+    bitmask: 0x0200
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 11 balancing"
+    id: "bms${bms_id}_cell_11_balancing"
+    register_type: holding
+    bitmask: 0x0400
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 12 balancing"
+    id: "bms${bms_id}_cell_12_balancing"
+    register_type: holding
+    bitmask: 0x0800
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 13 balancing"
+    id: "bms${bms_id}_cell_13_balancing"
+    register_type: holding
+    bitmask: 0x1000
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 14 balancing"
+    id: "bms${bms_id}_cell_14_balancing"
+    register_type: holding
+    bitmask: 0x2000
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 15 balancing"
+    id: "bms${bms_id}_cell_15_balancing"
+    register_type: holding
+    bitmask: 0x4000
+    address: 38
+
+  - platform: modbus_controller
+    name: "${name} ${bms_name} cell 16 balancing"
+    id: "bms${bms_id}_cell_16_balancing"      
+    register_type: holding
+    bitmask: 0x8000
+    address: 38
 
 ## Errors
 #0x0001：Voltage error
@@ -576,6 +687,8 @@ sensor:
     filters:
       - multiply: 0.001
 
+
+
    # Min. cell voltage
   - platform: template
     name: "${name} ${bms_name} min cell voltage"
@@ -754,11 +867,11 @@ sensor:
 
 
 ## Status
-#0x0000:Inactive/Stand by
-#0x0001:Inactive/Charging
-#0x0002:Inactive/Discharging
-#0x0004:Inactive/Protect
-#0x0008:Inactive/Charging Lmt
+#0x0000:Stand by
+#0x0001:Charging
+#0x0002:Discharging
+#0x0004:Protect
+#0x0008:Charging Lmt
 
 #Front Byte 0x00: Heat State-Off
 #Front Byte 0x80：Heat State-On
@@ -766,6 +879,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_status_internal    
+    internal: true
     name: "${name} ${bms_name} status internal"
     register_type: holding
     address: 25
