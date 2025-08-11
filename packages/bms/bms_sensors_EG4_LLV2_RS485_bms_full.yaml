@@ -58,7 +58,6 @@ modbus_controller:
             id(bms${bms_id}_discharging_allowed).publish_state(false);
             id(bms${bms_id}_equalizing).publish_state(false);
             id(bms${bms_id}_max_discharge_current).publish_state(0);
-            id(bms${bms_id}_online_status).publish_state(false);
             id(bms${bms_id}_charging_allowed).publish_state(false);
             id(bms${bms_id}_discharging_allowed).publish_state(false);
             id(bms${bms_id}_equalizing).publish_state(false);
@@ -79,7 +78,8 @@ binary_sensor:
   - platform: template
     id: bms${bms_id}_equalizing
     name: "${name} ${bms_name} balancing"
-
+    filters:
+      - delayed_off: 300s
   # bms_switch_charging
   - platform: template
     id: bms${bms_id}_charging_allowed
@@ -115,6 +115,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0002
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -123,6 +126,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0004
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -131,6 +137,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0008
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -139,6 +148,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0010
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -147,6 +159,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0020
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -155,6 +170,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0040
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -163,6 +181,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0080
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -171,6 +192,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0100
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -179,6 +203,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0200
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -187,6 +214,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0400
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -195,6 +225,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x0800
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -203,6 +236,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x1000
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -211,6 +247,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x2000
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -219,6 +258,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x4000
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
@@ -227,6 +269,9 @@ binary_sensor:
     register_type: holding
     bitmask: 0x8000
     address: 38
+    lambda: |-
+      if(x) id(bms${bms_id}_equalizing).publish_state(true);
+      return x;
 
 ## Errors
 #0x0001：Voltage error
