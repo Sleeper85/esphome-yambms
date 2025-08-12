@@ -1,5 +1,5 @@
 # Updated : 2025.08.12
-# Version : 1.1.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -69,13 +69,13 @@ logger:
 light:
   # ESP Light used to see the inverter heartbeat
   # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: monochromatic
+  - platform: binary
     output: esp_led
     id: esp_light
 
 output:
   # ESP LED
-  - platform: ledc
-    pin: 17 # Green LED
+  - platform: gpio
+    pin: 17
     id: esp_led
     inverted: true
