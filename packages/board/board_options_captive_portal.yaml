@@ -1,5 +1,5 @@
-# Updated : 2025.01.10
-# Version : 1.1.1
+# Updated : 2025.08.12
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,7 +19,7 @@
 
 wifi:
   ap:
-    ssid: "YamBMS Fallback Hotspot"
-    password: "Y4mBM$85"
+    ssid: !secret wifi_ap_ssid
+    password: !secret wifi_ap_password
 
 captive_portal:
