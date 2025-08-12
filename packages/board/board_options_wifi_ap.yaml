@@ -1,5 +1,5 @@
-# Updated : 2025.08.11
-# Version : 1.1.1
+# Updated : 2025.08.12
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,6 +18,20 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 wifi:
+  id: my_network
+  reboot_timeout: 0s
   ap:
-    ssid: "YamBMS Fallback Hotspot"
-    password: "Y4mBM$85"
+    ssid: !secret wifi_ap_ssid
+    password: !secret wifi_ap_password
+
+button:
+  # WiFi AP mode
+  - platform: template
+    name: "ESP32 WiFi AP mode"
+    on_press:
+      - lambda: |-
+          id(my_network).set_ap_timeout(1);
+          id(my_network).disable();
+          id(my_network).clear_sta();
+          id(my_network).enable();
+    entity_category: config
