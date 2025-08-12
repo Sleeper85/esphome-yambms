@@ -144,14 +144,22 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 ## Changelog
 
 * YamBMS 1.5.8 :
-  * New Dashboards `1.5.8` compatible with CANBUS / RS485 inverter communication protocol
-  * Merged [PR 67](https://github.com/Sleeper85/esphome-yambms/pull/67) Add options to restrict max. charge and discharge current
-  * Merged [PR 72](https://github.com/Sleeper85/esphome-yambms/pull/72) Add Pylontech RS485 inverter protocol
+  * New Dashboards `1.5.8` compatible with `CANBUS` and `RS485` inverter communication protocol
+  * Added BMS `SEPLOS V3` (beta)
+  * Added YamBMS `Web Server v3`
+  * Added `WiFi AP`
+  * `WiFi AP` and `Web Server` credentials centralized in `secrets.yaml`
+  * Added `WT32-ETH01` board
   * Fixed [issue 8](https://github.com/Sleeper85/esphome-yambms/issues/8) ETH01-EVO board - Davicom DM9051 SPI Ethernet Controller is now integrated in esphome `2025.7`
   * Fixed [issue 24](https://github.com/Sleeper85/esphome-yambms/issues/24) [JK-PB] SoC never reaches 100%
   * Fixed [issue 63](https://github.com/Sleeper85/esphome-yambms/issues/63) [JK RS485 component] Fix *.*_SCHEMA deprecations
-  * Integration of BMS SEPLOS V3 (beta)
-  * Merged [PR 74](https://github.com/Sleeper85/esphome-yambms/pull/74) `PYLON RS485` link status, Heartbeat and Requested Force Charge.
+  * Merged [PR 67](https://github.com/Sleeper85/esphome-yambms/pull/67) Add options to restrict max. charge and discharge current
+  * Merged [PR 72](https://github.com/Sleeper85/esphome-yambms/pull/72) Add Pylontech RS485 inverter protocol
+  * Merged [PR 74](https://github.com/Sleeper85/esphome-yambms/pull/74) `PYLON RS485` link status, Heartbeat and Requested Force Charge
+  * Merged [PR 75](https://github.com/Sleeper85/esphome-yambms/pull/75) Round `Auto CCL` / `Auto DCL` values
+  * Merged [PR 77](https://github.com/Sleeper85/esphome-yambms/pull/77) `PYLON RS485` prevent stale data on BMS disconnect
+  * Merged [PR 80](https://github.com/Sleeper85/esphome-yambms/pull/80) BMS Modbus client: Return 0 when not online
+  * Merged [PR 81](https://github.com/Sleeper85/esphome-yambms/pull/81) Fix balance trigger voltage for Basen and Deye
 * YamBMS 1.5.7 :
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
