@@ -62,7 +62,6 @@ modbus_controller:
             id(bms${bms_id}_cell_ovp).publish_state(0);
             id(bms${bms_id}_cell_uvp).publish_state(0);
             id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
-            id(bms${bms_id}_yambus_errors_bitmask).publish_state(0);
             id(bms${bms_id}_charging_power).publish_state(0);
             id(bms${bms_id}_discharging_power).publish_state(0);
             id(bms${bms_id}_battery_soh).publish_state(0);
