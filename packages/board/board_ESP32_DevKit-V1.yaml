@@ -51,7 +51,7 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_build.flash_mode: dio  # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
 wifi:
   id: my_network
@@ -60,7 +60,7 @@ wifi:
   domain: !secret domain
 
 logger:
-  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+  baud_rate: 0  # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
 
 # +--------------------------------------+
 # | Inverter Heartbeat Light             |
@@ -72,6 +72,7 @@ light:
   - platform: monochromatic
     output: esp_led
     id: esp_light
+    default_transition_length: 1s  # Use 0.5s for PYLON_1.2
 
 output:
   # ESP LED
