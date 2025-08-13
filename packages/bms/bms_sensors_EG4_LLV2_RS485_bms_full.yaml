@@ -918,7 +918,7 @@ sensor:
       return data[item->offset+1];
 
   - platform: template
-    id: bms${bms_id}_yambms_errors_bitmask
+    id: bms${bms_id}_errors_bitmask
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline
