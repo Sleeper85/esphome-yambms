@@ -79,9 +79,11 @@ binary_sensor:
     name: "${name} ${bms_name} online status"
 
   # equalizing
-  - platform: template
+  - platform: modbus_controller
     id: bms${bms_id}_equalizing
     name: "${name} ${bms_name} balancing"
+    register_type: holding
+    address: 38
 
   # bms_switch_charging
   - platform: template
