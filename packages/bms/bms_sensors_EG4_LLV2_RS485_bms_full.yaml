@@ -32,23 +32,25 @@ modbus_controller:
         - logger.log: 
             format: "EG4 BMS ${bms_id} back online !"
             level: INFO
-        - lambda: |-
-            id(bms${bms_id}_online_status).publish_state(true);
     on_offline:
       then:
         - logger.log: 
             format: "EG4 BMS ${bms_id} goes offline !"
             level: INFO
         - lambda: |-
+            id(bms${bms_id}_online_status).publish_state(false);
+            id(bms${bms_id}_charging_allowed).publish_state(false);
+            id(bms${bms_id}_discharging_allowed).publish_state(false);
+            id(bms${bms_id}_equalizing).publish_state(false);
             id(bms${bms_id}_total_voltage).publish_state(0);
             id(bms${bms_id}_current).publish_state(0);
             id(bms${bms_id}_power).publish_state(0);
             id(bms${bms_id}_battery_soc).publish_state(0);
-            id(bms${bms_id}_battery_soh).publish_state(0);
             id(bms${bms_id}_battery_capacity).publish_state(0);
             id(bms${bms_id}_capacity_remaining_ah).publish_state(0);
             id(bms${bms_id}_charging_cycles).publish_state(0);
             id(bms${bms_id}_max_charge_current).publish_state(0);
+            id(bms${bms_id}_max_discharge_current).publish_state(0);
             id(bms${bms_id}_max_cell_voltage).publish_state(0);
             id(bms${bms_id}_max_voltage_cell).publish_state(0);
             id(bms${bms_id}_min_cell_voltage).publish_state(0);
@@ -57,14 +59,13 @@ modbus_controller:
             id(bms${bms_id}_min_temperature_sensor).publish_state(0);
             id(bms${bms_id}_max_temperature).publish_state(0);
             id(bms${bms_id}_max_temperature_sensor).publish_state(0);
-            id(bms${bms_id}_online_status).publish_state(false);
-            id(bms${bms_id}_charging_allowed).publish_state(false);
-            id(bms${bms_id}_discharging_allowed).publish_state(false);
-            id(bms${bms_id}_equalizing).publish_state(false);
-            id(bms${bms_id}_max_discharge_current).publish_state(0);
-            id(bms${bms_id}_charging_allowed).publish_state(false);
-            id(bms${bms_id}_discharging_allowed).publish_state(false);
-            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_cell_ovp).publish_state(0);
+            id(bms${bms_id}_cell_uvp).publish_state(0);
+            id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
+            id(bms${bms_id}_yambms_errors_bitmask).publish_state(0);
+            id(bms${bms_id}_charging_power).publish_state(0);
+            id(bms${bms_id}_discharging_power).publish_state(0);
+            id(bms${bms_id}_battery_soh).publish_state(0);
 
 # +--------------------------------------+
 # | Component entities                   |
