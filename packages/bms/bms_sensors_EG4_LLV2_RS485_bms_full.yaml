@@ -714,8 +714,6 @@ sensor:
     filters:
       - multiply: 0.001
 
-
-
    # Min. cell voltage
   - platform: template
     name: "${name} ${bms_name} min cell voltage"
@@ -806,7 +804,7 @@ sensor:
     unit_of_measurement: "V"
     state_class: measurement
     device_class: 'voltage'
-    lambda: return 3.700;
+    lambda: return 3.650;
 
   - platform: template
     id: bms${bms_id}_cell_uvp
