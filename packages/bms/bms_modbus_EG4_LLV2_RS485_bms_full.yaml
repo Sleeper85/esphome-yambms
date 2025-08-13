@@ -22,7 +22,7 @@ substitutions:
   bms_model: "EG4 LLV2"
   bms_protocol: "RS485"
   # Modbus
-  eg4_modbus_id: modbus_eg4
+  eg4_modbus_id: bms${bms_id}_modbus_eg4
   eg4_modbus_send_wait_time: 250ms # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
   # Modbus Controller
   eg4_modbus_update_interval: '5s' # frequency with which BMS modbus servers are queried
