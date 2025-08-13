@@ -1,4 +1,4 @@
-# Updated : 2025.08.12
+# Updated : 2025.08.13
 # Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -16,6 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://github.com/egnor/wt32-eth01
+# https://hackerspace-ffm.de/wiki/index.php?title=WT32-ETH01_ESP32_Modul_mit_LAN
 
 substitutions:
   board_chip: "ESP32"
