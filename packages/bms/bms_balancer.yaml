@@ -1,0 +1,65 @@
+# Updated : 2025.08.13
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+globals:
+  # External balancer online
+  - id: bms${bms_id}_var_ext_balancer_online
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  # External balancer equalizing
+  - id: bms${bms_id}_var_ext_balancer_equalizing
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  # External balancer trigger voltage (V)  
+  - id: bms${bms_id}_var_ext_balancer_trigger_voltage
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+binary_sensor:
+  # equalizing
+  - platform: template
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} equalizing"
+    lambda: |-
+      if (id(bms${bms_id}_var_ext_balancer_online))
+        return id(bms${bms_id}_var_ext_balancer_equalizing);
+      else
+        return id(bms${bms_id}_bms_equalizing).state;
+
+sensor:
+  # balance_trigger_voltage
+  - platform: template
+    id: bms${bms_id}_balance_trigger_voltage
+    name: "${name} ${bms_name} balance trigger voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: |-
+      if (id(bms${bms_id}_var_ext_balancer_online))
+        return id(bms${bms_id}_var_ext_balancer_trigger_voltage);
+      else
+        return id(bms${bms_id}_bms_balance_trigger_voltage).state;

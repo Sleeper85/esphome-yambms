@@ -1,5 +1,5 @@
-# Updated : 2025.06.11
-# Version : 1.2.8
+# Updated : 2025.08.13
+# Version : 1.2.9
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@ packages:
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_UART_4G-GPS.yaml
   bms_battery_soh: !include bms_battery_soh.yaml
+  bms_balancer: !include bms_balancer.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -48,7 +49,7 @@ binary_sensor:
   - platform: jk_bms
     jk_bms_id: jk_bms${bms_id}
     balancing:
-      id: bms${bms_id}_equalizing
+      id: bms${bms_id}_bms_equalizing
       name: "${name} ${bms_name} balancing"
     balancing_switch:
       name: "${name} ${bms_name} balancing switch"
@@ -268,7 +269,7 @@ sensor:
       id: bms${bms_id}_balance_starting_voltage
       name: "${name} ${bms_name} balance starting voltage"
     balance_opening_pressure_difference:
-      id: bms${bms_id}_balance_trigger_voltage
+      id: bms${bms_id}_bms_balance_trigger_voltage
       name: "${name} ${bms_name} balance opening pressure difference"
     power_tube_temperature_protection:
       name: "${name} ${bms_name} power tube temperature protection"

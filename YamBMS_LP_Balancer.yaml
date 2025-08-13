@@ -1,0 +1,279 @@
+# Updated : 2025.08.13
+# Version : 1.5.9
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+######################## YamBMS Remote Packages Version ########################
+
+# You can compile this YAML directly without the `packages` folder.
+# The packages will be automatically downloaded from GitHub.
+# Don't forget to configure your WiFi credentials in the secrets.yaml
+
+################################################################################
+
+# If needed, configure a static IP here
+# wifi:
+#   manual_ip:
+#     static_ip: 192.168.0.85
+#     gateway: 192.168.0.1
+#     subnet: 255.255.255.0
+#     dns1: 8.8.8.8
+#     dns2: 8.8.4.4
+
+logger:
+  level: INFO # VERBOSE / DEBUG / INFO / WARN
+
+ota:
+  - platform: esphome
+
+api:
+  reboot_timeout: 0s
+
+# +--------------------------------------+
+# | Global Settings                      |
+# +--------------------------------------+
+substitutions:
+  # Name
+  friendly_name : 'YamBMS' # Prefix added in front of the `entity display name`, also used to classify them.
+  hostname: 'yambms' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
+  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
+  # +--------------------------------------+
+  # | YamBMS Settings                      |
+  # +--------------------------------------+
+  # Please read the cut-off charging logic README to understand how the YamBMS works
+  yambms_id: 'yambms1'
+  yambms_name: 'YamBMS 1'
+  yambms_update_interval: '1s'
+  # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
+  yambms_input_number_mode: 'slider'
+  # Please check and fill in the options below correctly according to your battery chemistry and number of cells in series.
+  # These parameters are important and used for charging logic.
+  # Battery Chemistry
+  yambms_battery_chemistry: '1' # 1-LFP | 2-Li-ion | 3-LTO
+  # Number of cells in series
+  yambms_cell_count: '16'
+  # Bulk / Absorption Voltage : corresponds to the Bulk voltage that will be used to charge the battery. (LFP : 55.2V = 3.45V/Cell for 16S battery)
+  yambms_bulk_v: '55.2'
+  # Float Voltage : corresponds to the voltage at which the battery would be maintained at the end of charge. (LFP : 53.6V = 3.35V/Cell for 16S battery)
+  yambms_float_v: '53.6'
+  # Rebulk voltage, voltage from which a new Bulk charge can start. (LFP : 52.8V = 3.3V/Cell for 16S battery)
+  yambms_rebulk_v: '52.8'
+  # Maximum time in minutes that the cut-off step can last before charging is complete
+  # If your cells are properly balanced this step ends at the fastest after the `cut-off timer`
+  # This timer can be deactivated with a switch
+  yambms_eoc_timer: '30'
+  # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
+  yambms_cutoff_timer: '60'
+  # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
+  # The current requested will be proportional to the BMS count without ever exceeding this value.
+  yambms_max_requested_charge_current: '300' # in Ampere
+  # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
+  # The current requested will be proportional to the BMS count without ever exceeding this value.
+  yambms_max_requested_discharge_current: '300' # in Ampere
+  # +--------------------------------------+
+  # | Shunt Settings                       |
+  # +--------------------------------------+
+  shunt_update_interval: '3s'  # frequency at which Shunt data is refreshed
+  shunt_combine_interval: '1s' # frequency at which Shunt data is combined in YamBMS
+  # +--------------------------------------+
+  # | BMS Settings                         |
+  # +--------------------------------------+
+  bms_update_interval: '3s'    # frequency at which BMS data is refreshed, going below '3s' can cause problems
+  bms_combine_interval: '1s'   # frequency at which BMS data is combined in YamBMS
+  bms_cutoff_timer: '50s'      # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
+
+
+
+# +--------------------------------------+
+# | Packages                             |
+# +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_LP_YAML.md
+
+packages:
+
+  # +------------------------------------------------------------------------------+
+  # | >>> UNCOMMENT YOUR BOARD
+  # | >>> ONLY ONE BOARD !
+  # +------------------------------------------------------------------------------+
+
+  # This list is incomplete, other board.yaml are available in the board folder
+
+  device_board: !include 'packages/board/board_ESP32_Generic.yaml'
+  # device_board: !include 'packages/board/board_ESP32_DevKit-V1.yaml'
+  # device_board: !include 'packages/board/board_ESP32_Atom-Lite.yaml'
+  # device_board: !include 'packages/board/board_ESP32_EVB.yaml'
+  # device_board: !include 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
+  # device_board: !include 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
+  # device_board: !include 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_XIAO.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_YBoard.yaml'
+
+  # device_board: !include
+  #   file: 'packages/board/board_ESP32-S3_AtomS3.yaml' # 'packages/board/board_ESP32-S3_AtomS3R.yaml'
+  #   vars:
+  #     display_auto_next_page_interval: '5s'
+  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+
+  # # LilyGo T-Connect Pro - Board
+  # device_board: !include 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
+  # # LilyGo T-Connect Pro - Display - Importing the display also activates PSRAM
+  # device_dispay: !include
+  #   file: 'packages/board/board_options_display_480x222.yaml'
+  #   vars:
+  #     display_auto_next_page_interval: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Options
+  # | >>> Uncomment your interfaces and options
+  # +------------------------------------------------------------------------------+
+
+  # UART 1 (uart_id: uart_esp_1)
+  uart_esp_1: !include packages/board/board_options_itf_uart_esp_1.yaml
+  # UART 2 (uart_id: uart_esp_2)
+  # uart_esp_2: !include packages/board/board_options_itf_uart_esp_2.yaml
+  # UART 3 (uart_id: uart_esp_3)
+  # uart_esp_3: !include packages/board/board_options_itf_uart_esp_3.yaml
+
+  # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
+  canbus_node_1: !include
+    file: packages/board/board_options_itf_canbus_esp32_can.yaml
+    vars:
+      # to bms = canbus_bms_1
+      # to inverter = canbus_inverter_1
+      canbus_node_id: 'canbus_inverter_1'
+
+  # CAN transceiver - MCP2515
+  # canbus_node_2: !include
+  #   file: packages/board/board_options_itf_canbus_mcp2515.yaml
+  #   vars:
+  #     # to bms = canbus_bms_1
+  #     # to inverter = canbus_inverter_1
+  #     canbus_node_id: 'canbus_inverter_1'
+
+  # PSRAM octal 80Mhz
+  # psram_octal_80Mhz: !include packages/board/board_options_PSRAM_octal_80Mhz.yaml
+
+  # Web Server
+  # web_server: !include packages/yambms/yambms_web_server.yaml
+
+  # WiFi AP @ 192.168.4.1
+  # wifi_ap: !include packages/board/board_options_wifi_ap.yaml
+
+  # Captive Portal @ 192.168.4.1
+  # captive_portal: !include packages/board/board_options_captive_portal.yaml
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> BMS / Balancer / Shunt
+  # +------------------------------------------------------------------------------+
+
+  bms1: !include
+    file: packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'JK-BMS 1'
+      bms_uart_id: 'uart_esp_1'
+      # Maximum cell charging cycles is used to calculate the battey SoH.
+      # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+      bms_cell_max_cycles: '6000.0'
+
+  balancer1: !include
+    file: packages/balancer/balancer_sensors_JK_BLE.yaml
+    vars:
+      bms_id: '1' # must match the BMS ID
+      balancer_name: 'Balancer 1'
+      balancer_ble_mac_address: 11:22:33:44:55:66
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> YamBMS
+  # +------------------------------------------------------------------------------+
+
+  yambms: !include packages/yambms/yambms.yaml
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> CAN bus to Inverter
+  # +------------------------------------------------------------------------------+
+
+  canbus1: !include
+    file: packages/yambms/yambms_canbus.yaml # yambms_canbus_web_server.yaml
+    vars:
+      canbus_id: 'canbus1'
+      canbus_name: 'CANBUS 1'
+      canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
+      canbus_light_id: 'esp_light'
+      # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
+      # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
+      canbus_link_timer: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> RS485 bus to Inverter
+  # +------------------------------------------------------------------------------+
+
+  # rs485_pylon: !include
+  #   file: packages/yambms/yambms_rs485_pylon.yaml # yambms_rs485_pylon_web_server.yaml
+  #   vars:
+  #     rs485_id: 'rs485_1'
+  #     rs485_name: 'RS485 1'
+  #     rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
+  #     rs485_uart_baud_rate: '9600'
+  #     rs485_update_timeout: '5s'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> DEBUG ( logger level must be DEBUG )
+  # +------------------------------------------------------------------------------+
+
+  device_debug: !include
+    file: packages/base/device_debug_ESP32.yaml
+    # file: packages/base/device_debug_ESP32_PSRAM.yaml
+    vars:
+      debug_name: 'Debug'
+      debug_update_interval: '5s'
+      # Size of your PSRAM in bits
+      # 8Mb='8388608' | 6Mb='6291456' | 4Mb='4194304' | 2Mb='2097152' | NoPSRAM='0'
+      debug_psram_size: '8388608'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Config and Custom Local Packages
+  # +------------------------------------------------------------------------------+
+
+  # Local Packages intended for creating custom codes
+  # or sharing settings between several main.yaml
+
+  # yambms_config: !include yambms_config.yaml
+  # yambms_custom: !include yambms_custom.yaml
+
+
