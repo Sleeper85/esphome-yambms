@@ -764,7 +764,8 @@ sensor:
 
       id(bms${bms_id}_min_voltage_cell).publish_state(c_min);
       id(bms${bms_id}_max_voltage_cell).publish_state(c_max);
-      id(bms${bms_id}_max_cell_voltage).publish_state(v_max);      
+      id(bms${bms_id}_max_cell_voltage).publish_state(v_max);
+      id(bms${bms_id}_delta_cell_voltage).publish_state(v_max - v_min);
       
       return v_min;
 
@@ -772,6 +773,15 @@ sensor:
   - platform: template
     name: "${name} ${bms_name} max cell voltage"
     id: "bms${bms_id}_max_cell_voltage"
+    unit_of_measurement: 'V'
+    device_class: 'voltage'
+    state_class: 'measurement'
+    accuracy_decimals: 3
+
+  # Delta cell voltage
+  - platform: template
+    name: "${name} ${bms_name} delta cell voltage"
+    id: "bms${bms_id}_delta_cell_voltage"
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
