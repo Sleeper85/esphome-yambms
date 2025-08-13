@@ -66,8 +66,6 @@ modbus_controller:
             id(bms${bms_id}_discharging_allowed).publish_state(false);
             id(bms${bms_id}_equalizing).publish_state(false);
 
-
-
 # +--------------------------------------+
 # | Component entities                   |
 # +--------------------------------------+
@@ -77,7 +75,11 @@ binary_sensor:
   - platform: template
     id: bms${bms_id}_online_status
     name: "${name} ${bms_name} online status"
-
+    lambda: |-
+      if (id(bms${bms_id}_total_voltage).state > 0)
+        return true;
+      else
+        return false;    
 
   # bms_switch_charging
   - platform: template
