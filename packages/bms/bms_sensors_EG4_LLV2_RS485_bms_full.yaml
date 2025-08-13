@@ -907,20 +907,16 @@ sensor:
       id(bms${bms_id}_status_heating).publish_state((bool)data[item->offset]);
       return data[item->offset+1];
 
-number:
-  # errors_bitmask (16bits)
-  # Dummy for now.
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
-    name: "${name} ${bms_name} YamBMS Errors Bitmask"
-    step: 1
-    min_value: 0
-    max_value: 65535
-    restore_value: true
-    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
     icon: mdi:alert-circle-outline
-    optimistic: true
-    entity_category: config      
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
 
 ## Product
 text_sensor:
