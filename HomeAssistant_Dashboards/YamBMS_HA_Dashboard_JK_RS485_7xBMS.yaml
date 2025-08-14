@@ -1,5 +1,5 @@
 # Updated : 2025.08.14
-# Version : 1.5.8
+# Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -437,11 +437,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_1_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_1_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_1_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_1_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_1_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_1_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
@@ -649,11 +649,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_2_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_2_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_2_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_2_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_2_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_2_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
@@ -861,11 +861,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_3_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_3_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_3_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_3_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_3_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_3_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
@@ -1073,11 +1073,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_4_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_4_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_4_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_4_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_4_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_4_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
@@ -1285,11 +1285,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_5_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_5_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_5_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_5_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_5_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_5_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
@@ -1497,11 +1497,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_6_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_6_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_6_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_6_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_6_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_6_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
@@ -1709,11 +1709,11 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_7_status_balancing', rounded=True) ==
+                  states('binary_sensor.yambms_jk_bms_7_equalizing', rounded=True) ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_7_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_7_equalizing', rounded=True) |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_7_status_balancing', rounded=True) |
+                  states('binary_sensor.yambms_jk_bms_7_equalizing', rounded=True) |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
