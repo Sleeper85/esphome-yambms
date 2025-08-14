@@ -1,5 +1,5 @@
-# Updated : 2025.07.24
-# Version : 1.1.1
+# Updated : 2025.08.14
+# Version : 1.1.2
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,7 +43,7 @@ modbus_controller:
             id(bms${bms_id}_online_status).publish_state(false);
             id(bms${bms_id}_charging_allowed).publish_state(false);
             id(bms${bms_id}_discharging_allowed).publish_state(false);
-            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_bms_equalizing).publish_state(false);
             id(bms${bms_id}_total_voltage).publish_state(0);
             id(bms${bms_id}_current).publish_state(0);
             id(bms${bms_id}_power).publish_state(0);
@@ -64,7 +64,7 @@ modbus_controller:
             id(bms${bms_id}_max_temperature_sensor).publish_state(0);
             id(bms${bms_id}_cell_ovp).publish_state(0);
             id(bms${bms_id}_cell_uvp).publish_state(0);
-            id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
+            id(bms${bms_id}_bms_balance_trigger_voltage).publish_state(0);
             id(bms${bms_id}_yambms_errors_bitmask).publish_state(0);
             id(bms${bms_id}_charging_power).publish_state(0);
             id(bms${bms_id}_discharging_power).publish_state(0);
@@ -100,8 +100,9 @@ binary_sensor:
   # 1280 TB12 Bit 0 - Equilibrium module to open
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} Equalizing"
+    id: bms${bms_id}_bms_equalizing
+    name: "${name} ${bms_name} Equilibrium module to open"
+    internal: true
     register_type: read
     address: 0x1280
     bitmask: 1 # bit 0
@@ -685,8 +686,9 @@ sensor:
   # 1351   Equalization open voltage difference  R    UINT16    2    0.001V
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
-    id: bms${bms_id}_balance_trigger_voltage
+    id: bms${bms_id}_bms_balance_trigger_voltage
     name: "${name} ${bms_name} Equalization open voltage difference"
+    internal: true
     address: 0x1351
     register_type: read
     value_type: U_WORD

@@ -1,5 +1,5 @@
-# Updated : 2025.08.13
-# Version : 1.5.9
+# Updated : 2025.08.14
+# Version : 1.5.10
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -153,7 +153,7 @@ packages:
   # UART 1 (uart_id: uart_esp_1)
   uart_esp_1: !include packages/board/board_options_itf_uart_esp_1.yaml
   # UART 2 (uart_id: uart_esp_2)
-  # uart_esp_2: !include packages/board/board_options_itf_uart_esp_2.yaml
+  uart_esp_2: !include packages/board/board_options_itf_uart_esp_2.yaml
   # UART 3 (uart_id: uart_esp_3)
   # uart_esp_3: !include packages/board/board_options_itf_uart_esp_3.yaml
 
@@ -201,12 +201,37 @@ packages:
       # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
       bms_cell_max_cycles: '6000.0'
 
+  sniffer1: !include
+    file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml
+    vars:
+      sniffer_id: 'sniffer1'
+      sniffer_protocol: 'JK02_32S'
+      sniffer_uart_id: 'uart_esp_2'
+
+  # Mode2 : configure the DIP switches of your BMS from 0x01 to 0x0F (don't use the 0x00 address, maximum 15 BMS)
+  bms2: !include
+    file: packages/bms/bms_sensors_JK_RS485_Modbus_bms_full.yaml
+    vars:
+      # Sniffer ID
+      sniffer_id: 'sniffer1'
+      # BMS vars
+      bms_id: '2' # must be a number
+      bms_name: 'JK-BMS 2'
+      bms_address: '0x02' # BMS 1 DIP switch
+
   balancer1: !include
-    file: packages/balancer/balancer_sensors_JK_BLE.yaml
+    file: packages/balancer/balancer_sensors_JK_NEEY_BLE.yaml
     vars:
       bms_id: '1' # must match the BMS ID
       balancer_name: 'Balancer 1'
       balancer_ble_mac_address: 11:22:33:44:55:66
+  
+  balancer2: !include
+    file: packages/balancer/balancer_sensors_JK_NEEY_BLE.yaml
+    vars:
+      bms_id: '2' # must match the BMS ID
+      balancer_name: 'Balancer 2'
+      balancer_ble_mac_address: 11:22:33:44:55:67
 
 
 

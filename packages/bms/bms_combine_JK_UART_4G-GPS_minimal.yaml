@@ -1,5 +1,5 @@
-# Updated : 2025.06.11
-# Version : 1.2.9
+# Updated : 2025.08.14
+# Version : 1.2.10
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -53,8 +53,9 @@ binary_sensor:
   - platform: jk_bms
     jk_bms_id: jk_bms${bms_id}
     balancing:
-      id: bms${bms_id}_equalizing
+      id: bms${bms_id}_bms_equalizing
       name: "${name} ${bms_name} balancing"
+      internal: true
     balancing_switch:
       name: "${name} ${bms_name} balancing switch"
     charging:
@@ -187,8 +188,9 @@ sensor:
       id: bms${bms_id}_balance_starting_voltage
       name: "${name} ${bms_name} balance starting voltage"
     balance_opening_pressure_difference:
-      id: bms${bms_id}_balance_trigger_voltage
+      id: bms${bms_id}_bms_balance_trigger_voltage
       name: "${name} ${bms_name} balance opening pressure difference"
+      internal: true
     power_tube_temperature_protection:
       name: "${name} ${bms_name} power tube temperature protection"
     power_tube_temperature_recovery:

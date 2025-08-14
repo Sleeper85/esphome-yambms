@@ -1,0 +1,264 @@
+# Updated : 2025.08.14
+# Version : 1.1.1
+# GitHub  : https://github.com/syssi/esphome-jk-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  balancer_model: "JK NEEY"
+  balancer_protocol: "BLE"
+
+ota:
+  on_begin:
+    then:
+      - switch.turn_off: balancer${bms_id}_enable_bluetooth_connection
+      - logger.log: "BLE shutdown for flashing"
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+external_components:
+  - source: github://syssi/esphome-jk-bms@main
+    refresh: 0s
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
+
+ble_client:
+  - id: ble_balancer_client${bms_id}
+    mac_address: ${balancer_ble_mac_address}
+    on_connect:
+      then:
+        - delay: 10s
+        - button.press: balancer${bms_id}_retrieve_settings_button
+
+heltec_balancer_ble:
+  - ble_client_id: ble_balancer_client${bms_id}
+    throttle: ${bms_update_interval}
+    id: balancer_ble${bms_id}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  - platform: heltec_balancer_ble
+    heltec_balancer_ble_id: balancer_ble${bms_id}
+    online_status:
+      id: balancer${bms_id}_online_status
+      name: "${name} ${balancer_name} online status"
+      on_state:
+        then:
+          - lambda: id(bms${bms_id}_var_ext_balancer_online) = x;
+    balancing:
+      id: balancer${bms_id}_equalizing
+      name: "${name} ${balancer_name} balancing"
+      on_state:
+        then:
+          - lambda: id(bms${bms_id}_var_ext_balancer_equalizing) = x;
+
+switch:
+  - platform: heltec_balancer_ble
+    heltec_balancer_ble_id: balancer_ble${bms_id}
+    balancer:
+      id: balancer${bms_id}_balance_switch
+      name: "${name} ${balancer_name} Balance switch"
+
+  - platform: ble_client
+    ble_client_id: ble_balancer_client${bms_id}
+    id: balancer${bms_id}_enable_bluetooth_connection
+    name: "${name} ${balancer_name} enable Bluetooth"
+
+sensor:
+  - platform: heltec_balancer_ble
+    heltec_balancer_ble_id: balancer_ble${bms_id}
+    min_cell_voltage:
+      id: balancer${bms_id}_min_cell_voltage
+      name: "${name} ${balancer_name} min cell voltage"
+    max_cell_voltage:
+      id: balancer${bms_id}_max_cell_voltage
+      name: "${name} ${balancer_name} max cell voltage"
+    min_voltage_cell:
+      id: balancer${bms_id}_min_voltage_cell
+      name: "${name} ${balancer_name} min voltage cell"
+    max_voltage_cell:
+      id: balancer${bms_id}_max_voltage_cell
+      name: "${name} ${balancer_name} max voltage cell"
+    delta_cell_voltage:
+      id: balancer${bms_id}_delta_cell_voltage
+      name: "${name} ${balancer_name} delta cell voltage"
+    average_cell_voltage:
+      id: balancer${bms_id}_average_cell_voltage
+      name: "${name} ${balancer_name} average cell voltage"
+    cell_voltage_1:
+      id: balancer${bms_id}_cell_v_01
+      name: "${name} ${balancer_name} cell voltage 01"
+    cell_voltage_2:
+      id: balancer${bms_id}_cell_v_02
+      name: "${name} ${balancer_name} cell voltage 02"
+    cell_voltage_3:
+      id: balancer${bms_id}_cell_v_03
+      name: "${name} ${balancer_name} cell voltage 03"
+    cell_voltage_4:
+      id: balancer${bms_id}_cell_v_04
+      name: "${name} ${balancer_name} cell voltage 04"
+    cell_voltage_5:
+      id: balancer${bms_id}_cell_v_05
+      name: "${name} ${balancer_name} cell voltage 05"
+    cell_voltage_6:
+      id: balancer${bms_id}_cell_v_06
+      name: "${name} ${balancer_name} cell voltage 06"
+    cell_voltage_7:
+      id: balancer${bms_id}_cell_v_07
+      name: "${name} ${balancer_name} cell voltage 07"
+    cell_voltage_8:
+      id: balancer${bms_id}_cell_v_08
+      name: "${name} ${balancer_name} cell voltage 08"
+    cell_voltage_9:
+      id: balancer${bms_id}_cell_v_09
+      name: "${name} ${balancer_name} cell voltage 09"
+    cell_voltage_10:
+      id: balancer${bms_id}_cell_v_10
+      name: "${name} ${balancer_name} cell voltage 10"
+    cell_voltage_11:
+      id: balancer${bms_id}_cell_v_11
+      name: "${name} ${balancer_name} cell voltage 11"
+    cell_voltage_12:
+      id: balancer${bms_id}_cell_v_12
+      name: "${name} ${balancer_name} cell voltage 12"
+    cell_voltage_13:
+      id: balancer${bms_id}_cell_v_13
+      name: "${name} ${balancer_name} cell voltage 13"
+    cell_voltage_14:
+      id: balancer${bms_id}_cell_v_14
+      name: "${name} ${balancer_name} cell voltage 14"
+    cell_voltage_15:
+      id: balancer${bms_id}_cell_v_15
+      name: "${name} ${balancer_name} cell voltage 15"
+    cell_voltage_16:
+      id: balancer${bms_id}_cell_v_16
+      name: "${name} ${balancer_name} cell voltage 16"
+    cell_resistance_1:
+      name: "${name} ${balancer_name} wire resistance 01"
+    cell_resistance_2:
+      name: "${name} ${balancer_name} wire resistance 02"
+    cell_resistance_3:
+      name: "${name} ${balancer_name} wire resistance 03"
+    cell_resistance_4:
+      name: "${name} ${balancer_name} wire resistance 04"
+    cell_resistance_5:
+      name: "${name} ${balancer_name} wire resistance 05"
+    cell_resistance_6:
+      name: "${name} ${balancer_name} wire resistance 06"
+    cell_resistance_7:
+      name: "${name} ${balancer_name} wire resistance 07"
+    cell_resistance_8:
+      name: "${name} ${balancer_name} wire resistance 08"
+    cell_resistance_9:
+      name: "${name} ${balancer_name} wire resistance 09"
+    cell_resistance_10:
+      name: "${name} ${balancer_name} wire resistance 10"
+    cell_resistance_11:
+      name: "${name} ${balancer_name} wire resistance 11"
+    cell_resistance_12:
+      name: "${name} ${balancer_name} wire resistance 12"
+    cell_resistance_13:
+      name: "${name} ${balancer_name} wire resistance 13"
+    cell_resistance_14:
+      name: "${name} ${balancer_name} wire resistance 14"
+    cell_resistance_15:
+      name: "${name} ${balancer_name} wire resistance 15"
+    cell_resistance_16:
+      name: "${name} ${balancer_name} wire resistance 16"
+    total_voltage:
+      id: balancer${bms_id}_total_voltage
+      name: "${name} ${balancer_name} total voltage"
+    temperature_sensor_1:
+      id: balancer${bms_id}_temperature_sensor_1
+      name: "${name} ${balancer_name} temperature sensor 1"
+    temperature_sensor_2:
+      id: balancer${bms_id}_temperature_sensor_2
+      name: "${name} ${balancer_name} temperature sensor 2"
+    total_runtime:
+      name: "${name} ${balancer_name} total runtime"
+    balancing_current:
+      name: "${name} ${balancer_name} balancing current"
+    cell_detection_failed_bitmask:
+      name: "${name} ${balancer_name} cell detection failed bitmask"
+    cell_overvoltage_bitmask:
+      name: "${name} ${balancer_name} cell overvoltage bitmask"
+    cell_undervoltage_bitmask:
+      name: "${name} ${balancer_name} cell undervoltage bitmask"
+    cell_polarity_error_bitmask:
+      name: "${name} ${balancer_name} cell polarity error bitmask"
+    cell_excessive_line_resistance_bitmask:
+      name: "${name} ${balancer_name} cell excessive line resistance bitmask"
+
+text_sensor:
+  - platform: heltec_balancer_ble
+    heltec_balancer_ble_id: balancer_ble${bms_id}
+    operation_status:
+      name: "${name} ${balancer_name} operation status"
+    total_runtime_formatted:
+      name: "${name} ${balancer_name} total runtime formatted"
+      entity_category: diagnostic
+    buzzer_mode:
+      name: "${name} ${balancer_name} buzzer mode"
+    battery_type:
+      name: "${name} ${balancer_name} battery type"
+
+number:
+  - platform: heltec_balancer_ble
+    heltec_balancer_ble_id: balancer_ble${bms_id}
+    cell_count:
+      id: balancer${bms_id}_cell_count
+      name: "${name} ${balancer_name} cell count"
+    balance_trigger_voltage:
+      id: balancer${bms_id}_balance_trigger_voltage
+      name: "${name} ${balancer_name} balance trigger voltage"
+      on_value:
+        then:
+          - lambda: id(bms${bms_id}_var_ext_balancer_trigger_voltage) = x;
+    max_balance_current:
+      name: "${name} ${balancer_name} max balance current"
+    balance_sleep_voltage:
+      name: "${name} ${balancer_name} balance sleep voltage"
+    balance_start_voltage:
+      id: balancer${bms_id}_balance_starting_voltage
+      name: "${name} ${balancer_name} balance starting voltage"
+    nominal_battery_capacity:
+      name: "${name} ${balancer_name} total battery capacity"
+
+button:
+  - platform: heltec_balancer_ble
+    heltec_balancer_ble_id: balancer_ble${bms_id}
+    retrieve_settings:
+      id: balancer${bms_id}_retrieve_settings_button
+      name: "${name} ${balancer_name} retrieve settings"
+      entity_category: config
+    retrieve_device_info:
+      name: "${name} ${balancer_name} retrieve device info"
+      entity_category: config
+    # retrieve_factory_defaults:
+    #   name: "${name} ${balancer_name} retrieve factory defaults"
+    #   entity_category: config
+
+interval:
+  - interval: 30min
+    then:
+      - button.press: balancer${bms_id}_retrieve_settings_button

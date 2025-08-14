@@ -1,5 +1,5 @@
-# Updated : 2025.08.02
-# Version : 1.1.2
+# Updated : 2025.08.14
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -90,3 +90,12 @@ packages:
       #   vars:
       #     bms_id: '10' # must be a number
       #     bms_name: 'BMS 10'
+      # Balancer
+      - path: 'packages/balancer/balancer_modbus_client.yaml'
+        vars:
+          bms_id: '2' # must match the BMS ID
+          balancer_name: 'Balancer 2'
+      - path: 'packages/balancer/balancer_modbus_client.yaml'
+        vars:
+          bms_id: '3' # must match the BMS ID
+          balancer_name: 'Balancer 3'

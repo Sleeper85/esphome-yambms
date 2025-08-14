@@ -1,5 +1,5 @@
-# Updated : 2025.08.08
-# Version : 1.1.3
+# Updated : 2025.08.14
+# Version : 1.1.4
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -50,12 +50,13 @@ binary_sensor:
 
   # Balancing
   - platform: template
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} status balancing"
+    id: bms${bms_id}_bms_equalizing
+    name: "${name} ${bms_name} balancing"
+    internal: true
     lambda: |-
       float max_cell_voltage = id(bms${bms_id}_max_cell_voltage).state;
       float delta_cell_voltage = id(bms${bms_id}_delta_voltage_cell).state;
-      float balance_trigger_voltage = id(bms${bms_id}_balance_trigger_voltage).state;
+      float balance_trigger_voltage = id(bms${bms_id}_bms_balance_trigger_voltage).state;
       float balance_starting_voltage = id(bms${bms_id}_balance_starting_voltage).state;
       if (max_cell_voltage < balance_starting_voltage)
         return false;
@@ -265,8 +266,9 @@ sensor:
       id: bms${bms_id}_balance_starting_voltage
       name: "${name} ${bms_name} balancing starting voltage"
     Balance_Start_Diff:
-      id: bms${bms_id}_balance_trigger_voltage
+      id: bms${bms_id}_bms_balance_trigger_voltage
       name: "${name} ${bms_name} balance trigger voltage"
+      internal: true
     Sleep_Cell_Volt:
       name: "${name} ${bms_name} Sleep_Cell_Volt"
     Shorts_Delay:

@@ -1,5 +1,5 @@
-# Updated : 2025.07.07
-# Version : 1.2.7
+# Updated : 2025.08.14
+# Version : 1.2.8
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -78,8 +78,9 @@ binary_sensor:
   - platform: jk_rs485_bms
     jk_rs485_bms_id: jk_rs485_bms${bms_id}
     status_balancing:
-      id: bms${bms_id}_equalizing
+      id: bms${bms_id}_bms_equalizing
       name: "${name} ${bms_name} status balancing"
+      internal: true
     status_precharging:
       name: "${name} ${bms_name} status precharging"
     status_charging:
@@ -243,8 +244,9 @@ number:
       id: bms${bms_id}_cell_ovpr
       name: "${name} ${bms_name} cell overvoltage protection recovery"
     cell_balancing_trigger_voltage:
-      id: bms${bms_id}_balance_trigger_voltage
+      id: bms${bms_id}_bms_balance_trigger_voltage
       name: "${name} ${bms_name} balancing trigger voltage"
+      internal: true
     cell_balancing_starting_voltage:
       name: "${name} ${bms_name} cell balancing starting voltage"
     max_balancing_current:

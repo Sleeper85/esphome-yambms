@@ -1,5 +1,5 @@
-# Updated : 2025.08.07
-# Version : 1.1.8
+# Updated : 2025.08.14
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,6 +23,7 @@ substitutions:
 
 packages:
   bms_combine: !include bms_combine.yaml
+  bms_balancer: !include bms_balancer.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -47,7 +48,7 @@ modbus_controller:
             id(bms${bms_id}_online_status).publish_state(false);
             id(bms${bms_id}_charging_allowed).publish_state(false);
             id(bms${bms_id}_discharging_allowed).publish_state(false);
-            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_bms_equalizing).publish_state(false);
             id(bms${bms_id}_total_voltage).publish_state(0);
             id(bms${bms_id}_current).publish_state(0);
             id(bms${bms_id}_power).publish_state(0);
@@ -67,7 +68,7 @@ modbus_controller:
             id(bms${bms_id}_max_temperature_sensor).publish_state(0);
             id(bms${bms_id}_cell_ovp).publish_state(0);
             id(bms${bms_id}_cell_uvp).publish_state(0);
-            id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
+            id(bms${bms_id}_bms_balance_trigger_voltage).publish_state(0);
             id(bms${bms_id}_yambms_errors_bitmask).publish_state(0);
             id(bms${bms_id}_charging_power).publish_state(0);
             id(bms${bms_id}_discharging_power).publish_state(0);
@@ -100,11 +101,13 @@ binary_sensor:
     name: "${name} ${bms_name} Discharging allowed"
     register_type: read
     address: 3
+    lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # equalizing
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} Equalizing state"
+    id: bms${bms_id}_bms_equalizing
+    name: "${name} ${bms_name} balancing"
+    internal: true
     register_type: read
     address: 4
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
@@ -431,8 +434,9 @@ sensor:
   # balance_trigger_voltage
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_balance_trigger_voltage
-    name: "${name} ${bms_name} Balance Trigger Voltage"
+    id: bms${bms_id}_bms_balance_trigger_voltage
+    name: "${name} ${bms_name} balance trigger voltage"
+    internal: true
     register_type: read
     address: 27
     value_type: U_WORD

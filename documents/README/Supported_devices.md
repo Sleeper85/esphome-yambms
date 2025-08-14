@@ -24,6 +24,15 @@
 
 **Note: other Shunt brands already integrated with ESPhome can be added easily.**
 
+## Supported balancers
+
+* `GW-24S4EB: NEEY/Heltec 4A Smart Active Balancer)` (BLE)
+* `GW-24S4EB: NEEY 4A Smart Active Balancer 4th generation)` (BLE)
+* `EK-24S15EB: (NEEY 15A Smart Active Balancer)` (BLE)
+* `EK-24S10EB: (NEEY 10A Smart Active Balancer)` (BLE)
+
+**Note: other Balancer brands already integrated with ESPhome can be added easily.**
+
 ## Supported ESP32
 
 **Recommended: AtomS3 or ESP32-S3**
