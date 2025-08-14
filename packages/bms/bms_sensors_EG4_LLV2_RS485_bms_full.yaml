@@ -23,7 +23,7 @@ packages:
 
 modbus_controller:
   - id: modbus_controller_bms${bms_id}
-    address: ${eg4_modbus_address}
+    address: ${bms_id}
     modbus_id: ${eg4_modbus_id}
     command_throttle: ${eg4_modbus_command_throttle}
     update_interval: ${eg4_modbus_update_interval}
