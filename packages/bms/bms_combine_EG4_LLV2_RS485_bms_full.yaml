@@ -18,7 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  eg4_modbus_address: ${bms_id}
+  bms_model: "EG4 LLV2"
+  bms_protocol: "RS485"
 
 packages:
   bms_combine: !include bms_combine.yaml
