@@ -295,6 +295,27 @@ views:
         title: YamBMS - Auto Float
       - type: entities
         entities:
+          - entity: switch.yambms_yambms_1_automatic_eoc_current
+            name: Automatic EOC Current
+          - entity: sensor.yambms_yambms_1_auto_eoc_status
+            name: Status
+          - entity: sensor.yambms_yambms_1_auto_eoc_current
+            name: Required Current
+          - entity: number.yambms_yambms_1_auto_eoc_target_hour
+            name: Target hour
+          - entity: number.yambms_yambms_1_auto_eoc_target_minute
+            name: Target minute
+          - entity: number.yambms_yambms_1_auto_eoc_correction
+            name: Current Correction
+          - entity: number.yambms_yambms_1_auto_eoc_capacity_modifier
+            name: Capacity Modifier
+          - entity: number.yambms_yambms_1_auto_eoc_increase_stop_hours
+            name: Stop hours
+          - entity: number.yambms_yambms_1_auto_eoc_increase_stop_soc
+            name: Stop SoC
+        title: YamBMS - Auto EOC
+      - type: entities
+        entities:
           - entity: number.yambms_demo_yambms_1_rebulk_soc
             name: Rebulk SoC
           - entity: number.yambms_demo_yambms_1_rebulk_v

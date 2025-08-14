@@ -26,5 +26,6 @@ packages:
   yambms_auto_ccl: !include yambms_auto_ccl.yaml
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
   yambms_auto_float: !include yambms_auto_float.yaml
+  yambms_auto_eoc: !include yambms_auto_eoc.yaml
   # Update service
   yambms_service: !include yambms_service.yaml
