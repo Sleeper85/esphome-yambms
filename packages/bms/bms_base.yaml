@@ -1,5 +1,5 @@
-# Updated : 2025.06.15
-# Version : 1.2.4
+# Updated : 2025.08.14
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  bms_balancer: !include bms_balancer.yaml
 
 number:
   # +--------------------------------------+

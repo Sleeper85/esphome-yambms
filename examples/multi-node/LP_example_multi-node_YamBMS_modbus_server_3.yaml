@@ -1,0 +1,52 @@
+# Updated : 2025.08.14
+# Version : 1.1.3
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+substitutions:
+  friendly_name : 'YamBMS Modbus Server 3' # Prefix added in front of the `entity display name`, also used to classify them.
+  hostname: 'yambms-modbus-server-3' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
+
+packages:
+
+  modbus: !include
+    file: packages/board/board_options_itf_modbus.yaml
+    vars:
+      modbus_role: 'server' # client / server
+      modbus_uart_id: 'uart_esp_1' # RS485 board
+
+  # Balancer for BMS 2
+  balancer2: !include
+    file: packages/balancer/balancer_modbus_JK_NEEY_BLE.yaml
+    vars:
+      bms_id: '2' # must match BMS ID
+      balancer_name: 'NEEY 1'
+      balancer_ble_mac_address: 11:22:33:44:55:66
+
+  # Balancer for BMS 3
+  balancer3: !include
+    file: packages/balancer/balancer_modbus_JK_NEEY_BLE.yaml
+    vars:
+      bms_id: '3' # must be a number
+      balancer_name: 'NEEY 2'
+      balancer_ble_mac_address: 11:22:33:44:55:67

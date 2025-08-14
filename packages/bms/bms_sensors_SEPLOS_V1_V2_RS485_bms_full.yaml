@@ -1,5 +1,5 @@
-# Updated : 2025.07.25
-# Version : 1.1.7
+# Updated : 2025.08.14
+# Version : 1.1.8
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -50,8 +50,9 @@ binary_sensor:
   # Required sensors cannot be retrieved from BMS
   # equalizing
   - platform: template
-    id: bms${bms_id}_equalizing
+    id: bms${bms_id}_bms_equalizing
     name: "${name} ${bms_name} balancing"
+    internal: true
     lambda: return false;
   # bms_switch_charging
   - platform: template
@@ -222,8 +223,9 @@ sensor:
     lambda: return ${bms_cell_uvp};
   # balance_trigger_voltage
   - platform: template
-    id: bms${bms_id}_balance_trigger_voltage
+    id: bms${bms_id}_bms_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
+    internal: true
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V

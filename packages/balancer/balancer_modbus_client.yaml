@@ -1,0 +1,113 @@
+# Updated : 2025.08.14
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  balancer_model: "YamBMS"
+  balancer_protocol: "Modbus"
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+modbus_controller:
+  - id: modbus_controller_balancer${bms_id}
+    modbus_id: ${modbus_id}
+    setup_priority: -10
+    address: 10${bms_id}
+    update_interval: 20s
+    command_throttle: ${modbus_command_throttle}
+    max_cmd_retries: 3
+    # offline_skip_updates: 5
+    on_online:
+      then:
+        - logger.log: "Balancer ${bms_id} modbus server back online !"
+    on_offline:
+      then:
+        - logger.log: "Balancer ${bms_id} modbus server goes offline !"
+        - lambda: |-
+            id(balancer${bms_id}_online_status).publish_state(false);
+            id(balancer${bms_id}_equalizing).publish_state(false);
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_balancer${bms_id}
+    id: balancer${bms_id}_online_status
+    name: "${name} ${balancer_name} Online Status"
+    register_type: read
+    address: 1
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lambda: |-
+            id(bms${bms_id}_var_ext_balancer_online) = x;
+  # equalizing
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_balancer${bms_id}
+    id: balancer${bms_id}_equalizing
+    name: "${name} ${balancer_name} balancing"
+    register_type: read
+    address: 2
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lambda: |-
+            id(bms${bms_id}_var_ext_balancer_equalizing) = x;
+
+sensor:
+  # balance_trigger_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_balancer${bms_id}
+    id: balancer${bms_id}_balance_trigger_voltage
+    name: "${name} ${balancer_name} Balance Trigger Voltage"
+    register_type: read
+    address: 3
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    on_value:
+      then:
+        - lambda: |-
+            id(bms${bms_id}_var_ext_balancer_trigger_voltage) = x;
+  # balance_starting_voltage
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_balancer${bms_id}
+    id: balancer${bms_id}_balance_starting_voltage
+    name: "${name} ${balancer_name} Balance Starting Voltage"
+    register_type: read
+    address: 4
+    value_type: U_WORD
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - multiply: 0.001
+      - or:
+        - throttle: 10s
+        - delta: 0.001

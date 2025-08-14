@@ -1,5 +1,5 @@
-# Updated : 2025.06.16
-# Version : 1.1.6
+# Updated : 2025.08.14
+# Version : 1.1.7
 # GitHub  : https://github.com/syssi/esphome-jdb-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -64,8 +64,9 @@ binary_sensor:
   - platform: jbd_bms_ble
     jbd_bms_ble_id: jbd_bms_ble${bms_id}
     balancing:
-      id: bms${bms_id}_equalizing
+      id: bms${bms_id}_bms_equalizing
       name: "${name} ${bms_name} balancing"
+      internal: true
     charging:
       id: bms${bms_id}_charging_allowed
       name: "${name} ${bms_name} charging"
@@ -292,8 +293,9 @@ sensor:
     lambda: return ${bms_cell_uvp};
   # balance_trigger_voltage
   - platform: template
-    id: bms${bms_id}_balance_trigger_voltage
+    id: bms${bms_id}_bms_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
+    internal: true
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V

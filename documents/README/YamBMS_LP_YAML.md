@@ -105,7 +105,13 @@ So just one of the packages below :
 ### ESP32-S3 DevKitC-1
 
 ```YAML
-  device_board: !include packages/board/board_ESP32-S3_DevKitC-1.yaml
+  # RGB LED to GPIO 38
+  device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml
+```
+
+```YAML
+  # RGB LED to GPIO 48
+  device_board: !include packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml
 ```
 
 ### Atom S3 Lite
@@ -151,12 +157,24 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
 ```YAML
   device_board: !include packages/board/board_ESP32_LilyGo-T-CAN485.yaml
 ```
+> [!NOTE]
+> The device has an integrated 120 Ohm termination resistor. If used as a node in the middle, this resistor must be removed. ![Image](../../images/MCU_ESP32_LilyGo-T-CAN485_resistors.jpg)
 
 ### ESP32-S3 LilyGo T-Connect
 
 ```YAML
   device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml
 ```
+> [!NOTE]
+> The device has an integrated 120 Ohm termination resistor. If used as a node in the middle, this resistor must be removed.
+
+### ESP32-S3 LilyGo T-Connect Pro
+
+```YAML
+  device_board: !include packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml
+```
+> [!NOTE]
+> The device has an integrated 120 Ohm termination resistor. If used as a node in the middle, this resistor must be removed.
 
 ## YamBMS single-node example
 
@@ -184,6 +202,13 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
       bms_name: 'BMS 2'
       # other settings
       # ...
+
+  balancer1: !include
+    file: packages/balancer/balancer_sensors_JK_NEEY_BLE.yaml
+    vars:
+      bms_id: '1' # must match the BMS ID
+      balancer_name: 'Balancer 1'
+      balancer_ble_mac_address: 11:22:33:44:55:66
 ```
 
 ## YamBMS multi-node RS485 modbus example
@@ -249,6 +274,13 @@ This board has an `Ethernet` port and can be powered from `POE` (optional).
       bms_name: 'BMS 1'
       # other settings
       # ...
+
+  balancer1: !include
+    file: packages/balancer/balancer_sensors_JK_NEEY_BLE.yaml
+    vars:
+      bms_id: '1' # must match the BMS ID
+      balancer_name: 'Balancer 1'
+      balancer_ble_mac_address: 11:22:33:44:55:66
 ```
 
 ### ESP32 modbus server `node3`
@@ -304,6 +336,13 @@ You can find `BMS` import `LP` examples in the [examples/single-node](../../exam
 As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_behavior.md#shunt)) the values ​​`Voltage`, `Current`, `Power` and `SoC` of the shunt(s) will take precedence over the BMS values.
 
 You can find `Shunt` import `LP` examples in the [examples/single-node](../../examples/single-node/) folder.
+
+## Balancer
+
+> [!IMPORTANT]
+> You must number your `Balancer` with the same number as the `BMS` it is connected to.
+
+As soon as the balancer is available/online the values ​​`equalizing` and `balance trigger voltage` of the balancers(s) will take precedence over the BMS values.
 
 ## YamBMS
 

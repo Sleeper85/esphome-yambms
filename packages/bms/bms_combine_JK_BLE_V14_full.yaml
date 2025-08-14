@@ -1,5 +1,5 @@
-# Updated : 2025.07.07
-# Version : 1.2.9
+# Updated : 2025.08.14
+# Version : 1.2.10
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -76,8 +76,9 @@ binary_sensor:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     balancing:
-      id: bms${bms_id}_equalizing
+      id: bms${bms_id}_bms_equalizing
       name: "${name} ${bms_name} balancing"
+      internal: true
     charging:
       id: bms${bms_id}_charging_allowed
       name: "${name} ${bms_name} charging"
@@ -375,8 +376,9 @@ number:
       id: bms${bms_id}_balance_starting_voltage
       name: "${name} ${bms_name} balance starting voltage"
     balance_trigger_voltage:
-      id: bms${bms_id}_balance_trigger_voltage
+      id: bms${bms_id}_bms_balance_trigger_voltage
       name: "${name} ${bms_name} balance trigger voltage"
+      internal: true
     # Commits 2024.07.07 : Improve the support of the JK-PBs series (from V11)
     smart_sleep_voltage:
       name: "${name} ${bms_name} smart sleep voltage"

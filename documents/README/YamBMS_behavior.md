@@ -58,6 +58,15 @@ The behavior of the `Charging Instruction` and `Discharging Instruction` sensors
 
 If a BMS blocks charging or discharging, the permitted current is automatically reduced.
 
+## External balancer
+
+If an external balancer is used instead of the BMS internal one, it can be combined with the BMS.
+
+Behaviour for `equalizing` and `balance trigger voltage`:
+
+1) When no external balancer is present for a BMS or it is offline, the BMS values are used for `equalizing` and `balance trigger voltage`.
+2) When an external balancer is present for a BMS and it is online, the BMS sensor data for `equalizing` and `balance trigger voltage` is overwritten by the external balancer sensor data.
+
 ## State of Charge
 
 The `SoC` is slightly manipulated before reaching `0%` or `100%`.

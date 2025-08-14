@@ -1,5 +1,5 @@
-# Updated : 2025.08.08
-# Version : 1.1.4
+# Updated : 2025.08.14
+# Version : 1.1.5
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -116,7 +116,7 @@ canbus:
             id(bms${bms_id}_cell_14_balancing).publish_state(x[5] & 0x20);
             id(bms${bms_id}_cell_15_balancing).publish_state(x[5] & 0x40);
             id(bms${bms_id}_cell_16_balancing).publish_state(x[5] & 0x80);
-            id(bms${bms_id}_equalizing).publish_state(x[4] | x[5]);
+            id(bms${bms_id}_bms_equalizing).publish_state(x[4] | x[5]);
 
     - can_id: 0x55${deye_module_id}
       then:
@@ -158,8 +158,9 @@ binary_sensor:
 
   # Equalizing
   - platform: template
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} status balancing"
+    id: bms${bms_id}_bms_equalizing
+    name: "${name} ${bms_name} balancing"
+    internal: true
     filters:
       - delayed_off: 300s
 
@@ -511,8 +512,9 @@ sensor:
     device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
-    id: bms${bms_id}_balance_trigger_voltage
+    id: bms${bms_id}_bms_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
+    internal: true
     lambda: |-
       return 0.03;
 

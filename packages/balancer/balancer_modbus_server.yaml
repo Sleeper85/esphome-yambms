@@ -34,33 +34,27 @@ globals:
     restore_value: no
     initial_value: '0.0'
 
-binary_sensor:
-  # equalizing
-  - platform: template
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} equalizing"
-    lambda: |-
-      if (id(bms${bms_id}_var_ext_balancer_online))
-        return id(bms${bms_id}_var_ext_balancer_equalizing);
-      else
-        return id(bms${bms_id}_bms_equalizing).state;
-
-sensor:
-  # balance_trigger_voltage
-  - platform: template
-    id: bms${bms_id}_balance_trigger_voltage
-    name: "${name} ${bms_name} balance trigger voltage"
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 3
-    unit_of_measurement: V
-    device_class: voltage
-    state_class: 'measurement'
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.001
-    lambda: |-
-      if (id(bms${bms_id}_var_ext_balancer_online))
-        return id(bms${bms_id}_var_ext_balancer_trigger_voltage);
-      else
-        return id(bms${bms_id}_bms_balance_trigger_voltage).state;
+modbus_controller:
+  - modbus_id: ${modbus_id}
+    address: 10${bms_id} # max 255 (8bit)
+    server_registers:
+        # online_status (1/0)
+        - address: 1
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(balancer${bms_id}_online_status).state);
+        # equalizing (1/0)
+        - address: 2
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(balancer${bms_id}_equalizing).state);
+        # balance_trigger_voltage (mV)
+        - address: 3
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(balancer${bms_id}_balance_trigger_voltage).state * 1000);
+        # balance_starting_voltage (mV)
+        - address: 4
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(balancer${bms_id}_balance_starting_voltage).state * 1000);
