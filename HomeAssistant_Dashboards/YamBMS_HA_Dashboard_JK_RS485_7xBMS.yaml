@@ -1,4 +1,4 @@
-# Updated : 2025.07.30
+# Updated : 2025.08.14
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -378,7 +378,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_1_online_status
+                entity: binary_sensor.yambms_jk_bms_1_status_online
                 color: state
                 name: Online
                 state_content: name
@@ -590,7 +590,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_2_online_status
+                entity: binary_sensor.yambms_jk_bms_2_status_online
                 color: state
                 name: Online
                 state_content: name
@@ -802,7 +802,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_3_online_status
+                entity: binary_sensor.yambms_jk_bms_3_status_online
                 color: state
                 name: Online
                 state_content: name
@@ -1014,7 +1014,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_4_online_status
+                entity: binary_sensor.yambms_jk_bms_4_status_online
                 color: state
                 name: Online
                 state_content: name
@@ -1226,7 +1226,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_5_online_status
+                entity: binary_sensor.yambms_jk_bms_5_status_online
                 color: state
                 name: Online
                 state_content: name
@@ -1438,7 +1438,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_6_online_status
+                entity: binary_sensor.yambms_jk_bms_6_status_online
                 color: state
                 name: Online
                 state_content: name
@@ -1650,7 +1650,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_7_online_status
+                entity: binary_sensor.yambms_jk_bms_7_status_online
                 color: state
                 name: Online
                 state_content: name
