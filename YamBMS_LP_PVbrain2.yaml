@@ -1,5 +1,5 @@
-# Updated : 2025.08.12
-# Version : 1.5.8
+# Updated : 2025.08.14
+# Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -184,13 +184,13 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> BMS and Shunt
+  # | >>> BMS / Balancer / Shunt
   # +------------------------------------------------------------------------------+
 
   # You don't have to import a shunt but you must import at least one BMS.
   # You can mix different BMS models, the only condition is that the `bms_id` are numbered in order starting from 1 !
 
-  # >>> Copy your BMS and Shunt packages here
+  # >>> Copy your BMS / Balancer / Shunt packages here
   # >>> You can find examples at this address :
   # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
