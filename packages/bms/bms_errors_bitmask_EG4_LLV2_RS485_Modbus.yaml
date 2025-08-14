@@ -13,21 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-  # +--------------------------------------------+
-  # | EG4 LLV2 Modbus Status Bitmask (16bit) |
-  # +--------------------------------------------+
-
-  # Bit 0     Inactive/Standby                             0000 0000 0000 0001         0x0001
-  # Bit 1     Inactive/Charging                            0000 0000 0000 0010         0x0002
-  # Bit 2     Inactive/Discharging                         0000 0000 0000 0100         0x0004
-  # Bit 3     Inactive/Protect                             0000 0000 0000 1000         0x0008
-  # Bit 4     Inactive/Charging Limit                      0000 0000 0001 0000         0x0010
-  # Bit 5     Active/Standby                               0000 0000 0010 0000         0x0020
-  # Bit 6     Active/Charging                              0000 0000 0100 0000         0x0040
-  # Bit 7     Active/Discharging                           0000 0000 1000 0000         0x0080
-  # Bit 8     Active/Protect                               0000 0001 0000 0000         0x0100
-  # Bit 9     Active/Charging Limit                        0000 0010 0000 0000         0x0200
- 
   # +----------------------------------------+
   # | EG4 LLV2 Modbus Errors Bitmask (16bit) |
   # +----------------------------------------+
