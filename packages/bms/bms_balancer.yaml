@@ -1,5 +1,5 @@
 # Updated : 2025.08.14
-# Version : 1.1.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -49,7 +49,7 @@ sensor:
   # balance_trigger_voltage
   - platform: template
     id: bms${bms_id}_balance_trigger_voltage
-    name: "${name} ${bms_name} balance trigger voltage"
+    name: "${name} ${bms_name} balancer trigger voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V

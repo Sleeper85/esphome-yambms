@@ -1,5 +1,5 @@
-# Updated : 2025.07.24
-# Version : 1.1.1
+# Updated : 2025.08.14
+# Version : 1.1.2
 # GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -1579,7 +1579,6 @@ number:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_balance_trigger_voltage
     name: "${name} ${bms_name} balance start cell voltage"
-    internal: true
     use_write_multiple: true
     address: 105
     register_type: holding
