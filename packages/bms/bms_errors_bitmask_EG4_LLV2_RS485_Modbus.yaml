@@ -78,7 +78,7 @@ sensor:
       uint32_t bms_protection_bitmask = id(bms${bms_id}_protection_bitmask).state;
       uint16_t yambms_errors_bitmask = 0;
 
-      ## Use "errors" for general alarm and grab specific alarms from protection.
+## Use "errors" for general alarm and grab specific alarms from protection.
       if (bms_errors_bitmask > 0)
       {
         if (bms_errors_bitmask & 0x0001) yambms_errors_bitmask |= 0x0001;
@@ -89,30 +89,30 @@ sensor:
 
       if (bms_protection_bitmask > 0)
       {
-        ## Overvolt
+## Overvolt
         if (bms_protection_bitmask & 0x0001) yambms_errors_bitmask |= 0x0002;
         if (bms_protection_bitmask & 0x0002) yambms_errors_bitmask |= 0x0002;
 
-        ## Undervolt
+## Undervolt
         if (bms_protection_bitmask & 0x0004) yambms_errors_bitmask |= 0x0004;
         if (bms_protection_bitmask & 0x0008) yambms_errors_bitmask |= 0x0004;
         
-        ## Charge Overcurrent
+## Charge Overcurrent
         if (bms_protection_bitmask & 0x0010) yambms_errors_bitmask |= 0x0100;
 
-        ## Discharge Overcurrent
+## Discharge Overcurrent
         if (bms_protection_bitmask & 0x0020) yambms_errors_bitmask |= 0x0080;
 
-        ## High Temp Charge
+## High Temp Charge
         if (bms_protection_bitmask & 0x0100) yambms_errors_bitmask |= 0x0020;
 
-        ## Low Temp Charge
+## Low Temp Charge
         if (bms_protection_bitmask & 0x0400) yambms_errors_bitmask |= 0x0040;
 
-        ## Short Circuit
+## Short Circuit
         if (bms_protection_bitmask & 0x2000) yambms_errors_bitmask |= 0x0400;
 
-        ## Misc to General
+## Misc to General
         if (bms_protection_bitmask & 0x0040) yambms_errors_bitmask |= 0x0001;
         if (bms_protection_bitmask & 0x0080) yambms_errors_bitmask |= 0x0001;
         if (bms_protection_bitmask & 0x1000) yambms_errors_bitmask |= 0x0001;
