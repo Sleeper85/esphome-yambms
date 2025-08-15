@@ -1,4 +1,4 @@
-# Updated : 2025.08.14
+# Updated : 2025.08.15
 # Version : 1.3.0
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
@@ -22,7 +22,6 @@ packages:
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_UART_4G-GPS.yaml
   bms_battery_soh: !include bms_battery_soh.yaml
-  bms_balancer: !include bms_balancer.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
