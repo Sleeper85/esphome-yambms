@@ -22,25 +22,6 @@
   # Bit 2     Current Flow Error                           0000 0000 0000 0100         0x0004
   # Bit 4     Cell Unbalance                               0000 0000 0001 0000         0x0010
 
-  # +------------------------------------------+
-  # | EG4 LLV2 Modbus Warnings Bitmask (16bit) |
-  # +------------------------------------------+
-
-  # Bit 0     Pack Over Volt                               0000 0000 0000 0001         0x0001
-  # Bit 1     Cell Over Volt                               0000 0000 0000 0010         0x0002
-  # Bit 2     Pack Under Volt                              0000 0000 0000 0100         0x0004
-  # Bit 3     Cell Under Vold                              0000 0000 0000 1000         0x0008
-  # Bit 4     Charge Over Current                          0000 0000 0001 0000         0x0010
-  # Bit 5     Discharge Over Current                       0000 0000 0010 0000         0x0020
-  # Bit 6     Abnormal Ambient Temp                        0000 0000 0100 0000         0x0040
-  # Bit 7     MOS Overheating                              0000 0000 1000 0000         0x0080
-  # Bit 8     Charge Over Temp                             0000 0001 0000 0000         0x0100
-  # Bit 9     Discharge Over Temp                          0000 0010 0000 0000         0x0200
-  # Bit 10    Charge Under Temp                            0000 0100 0000 0000         0x0400
-  # Bit 11    Discharge Under Temp                         0000 1000 0000 0000         0x0800
-  # Bit 12    Low Capacity                                 0001 0000 0000 0000         0x1000
-  # Bit 13    Float Stopped                                0010 0000 0000 0000         0x2000
-
   # +--------------------------------------------+
   # | EG4 LLV2 Modbus Protection Bitmask (16bit) |
   # +--------------------------------------------+
@@ -65,18 +46,18 @@
   # +--------------------------------------+
 
   # Bit 0     General alarm                                0000 0000 0000 0001         0x0001
-  # Bit 1     Battery high voltage alarm                   0000 0000 0000 0010         0x0002
-  # Bit 2     Battery low voltage alarm                    0000 0000 0000 0100         0x0004
-  # Bit 3     Battery high temperature alarm               0000 0000 0000 1000         0x0008
-  # Bit 4     Battery low temperature alarm                0000 0000 0001 0000         0x0010
-  # Bit 5     Battery high temperature charge alarm        0000 0000 0010 0000         0x0020
-  # Bit 6     Battery low temperature charge alarm         0000 0000 0100 0000         0x0040
-  # Bit 7     Battery high discharge current alarm         0000 0000 1000 0000         0x0080
-  # Bit 8     Battery high charge current alarm            0000 0001 0000 0000         0x0100
-  # Bit 9     Contactor alarm                              0000 0010 0000 0000         0x0200
-  # Bit 10    Short circuit alarm                          0000 0100 0000 0000         0x0400
+  # Bit 1     Battery high voltage alarm                   0000 0000 0000 0010         0x0002 0x0001 0x0002 prot | 0x0001 error
+  # Bit 2     Battery low voltage alarm                    0000 0000 0000 0100         0x0004 0x0004 0x0008 prot | 0x0001 error
+  # Bit 3     Battery high temperature alarm               0000 0000 0000 1000         0x0008 0x0040 0x0080 0x0200 prot | 0x0002 error
+  # Bit 4     Battery low temperature alarm                0000 0000 0001 0000         0x0010 0x0002 error
+  # Bit 5     Battery high temperature charge alarm        0000 0000 0010 0000         0x0020 0x0100 prot | 0x0002 error
+  # Bit 6     Battery low temperature charge alarm         0000 0000 0100 0000         0x0040 0x0002 error | 0x0400 prot
+  # Bit 7     Battery high discharge current alarm         0000 0000 1000 0000         0x0080 0x0020 prot | 0x0002 error
+  # Bit 8     Battery high charge current alarm            0000 0001 0000 0000         0x0100 0x0010 prot
+  # Bit 9     Contactor alarm                              0000 0010 0000 0000         0x0200 
+  # Bit 10    Short circuit alarm                          0000 0100 0000 0000         0x0400 0x2000 prot
   # Bit 11    BMS internal alarm                           0000 1000 0000 0000         0x0800
-  # Bit 12    Cell imbalance alarm                         0001 0000 0000 0000         0x1000
+  # Bit 12    Cell imbalance alarm                         0001 0000 0000 0000         0x1000 0x0010 error
   # Bit 13    Reserved                                     0010 0000 0000 0000         0x2000
   # Bit 14    Reserved                                     0100 0000 0000 0000         0x4000
   # Bit 15    Reserved                                     1000 0000 0000 0000         0x8000
@@ -94,30 +75,47 @@ sensor:
         - delta: 1
     lambda: |-
       uint32_t bms_errors_bitmask = id(bms${bms_id}_errors_bitmask).state;
+      uint32_t bms_protection_bitmask = id(bms${bms_id}_protection_bitmask).state;
       uint16_t yambms_errors_bitmask = 0;
 
+      ## Use "errors" for general alarm and grab specific alarms from protection.
       if (bms_errors_bitmask > 0)
       {
-        if (bms_errors_bitmask & 0x0001) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0002) yambms_errors_bitmask |= 0x0008;
-        if (bms_errors_bitmask & 0x0004) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0008) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0010) yambms_errors_bitmask |= 0x0002;
-        if (bms_errors_bitmask & 0x0020) yambms_errors_bitmask |= 0x0002;
-        if (bms_errors_bitmask & 0x0040) yambms_errors_bitmask |= 0x0100;
-        if (bms_errors_bitmask & 0x0080) yambms_errors_bitmask |= 0x0400;
-        if (bms_errors_bitmask & 0x0100) yambms_errors_bitmask |= 0x0020;
-        if (bms_errors_bitmask & 0x0200) yambms_errors_bitmask |= 0x0010;
-        if (bms_errors_bitmask & 0x0400) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0800) yambms_errors_bitmask |= 0x0004;
-        if (bms_errors_bitmask & 0x1000) yambms_errors_bitmask |= 0x0004;
-        if (bms_errors_bitmask & 0x2000) yambms_errors_bitmask |= 0x0080;
-        if (bms_errors_bitmask & 0x4000) yambms_errors_bitmask |= 0x0400;
-        if (bms_errors_bitmask & 0x8000) yambms_errors_bitmask |= 0x0008;
-        if (bms_errors_bitmask & 0x10000) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x20000) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x200000) yambms_errors_bitmask |= 0x0008;
-        if (bms_errors_bitmask & 0x400000) yambms_errors_bitmask |= 0x0800;
+        if (bms_errors_bitmask & 0x0001) yambms_errors_bitmask |= 0x0001;
+        if (bms_errors_bitmask & 0x0002) yambms_errors_bitmask |= 0x0001;
+        if (bms_errors_bitmask & 0x0004) yambms_errors_bitmask |= 0x0001;
+        if (bms_errors_bitmask & 0x0010) yambms_errors_bitmask |= 0x1000;
+      }
+
+      if (bms_protection_bitmask > 0)
+      {
+        ## Overvolt
+        if (bms_protection_bitmask & 0x0001) yambms_errors_bitmask |= 0x0002;
+        if (bms_protection_bitmask & 0x0002) yambms_errors_bitmask |= 0x0002;
+
+        ## Undervolt
+        if (bms_protection_bitmask & 0x0004) yambms_errors_bitmask |= 0x0004;
+        if (bms_protection_bitmask & 0x0008) yambms_errors_bitmask |= 0x0004;
+        
+        ## Charge Overcurrent
+        if (bms_protection_bitmask & 0x0010) yambms_errors_bitmask |= 0x0100;
+
+        ## Discharge Overcurrent
+        if (bms_protection_bitmask & 0x0020) yambms_errors_bitmask |= 0x0080;
+
+        ## High Temp Charge
+        if (bms_protection_bitmask & 0x0100) yambms_errors_bitmask |= 0x0020;
+
+        ## Low Temp Charge
+        if (bms_protection_bitmask & 0x0400) yambms_errors_bitmask |= 0x0040;
+
+        ## Short Circuit
+        if (bms_protection_bitmask & 0x2000) yambms_errors_bitmask |= 0x0400;
+
+        ## Misc to General
+        if (bms_protection_bitmask & 0x0040) yambms_errors_bitmask |= 0x0001;
+        if (bms_protection_bitmask & 0x0080) yambms_errors_bitmask |= 0x0001;
+        if (bms_protection_bitmask & 0x1000) yambms_errors_bitmask |= 0x0001;
       }
 
       return yambms_errors_bitmask;

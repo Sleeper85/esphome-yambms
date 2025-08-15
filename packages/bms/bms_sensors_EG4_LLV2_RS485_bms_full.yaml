@@ -16,6 +16,7 @@
 packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
+  bms_errors_bitmask: !include bms_errors_bitmask_EG4_LLV2_RS485_Modbus.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
