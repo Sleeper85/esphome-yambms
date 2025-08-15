@@ -926,17 +926,6 @@ sensor:
       id(bms${bms_id}_status_heating).publish_state((bool)data[item->offset]);
       return data[item->offset+1];
 
-  - platform: template
-    id: bms${bms_id}_yambms_errors_bitmask
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 0
-    icon: mdi:alert-circle-outline
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: return 0;
-
 ## Product
 text_sensor:
   - platform: modbus_controller
