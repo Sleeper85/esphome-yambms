@@ -25,7 +25,7 @@
 
 packages:
 
-  seplos_modbus: !include
+  eg4_modbus: !include
     file: packages/bms/bms_combine_EG4_RS485_modbus.yaml
     vars:
       eg4_modbus_uart_id: 'uart_esp_1'
