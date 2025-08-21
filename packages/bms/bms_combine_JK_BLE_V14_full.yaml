@@ -1,5 +1,5 @@
-# Updated : 2025.07.07
-# Version : 1.2.9
+# Updated : 2025.08.21
+# Version : 1.3.0
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -319,7 +319,7 @@ sensor:
       name: "${name} ${bms_name} temperature sensor 5"
     # Commits 2024.01.21 : Expose emergency time countdown and add feedback to the switch (from V11)
     emergency_time_countdown:
-      name: "${name} emergency time countdown"
+      name: "${name} ${bms_name} emergency time countdown"
     # Commits 2024.01.27 : Expose heating status/current (ALL)
     heating_current:
       name: "${name} ${bms_name} heating current"
@@ -419,9 +419,9 @@ number:
       name: "${name} ${bms_name} power tube overtemperature protection recovery"
     # Commits 2024.07.29 : Make "RCV Time" and "RFV Time" controllable (from V14)
     cell_request_charge_voltage_time:
-      name: "${name} cell request charge voltage time"
+      name: "${name} ${bms_name} cell request charge voltage time"
     cell_request_float_voltage_time:
-      name: "${name} cell request float voltage time"
+      name: "${name} ${bms_name} cell request float voltage time"
 
 button:
   - platform: jk_bms_ble
