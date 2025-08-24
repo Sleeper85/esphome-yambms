@@ -38,16 +38,19 @@ packages:
       # BMS 1
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
-          ## BMS id must start at 2 with EG4 LLV2, ID 1 is a special case and has different output.
-          bms_id: '2' # BMS id and modbus address
+          bms_id: '1' # BMS id and modbus address
           bms_name: 'BMS 1'
+          ## BMS address must start at 2 with EG4 LLV2, ID 1 is a special case and has different output.
+          bms_address: 2
       # BMS 2
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
-          bms_id: '3' # BMS id and modbus address
+          bms_id: '2' # BMS id and modbus address
           bms_name: 'BMS 2'
+          bms_address: 3
       # BMS 3
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
-          bms_id: '4' # BMS id and modbus address
+          bms_id: '2' # BMS id and modbus address
           bms_name: 'BMS 3'
+          bms_address: 4
