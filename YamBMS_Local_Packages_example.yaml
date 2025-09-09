@@ -1,4 +1,4 @@
-# Updated : 2025.08.14
+# Updated : 2025.09.09
 # Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -136,8 +136,9 @@ packages:
   # device_board: !include 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
   # device_board: !include 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
   # device_board: !include 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
-  # device_board: !include 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
-  # device_board: !include 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_WS-Touch-LCD-7.yaml'
+  # device_board: !include 'packages/board/board_ESP32-S3_WS-RS485-CAN.yaml'
   # device_board: !include 'packages/board/board_ESP32-S3_XIAO.yaml'
   # device_board: !include 'packages/board/board_ESP32-S3_YBoard.yaml'
 
