@@ -1,5 +1,5 @@
 # Updated : 2025.09.09
-# Version : 1.1.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# http://www.waveshare.com/wiki/ESP32-S3-RS485-CAN
+# https://www.waveshare.com/esp32-s3-rs485-can.htm
+# https://www.waveshare.com/wiki/ESP32-S3-RS485-CAN
 
 substitutions:
   board_chip: "ESP32-S3"
@@ -26,12 +27,12 @@ substitutions:
   # uart_esp_1               RS485 port (RS485_EN = GPIO 21)
   tx_pin_1: '17'
   rx_pin_1: '18'
-  # uart_esp_2
-  tx_pin_2: '3'
-  rx_pin_2: '4'
-  # uart_esp_3
-  tx_pin_3: '5'
-  rx_pin_3: '6'
+  # uart_esp_2               SH1.0 connector
+  tx_pin_2: '1'
+  rx_pin_2: '2'
+  # uart_esp_3               Pin header
+  tx_pin_3: '3'
+  rx_pin_3: '4'
   # canbus_esp32_can         CAN port
   tx_pin_4: '15'
   rx_pin_4: '16'
