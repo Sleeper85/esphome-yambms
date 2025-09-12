@@ -1,5 +1,5 @@
-# Updated : 2025.08.03
-# Version : 1.1.3
+# Updated : 2025.09.12
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,14 +24,15 @@ substitutions:
   mcp2515_canbus_bitrate: '500kbps'
 
 spi:
-  - id: bus_spi1
+  - id: mcp2515_spi
     mosi_pin: ${spi_mosi_pin}
     miso_pin: ${spi_miso_pin}
     clk_pin: ${spi_clk_pin}
+    interface: spi3
 
 canbus:
   - platform: mcp2515
-    spi_id: bus_spi1
+    spi_id: mcp2515_spi
     id: ${canbus_node_id}
     cs_pin: ${mcp2515_cs_pin}
     can_id: ${mcp2515_canbus_id}
