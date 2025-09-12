@@ -1,0 +1,89 @@
+# Updated : 2025.09.12
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  board_chip: "ESP32-S3" # N16R8
+  board_name: "ESP32-S3-ETH"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '17'
+  rx_pin_1: '18'
+  # uart_esp_2
+  tx_pin_2: '15'
+  rx_pin_2: '16'
+  # uart_esp_3
+  tx_pin_3: '2'
+  rx_pin_3: '3'
+  # canbus_esp32_can
+  tx_pin_4: '47'
+  rx_pin_4: '48'
+  # canbus_mcp2515
+  spi_clk_pin: '39'
+  spi_mosi_pin: '40'
+  spi_miso_pin: '41'
+  mcp2515_cs_pin: '42'
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_ethernet: !include ../base/device_base_ethernet.yaml
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+ethernet:
+  id: my_network
+  type: W5500
+  mosi_pin: 11
+  miso_pin: 12
+  clk_pin: 13
+  cs_pin: 14
+  reset_pin: 9
+  interrupt_pin: 10
+  clock_speed: 25MHz
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+output:
+  # ESP32 board without LED
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+      #- lambda: C++ code; # action to be performed at each inverter heartbeat
