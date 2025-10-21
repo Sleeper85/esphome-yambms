@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.4
+# Updated : 2025.10.21
+# Version : 1.1.5
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -47,6 +47,12 @@ binary_sensor:
     fault:
       id: bms${bms_id}_fault
       name: "${name} ${bms_name} fault"
+    charging_enabled:
+      id: bms${bms_id}_charging_allowed
+      name: "${name} ${bms_name} charging allowed"
+    discharging_enabled:
+      id: bms${bms_id}_discharging_allowed
+      name: "${name} ${bms_name} discharging allowed"
 
   # Balancing
   - platform: template
@@ -65,20 +71,6 @@ binary_sensor:
       return false;
     filters:
       - delayed_off: 300s
-
-  # Charging allowed
-  - platform: template
-    id: bms${bms_id}_charging_allowed
-    name: "${name} ${bms_name} charging allowed"
-    lambda: |-
-      return !id(bms${bms_id}_fault).state;
-    
-  # Discharging allowed
-  - platform: template
-    id: bms${bms_id}_discharging_allowed
-    name: "${name} ${bms_name} discharging allowed"
-    lambda: |-
-      return !id(bms${bms_id}_fault).state;
 
 sensor:
   - platform: basen_bms
