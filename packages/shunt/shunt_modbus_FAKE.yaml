@@ -19,4 +19,4 @@
 
 packages:
   shunt_sensors: !include shunt_sensors_FAKE.yaml
-  shunt_combine: !include shunt_combine.yaml
+  shunt_combine: !include shunt_modbus_server.yaml
