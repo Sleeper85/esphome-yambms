@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.7
+# Updated : 2025.10.25
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -287,7 +287,7 @@ sensor:
 
   # balance_trigger_voltage
   - platform: template
-    id: bms${bms_id}_bms_balance_trigger_voltage
+    id: bms${bms_id}_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
     internal: true
     update_interval: ${bms_update_interval}
@@ -372,7 +372,7 @@ switch:
     optimistic: true
   # bms_switch_balancing
   - platform: template
-    id: bms${bms_id}_bms_equalizing
+    id: bms${bms_id}_equalizing
     name: "${name} ${bms_name} balance switch"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
