@@ -142,6 +142,9 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: ${yambms_id}_auto_dischg_limit
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: ${yambms_id}_auto_float
     type: float
     restore_value: no
