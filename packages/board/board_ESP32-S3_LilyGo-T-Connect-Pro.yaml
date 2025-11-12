@@ -1,0 +1,151 @@
+# Updated : 2025.06.14
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://github.com/Xinyuan-LilyGO/T-Connect-Pro
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "LilyGo T-Connect Pro"
+  # Interfaces GPIOs
+  # uart_esp_1: RS232
+  tx_pin_1: '4'
+  rx_pin_1: '5'
+  # uart_esp_2: RS485
+  tx_pin_2: '17'
+  rx_pin_2: '18'
+  # canbus_esp32_can: CAN
+  tx_pin_4: '6'
+  rx_pin_4: '7'
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB # ajust according to your ESP32-S3 version
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+
+# ESPHome does not support W5500 and other SPI devices at the same SPI bus:
+# https://github.com/esphome/esphome/discussions/6720
+# ethernet:
+#   id: my_network
+#   type: W5500
+#   clk_pin: 12
+#   mosi_pin: 11
+#   miso_pin: 13
+#   cs_pin: 10
+#   interrupt_pin: 9
+#   reset_pin: 48
+#   clock_speed: 40MHz
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+
+# SPI for ethernet/LCD/LoRa
+spi:
+  - id: lilygo_spi_bus
+    clk_pin: 12
+    mosi_pin: 11
+    miso_pin: 13
+
+# I2C for touch controller CST226SE
+i2c:
+  sda: 39
+  scl: 40
+
+touchscreen:
+  - platform: cst226
+    id: my_touchscreen
+    interrupt_pin: 3
+    reset_pin: 47
+    
+display:
+  # T-Connect-Pro display
+  # https://esphome.io/components/display/ili9xxx
+  - platform: ili9xxx
+    spi_id: lilygo_spi_bus
+    id: my_display
+    model: ST7796
+    cs_pin: 21
+    dc_pin: 41
+    transform:
+      swap_xy: true
+      mirror_x: true
+      mirror_y: true
+    dimensions:
+      height: 222
+      width: 480
+      offset_height: 49
+      offset_width: 0
+    invert_colors: true
+    color_palette: 8BIT
+    update_interval: 10s
+    data_rate: 40Mhz
+
+# Define a PWM output for the display backlight
+output:
+  - platform: ledc
+    pin: 46
+    id: backlight_pwm
+    
+# ESP32 board without LED
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+
+# Define a monochromatic, dimmable light for the backlight
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: "Display Backlight"
+    id: back_light
+    restore_mode: RESTORE_DEFAULT_ON
+
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+# Relay: IO8
+switch:
+  - platform: gpio
+    name: "Relay"
+    icon: "mdi:electric-switch"
+    pin:
+      number: GPIO8
+      inverted: true
+      mode: OUTPUT_OPEN_DRAIN
+    restore_mode: RESTORE_DEFAULT_OFF

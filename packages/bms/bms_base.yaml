@@ -1,5 +1,5 @@
-# Updated : 2025.01.25
-# Version : 1.2.2
+# Updated : 2025.06.15
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,8 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# packages:
-#   bms_charging_logic: !include bms_options_charging_logic.yaml
+number:
+  # +--------------------------------------+
+  # | Charging Cycles Offset               |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} Charging Cycles Offset"
+    id: bms${bms_id}_charging_cycles_offset
+    step: 1
+    min_value: 0
+    max_value: 3000
+    initial_value: 0
+    restore_value: true
+    icon: mdi:counter
+    optimistic: true
+    entity_category: config
 
 sensor:
   # +--------------------------------------+
@@ -28,8 +41,8 @@ sensor:
     name: "${name} ${bms_name} Daily Charging Energy"
     power_id: bms${bms_id}_charging_power
     unit_of_measurement: 'kWh'
-    state_class: total_increasing
     device_class: energy
+    state_class: total_increasing
     accuracy_decimals: 3
     filters:
       # Multiplication factor from W to kW is 0.001
@@ -38,19 +51,22 @@ sensor:
     name: "${name} ${bms_name} Daily Discharging Energy"
     power_id: bms${bms_id}_discharging_power
     unit_of_measurement: 'kWh'
-    state_class: total_increasing
     device_class: energy
+    state_class: total_increasing
     accuracy_decimals: 3
     filters:
       # Multiplication factor from W to kW is 0.001
       - multiply: 0.001
 
+  # +--------------------------------------+
+  # | Battery State of Charge (SOC)        |
+  # +--------------------------------------+
   - platform: template
     name: ${name} ${bms_name} Battery SoC
     id: bms${bms_id}_battery_soc
+    update_interval: ${bms_update_interval}
     unit_of_measurement: "%"
     device_class: battery
-    update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     filters:
       - or:
@@ -64,3 +80,44 @@ sensor:
       if (min_cell_v <= cell_low_v) return 0;        // Real 0% => return 0%
       else if (soc < 1) return 2;                    // False 0% => return 2%
       else return soc;                               // Else => return BMS SoC
+
+  # +--------------------------------------+
+  # | Charging Cycles                      |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} charging cycles"
+    id: bms${bms_id}_charging_cycles
+    update_interval: ${bms_update_interval}
+    state_class: total
+    icon: mdi:counter
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float cycles_raw = id(bms${bms_id}_charging_cycles_raw).state;
+      if (isnan(cycles_raw)) cycles_raw = 0;
+      return cycles_raw + id(bms${bms_id}_charging_cycles_offset).state;
+
+  # +--------------------------------------+
+  # | Charging Cycle Capacity              |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} total charging cycle capacity"
+    id: bms${bms_id}_cycle_capacity
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float capacity_raw = id(bms${bms_id}_cycle_capacity_raw).state;
+      if (isnan(capacity_raw)) capacity_raw = 0;
+      return capacity_raw +
+             id(bms${bms_id}_charging_cycles_offset).state *
+             id(bms${bms_id}_battery_capacity).state;

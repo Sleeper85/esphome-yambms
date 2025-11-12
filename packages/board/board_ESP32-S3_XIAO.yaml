@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.1.2
+# Updated : 2025.07.31
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,28 +19,40 @@
 
 substitutions:
   board_chip: "ESP32-S3"
-  board_name: "DevKitC-1"
+  board_name: "XIAO"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '1'
+  rx_pin_1: '2'
+  # uart_esp_2
+  tx_pin_2: '3'
+  rx_pin_2: '4'
+  # uart_esp_3
+  tx_pin_3: '5'
+  rx_pin_3: '6'
+  # canbus_esp32_can
+  tx_pin_4: '7'
+  rx_pin_4: '8'
+  # canbus_mcp2515
+  spi_mosi_pin: '3'
+  spi_miso_pin: '4'
+  spi_clk_pin: '5'
+  mcp2515_cs_pin: '6'
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
-  # psram: !include board_options_psram_settings.yaml
 
 esp32:
   board: esp32-s3-devkitc-1
   flash_size: 8MB # adjust according to your ESP32-S3 version
+  cpu_frequency: 240MHz 
   framework:
     type: esp-idf
 
 esphome:
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
-
-# PSRAM activation with default options
-# psram:
-#   mode: octal
-#   speed: 80MHz
 
 wifi:
   id: my_network
@@ -51,36 +63,6 @@ wifi:
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: USB_SERIAL_JTAG
-
-uart:
-  # UART 0 : USB UART port used for ESP32 flashing and logs, can be released if necessary (tx_pin: 43, rx_pin: 44)
-  # UART 1
-  - id: uart_esp_1
-    tx_pin: 2
-    rx_pin: 1
-    baud_rate: 115200
-    rx_buffer_size: 512
-  # UART 2
-  - id: uart_esp_2
-    tx_pin: 4
-    rx_pin: 3
-    baud_rate: 115200
-    rx_buffer_size: 512
-  # UART 3
-  - id: uart_esp_3
-    tx_pin: 9
-    rx_pin: 10
-    baud_rate: 115200
-    rx_buffer_size: 512
-
-canbus:
-  # CANBUS NODE 1
-  - platform: esp32_can
-    id: canbus_node1
-    tx_pin: 5 # to CAN board CTX
-    rx_pin: 6 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
-    can_id: 1
-    bit_rate: 500kbps
 
 # +--------------------------------------+
 # | Inverter Heartbeat Light             |

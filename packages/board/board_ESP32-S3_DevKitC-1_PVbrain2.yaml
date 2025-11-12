@@ -1,32 +1,44 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.07.28
+# Version : 1.3.1
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
 
 substitutions:
   board_chip: "ESP32-S3"
   board_name: "PVbrain2"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '17'
+  rx_pin_1: '18'
+  # uart_esp_2
+  tx_pin_2: '15'
+  rx_pin_2: '16'
+  # uart_esp_3
+  tx_pin_3: '43'
+  rx_pin_3: '44'
+  # canbus_esp32_can
+  tx_pin_4: '38'
+  rx_pin_4: '39'
+  # canbus_mcp2515
+  spi_mosi_pin: '11'
+  spi_miso_pin: '12'
+  spi_clk_pin: '13'
+  mcp2515_cs_pin: '21'
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32-s3.yaml
   board_rgb_led: !include board_options_rgb_led_status.yaml
-  # psram: !include board_options_psram_settings.yaml
 
 esp32:
   board: esp32-s3-devkitc-1
   flash_size: 16MB # ajust according to your ESP32-S3 version
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 
 esphome:
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
-
-# PSRAM activation with default options
-# psram:
-#   mode: octal
-#   speed: 80MHz
 
 wifi:
   id: my_network
@@ -59,7 +71,7 @@ light:
     rgb_order: GRB
     pin: 48
     num_leds: 1
-    rmt_channel: 0
+    # rmt_channel: 0
     chipset: ws2812
     entity_category: config
     default_transition_length: 0ms

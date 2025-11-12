@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.1.2
+# Updated : 2025.06.12
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,10 +24,10 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32.yaml
 
 esp32:
   board: esp32dev
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 
@@ -51,13 +51,13 @@ logger:
 # https://www.waveshare.com/wiki/2-CH_CAN_HAT
 
 # +--------------------------+
-# |    | ESP32 PIN | HAT PIN |
+# |      ESP32 PIN | HAT PIN |
 # +--------------------------+
-# MOSI |    23     |    19   |    
-# MISO |    19     |    21   |
-# SCLK |    18     |    23   |
-# CS_0 |     5     |    24   |
-# CS_1 |    17     |    26   |
+# | MOSI |    23   |    19   |
+# | MISO |    19   |    21   |
+# | SCLK |    18   |    23   |
+# | CS_0 |     5   |    24   |
+# | CS_1 |    17   |    26   |
 # +--------------------------+
 
 spi:

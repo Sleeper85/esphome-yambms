@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.1.3
+# Updated : 2025.05.19
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -68,13 +68,13 @@ sensor:
       name: ${name} ${shunt_name} Power
     battery_level:
       id: shunt${shunt_id}_soc
-      name: ${name} ${shunt_name} SoC
+      name: ${name} ${shunt_name} State of Charge
     temperature:
       name: ${name} ${shunt_name} Temperature
     charged_kwh:
-      name: ${name} ${shunt_name} Charged Power
+      name: ${name} ${shunt_name} Charged Energy
     discharged_kwh:
-      name: ${name} ${shunt_name} Discharged Power
+      name: ${name} ${shunt_name} Discharged Energy
     battery_capacity_ah:
       name: ${name} ${shunt_name} Battery Capacity
     soc100_voltage:

@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.5.3
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -35,6 +35,7 @@ switch:
     id: shunt${shunt_id}_switch_combine
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
+    device_id: ${shunt_device_id}
 
 binary_sensor:
   # Indicates whether the Shunt can be combined
@@ -42,6 +43,7 @@ binary_sensor:
     name: "${name} ${shunt_name} Can be combined"
     id: shunt${shunt_id}_can_be_combined
     lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
+    device_id: ${shunt_device_id}
 
 interval:
   - interval: ${shunt_combine_interval}
@@ -94,7 +96,7 @@ interval:
 
               // Shunt use (replace BMS infos)
               if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
-              
+
               // Uncombined
               id(shunt${shunt_id}_combined) = false;
             }

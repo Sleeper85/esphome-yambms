@@ -1,0 +1,79 @@
+# Updated : 2025.07.11
+# Version : 1.1.4
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+debug:
+  update_interval: ${debug_update_interval}
+
+text_sensor:
+  - platform: debug
+    device:
+      name: ${name} ${debug_name} Device info
+      id: esp32_device_info
+    reset_reason:
+      name: ${name} ${debug_name} Reset reason
+      id: esp32_reset_reason
+
+sensor:
+  - platform: debug
+    free:
+      name: ${name} ${debug_name} Heap free
+      id: esp32_heap_free
+    block:
+      name: ${name} ${debug_name} Heap max block
+      id: esp32_heap_max_block
+    psram:
+      name: ${name} ${debug_name} Free PSRAM
+      id: esp32_free_psram
+    loop_time:
+      name: ${name} ${debug_name} Loop time
+      id: esp32_loop_time
+
+  - platform: template
+    name: ${name} ${debug_name} Heap free percent
+    id: esp32_heap_free_percent
+    unit_of_measurement: '%'
+    accuracy_decimals: 2
+    icon: mdi:percent
+    update_interval: ${debug_update_interval}
+    entity_category: diagnostic
+    # 524288 B (SRAM total)
+    # 327680 B (DRAM usable)
+    lambda: return ( id(esp32_heap_free).state * 100 / 327680 );
+
+  - platform: template
+    name: ${name} ${debug_name} Heap max block percent
+    id: esp32_heap_max_block_percent
+    unit_of_measurement: '%'
+    accuracy_decimals: 2
+    icon: mdi:percent
+    update_interval: ${debug_update_interval}
+    entity_category: diagnostic
+    # 524288 B (SRAM total)
+    # 327680 B (DRAM usable)
+    lambda: return ( id(esp32_heap_max_block).state * 100 / 327680 );
+
+  - platform: template
+    name: ${name} ${debug_name} Free PSRAM percent
+    id: esp32_free_psram_percent
+    unit_of_measurement: '%'
+    accuracy_decimals: 2
+    icon: mdi:percent
+    update_interval: ${debug_update_interval}
+    entity_category: diagnostic
+    lambda: return ( id(esp32_free_psram).state * 100 / ${debug_psram_size} ); // 8388608

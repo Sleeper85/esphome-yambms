@@ -8,10 +8,11 @@
 
 ## Supported BMS
 
-* All `JK-B` BMS models with software version `>=6.0`, see [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms)
-* `JK-PB` BMS, see [esphome-jk-bms](https://github.com/txubelaxu/esphome-jk-bms/)
-* `JBD` BMS, see [esphome-jbd-bms](https://github.com/syssi/esphome-jbd-bms)
-* `Seplos V1 V2` BMS, see [esphome-seplos-bms](https://github.com/syssi/esphome-seplos-bms)
+* `JK` BMS (BLE / UART / RS485)
+* `JBD` BMS (BLE / UART)
+* `Seplos V1 V2 V3` BMS (RS485)
+* `BASEN` BMS (RS485)
+* `DEYE` BMS (CAN)
 
 **Note: other BMS brands already integrated with ESPhome can be added easily.**
 
@@ -19,7 +20,7 @@
 
 * `Victron Smartshunt` (UART)
 * `Victron Smartshunt` (BLE)
-* `Junctek KH-F` (UART/RS485)
+* `Junctek KH-F` (UART / RS485)
 
 **Note: other Shunt brands already integrated with ESPhome can be added easily.**
 
@@ -43,6 +44,9 @@
 | --- | --- | --- |
 | <img src="../../images/MCU_ESP32-DevKitC_espBerry_2-CH-CAN.png" width="300"> | <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> |
 
+| [Olimex ESP32-EVB](https://github.com/OLIMEX/ESP32-EVB) |
+| --- |
+| <img src="../../images/MCU_ESP32-EVB.jpg" width="300">|
 ## Supported CAN bus transceiver
 
 **Note: some inverters only accept a CAN bus at 3.3V in this case please choose the SN65HVD230 chip.**
@@ -100,9 +104,12 @@ The following are confirmed and known to work:
 | LuxPower | LXP-LB-US 10K | Working | [@Henny101](https://diysolarforum.com/members/henny101.67026/) | Lithium 6 | JK-PB (2) | RS485 | ESP32-S3 DevKitC-1 | Automatic | LuxPower | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | yes | --- |
 | EG4 | 6000XP | Working | [@ChrisG](https://diysolarforum.com/members/chrisg.483/) |  Lithium 2  | JK-B (2) | BLE | ESP32 DevKit V1 / ESP32-S3 DevKitC-1 | PYLON | PYLON 1.2 |  MCP2515 | --- | yes | --- |
 | EG4 | 6000XP (2) | Working | [@SGB](https://diysolarforum.com/members/scrotpusgobblebottom.100804/) |  Lithium 6  | JK-B (1) JK-PB (1) | BLE | Atom S3 (display) | Automatic | LuxPower | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | --- |
+| EG4 | 12000XP | Working | [@andrewfraley](https://github.com/andrewfraley) |  Lithium 6  | JBD | RS485 | LilyGo T-CAN485 | Automatic | LuxPower | T-CAN485 (SN65HVD231DR) | T-CAN485 (MAX13487E) | no | set UART baud to 9600 |
 | EG4 | 18kPV | Working | [@Maintman](https://diysolarforum.com/members/maintman.19007/) |  Lithium 6  | JK-B | BLE | ESP32 DevKit V1 | Automatic | LuxPower |  MCP2515 | --- | yes | Connected via Bluetooth to Victron SmartShunt. |
 | Victron | MultiPlus-II 48/10000/140 | Working | [@cali-clim](https://diysolarforum.com/members/cali-clim.54284/) | CAN-bus BMS LV (500 kbit/s) | JK-PB (2) | RS485 | Atom S3 (display) | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | yes | --- |
+| Victron | MultiPlus-II 48/10000/140 | Working | [@20after4](https://github.com/20after4) | CAN-bus BMS LV (500 kbit/s) | JBD-BMS (2) | BLE | Olimex ESP32-EVB | Automatic | Victron | SIT1050T (Integrated) | --- | yes | Works well with the integrated Ethernet and CANBus hardware |
 | Victron | Multiplus 24/1200/25-16  | Working | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) | CAN-bus BMS LV (500 kbit/s) | JK-B (1) | BLE | Atom S3 Lite | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | Plugged into Cerbo Can port (must use supplied Victron terminator in the other port) |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@goldserve](https://diysolarforum.com/members/goldserve.52541/) | PYLON | JK-B | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | no | Stable with Victron Smartshunt, MQTT, BLE, Neopixel LED, Display also working. |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
 | SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SRNE | HESP48120U200-H  | Working | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) | UZE | JK-PB | RS485 | Atom S3 Lite | Automtic | PYLON V2 | [Atomic CAN Base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | Yes | Most of the YamBMS PYLON based protocols show same results on inverter. Inverter itself does not work when it is set to PYLON protocol, but UZE works. Incorrect temp reported on inverter |

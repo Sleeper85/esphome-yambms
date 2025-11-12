@@ -1,0 +1,112 @@
+# Updated : 2025.07.28
+# Version : 1.1.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | Display Related                      |
+# +--------------------------------------+
+
+packages:
+  psram: !include board_options_PSRAM_octal_80Mhz.yaml
+
+color:
+  - id: my_black
+    hex: "000000"
+  - id: my_red
+    red: 100%
+    green: 0%
+    blue: 0%
+  - id: my_yellow
+    red: 100%
+    green: 100%
+    blue: 0%
+  - id: my_green
+    red: 0%
+    green: 100%
+    blue: 0%
+  - id: my_blue
+    red: 0%
+    green: 0%
+    blue: 100%
+  - id: my_gray
+    red: 50%
+    green: 50%
+    blue: 50%
+  - id: my_white
+    red: 100%
+    green: 100%
+    blue: 100%
+  - id: my_pink
+    hex: ff00ff
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_32
+    size: 32
+  - file: "gfonts://Roboto"
+    id: roboto_24
+    size: 24
+  - file: "gfonts://Roboto"
+    id: roboto_12
+    size: 12
+  - file: "gfonts://Roboto"
+    id: roboto_18
+    size: 18
+
+# Auto next page interval
+interval:
+  - interval: ${display_auto_next_page_interval}
+    startup_delay:  10s
+    then:
+      - display.page.show_next: my_display
+      - component.update: my_display
+
+# +--------------------------------------+
+# | Display Handling                     |
+# +--------------------------------------+
+display:
+  # T-Connect-Pro display see https://esphome.io/components/display/ili9xxx.html
+  - id: !extend my_display
+    pages:
+      - id: page1
+        lambda: |-
+          it.rectangle(0,  0, it.get_width(), it.get_height(), id(my_blue));
+          it.rectangle(0, 20, it.get_width(), it.get_height(), id(my_blue));   // header bar
+          it.rectangle(0, 100, it.get_width(), it.get_height(), id(my_blue));  // footer bar
+          it.printf(64, 118, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(${yambms_id}_charging_status).state.c_str());
+          // ESP status
+          if (id(esp32_online_status).state)
+          {
+            it.print(115, 5, id(roboto_12), id(my_green), TextAlign::TOP_RIGHT, "ESP OK");
+          }
+          else
+          {
+            it.print(115, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
+          }
+          // Inverter communication status (CANBUS / RS485)
+          if (id(inverter_com_status).state)
+          {
+            it.print(2, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
+          }
+          else
+          {
+            it.print(2, 5, id(roboto_12), id(my_red), TextAlign::TOP_LEFT, "CAN KO");
+          }
+          it.print((128 / 2), (128 / 3) * 1, id(roboto_24), id(my_gray), TextAlign::CENTER,"SoC %");
+          it.printf((128 / 2), (128 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(${yambms_id}_battery_soc).state);
+          

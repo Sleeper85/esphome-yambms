@@ -1,5 +1,5 @@
-# Updated : 2025.01.24
-# Version : 1.5.4
+# Updated : 2025.07.10
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -90,7 +90,11 @@ interval:
                 id(${yambms_id}_var_charging_allowed_counter) += 1;
                 // TOTAL max_charge_current
                 id(${yambms_id}_var_total_max_charge_current) += id(bms${bms_id}_max_charge_current).state;
-
+                // Limit to max. charge current
+                if(id(${yambms_id}_var_total_max_charge_current) > ${yambms_max_requested_charge_current})
+                {
+                  id(${yambms_id}_var_total_max_charge_current) = ${yambms_max_requested_charge_current};
+                }
               }
               // TOTAL bms_blocking_charge_counter
               else id(${yambms_id}_var_bms_blocking_charge_counter) += 1;
@@ -101,16 +105,21 @@ interval:
                 id(${yambms_id}_var_discharging_allowed_counter) += 1;
                 // TOTAL max_discharge_current
                 id(${yambms_id}_var_total_max_discharge_current) += id(bms${bms_id}_max_discharge_current).state;
+                // Limit to max. discharge current
+                if(id(${yambms_id}_var_total_max_discharge_current) > ${yambms_max_requested_discharge_current})
+                {
+                  id(${yambms_id}_var_total_max_discharge_current) = ${yambms_max_requested_discharge_current};
+                }
               }
               // TOTAL bms_blocking_discharge_counter
               else id(${yambms_id}_var_bms_blocking_discharge_counter) += 1;
 
               // TOTAL total_voltage
               id(${yambms_id}_var_bms_total_voltage) += id(bms${bms_id}_total_voltage).state;
-              
+
               // TOTAL current
               id(${yambms_id}_var_bms_total_current) += id(bms${bms_id}_current).state;
-              
+
               // TOTAL power
               id(${yambms_id}_var_bms_total_power) += id(bms${bms_id}_power).state;
 
@@ -121,19 +130,22 @@ interval:
               id(${yambms_id}_var_total_capacity_remaining_ah) += id(bms${bms_id}_capacity_remaining_ah).state;
 
               // TOTAL SoC
-              id(${yambms_id}_var_bms_total_soc) += id(bms${bms_id}_battery_soc).state;
-                            
+              // id(${yambms_id}_var_bms_total_soc) += id(bms${bms_id}_battery_soc).state;
+
+              // TOTAL SoH
+              id(${yambms_id}_var_bms_total_soh) += id(bms${bms_id}_battery_soh).state;
+
               // TOTAL charging_cycles
               id(${yambms_id}_var_total_charging_cycles) += id(bms${bms_id}_charging_cycles).state;
 
               // TOTAL equalizing_counter
               if (id(bms${bms_id}_equalizing).state) id(${yambms_id}_var_equalizing_counter) += 1;
-              
+
               // MIN/MAX values
               // MAX balance_trigger_voltage
               if (id(bms${bms_id}_balance_trigger_voltage).state > id(${yambms_id}_var_max_balance_trigger_voltage))
                 id(${yambms_id}_var_max_balance_trigger_voltage) = id(bms${bms_id}_balance_trigger_voltage).state;
-              
+
               // MIN min_cell_voltage
               // MIN min_voltage_cell (cell number)
               if (id(bms${bms_id}_min_cell_voltage).state < id(${yambms_id}_var_min_cell_voltage))
@@ -149,11 +161,11 @@ interval:
                 id(${yambms_id}_var_max_cell_voltage) = id(bms${bms_id}_max_cell_voltage).state;
                 id(${yambms_id}_var_max_voltage_cell) = id(bms${bms_id}_max_voltage_cell).state + (${bms_id} * 100);
               }
-              
+
               // MIN cell_ovp
               if (id(bms${bms_id}_cell_ovp).state < id(${yambms_id}_var_min_cell_ovp))
                 id(${yambms_id}_var_min_cell_ovp) = id(bms${bms_id}_cell_ovp).state;
-                            
+
               // MAX cell_uvp
               if (id(bms${bms_id}_cell_uvp).state > id(${yambms_id}_var_max_cell_uvp))
                 id(${yambms_id}_var_max_cell_uvp) = id(bms${bms_id}_cell_uvp).state;

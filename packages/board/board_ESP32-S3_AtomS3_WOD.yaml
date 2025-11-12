@@ -1,0 +1,140 @@
+# Updated : 2025.06.12
+# Version : 1.3.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "Atom S3"
+  display_update_interval: "500ms"
+  # Interfaces GPIOs
+  # uart_esp_1 (Grove port)
+  tx_pin_1: '2'
+  rx_pin_1: '1'
+  # uart_esp_2
+  tx_pin_2: '7'
+  rx_pin_2: '8'
+  # uart_esp_3
+  tx_pin_3: '38'
+  rx_pin_3: '39'
+  # canbus_esp32_can (Atomic CAN base)
+  tx_pin_4: '5'
+  rx_pin_4: '6'
+  # canbus_mcp2515
+  spi_mosi_pin: '7'
+  spi_miso_pin: '8'
+  spi_clk_pin: '38'
+  mcp2515_cs_pin: '39'
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  # display: !include board_options_display_128x128.yaml
+
+esp32:
+  board: m5stack-atoms3
+  variant: esp32s3
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+  on_boot:
+  - priority: 600
+    then:
+    - lambda: !lambda |-
+        id(my_display).enable();
+        id(my_display).transfer_byte(0x11);
+        id(my_display).disable();
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+  hardware_uart: USB_SERIAL_JTAG
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+output:
+  # ESP32 board without LED
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+      #- lambda: C++ code; # action to be performed at each inverter heartbeat
+
+# +--------------------------------------+
+# | Atom S3 related configuration        |
+# +--------------------------------------+
+
+spi:
+  - id: atom_spi_bus
+    clk_pin: 17
+    mosi_pin: 21
+
+binary_sensor:
+  - platform: gpio
+    id: atom_button
+    pin:
+      number: 41
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_off: 10ms
+    on_press:
+      then:
+        - logger.log: Button Pressed
+        - display.page.show_next: my_display
+        #- display.page.show_previous: my_display
+
+display:
+  # Atom S3 display
+  # https://esphome.io/components/display/st7789v.html
+  - platform: st7789v
+    spi_id: atom_spi_bus
+    id: my_display
+    model: Custom
+    backlight_pin: 16
+    cs_pin: 15
+    dc_pin: 33
+    reset_pin: 34
+    height: 128
+    width: 128
+    offset_height: 2
+    offset_width: 1
+    eightbitcolor: true
+    update_interval: ${display_update_interval}
+    data_rate: 40Mhz
+    rotation: ${display_rotation}

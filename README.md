@@ -8,7 +8,17 @@
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
 > [!TIP]
-> If compiling the source code is too difficult for you, I can provide you a `custom firmware` that is easy to install from a web page. You can [contact me privately](https://diysolarforum.com/direct-messages/add?to=Sleeper85) on the DIY solar forum.
+> Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](YamBMS_Remote_Packages_example.yaml)
+> is a good basis for creating your custom YAML.
+> Examples of `BMS` and `Shunt` packages can be found in the [examples](examples/single-node/) folder.
+> You don't have to import a shunt but you must import at least `one BMS`.
+> You can mix different `BMS` models, the only condition is that the `bms_id` are numbered in order starting from `1` !
+
+> [!IMPORTANT]  
+> The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
+> YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your `BMS`.
+> If you use `YamBMS`, the internal charging logic of the `JK-PB BMS` will not be used.
+> Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Schematic_and_setup_instructions.md).
 
 | ESPHome application to monitor BMS and communicate with inverters<br>supporting CAN bus protocol compatible with Pylontech, GoodWe, SMA,<br>Victron or Luxpower (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
 | :--- | --- |
@@ -35,16 +45,27 @@
 
 [Dedicated topic on DIY Solar Forum](https://diysolarforum.com/threads/yambms-jk-bms-can-with-new-cut-off-charging-logic-open-source.79325/)
 
-## YamBMS
+## Contents
 
-![Image](images/YamBMS_packaged_version.png "YamBMS packaged version")
+1) [Supported devices](documents/README/Supported_devices.md)
+2) [YamBMS behavior](documents/README/YamBMS_behavior.md)
+3) [YamBMS functions](documents/README/YamBMS_functions.md)
+4) [Charging logic](documents/README/Charging_logic.md)
+5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
+6) [Hardware and schematic instructions](documents/README/Hardware_and_schematic_instructions.md)
+7) [Installation procedure](documents/README/Installation_procedure.md)
+8) [Troubleshooting](documents/README/Troubleshooting.md)
+
+## YamBMS ( Yet another multi-BMS Merging Solution )
+
+![Image](images/YamBMS_Overview.png "YamBMS Overview")
 
 ### Single-node
 
 You install `YamBMS` on a single ESP32 connected to your BMS and your inverter.
 
 * Max 3x BMS BLE
-* Max 3X BMS UART
+* Max 3x BMS UART
 * several RS485 BMS on the same bus
 
 ### Multi-node
@@ -73,18 +94,6 @@ The theoretical limit is `256` modbus server (BMS/Shunt) per `RS485 bus` but in 
 
 ![Image](images/YamBMS_HA_Dashboard.png "YamBMS HA Dashboard")
 
-## Contents
-
-1) [Supported devices](documents/README/Supported_devices.md)
-2) [YamBMS behavior](documents/README/YamBMS_behavior.md)
-3) [YamBMS functions](documents/README/YamBMS_functions.md)
-4) [Charging logic](documents/README/Charging_logic.md)
-5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
-6) [Schematic and setup instructions](documents/README/Schematic_and_setup_instructions.md)
-7) [How to create your YamBMS YAML](documents/README/YamBMS_main_YAML_HowTo.md)
-8) [Installation procedure](documents/README/Installation_procedure.md)
-9) [Troubleshooting](documents/README/Troubleshooting.md)
-
 ## Try YamBMS with the DEMO firmware
 
 You can simply test the application with a `generic ESP32` without compiling and connecting anything on your ESP32.
@@ -92,7 +101,7 @@ The DEMO firmware is composed of `3x BMS` and `1x Shunt` (fake) for a `48V LFP` 
 
 > [!IMPORTANT] 
 > `YamBMS_DEMO_ESP32.factory.bin` is intended for a generic ESP32, does not work with ESP32-S3.
-> If you want to test `YamBMS DEMO` with another board you need to compile the firmware with the `multi-bms_DEMO.yaml`.
+> If you want to test `YamBMS DEMO` with another board you need to compile the firmware with the `YamBMS_RP_DEMO.yaml`.
 
 1) Download [YamBMS_DEMO_ESP32.factory.bin](firmware/YamBMS_DEMO_ESP32.factory.bin)
 2) Follow the [procedure explained in this document](https://docs.google.com/document/d/12pOpaG4Iyw3DjC_kB1q0jjBeSKJHK2FvXI1swebL2RI/edit?usp=sharing).
@@ -105,7 +114,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2024.6.0 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2025.6.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
@@ -113,8 +122,74 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 * Optional: 48V to 5V DC-DC converter to power the ESP32 from the JK-BMS VBAT pin (URB4805YMD-10WR3 or VRB4805S-6WR3)
 * Optional: JK RS485 adaptor and RS485 to TTL 3V3 adaptor (see schematic section)
 
+## Data collection
+
+> [!NOTE]
+> For your information, in June 2025 there were `100` YamBMS users.
+
+If the ESP32 has an internet connection, the following data is sent to [this script](http://script.opentel.be/yambms.post.php)
+for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have access to this information for the production of statistics, the support and the update service.
+
+- ESP32 MAC address
+- YamBMS version
+- Board chip
+- Board name
+- BMS model
+- BMS count
+- CAN bus name
+- CAN bus protocol
+- Uptime
+- Current date and time
+
 ## Changelog
 
+* YamBMS 1.5.8 :
+  * New Dashboards `1.5.8` compatible with `CANBUS` and `RS485` inverter communication protocol
+  * Added BMS `SEPLOS V3` (beta)
+  * Added YamBMS `Web Server v3`
+  * Added `WiFi AP`
+  * `WiFi AP` and `Web Server` credentials centralized in `secrets.yaml`
+  * Added `WT32-ETH01` board
+  * Fixed [issue 8](https://github.com/Sleeper85/esphome-yambms/issues/8) ETH01-EVO board - Davicom DM9051 SPI Ethernet Controller is now integrated in esphome `2025.7`
+  * Fixed [issue 24](https://github.com/Sleeper85/esphome-yambms/issues/24) [JK-PB] SoC never reaches 100%
+  * Fixed [issue 63](https://github.com/Sleeper85/esphome-yambms/issues/63) [JK RS485 component] Fix *.*_SCHEMA deprecations
+  * Merged [PR 67](https://github.com/Sleeper85/esphome-yambms/pull/67) Add options to restrict max. charge and discharge current
+  * Merged [PR 72](https://github.com/Sleeper85/esphome-yambms/pull/72) Add Pylontech RS485 inverter protocol
+  * Merged [PR 74](https://github.com/Sleeper85/esphome-yambms/pull/74) `PYLON RS485` link status, Heartbeat and Requested Force Charge
+  * Merged [PR 75](https://github.com/Sleeper85/esphome-yambms/pull/75) Round `Auto CCL` / `Auto DCL` values
+  * Merged [PR 77](https://github.com/Sleeper85/esphome-yambms/pull/77) `PYLON RS485` prevent stale data on BMS disconnect
+  * Merged [PR 80](https://github.com/Sleeper85/esphome-yambms/pull/80) BMS Modbus client: Return 0 when not online
+  * Merged [PR 81](https://github.com/Sleeper85/esphome-yambms/pull/81) Fix balance trigger voltage for Basen and Deye
+* YamBMS 1.5.7 :
+  * Adapted the default `min/max` values ​​for the `Float` slider
+  * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
+  * New dashboard for `Auto Float Voltage` function
+  * Defining `state_class` for all YamBMS sensors
+  * Set esphome `min_version` to `2025.6.0`
+  * Fixed: change `Charge Status` to `Bulk` when `Force Charge` is requested
+  * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/70) Dashboards compatible with `HA 2025.7`
+  * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/71) Dashboard `max/min` cell voltage in color using macro
+  * Removed all special characters in entities name + dashboards correction
+* YamBMS 1.5.6 :
+  * Fixed [issue 58](https://github.com/Sleeper85/esphome-yambms/issues/58) Compilation problem with `esphome 2025.5.0`
+  * Fixed [issue 55](https://github.com/Sleeper85/esphome-yambms/issues/55) New CPU frequency option
+  * Fixed [issue 65](https://github.com/Sleeper85/esphome-yambms/issues/65) JBD Circular dependency error 
+  * Fixed [issue 35](https://github.com/Sleeper85/esphome-yambms/issues/35) BMS Charging Cycles Offset
+  * Merged [PR 51](https://github.com/Sleeper85/esphome-yambms/pull/51) Support for RP2040 RPi Pico
+  * Merged [PR 56](https://github.com/Sleeper85/esphome-yambms/pull/56) Add support for Basengreen BMS
+  * Merged [PR 60](https://github.com/Sleeper85/esphome-yambms/pull/60) Fixes for new ESPHome and add of BMS Cycle Count offset
+  * Merged [PR 61](https://github.com/Sleeper85/esphome-yambms/pull/61) Set Modbus BMS values to 0 when BMS goes offline
+  * New `board_ESP32-S3_Touch-LCD-4.3.yaml` board
+  * New `board_ESP32-S3_Touch-LCD-7.yaml` board
+  * New `board_ESP32-S3_YBoard_DJK.yaml` board
+  * New `board_RP2040_RPi_Pico.yaml` board
+* YamBMS 1.5.5 :
+  * New `main.yaml` with LP (local packages) and RP (remote packages) versions
+  * New `board.yaml` with modular UART/CAN interfaces
+  * The name of the JK `bms.yaml` is no longer linked to a specific model
+  * SoC calculation is now based on remaining capacity for more accuracy (BMS only) [issues #39](https://github.com/Sleeper85/esphome-yambms/issues/39)
+  * SoH calculation is moved to BMS level (for those who do not provide this information)
+  * Improvement of the Victron SmartShunt doc [issues #38](https://github.com/Sleeper85/esphome-yambms/issues/38)
 * YamBMS 1.5.4 :
   * New low SoC corrected at each BMS level (the corrected SoC is the one transmitted to YamBMS)
   * New BMS dashboard

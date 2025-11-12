@@ -1,0 +1,50 @@
+# Updated : 2025.07.27
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  bms:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 0s
+    files:
+      # Basen controller
+      - path: 'packages/bms/bms_combine_BASEN_RS485_controller.yaml'
+        vars:
+          basen_uart_id: 'uart_esp_1'
+          basen_uart_baud_rate: '9600'
+          basen_controller_id: "basen_controller_1"
+      # Basen module 1
+      - path: 'packages/bms/bms_combine_BASEN_RS485_full.yaml'
+        vars:
+          bms_id: '1' # must be a number
+          bms_name: 'BASEN-BMS 1'
+          bms_address: '0x01'
+      # Basen module 2
+      - path: 'packages/bms/bms_combine_BASEN_RS485_full.yaml'
+        vars:
+          bms_id: '2' # must be a number
+          bms_name: 'BASEN-BMS 2'
+          bms_address: '0x02'

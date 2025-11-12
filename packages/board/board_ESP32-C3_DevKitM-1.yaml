@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.04.01
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,6 +20,24 @@
 substitutions:
   board_chip: "ESP32-C3"
   board_name: "DevKitM-1"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '4'
+  rx_pin_1: '5'
+  # uart_esp_2
+  tx_pin_2: '6'
+  rx_pin_2: '7'
+  # uart_esp_3
+  tx_pin_3: '2'
+  rx_pin_3: '3'
+  # canbus_esp32_can (Atomic CAN base)
+  tx_pin_4: '18'
+  rx_pin_4: '19'
+  # canbus_mcp2515
+  spi_mosi_pin: '7'
+  spi_miso_pin: '2'
+  spi_clk_pin: '6'
+  mcp2515_cs_pin: '10'
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -46,29 +64,6 @@ logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: USB_SERIAL_JTAG
 
-uart:
-  # UART 1
-  - id: uart_esp_1
-    tx_pin: 4
-    rx_pin: 5
-    baud_rate: 115200
-    rx_buffer_size: 512
-  # UART 2
-  - id: uart_esp_2
-    tx_pin: 6
-    rx_pin: 7
-    baud_rate: 115200
-    rx_buffer_size: 512
-
-canbus:
-  # CANBUS NODE 1
-  - platform: esp32_can
-    id: canbus_node1
-    tx_pin: 18 # to CAN board CTX
-    rx_pin: 19 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
-    can_id: 1
-    bit_rate: 500kbps
-
 light:
   # https://esphome.io/components/light/esp32_rmt_led_strip
   # ESP Light used to see the inverter heartbeat
@@ -78,7 +73,7 @@ light:
     rgb_order: GRB
     pin: 8
     num_leds: 1
-    rmt_channel: 0
+    # rmt_channel: 0
     chipset: ws2812
     entity_category: config
     default_transition_length: 0ms

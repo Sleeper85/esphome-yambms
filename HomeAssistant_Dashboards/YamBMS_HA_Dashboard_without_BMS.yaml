@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.5.1
+# Updated : 2025.07.30
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,9 +24,11 @@ views:
     sections:
       - type: grid
         cards:
+          - type: heading
+            heading: YamBMS - Battery
           - graph: line
             type: sensor
-            entity: sensor.yambms_yambms_1_total_voltage_o
+            entity: sensor.yambms_yambms_1_total_voltage
             detail: 2
             layout_options:
               grid_columns: 2
@@ -40,7 +42,7 @@ views:
             name: SoC
             hours_to_show: 8
           - type: gauge
-            entity: sensor.yambms_yambms_1_current_s
+            entity: sensor.yambms_yambms_1_current
             needle: true
             severity:
               green: 0
@@ -53,7 +55,7 @@ views:
               grid_columns: 2
               grid_rows: 3
           - type: gauge
-            entity: sensor.yambms_yambms_1_power_s
+            entity: sensor.yambms_yambms_1_power
             needle: true
             severity:
               green: 0
@@ -66,16 +68,16 @@ views:
               grid_columns: 2
               grid_rows: 3
           - type: tile
-            entity: sensor.yambms_yambms_1_installed_battery_capacity_s
+            entity: sensor.yambms_yambms_1_installed_battery_capacity
             name: Installed Battery Capacity
           - type: tile
             entity: sensor.yambms_yambms_1_battery_soh
             name: Battery SoH
           - type: tile
-            entity: sensor.yambms_yambms_1_battery_capacity_s
+            entity: sensor.yambms_yambms_1_battery_capacity
             name: Battery Capacity
           - type: tile
-            entity: sensor.yambms_yambms_1_capacity_remaining_s
+            entity: sensor.yambms_yambms_1_capacity_remaining
             name: Capacity Remaining
           - type: tile
             entity: sensor.yambms_yambms_1_delta_cell_voltage
@@ -119,16 +121,17 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 2
-        title: YamBMS - Battery
         column_span: 1
       - type: grid
         cards:
+          - type: heading
+            heading: YamBMS - Status
           - type: tile
-            entity: binary_sensor.yambms_canbus_1_status
-            name: CANBUS Status
+            entity: binary_sensor.yambms_inverter_communication_status
+            name: Inverter comm. status
           - type: tile
             entity: binary_sensor.yambms_esp32_online_status
-            name: ESP32 Status
+            name: ESP32 status
           - type: tile
             entity: sensor.yambms_yambms_1_charging_status
             name: Charging Status
@@ -162,9 +165,6 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 4
-          - type: tile
-            entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
           - type: entities
             entities:
               - entity: sensor.yambms_yambms_1_shunt_count
@@ -173,7 +173,13 @@ views:
                 name: Shunt combined
             layout_options:
               grid_columns: 2
-              grid_rows: 3
+              grid_rows: 2
+          - type: tile
+            entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
+          - type: tile
+            entity: sensor.yambms_esp32_esphome_version
+            name: ESPHome version
           - type: entities
             entities:
               - entity: sensor.yambms_yambms_1_requested_charge_voltage
@@ -192,17 +198,22 @@ views:
           - type: tile
             entity: sensor.yambms_yambms_1_last_version
             name: Last version
-        title: YamBMS - Status
         column_span: 1
   - title: Control
     cards:
-      - type: entities
+      - type: entity-filter
         entities:
           - entity: select.yambms_canbus_1_bms_name
             name: CANBUS 1 BMS Name
           - entity: select.yambms_canbus_1_protocol
             name: CANBUS 1 Protocol
-        title: YamBMS - CANBUS Protocol
+          - entity: select.yambms_rs485_1_protocol
+            name: RS485 1 Protocol
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - Inverter Comm. Protocol
       - type: entities
         entities:
           - entity: switch.yambms_yambms_1_charge_enabled
@@ -247,6 +258,17 @@ views:
         title: YamBMS - Auto CCL / DCL
       - type: entities
         entities:
+          - entity: select.yambms_yambms_1_automatic_float_voltage
+            name: Automatic Float Voltage
+          - entity: sensor.yambms_yambms_1_auto_float_voltage
+            name: Auto Float Voltage
+          - entity: number.yambms_yambms_1_auto_float_update_interval
+            name: Update Interval
+          - entity: number.yambms_yambms_1_auto_float_voltage_step
+            name: Voltage Step
+        title: YamBMS - Auto Float
+      - type: entities
+        entities:
           - entity: number.yambms_yambms_1_rebulk_soc
             name: Rebulk SoC
           - entity: number.yambms_yambms_1_rebulk_v
@@ -256,9 +278,9 @@ views:
         title: YamBMS - ReBulk
       - type: entities
         entities:
-          - entity: number.yambms_yambms_1_max_charge_current
+          - entity: number.yambms_yambms_1_max_charge_current_percent
             name: Max charge current (%)
-          - entity: number.yambms_yambms_1_max_discharge_current
+          - entity: number.yambms_yambms_1_max_discharge_current_percent
             name: Max discharge current (%)
         title: YamBMS - Max current (%)
       - type: entities
@@ -296,7 +318,7 @@ views:
           - entity: button.yambms_esp32_restart
             name: ESP32 Restart
         title: YamBMS - Diagnostic
-      - type: entities
+      - type: entity-filter
         entities:
           - entity: binary_sensor.yambms_canbus_1_status
             name: CANBUS 1 Status
@@ -304,19 +326,41 @@ views:
             name: CANBUS 1 Inverter Heartbeat Monitoring
           - entity: sensor.yambms_canbus_1_inverter_heartbeat
             name: CANBUS 1 Inverter Heartbeat
-        title: YamBMS - Inverter Heartbeat
-      - type: entities
+          - entity: binary_sensor.yambms_rs485_1_status
+            name: RS485 1 Status
+          - entity: switch.yambms_rs485_1_inverter_heartbeat_monitoring
+            name: RS485 1 Inverter Heartbeat Monitoring
+          - entity: sensor.yambms_rs485_1_inverter_heartbeat
+            name: RS485 1 Inverter Heartbeat
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - Inverter Status & Heartbeat
+      - type: entity-filter
         entities:
-          - entity: sensor.yambms_debug_heap_free
+          - entity: sensor.yambms_debug_free_psram_percent
+            name: Debug Free PSRAM (%)
+          - entity: sensor.yambms_debug_free_psram
+            name: Debug Free PSRAM
+          - entity: sensor.yambms_debug_heap_free_percent
             name: Debug Heap free (%)
-          - entity: sensor.yambms_debug_heap_free_2
+          - entity: sensor.yambms_debug_heap_free
             name: Debug Heap free
-          - entity: sensor.yambms_debug_heap_max_block
+          - entity: sensor.yambms_debug_heap_max_block_percent
             name: Debug Heap max block (%)
-          - entity: sensor.yambms_debug_heap_max_block_2
+          - entity: sensor.yambms_debug_heap_max_block
             name: Debug Heap max block
           - entity: sensor.yambms_debug_loop_time
             name: Debug Loop time
+          - entity: sensor.yambms_esp32_uptime
+            name: ESP32 Uptime
+          - entity: sensor.yambms_esp32_esphome_version
+            name: ESPHome version
           - entity: sensor.yambms_debug_reset_reason
             name: Debug Reset reason
-        title: YamBMS - DEBUG
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - DEBUG

@@ -1,0 +1,437 @@
+# Updated : 2025.10.14
+# Version : 1.1.4
+# GitHub  : https://github.com/GHswitt/esphome-basen
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  bms_base: !include bms_base.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  bms_errors_bitmask: !include bms_errors_bitmask_BASEN_RS485.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+basen_bms:
+  - address: ${bms_address}
+    id: basen_bms_id${bms_id}
+    update_interval: ${bms_update_interval}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  - platform: basen_bms
+    basen_bms_id: basen_bms_id${bms_id}
+    connected:
+      id: bms${bms_id}_online_status
+      name: "${name} ${bms_name} status online"
+    alarm:
+      id: bms${bms_id}_alarm
+      name: "${name} ${bms_name} alarm"
+    fault:
+      id: bms${bms_id}_fault
+      name: "${name} ${bms_name} fault"
+    charging_enabled:
+      id: bms${bms_id}_charging_allowed
+      name: "${name} ${bms_name} charging allowed"
+    discharging_enabled:
+      id: bms${bms_id}_discharging_allowed
+      name: "${name} ${bms_name} discharging allowed"
+
+  # Balancing
+  - platform: template
+    id: bms${bms_id}_equalizing
+    name: "${name} ${bms_name} status balancing"
+    lambda: |-
+      float max_cell_voltage = id(bms${bms_id}_max_cell_voltage).state;
+      float delta_cell_voltage = id(bms${bms_id}_delta_voltage_cell).state;
+      float balance_trigger_voltage = id(bms${bms_id}_balance_trigger_voltage).state;
+      float balance_starting_voltage = id(bms${bms_id}_balance_starting_voltage).state;
+      if (max_cell_voltage < balance_starting_voltage)
+        return false;
+      if (delta_cell_voltage >= balance_trigger_voltage)
+        return true;
+      return false;
+    filters:
+      - delayed_off: 300s
+
+sensor:
+  - platform: basen_bms
+    basen_bms_id: basen_bms_id${bms_id}
+    error_bitmask:
+      id: bms${bms_id}_errors_bitmask
+      name: "${name} ${bms_name} errors bitmask"
+    voltage:
+      id: bms${bms_id}_total_voltage
+      name: "${name} ${bms_name} battery voltage"
+    current:
+      id: bms${bms_id}_current
+      name: "${name} ${bms_name} battery current"
+    power:
+      id: bms${bms_id}_power
+      name: "${name} ${bms_name} battery power"
+    state_of_charge:
+      id: bms${bms_id}_state_of_charge
+      name: "${name} ${bms_name} battery capacity state of charge"
+    state_of_health:
+      id: bms${bms_id}_battery_soh
+      name: "${name} ${bms_name} battery soh valuation"
+    capacity:
+      id: bms${bms_id}_battery_capacity
+      name: "${name} ${bms_name} battery capacity"
+    cycles:
+      id: bms${bms_id}_charging_cycles_raw
+      name: "${name} ${bms_name} charging cycles"
+      internal: true
+    temperature1:
+      id: bms${bms_id}_temperature_sensor_1
+      name: "${name} ${bms_name} temperature sensor 1"
+    temperature2:
+      id: bms${bms_id}_temperature_sensor_2
+      name: "${name} ${bms_name} temperature sensor 2"
+    temperature3:
+      id: bms${bms_id}_temperature_sensor_3
+      name: "${name} ${bms_name} temperature sensor 3"
+    temperature4: 
+      id: bms${bms_id}_temperature_sensor_4
+      name: "${name} ${bms_name} temperature sensor 4"
+    temperature_mos:
+      name: "${name} ${bms_name} temperature MOSFET"
+    temperature_ambient:
+      name: "${name} ${bms_name} temperature ambient"
+    avg_cell_voltage:
+      id: bms${bms_id}_average_cell_voltage
+      name: "${name} ${bms_name} cell average voltage"
+    min_cell_voltage:
+      id: bms${bms_id}_min_cell_voltage
+      name: "${name} ${bms_name} cell voltage min"
+    max_cell_voltage:
+      id: bms${bms_id}_max_cell_voltage
+      name: "${name} ${bms_name} cell voltage max"
+    min_cell_index:
+      id: bms${bms_id}_min_voltage_cell
+      name: "${name} ${bms_name} cell voltage min cell number"
+    max_cell_index:
+      id: bms${bms_id}_max_voltage_cell
+      name: "${name} ${bms_name} cell voltage max cell number"
+    delta_cell_voltage:
+      id: bms${bms_id}_delta_voltage_cell
+      name: "${name} ${bms_name} cell delta voltage"
+    cell_voltage_01:
+      name: "${name} ${bms_name} cell voltage 01"
+    cell_voltage_02:
+      name: "${name} ${bms_name} cell voltage 02"
+    cell_voltage_03:
+      name: "${name} ${bms_name} cell voltage 03"
+    cell_voltage_04:
+      name: "${name} ${bms_name} cell voltage 04"
+    cell_voltage_05:
+      name: "${name} ${bms_name} cell voltage 05"
+    cell_voltage_06:
+      name: "${name} ${bms_name} cell voltage 06"
+    cell_voltage_07:
+      name: "${name} ${bms_name} cell voltage 07"
+    cell_voltage_08:
+      name: "${name} ${bms_name} cell voltage 08"
+    cell_voltage_09:
+      name: "${name} ${bms_name} cell voltage 09"
+    cell_voltage_10:
+      name: "${name} ${bms_name} cell voltage 10"
+    cell_voltage_11:
+      name: "${name} ${bms_name} cell voltage 11"
+    cell_voltage_12:
+      name: "${name} ${bms_name} cell voltage 12"
+    cell_voltage_13:
+      name: "${name} ${bms_name} cell voltage 13"
+    cell_voltage_14:
+      name: "${name} ${bms_name} cell voltage 14"
+    cell_voltage_15:
+      name: "${name} ${bms_name} cell voltage 15"
+    cell_voltage_16:
+      name: "${name} ${bms_name} cell voltage 16"
+
+    # Protection parameters
+    CELL_OV_Start:
+      name: "${name} ${bms_name} CELL_OV_Start"
+    CELL_OV_Delay:
+      name: "${name} ${bms_name} CELL_OV_Delay"
+    CELL_OV_Stop:
+      name: "${name} ${bms_name} CELL_OV_Stop"
+    CELL_UV_Start:
+      name: "${name} ${bms_name} CELL_UV_Start"
+    CELL_UV_Delay:
+      name: "${name} ${bms_name} CELL_UV_Delay"
+    CELL_UV_Stop:
+      name: "${name} ${bms_name} CELL_UV_Stop"
+    PACK_OV_Start:
+      name: "${name} ${bms_name} PACK_OV_Start"
+    PACK_OV_Delay:
+      name: "${name} ${bms_name} PACK_OV_Delay"
+    PACK_OV_Stop:
+      name: "${name} ${bms_name} PACK_OV_Stop"
+    PACK_UV_Start:
+      name: "${name} ${bms_name} PACK_UV_Start"
+    PACK_UV_Delay:
+      name: "${name} ${bms_name} PACK_UV_Delay"
+    PACK_UV_Stop:
+      name: "${name} ${bms_name} PACK_UV_Stop"
+    Const_Pack_V:
+      name: "${name} ${bms_name} Const_Pack_V"
+    Const_Current:
+      name: "${name} ${bms_name} Const_Current"
+    CHG_OC1_Start:
+      name: "${name} ${bms_name} CHG_OC1_Start"
+    CHG_OC1_Delay:
+      name: "${name} ${bms_name} CHG_OC1_Delay"
+    DISC_OC1_Start:
+      name: "${name} ${bms_name} DISC_OC1_Start"
+    DISC_OC1_Delay:
+      name: "${name} ${bms_name} DISC_OC1_Delay"
+    CHG_OC2_Start:
+      name: "${name} ${bms_name} CHG_OC2_Start"
+    CHG_OC2_Delay:
+      name: "${name} ${bms_name} CHG_OC2_Delay"
+    DISC_OC2_Start:
+      name: "${name} ${bms_name} DISC_OC2_Start"
+    DISC_OC2_Delay:
+      name: "${name} ${bms_name} DISC_OC2_Delay"
+    CHG_OT_START:
+      name: "${name} ${bms_name} CHG_OT_START"
+    CHG_OT_Delay:
+      name: "${name} ${bms_name} CHG_OT_Delay"
+    CHG_OT_STOP:
+      name: "${name} ${bms_name} CHG_OT_STOP"
+    DISC_OT_START:
+      name: "${name} ${bms_name} DISC_OT_START"
+    DISC_OT_Delay:
+      name: "${name} ${bms_name} DISC_OT_Delay"
+    DISC_OT_STOP:
+      name: "${name} ${bms_name} DISC_OT_STOP"
+    CHG_UT_START:
+      name: "${name} ${bms_name} CHG_UT_START"
+    CHG_UT_Delay:
+      name: "${name} ${bms_name} CHG_UT_Delay"
+    CHG_UT_STOP:
+      name: "${name} ${bms_name} CHG_UT_STOP"
+    DISC_UT_START:
+      name: "${name} ${bms_name} DISC_UT_START"
+    DISC_UT_Delay:
+      name: "${name} ${bms_name} DISC_UT_Delay"
+    DISC_UT_STOP:
+      name: "${name} ${bms_name} DISC_UT_STOP"
+    MOS_OT_START:
+      name: "${name} ${bms_name} MOS_OT_START"
+    MOS_OT_Delay:
+      name: "${name} ${bms_name} MOS_OT_Delay"
+    MOS_OT_STOP:
+      name: "${name} ${bms_name} MOS_OT_STOP"
+    ENV_OT_START:
+      name: "${name} ${bms_name} ENV_OT_START"
+    ENV_OT_Delay:
+      name: "${name} ${bms_name} ENV_OT_Delay"
+    ENV_OT_STOP:
+      name: "${name} ${bms_name} ENV_OT_STOP"
+    ENV_UT_START:
+      name: "${name} ${bms_name} ENV_UT_START"
+    ENV_UT_Delay:
+      name: "${name} ${bms_name} ENV_UT_Delay"
+    ENV_UT_STOP:
+      name: "${name} ${bms_name} ENV_UT_STOP"
+    Balance_Start_Vol:
+      id: bms${bms_id}_balance_starting_voltage
+      name: "${name} ${bms_name} balancing starting voltage"
+    Balance_Start_Diff:
+      id: bms${bms_id}_balance_trigger_voltage
+      name: "${name} ${bms_name} balance trigger voltage"
+    Sleep_Cell_Volt:
+      name: "${name} ${bms_name} Sleep_Cell_Volt"
+    Shorts_Delay:
+      name: "${name} ${bms_name} Shorts_Delay"
+    Standby_Time:
+      name: "${name} ${bms_name} Standby_Time"
+    UV_OFF_Time:
+      name: "${name} ${bms_name} UV_OFF_Time"
+    LC_Style:
+      name: "${name} ${bms_name} LC_Style"
+    Sleep_Time:
+      name: "${name} ${bms_name} Sleep_Time"
+
+    # Alarm parameters
+    CELL_OV_Start_Alarm:
+      id: bms${bms_id}_cell_ovp
+      name: "${name} ${bms_name} cell overvoltage protection"
+    CELL_OV_Delay_Alarm:
+      name: "${name} ${bms_name} CELL_OV_Delay_Alarm"
+    CELL_OV_Stop_Alarm:
+      id: bms${bms_id}_cell_ovpr
+      name: "${name} ${bms_name} cell overvoltage protection recovery"
+    CELL_UV_Start_Alarm:
+      id: bms${bms_id}_cell_uvp
+      name: "${name} ${bms_name} cell undervoltage protection"
+    CELL_UV_Delay_Alarm:
+      name: "${name} ${bms_name} CELL_UV_Delay_Alarm"
+    CELL_UV_Stop_Alarm:
+      id: bms${bms_id}_cell_uvpr
+      name: "${name} ${bms_name} cell undervoltage protection recovery"
+    PACK_OV_Start_Alarm:
+      name: "${name} ${bms_name} PACK_OV_Start_Alarm"
+    PACK_OV_Delay_Alarm:
+      name: "${name} ${bms_name} PACK_OV_Delay_Alarm"
+    PACK_OV_Stop_Alarm:
+      name: "${name} ${bms_name} PACK_OV_Stop_Alarm"
+    PACK_UV_Start_Alarm:
+      name: "${name} ${bms_name} PACK_UV_Start_Alarm"
+    PACK_UV_Delay_Alarm:
+      name: "${name} ${bms_name} PACK_UV_Delay_Alarm"
+    PACK_UV_Stop_Alarm:
+      name: "${name} ${bms_name} PACK_UV_Stop_Alarm"
+    CHG_OC_Start_Alarm:
+      id: bms${bms_id}_max_charge_current
+      name: "${name} ${bms_name} max charging current"
+    CHG_OC_Delay_Alarm:
+      name: "${name} ${bms_name} CHG_OC_Delay_Alarm"
+    CHG_OC_Stop_Alarm:
+      name: "${name} ${bms_name} CHG_OC_Stop_Alarm"
+    DISC_OC_Start_Alarm:
+      id: bms${bms_id}_max_discharge_current
+      name: "${name} ${bms_name} max discharging current"
+    DISC_OC_Delay_Alarm:
+      name: "${name} ${bms_name} DISC_OC_Delay_Alarm"
+    DISC_OC_Stop_Alarm:
+      name: "${name} ${bms_name} DISC_OC_Stop_Alarm"
+    CHG_OT_START_Alarm:
+      name: "${name} ${bms_name} CHG_OT_START_Alarm"
+    CHG_OT_Delay_Alarm:
+      name: "${name} ${bms_name} CHG_OT_Delay_Alarm"
+    CHG_OT_STOP_Alarm:
+      name: "${name} ${bms_name} CHG_OT_STOP_Alarm"
+    CHG_UT_START_Alarm:
+      name: "${name} ${bms_name} CHG_UT_START_Alarm"
+    CHG_UT_Delay_Alarm:
+      name: "${name} ${bms_name} CHG_UT_Delay_Alarm"
+    CHG_UT_STOP_Alarm:
+      name: "${name} ${bms_name} CHG_UT_STOP_Alarm"
+    DISC_OT_START_Alarm:
+      name: "${name} ${bms_name} DISC_OT_START_Alarm"
+    DISC_OT_Delay_Alarm:
+      name: "${name} ${bms_name} DISC_OT_Delay_Alarm"
+    DISC_OT_STOP_Alarm:
+      name: "${name} ${bms_name} DISC_OT_STOP_Alarm"
+    DISC_UT_START_Alarm:
+      name: "${name} ${bms_name} DISC_UT_START_Alarm"
+    DISC_UT_Delay_Alarm:
+      name: "${name} ${bms_name} DISC_UT_Delay_Alarm"
+    DISC_UT_STOP_Alarm:
+      name: "${name} ${bms_name} DISC_UT_STOP_Alarm"
+    MOS_OT_START_Alarm:
+      name: "${name} ${bms_name} MOS_OT_START_Alarm"
+    MOS_OT_Delay_Alarm:
+      name: "${name} ${bms_name} MOS_OT_Delay_Alarm"
+    MOS_OT_STOP_Alarm:
+      name: "${name} ${bms_name} MOS_OT_STOP_Alarm"
+    ENV_OT_START_Alarm:
+      name: "${name} ${bms_name} ENV_OT_START_Alarm"
+    ENV_OT_Delay_Alarm:
+      name: "${name} ${bms_name} ENV_OT_Delay_Alarm"
+    ENV_OT_STOP_Alarm:
+      name: "${name} ${bms_name} ENV_OT_STOP_Alarm"
+    ENV_UT_START_Alarm:
+      name: "${name} ${bms_name} ENV_UT_START_Alarm"
+    ENV_UT_Delay_Alarm:
+      name: "${name} ${bms_name} ENV_UT_Delay_Alarm"
+    ENV_UT_STOP_Alarm:
+      name: "${name} ${bms_name} ENV_UT_STOP_Alarm"
+    Capacity_Low_Start_Alarm:
+      name: "${name} ${bms_name} Capacity_Low_Start_Alarm"
+    Capacity_Low_Stop_Alarm:
+      name: "${name} ${bms_name} Capacity_Low_Stop_Alarm"
+    Vol_Diff_Start_Alarm:
+      name: "${name} ${bms_name} Vol_Diff_Start_Alarm"
+    Vol_Diff_Stop_Alarm:
+      name: "${name} ${bms_name} Vol_Diff_Stop_Alarm"
+
+  # Charging cycle capacity - Calculated from charging cycles and battery capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    name: "${name} ${bms_name} charging cycle capacity"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    internal: true
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+      
+  # Charging power: Calculated from voltage and current
+  - platform: template
+    name: "${name} ${bms_name} battery power charging"
+    id: bms${bms_id}_charging_power
+    unit_of_measurement: 'W'
+    device_class: 'current'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_current).state > 0) return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
+      else return 0;
+  
+  # Discharging power: Calculated from voltage and current  
+  - platform: template
+    name: "${name} ${bms_name} battery power discharging"
+    id: bms${bms_id}_discharging_power
+    unit_of_measurement: 'W'
+    device_class: 'current'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_current).state < 0) return id(bms${bms_id}_total_voltage).state * -id(bms${bms_id}_current).state;
+      else return 0;
+
+  # Remaining capacity: Calculated from capacity and SoC
+  - platform: template
+    unit_of_measurement: 'Ah'
+    device_class: 'battery'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    id: bms${bms_id}_capacity_remaining_ah
+    name: "${name} ${bms_name} battery capacity remaining"
+    lambda: |-
+      return (id(bms${bms_id}_state_of_charge).state * id(bms${bms_id}_battery_capacity).state) / 100;
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+
+text_sensor:
+ - platform: basen_bms
+   basen_bms_id: basen_bms_id${bms_id}
+   bms_version:
+     name: "${name} ${bms_name} BMS version"
+   barcode:
+     name: "${name} ${bms_name} BMS barcode"
+   status_bitmask:
+     id: bms${bms_id}_status_bitmask
+     name: "${name} ${bms_name} status bitmask"
+   status:
+     name: "${name} ${bms_name} Status"
+   cell_balancing_bitmask:
+     name: "${name} ${bms_name} cell balancing bitmask"

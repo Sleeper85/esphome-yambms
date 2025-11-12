@@ -1,0 +1,41 @@
+# Updated : 2025.04.04
+# Version : 1.1.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+switch:
+  - platform: template
+    name: "${name} ${yambms_name} Force Float"
+    id: ${yambms_id}_switch_force_float
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          // Force Float
+          if (id(${yambms_id}_switch_force_float).state) id(${yambms_id}_force_float) = true;
+          else id(${yambms_id}_force_float) = false;
+
+  - interval: 24h # 60s
+    then:
+      - lambda: |-
+          // Set min/max Float slider
+          id(${yambms_id}_float_voltage).traits.set_min_value(${yambms_cell_count} * 3.125);
+          id(${yambms_id}_float_voltage).traits.set_max_value(${yambms_cell_count} * 3.375);

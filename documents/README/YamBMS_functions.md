@@ -21,7 +21,7 @@ Other configurations are possible, don't hesitate to communicate what works well
 | Inverter | Battery mode | CAN protocol |
 | --- | --- | --- |
 | Deye | Lithium 00 | PYLON 1.2 |
-| GoodWe | LX U5.4-L | PYLON + |
+| GoodWe | LX U5.4-L | PYLON V2 |
 | Sofar | Automatic | PYLON 1.2 |
 | Growatt | CAN L52 | PYLON 1.2 |
 | Solis | AoBo | SMA |
@@ -78,13 +78,15 @@ Works only with `PYLON`, `LuxPower` and `Victron` protocols.
 
 ## Auto functions
 
-Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing these features.
+Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing `Auto CVL`, `Auto CCL` and `Auto DCL` functions.
 
-A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto functions` works.
+A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto CVL, CCL & DCL` works.
 
-![Image](../../images/YamBMS_Auto_CVL_CCL_DCL.png "YamBMS_Auto_CVL_CCL_DCL")
+Thanks to [@GHswitt](https://github.com/GHswitt) for developing `Auto Float` function.
 
 ## Auto CVL
+
+![Image](../../images/YamBMS_Auto_CVL.png "YamBMS Auto CVL")
 
 > [!IMPORTANT]
 > The `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
@@ -100,6 +102,8 @@ You can compare `Auto CVL` to cruise control in a car.
 
 ## Auto CCL & DCL
 
+![Image](../../images/YamBMS_Auto_CCL_DCL.png "YamBMS Auto CCL & DCL")
+
 > [!IMPORTANT]
 > The `Auto CCL` function uses the `OVP` value of your BMS.
 > The `Auto DCL` function uses the `UVP` value of your BMS.
@@ -111,9 +115,25 @@ This should prevent the runner cell from exceeding the max voltage cutoff, but d
 
 You can compare `Auto CCL` to a max speed limiter in a car.
 
-`Auto DCL` works the same way when a cell approaching `UVP + 0.02`.
+`Auto DCL` works the same way when a cell approaching `UVP + 0.2`.
 
 Current control should work with any inverter that uses `CAN` control.
+
+## Auto Float Voltage
+
+![Image](../../images/YamBMS_Auto_Float.png "YamBMS Auto Float")
+
+When switching from `Bulk` to `Float`, therefore lowering the `Requested Charge Voltage (CVL)`, some inverters (e.g. Deye SUN-12K) will start to discharge the battery (into the grid) with up to max. discharge current until the
+`Requested Charge Voltage (CVL)` is reached. The reason behind this is that the inverter sees this as battery overvoltage and wants to counter it. 
+As workaround, by enabling `Automatic Float Voltage`, it will lower the `Requested Charge Voltage (CVL)` gradually in small steps until the float voltage is reached, allowing the battery more time to settle down.
+There are two modes available: `Follow` and `Immediately`.
+
+- `Follow`: Waits until the battery voltage itself is below the current `Requested Charge Voltage (CVL)` before lowering `Requested Charge Voltage (CVL)` further. It follows the battery voltage until the target float voltage is reached.
+- `Immediately`: Immediately start lowering the `Requested Charge Voltage (CVL)`, independent of the current battery voltage. That means it can go below the current battery voltage.
+
+This feature might not work with all inverters as good or is not required if these do not discharge the battery.
+
+The voltage steps can be configured (default `0.1V`) with `Auto Float Voltage Step`. The update interval can be configured (default `3 minutes`) with `Auto Float Update Interval`.
 
 ## Requested Values
 
@@ -123,7 +143,7 @@ These 4 sensors allow you to see what is being requested of your inverter.
 
 In the example below, we are in the `Float` phase at a voltage of `53.6V` and an `Inverter Offset V.` of `0.1V`. The `Requested Charge Voltage` is therefore `53.7V`.
 
-The `Requested Discharge Voltage` is the `UVP + 0.02` value of your BMS multiplied by the number of cells, in this example (3V * 16).
+The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplied by the number of cells, in this example (3V * 16).
 
 The `Requested Charge/Discharge Current` is the `OCP` value of your BMS multiplied by the `Max current` percentage, in this example (150A * 80%).
 

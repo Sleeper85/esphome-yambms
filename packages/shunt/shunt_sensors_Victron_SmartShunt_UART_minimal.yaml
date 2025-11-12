@@ -1,0 +1,66 @@
+# Updated : 2025.06.18
+# Version : 1.1.2
+# GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  shunt_base_minimal: !include shunt_base_minimal.yaml
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+external_components:
+  - source: github://KinDR007/VictronMPPT-ESPHOME@main
+    refresh: 0s
+
+victron:
+  - uart_id: ${shunt_uart_id}
+    id: victron${shunt_id}
+    throttle: ${shunt_update_interval}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  # online_status
+  - platform: template
+    id: shunt${shunt_id}_online_status
+    name: "${name} ${shunt_name} Online Status"
+    lambda: |-
+      if (id(shunt${shunt_id}_voltage).state > 0)
+        return true;
+      else
+        return false;
+
+sensor:
+  - platform: victron
+    victron_id: victron${shunt_id}
+    battery_voltage:
+      id: shunt${shunt_id}_voltage
+      name: "${name} ${shunt_name} battery voltage"
+    battery_current:
+      id: shunt${shunt_id}_current
+      name: "${name} ${shunt_name} battery current"
+    instantaneous_power:
+      id: shunt${shunt_id}_power
+      name: "${name} ${shunt_name} instantaneous power"
+    state_of_charge:
+      id: shunt${shunt_id}_soc
+      name: "${name} ${shunt_name} state of charge"
+

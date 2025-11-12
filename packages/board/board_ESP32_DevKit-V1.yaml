@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.06.12
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,14 +20,32 @@
 substitutions:
   board_chip: "ESP32"
   board_name: "DevKit V1"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '17'
+  rx_pin_1: '16'
+  # uart_esp_2
+  tx_pin_2: '19'
+  rx_pin_2: '18'
+  # uart_esp_3
+  tx_pin_3: '26'
+  rx_pin_3: '25'
+  # canbus_esp32_can
+  tx_pin_4: '23'
+  rx_pin_4: '22'
+  # canbus_mcp2515
+  spi_mosi_pin: '13'
+  spi_miso_pin: '12'
+  spi_clk_pin: '14'
+  mcp2515_cs_pin: '15'
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  device_cpu_freq_240: !include board_options_cpu_freq_240_esp32.yaml
 
 esp32:
   board: esp32doit-devkit-v1
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
 
@@ -43,36 +61,6 @@ wifi:
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
-
-uart:
-  # UART 0 : uart used for ESP32 flashing and logs, can be released if necessary (tx_pin: 1, rx_pin: 3)
-  # UART 1
-  - id: uart_esp_1
-    tx_pin: 17
-    rx_pin: 16
-    baud_rate: 115200
-    rx_buffer_size: 512
-  # UART 2
-  - id: uart_esp_2
-    tx_pin: 19
-    rx_pin: 18
-    baud_rate: 115200
-    rx_buffer_size: 512
-  # UART 3
-  # - id: uart_esp_3
-  #   tx_pin: 26
-  #   rx_pin: 25
-  #   baud_rate: 115200
-  #   rx_buffer_size: 512
-
-canbus:
-  # CANBUS NODE 1
-  - platform: esp32_can
-    id: canbus_node1
-    tx_pin: 23 # to CAN board CTX
-    rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
-    can_id: 1
-    bit_rate: 500kbps
 
 # +--------------------------------------+
 # | Inverter Heartbeat Light             |

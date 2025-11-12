@@ -1,5 +1,5 @@
-# Updated : 2025.01.20
-# Version : 1.5.3
+# Updated : 2025.06.10
+# Version : 1.5.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -64,10 +64,10 @@ interval:
                     id(${yambms_id}_last_version).publish_state(root["version"]);
                     return true;
                   });
-        
+
         - http_request.post:
             url: http://script.opentel.be/yambms.post.php
-            headers:
+            request_headers:
               Content-Type: application/json
             json: |-
               root["mac"] = id(esp32_mac_address).state;

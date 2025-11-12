@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2025.09.04
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,6 +20,16 @@
 substitutions:
   board_chip: "ESP32-C3"
   board_name: "ETH01-EVO"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '2'
+  rx_pin_1: '5'
+  # uart_esp_2
+  tx_pin_2: '0'
+  rx_pin_2: '1'
+  # canbus_esp32_can
+  tx_pin_4: '19'
+  rx_pin_4: '18'
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -28,51 +38,28 @@ packages:
 esp32:
   board: esp32-c3-devkitm-1
   variant: esp32c3
-  flash_size: 2MB
+  # flash_size: 2MB
   framework:
     type: esp-idf
-    version: latest
+    # version: latest
 
 esphome:
   platformio_options:
     board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
-  min_version: 2024.12.2
-
-external_components:
-  - source: github://pr#6861
-    components:
-      - ethernet
 
 ethernet:
   id: my_network
-  type: DM9051 # W5500
+  type: DM9051
   clk_pin: 7
   mosi_pin: 10
   miso_pin: 3
   cs_pin: 9
   interrupt_pin: 8
   reset_pin: 6
-  clock_speed: 20MHz
+  clock_speed: 8MHz
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
-
-uart:
-  # UART 1
-  - id: uart_esp_1
-    tx_pin: 2
-    rx_pin: 5
-    baud_rate: 115200
-    rx_buffer_size: 512
-
-canbus:
-  # CANBUS NODE 1
-  - platform: esp32_can
-    id: canbus_node1
-    tx_pin: 19 # to CAN board CTX
-    rx_pin: 18 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
-    can_id: 1
-    bit_rate: 500kbps
 
 # +--------------------------------------+
 # | Inverter Heartbeat Light             |

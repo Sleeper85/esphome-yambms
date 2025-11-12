@@ -1,5 +1,5 @@
-# Updated : 2025.01.28
-# Version : 1.1.1
+# Updated : 2025.06.16
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-jdb-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,6 +21,7 @@ packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JBD.yaml
+  bms_battery_soh: !include bms_battery_soh.yaml
 
 ota:
   on_begin:
@@ -115,13 +116,14 @@ sensor:
       id: bms${bms_id}_battery_capacity
       name: "${name} ${bms_name} nominal capacity"
     charging_cycles:
-      id: bms${bms_id}_charging_cycles
+      id: bms${bms_id}_charging_cycles_raw
+      internal: true
       name: "${name} ${bms_name} charging cycles"
     capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
       name: "${name} ${bms_name} capacity remaining"
-    battery_cycle_capacity:
-      name: "${name} ${bms_name} battery cycle capacity"
+    # battery_cycle_capacity:
+    #   name: "${name} ${bms_name} battery cycle capacity" # https://github.com/syssi/esphome-jbd-bms/issues/143
     total_voltage:
       id: bms${bms_id}_total_voltage
       name: "${name} ${bms_name} total voltage"
@@ -301,6 +303,22 @@ sensor:
         - throttle: 10s
         - delta: 0.001
     lambda: return ${bms_balance_trigger_voltage};
+
+  # Charging cycle capacity - Calculated from charging cycles and battery capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    name: "${name} ${bms_name} charging cycle capacity"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    internal: true
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
 
 text_sensor:
   - platform: jbd_bms_ble

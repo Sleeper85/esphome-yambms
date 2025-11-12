@@ -1,0 +1,84 @@
+# Updated : 2025.08.13
+# Version : 1.1.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://github.com/egnor/wt32-eth01
+# https://hackerspace-ffm.de/wiki/index.php?title=WT32-ETH01_ESP32_Modul_mit_LAN
+
+substitutions:
+  board_chip: "ESP32"
+  board_name: "WT32-ETH01"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '32'
+  rx_pin_1: '33'
+  # uart_esp_2
+  tx_pin_2: '4'
+  rx_pin_2: '5' # Green LED
+  # uart_esp_3
+  tx_pin_3: '1'
+  rx_pin_3: '3'
+  # canbus_esp32_can
+  tx_pin_4: '14' # to CAN transceiver CTX
+  rx_pin_4: '15' # to CAN transceiver CRX
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_ethernet: !include ../base/device_base_ethernet.yaml
+
+esp32:
+  board: esp32dev
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+ethernet:
+  id: my_network
+  type: LAN8720
+  mdc_pin: 23
+  mdio_pin: 18
+  power_pin: 16
+  clk:
+    pin: GPIO0
+    mode: CLK_EXT_IN
+  phy_addr: 1
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    output: esp_led
+    id: esp_light
+
+output:
+  # ESP LED
+  - platform: gpio
+    pin: 17
+    id: esp_led
+    inverted: true

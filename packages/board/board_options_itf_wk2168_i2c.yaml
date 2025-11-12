@@ -1,0 +1,66 @@
+# Updated : 2025.07.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  uart_hub_bus: 'i2c'
+
+i2c:
+  - id: i2c1_bus
+    sda: 41 
+    scl: 40
+    frequency: 800kHz
+
+wk2168_i2c:
+  - address: 0x10
+    id: uart_bridge0
+    i2c_id: i2c1_bus
+    uart:
+      - id: uart_i2c_0
+        channel: 0
+        baud_rate: ${uart0_baudrate}
+        # parity: even
+      - id: uart_i2c_1
+        channel: 1
+        baud_rate: ${uart1_baudrate}   
+      - id: uart_i2c_2
+        channel: 2
+        baud_rate: ${uart2_baudrate}
+        # parity: even
+      - id: uart_i2c_3
+        channel: 3
+        baud_rate: ${uart3_baudrate}
+
+  - address: 0x70
+    id: uart_bridge1
+    i2c_id: i2c1_bus
+    uart:
+      - id: uart_i2c_4
+        channel: 0
+        baud_rate: ${uart4_baudrate}
+        # parity: even
+      - id: uart_i2c_5
+        channel: 1
+        baud_rate: ${uart5_baudrate}
+      - id: uart_i2c_6
+        channel: 2
+        baud_rate: ${uart6_baudrate}
+        # parity: even
+      - id: uart_i2c_7
+        channel: 3
+        baud_rate: ${uart7_baudrate}

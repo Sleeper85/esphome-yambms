@@ -41,7 +41,7 @@ Combine condition :
 1) BMS `Online Status` is `ON / Connected` (to detect a loss of connection with the BMS e.g. cable, BMS OFF or dead)
 2) The BMS `Battery Capacity` is `> 0` (to ensure that the data received is correct)
 
-If one of these three conditions is not met, the BMS is automatically uncombined.
+If one of these two conditions is not met, the BMS is automatically uncombined.
 
 > [!IMPORTANT]
 > In RS485 modbus `multi-node`, if a server does not respond (cable or hardware failure) the `Online Status` of the BMS will be set to `OFF` and it will be uncombined.

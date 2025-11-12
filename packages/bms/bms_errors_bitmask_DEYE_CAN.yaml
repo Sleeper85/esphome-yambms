@@ -1,0 +1,159 @@
+# Updated : 2025.06.10
+# Version : 1.1.2
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+  # +--------------------------------------+
+  # | DEYE CAN PCS Errors Bitmask (64bit)  |
+  # +--------------------------------------+
+
+  # Bit 0     Cell overvoltage                             0000 0000 0000 0001         0x0001
+  # Bit 1     Cell undervoltage                            0000 0000 0000 0010         0x0002
+  # Bit 2     Module overvoltage                           0000 0000 0000 0100         0x0004
+  # Bit 3     Module undervoltage                          0000 0000 0000 1000         0x0008
+  # Bit 4     Charge overcurrent                           0000 0000 0001 0000         0x0010
+  # Bit 5     Discharge overcurrent                        0000 0000 0010 0000         0x0020
+  # Bit 6     Cell overtemperature charge                  0000 0000 0100 0000         0x0040
+  # Bit 7     Cell undertemperature charge                 0000 0000 1000 0000         0x0080
+  # Bit 8     Cell overtemperature discharge               0000 0001 0000 0000         0x0100
+  # Bit 9     Cell undertemperature discharge              0000 0010 0000 0000         0x0200
+  # Bit 10    Cell voltage overdifference                  0000 0100 0000 0000         0x0400
+  # Bit 11    Cell temperature overdifference              0000 1000 0000 0000         0x0800
+  # Bit 12    MOSFET overtemperature                       0001 0000 0000 0000         0x1000
+  # Bit 13    Heating film overtemperature                 0010 0000 0000 0000         0x2000
+  # Bit 14                                                 0100 0000 0000 0000         0x4000
+  # Bit 15                                                 1000 0000 0000 0000         0x8000
+  # Bit 16    AFE communication fail                  0001 0000 0000 0000 0000        0x10000
+  # Bit 17    Cell voltage sampling fail              0010 0000 0000 0000 0000        0x20000
+  # Bit 18    Temperature sampling fail               0100 0000 0000 0000 0000        0x40000
+  # Bit 19    MOSFET short circuit                    1000 0000 0000 0000 0000        0x80000
+  # Bit 20    EEPROM error                       0001 0000 0000 0000 0000 0000       0x100000
+  # Bit 21    Internal communication fail        0010 0000 0000 0000 0000 0000       0x200000
+  # Bit 22    PCS communication fail             0100 0000 0000 0000 0000 0000       0x400000
+  # Bit 23    Master address repeat              1000 0000 0000 0000 0000 0000       0x800000
+  # Bit 24    Cell high voltage                                                     0x1000000
+  # Bit 25    Cell low voltage                                                      0x2000000
+  # Bit 26    Module high voltage                                                   0x4000000
+  # Bit 27    Module low voltage                                                    0x8000000
+  # Bit 28    Charge high current                                                  0x10000000
+  # Bit 29    Discharge high current                                               0x20000000
+  # Bit 30    Cell high temperature charge                                         0x40000000
+  # Bit 31    Cell low temperature charge                                          0x80000000
+  # Bit 32    Cell high temperature discharge                                     0x100000000
+  # Bit 33    Cell low temperature discharge                                      0x200000000
+  # Bit 34    Cell voltage high difference                                        0x400000000
+  # Bit 35    Cell temperature high difference                                    0x800000000
+  # Bit 36    MOSFET high temperature                                            0x1000000000
+  # Bit 37    Heating film high temperature                                      0x2000000000
+  # Bit 38    Heat MOS adheasion                                                 0x4000000000
+  # Bit 49    Heat error                                                         0x8000000000
+
+  # +--------------------------------------+
+  # | YamBMS Errors Bitmask (16bit)        |
+  # +--------------------------------------+
+
+  # Bit 0     General alarm                                0000 0000 0000 0001         0x0001
+  # Bit 1     Battery high voltage alarm                   0000 0000 0000 0010         0x0002
+  # Bit 2     Battery low voltage alarm                    0000 0000 0000 0100         0x0004
+  # Bit 3     Battery high temperature alarm               0000 0000 0000 1000         0x0008
+  # Bit 4     Battery low temperature alarm                0000 0000 0001 0000         0x0010
+  # Bit 5     Battery high temperature charge alarm        0000 0000 0010 0000         0x0020
+  # Bit 6     Battery low temperature charge alarm         0000 0000 0100 0000         0x0040
+  # Bit 7     Battery high discharge current alarm         0000 0000 1000 0000         0x0080
+  # Bit 8     Battery high charge current alarm            0000 0001 0000 0000         0x0100
+  # Bit 9     Contactor alarm                              0000 0010 0000 0000         0x0200
+  # Bit 10    Short circuit alarm                          0000 0100 0000 0000         0x0400
+  # Bit 11    BMS internal alarm                           0000 1000 0000 0000         0x0800
+  # Bit 12    Cell imbalance alarm                         0001 0000 0000 0000         0x1000
+  # Bit 13    Reserved                                     0010 0000 0000 0000         0x2000
+  # Bit 14    Reserved                                     0100 0000 0000 0000         0x4000
+  # Bit 15    Reserved                                     1000 0000 0000 0000         0x8000
+
+sensor:
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask
+    name: "${name} ${bms_name} YamBMS Errors Bitmask"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      uint64_t bms_errors_bitmask = id(deye${deye_id}_bms_errors_bitmask).state;
+      uint16_t yambms_errors_bitmask = 0;
+
+      if (bms_errors_bitmask > 0)
+      {
+        // General alarm:
+        // Unused
+        // High voltage
+        if (bms_errors_bitmask & 0x0005) yambms_errors_bitmask |= 0x0002; // Cell or module
+        // Low voltage
+        if (bms_errors_bitmask & 0x000A) yambms_errors_bitmask |= 0x0004; // Cell or module
+        // High temperature:
+        // - Cell overtemperature discharge
+        // - MOSFET overtemperature
+        // - Heating film overtemperature
+        // - Cell high temperature discharge
+        // - MOSFET high temperature
+        // - Heating film high temperature
+        if (bms_errors_bitmask & 0x3100003100) yambms_errors_bitmask |= 0x0008;
+        // Low temperature:
+        // - Cell undertemperature discharge
+        // - Cell low temperature discharge
+        if (bms_errors_bitmask & 0x200000200) yambms_errors_bitmask |= 0x0010;
+        // High temperature charge:
+        // - Cell overtemperature charge
+        // - Cell high temperature charge
+        if (bms_errors_bitmask & 0x40000040) yambms_errors_bitmask |= 0x0020;
+        // Low temperature charge:
+        // - Cell undertemperature charge
+        // - Cell low temperature charge
+        if (bms_errors_bitmask & 0x80000080) yambms_errors_bitmask |= 0x0040;
+        // High discharge current:
+        // - Discharge overcurrent
+        // - Discharge high current
+        if (bms_errors_bitmask & 0x20000020) yambms_errors_bitmask |= 0x0080;
+        // High charge current:
+        // - Charge overcurrent
+        // - Charge high current
+        if (bms_errors_bitmask & 0x10000010) yambms_errors_bitmask |= 0x0100;
+        // Contactor:
+        // Unused
+        // Short circuit alarm:
+        // - MOSFET short circuit
+        if (bms_errors_bitmask & 0x80000) yambms_errors_bitmask |= 0x0400;
+        // BMS internal alarm:
+        // - AFE communication fail
+        // - Cell voltage sampling fail
+        // - Temperature sampling fail
+        // - EEPROM error
+        // - Internal communication fail
+        // - PCS communication fail
+        if (bms_errors_bitmask & 0x770000) yambms_errors_bitmask |= 0x0800;
+        // Cell imbalance alarm:
+        // - Cell overvoltage
+        // - Cell undervoltage
+        // - Cell voltage overdifference
+        // - Cell voltage high difference
+        // - Cell temperature overdifference
+        // - Cell temperature high difference
+        if (bms_errors_bitmask & 0xC00000C03) yambms_errors_bitmask |= 0x1000;
+      }
+
+      return yambms_errors_bitmask;

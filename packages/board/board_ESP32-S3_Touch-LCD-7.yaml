@@ -1,0 +1,230 @@
+# Updated : 2025.06.12
+# Version : 1.1.3
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-7
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "Touch LCD 7"
+  # Interfaces GPIOs
+  # uart_esp_1               UART1 (USB-C) / UART2 port (UART selection switch SW1)
+  tx_pin_1: '43'
+  rx_pin_1: '44'
+  # uart_esp_2               RS485 port
+  tx_pin_2: '15'
+  rx_pin_2: '16'
+  # canbus_esp32_can         USB / CAN port
+  tx_pin_4: '20'
+  rx_pin_4: '19'
+  # I²C bus                  I²C port and Touch screen
+  i2c_sda: '8'
+  i2c_scl: '9'
+  # SPI bus                  SD card
+  spi_mosi_pin: '11'
+  spi_clk_pin: '12'
+  spi_miso_pin: '13'
+  cs_pin: '4' # ch422g_hub
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 8MB
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio                  # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_upload.maximum_ram_size: 524288        # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
+
+# PSRAM activation with default options
+psram:
+  mode: octal
+  speed: 80MHz
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+  hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+# +--------------------------------------+
+# | S3 Touch-LCD-7 related configuration |
+# +--------------------------------------+
+
+output:
+  # ESP32 board without LED
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+      #- lambda: C++ code; # action to be performed at each inverter heartbeat
+
+  # Enable CAN TJA1051 chip
+  - platform: gpio
+    id: USB_SEL
+    pin:
+      # https://esphome.io/components/ch422g.html
+      ch422g: ch422g_hub
+      number: 5
+      mode:
+        output: true
+      inverted: true # set to HIGH level
+
+# switch:
+#   - platform: gpio
+#     name: ${name} USB-CAN selection
+#     pin:
+#       # https://esphome.io/components/ch422g.html
+#       ch422g: ch422g_hub
+#       number: 5
+#       mode:
+#         output: true
+#       inverted: true # set default to HIGH level
+
+# I/O Expander
+# esphome 2024.9.0
+# https://esphome.io/components/ch422g.html
+ch422g:
+  - id: ch422g_hub
+
+# I²C bus
+i2c:
+  sda: ${i2c_sda}
+  scl: ${i2c_scl}
+  scan: True
+
+# LCD 800×480
+display:
+  - platform: rpi_dpi_rgb
+    id: my_display
+    auto_clear_enabled: false
+    update_interval: never
+    color_order: RGB
+    pclk_frequency: 14MHz # 16
+    dimensions:
+      width: 800
+      height: 480
+    de_pin:
+      number: 5
+    reset_pin:
+      ch422g: ch422g_hub
+      number: 3
+    # esphome 2024.9.0
+    enable_pin:
+      ch422g: ch422g_hub
+      number: 2
+    hsync_pin:
+      number: 46
+      ignore_strapping_warning: true
+    vsync_pin:
+      number: 3
+      ignore_strapping_warning: true
+    pclk_pin: 7
+    hsync_back_porch: 10  # 30
+    hsync_front_porch: 20 # 210
+    hsync_pulse_width: 10 # 30
+    vsync_back_porch: 10  # 4
+    vsync_front_porch: 10 # 4
+    vsync_pulse_width: 10 # 4
+    data_pins:
+      red:
+        - 1         #r3
+        - 2         #r4
+        - 42        #r5
+        - 41        #r6
+        - 40        #r7
+      blue:
+        - 14        #b3
+        - 38        #b4
+        - 18        #b5
+        - 17        #b6
+        - 10        #b7
+      green:
+        - 39        #g2
+        - 0         #g3
+        - 45        #g4
+        - 48        #g5
+        - 47        #g6
+        - 21        #g7
+
+# Touch screen (I²C bus)
+# has_gt911_5d = i2c.probe_device(0x5d);
+# has_gt911_14 = i2c.probe_device(0x14);
+touchscreen:
+  platform: gt911
+  id: my_touchscreen
+  update_interval: 16ms
+  interrupt_pin: 4
+  # esphome 2024.9.0
+  reset_pin:
+    ch422g: ch422g_hub
+    number: 1
+  on_touch:
+    - lambda: |-
+          ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+              touch.x,
+              touch.y,
+              touch.x_raw,
+              touch.y_raw
+              );
+
+font:
+  - file: "gfonts://Roboto"
+    id: chu_nano
+    size: 12
+
+# LVGL
+lvgl:
+  displays:
+    - my_display
+  touchscreens:
+    - my_touchscreen
+  pages:
+    - id: main_page
+      widgets:
+        - label:
+            align: CENTER
+            text: 'YamBMS is running...'

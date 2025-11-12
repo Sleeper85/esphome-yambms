@@ -1,5 +1,5 @@
-# Updated : 2025.01.19
-# Version : 1.5.3
+# Updated : 2025.07.13
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -56,10 +56,6 @@ globals:
     restore_value: no
     initial_value: '0'
   - id: ${yambms_id}_var_bms_blocking_discharge_counter
-    type: int
-    restore_value: no
-    initial_value: '0'
-  - id: ${yambms_id}_var_total_cell_count
     type: int
     restore_value: no
     initial_value: '0'
@@ -147,6 +143,10 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: ${yambms_id}_var_bms_total_soh
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   # Shunt
   - id: ${yambms_id}_var_shunt_use
     type: bool
@@ -214,6 +214,7 @@ interval:
             float current = 0.0;
             float power = 0.0;
             float soc = 0.0;
+            float soh = 0.0;
             float charging_cycles = 0.0;
 
             // At least one BMS can be combined
@@ -241,7 +242,10 @@ interval:
               if (id(${yambms_id}_var_shunt_use) == true)
                 soc = (id(${yambms_id}_var_shunt_total_soc) / id(${yambms_id}_var_to_combine_shunt_counter));
               else
-                soc = (id(${yambms_id}_var_bms_total_soc) / id(${yambms_id}_var_to_combine_bms_counter));
+                soc = round(id(${yambms_id}_var_total_capacity_remaining_ah) / id(${yambms_id}_var_total_battery_capacity) * 100);
+
+              // MEAN battery_soh
+              soh = (id(${yambms_id}_var_bms_total_soh) / id(${yambms_id}_var_to_combine_bms_counter));
 
               // MEAN charging_cycles
               charging_cycles = (id(${yambms_id}_var_total_charging_cycles) / id(${yambms_id}_var_to_combine_bms_counter));
@@ -252,6 +256,7 @@ interval:
             id(${yambms_id}_current).publish_state(current);
             id(${yambms_id}_power).publish_state(power);
             id(${yambms_id}_state_of_charge).publish_state(soc);
+            id(${yambms_id}_battery_soh).publish_state(soh);
             id(${yambms_id}_charging_cycles).publish_state(charging_cycles);
 
             // TOTAL battery_capacity
@@ -307,7 +312,7 @@ interval:
               id(${yambms_id}_charging_allowed).publish_state(true);
             else
               id(${yambms_id}_charging_allowed).publish_state(false);
-            
+
             // BMS discharging allowed
             if (id(${yambms_id}_var_to_combine_bms_counter) && id(${yambms_id}_var_discharging_allowed_counter) > 0)
               id(${yambms_id}_discharging_allowed).publish_state(true);
@@ -331,6 +336,7 @@ interval:
             id(${yambms_id}_var_shunt_total_power) = 0.0;
             id(${yambms_id}_var_bms_total_soc) = 0.0;
             id(${yambms_id}_var_shunt_total_soc) = 0.0;
+            id(${yambms_id}_var_bms_total_soh) = 0.0;
             id(${yambms_id}_var_total_battery_capacity) = 0.0;
             id(${yambms_id}_var_total_capacity_remaining_ah) = 0.0;
             id(${yambms_id}_var_total_max_charge_current) = 0.0;
@@ -373,27 +379,15 @@ binary_sensor:
     name: "${name} ${yambms_name} BMS discharging allowed"
 
 sensor:
-  # # cell_count SUM
-  # - platform: template
-  #   id: ${yambms_id}_cell_count_total
-  #   name: "${name} ${yambms_name} Cell Count (Σ)"
-  #   update_interval: ${yambms_update_interval}
-  #   accuracy_decimals: 0
-  #   icon: mdi:counter
-  #   filters:
-  #     - or:
-  #       - throttle: 10s
-  #       - delta: 1
-  #   lambda: return id(${yambms_id}_var_total_cell_count);
-
   # max_charge_current SUM
   - platform: template
     id: ${yambms_id}_max_charge_current
-    name: "${name} ${yambms_name} Max Charge current (Σ)"
+    name: "${name} ${yambms_name} Max Charge current"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: A
-    icon: mdi:current-dc
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -402,11 +396,12 @@ sensor:
   # max_discharge_current SUM
   - platform: template
     id: ${yambms_id}_max_discharge_current
-    name: "${name} ${yambms_name} Max Discharge Current (Σ)"
+    name: "${name} ${yambms_name} Max Discharge Current"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: A
-    icon: mdi:current-dc
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -417,8 +412,9 @@ sensor:
     id: ${yambms_id}_min_voltage_cell
     name: "${name} ${yambms_name} Min Voltage Cell"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:numeric
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -429,8 +425,9 @@ sensor:
     id: ${yambms_id}_max_voltage_cell
     name: "${name} ${yambms_name} Max Voltage Cell"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:numeric
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -441,9 +438,10 @@ sensor:
     id: ${yambms_id}_min_cell_voltage
     name: "${name} ${yambms_name} Min Cell Voltage"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 3
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
     filters:
       - or:
         - throttle: 10s
@@ -454,9 +452,10 @@ sensor:
     id: ${yambms_id}_max_cell_voltage
     name: "${name} ${yambms_name} Max Cell Voltage"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 3
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
     filters:
       - or:
         - throttle: 10s
@@ -467,9 +466,10 @@ sensor:
     id: ${yambms_id}_delta_cell_voltage
     name: "${name} ${yambms_name} Delta Cell Voltage"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 3
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
     filters:
       - or:
         - throttle: 10s
@@ -479,11 +479,12 @@ sensor:
   # total_voltage MEAN
   - platform: template
     id: ${yambms_id}_total_voltage
-    name: "${name} ${yambms_name} Total Voltage (Ø)"
+    name: "${name} ${yambms_name} Total Voltage"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 2
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 2
     filters:
       - or:
         - throttle: 10s
@@ -492,11 +493,12 @@ sensor:
   # current SUM
   - platform: template
     id: ${yambms_id}_current
-    name: "${name} ${yambms_name} Current (Σ)"
+    name: "${name} ${yambms_name} Current"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 1
     unit_of_measurement: A
-    icon: mdi:current-dc
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 1
     filters:
       - or:
         - throttle: 10s
@@ -505,11 +507,12 @@ sensor:
   # power SUM
   - platform: template
     id: ${yambms_id}_power
-    name: "${name} ${yambms_name} Power (Σ)"
+    name: "${name} ${yambms_name} Power"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: W
     device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -518,25 +521,41 @@ sensor:
   # state_of_charge MEAN
   - platform: template
     id: ${yambms_id}_state_of_charge
-    name: "${name} ${yambms_name} SoC (Ø)"
+    name: "${name} ${yambms_name} SoC"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: '%'
     device_class: battery
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
         - delta: 1
     internal: true # source for ${yambms_id}_battery_soc
 
+  # battery_soh MEAN
+  - platform: template
+    id: ${yambms_id}_battery_soh
+    name: ${name} ${yambms_name} Battery SoH
+    update_interval: ${yambms_update_interval}
+    unit_of_measurement: "%"
+    device_class: battery
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+
   # installed_battery_capacity SUM
   - platform: template
     id: ${yambms_id}_installed_battery_capacity
-    name: "${name} ${yambms_name} Installed Battery Capacity (Σ)"
+    name: "${name} ${yambms_name} Installed Battery Capacity"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
+    state_class: measurement
+    icon: mdi:car-battery
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -546,11 +565,12 @@ sensor:
   # battery_capacity SUM
   - platform: template
     id: ${yambms_id}_battery_capacity
-    name: "${name} ${yambms_name} Battery Capacity (Σ)"
+    name: "${name} ${yambms_name} Battery Capacity"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
+    state_class: measurement
+    icon: mdi:car-battery
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -559,11 +579,12 @@ sensor:
   # capacity_remaining_ah SUM
   - platform: template
     id: ${yambms_id}_capacity_remaining_ah
-    name: "${name} ${yambms_name} Capacity Remaining (Σ)"
+    name: "${name} ${yambms_name} Capacity Remaining"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
+    state_class: measurement
+    icon: mdi:car-battery
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -574,9 +595,10 @@ sensor:
     id: ${yambms_id}_cell_ovp
     name: "${name} ${yambms_name} Cell OVP (MIN)"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 3
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
     filters:
       - or:
         - throttle: 10s
@@ -587,9 +609,10 @@ sensor:
     id: ${yambms_id}_cell_uvp
     name: "${name} ${yambms_name} Cell UVP (MAX)"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 3
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
     filters:
       - or:
         - throttle: 10s
@@ -600,9 +623,10 @@ sensor:
     id: ${yambms_id}_balance_trigger_voltage
     name: "${name} ${yambms_name} Balance Trigger Voltage (MAX)"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 3
     unit_of_measurement: V
     device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 3
     filters:
       - or:
         - throttle: 10s
@@ -613,9 +637,10 @@ sensor:
     id: ${yambms_id}_min_temperature
     name: "${name} ${yambms_name} Min temperature"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 1
     unit_of_measurement: °C
     device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
     filters:
       - or:
         - throttle: 10s
@@ -626,9 +651,10 @@ sensor:
     id: ${yambms_id}_max_temperature
     name: "${name} ${yambms_name} Max temperature"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 1
     unit_of_measurement: °C
     device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
     filters:
       - or:
         - throttle: 10s
@@ -639,8 +665,9 @@ sensor:
     id: ${yambms_id}_min_temperature_sensor
     name: "${name} ${yambms_name} Min temperature sensor"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:numeric
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -651,8 +678,9 @@ sensor:
     id: ${yambms_id}_max_temperature_sensor
     name: "${name} ${yambms_name} Max temperature sensor"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:numeric
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -661,10 +689,11 @@ sensor:
   # charging_cycles MEAN
   - platform: template
     id: ${yambms_id}_charging_cycles
-    name: "${name} ${yambms_name} Charging Cycles (Ø)"
+    name: "${name} ${yambms_name} Charging Cycles"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -675,8 +704,9 @@ sensor:
     id: ${yambms_id}_errors_bitmask_alarm
     name: "${name} ${yambms_name} Errors Bitmask Alarm"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:alert-circle-outline
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -687,8 +717,9 @@ sensor:
     id: ${yambms_id}_errors_bitmask_warning
     name: "${name} ${yambms_name} Errors Bitmask Warning"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:alert-circle-outline
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -699,8 +730,9 @@ sensor:
     id: ${yambms_id}_errors_bitmask_counter
     name: "${name} ${yambms_name} BMS in alarm"
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -711,8 +743,9 @@ sensor:
     name: ${name} ${yambms_name} BMS count
     id: ${yambms_id}_bms_count
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -724,8 +757,9 @@ sensor:
     name: ${name} ${yambms_name} BMS combined
     id: ${yambms_id}_bms_combined
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -737,8 +771,9 @@ sensor:
     name: ${name} ${yambms_name} BMS blocking charge
     id: ${yambms_id}_bms_blocking_charge
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -749,8 +784,9 @@ sensor:
     name: ${name} ${yambms_name} BMS blocking discharge
     id: ${yambms_id}_bms_blocking_discharge
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -761,8 +797,9 @@ sensor:
     name: ${name} ${yambms_name} Shunt count
     id: ${yambms_id}_shunt_count
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
@@ -774,42 +811,11 @@ sensor:
     name: ${name} ${yambms_name} Shunt combined
     id: ${yambms_id}_shunt_combined
     update_interval: ${yambms_update_interval}
-    accuracy_decimals: 0
     icon: mdi:counter
+    state_class: measurement
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
         - delta: 1
     lambda: return id(${yambms_id}_var_to_combine_shunt_counter);
-
-# power_tube_temperature MIN_MAX
-# - platform: template
-#   id: ${yambms_id}_power_tube_temperature
-#   name: "${name} ${yambms_name} power_tube_temperature"
-#   update_interval: ${yambms_update_interval}
-#   accuracy_decimals: 2
-#   unit_of_measurement: °C
-
-  # Charge_Current_max SUM
-#  - platform: template
-#    id: ${yambms_id}_charging_current
-#    name: "${name} ${yambms_name} CCL (Σ)"
-#    update_interval: ${yambms_update_interval}
-#    accuracy_decimals: 0
-#    unit_of_measurement: A
-#    filters:
-#      - or:
-#        - throttle: 10s
-#        - delta: 1
-
-  # Disharge_Current_max SUM
-#  - platform: template
-#    id: ${yambms_id}_discharging_current
-#    name: "${name} ${yambms_name} DCL (Σ)"
-#    update_interval: ${yambms_update_interval}
-#    accuracy_decimals: 0
-#    unit_of_measurement: A
-#    filters:
-#      - or:
-#        - throttle: 10s
-#        - delta: 1

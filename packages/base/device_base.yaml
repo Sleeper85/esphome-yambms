@@ -1,5 +1,5 @@
-# Updated : 2025.01.24
-# Version : 1.5.4
+# Updated : 2025.08.12
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,24 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-substitutions:
-  yambms_version: "1.5.4"
-
-external_components:
-  # https://github.com/esphome/esphome/pull/7547
-  # api: ensure fair network sharing + prevent lost state changes via deferred publish at high event load
-  - source: github://pr#7547
-    components: [ api, event ]
-
-esphome:
-  name: ${name}
-  # friendly_name: ${name}
-  # comment: 'Solar system braining and more !'
-  # area: 'Technical local'
-  project:
-    name: Sleeper85.YamBMS
-    version: ${yambms_version}
-  min_version: 2024.6.0
+packages:
+  device_base_esphome: !include device_base_esphome.yaml
 
 time:
   # https://esphome.io/components/time/homeassistant
@@ -46,16 +30,23 @@ button:
   # https://esphome.io/components/button/restart
   - platform: restart
     name: ${name} ESP32 Restart
+    id: esp32_restart_button
+    entity_category: config
+  # https://esphome.io/components/button/factory_reset
+  - platform: factory_reset
+    name: ${name} ESP32 Factory Reset
+    id: esp32_factory_reset_button
     entity_category: config
 
 binary_sensor:
-  # https://esphome.io/components/binary_sensor/status  
+  # https://esphome.io/components/binary_sensor/status
   - platform: status
     name: ${name} ESP32 Online Status
     id: esp32_online_status
     entity_category: diagnostic
   # Inverter communication status (CANBUS / RS485)
   - platform: template
+    name: ${name} Inverter communication status
     id: inverter_com_status
     entity_category: diagnostic
 

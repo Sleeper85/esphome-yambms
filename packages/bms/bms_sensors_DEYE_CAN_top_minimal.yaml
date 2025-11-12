@@ -1,0 +1,196 @@
+# Updated : 2025.06.10
+# Version : 1.1.3
+# GitHub  : https://github.com/GHswitt/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+globals:
+  - id: deye${deye_id}_send_flag
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+# +-----------------------------------------------+
+# | DEYE CAN PCS frames                           |
+# | Thanks to:                                    |
+# | https://github.com/Psynosaur/esphome-deye-bms |
+# +-----------------------------------------------+
+
+canbus:
+  - id: !extend ${canbus_id}
+    on_frame:
+    - can_id: 0x351
+      then:
+        - lambda: |-
+            float u_max = ((x[1] << 8) | x[0]) / 10.0;
+            id(deye${deye_id}_battery_charge_voltage).publish_state(u_max);
+            int i_charge = ((x[3] << 8) | x[2]) / 10;
+            id(deye${deye_id}_max_charge_current).publish_state(i_charge);
+            int i_discharge = ((x[5] << 8) | x[4]) / 10;
+            id(deye${deye_id}_max_discharge_current).publish_state(i_discharge);
+            float u_min = ((x[7] << 8) | x[6]) / 10.0;
+            id(deye${deye_id}_battery_discharge_voltage).publish_state(u_min);
+
+            if (!id(deye${deye_id}_send_flag)) {
+              std::vector<uint8_t> data{0x01};
+              id(${canbus_id})->send_data(0x18A2FF80, true, data);
+              id(deye${deye_id}_send_flag) = true;
+            }
+
+    - can_id: 0x355
+      then:
+        - lambda: |-
+            float soc = ((x[1] << 8) | x[0]);
+            id(deye${deye_id}_state_of_charge).publish_state(soc);
+            float soh = ((x[3] << 8) | x[2]);
+            id(deye${deye_id}_battery_state_of_health).publish_state(soh);
+          #  ESP_LOGI("canid 0x355:", "SoC %d %, SoH %d %",soc, soh );
+
+    - can_id: 0x359
+      then:
+        - lambda: |-
+            uint64_t combined = x[0] | x[1] << 8 | x[3] << 16 | x[4] << 24 | (uint64_t)x[5] << 32;
+            id(deye${deye_id}_bms_errors_bitmask).publish_state(combined);
+
+    - can_id: 0x35e
+      then:
+        - lambda: |-
+            int cap = ((x[7] << 8) | x[6]) / 10;
+            id(deye${deye_id}_battery_capacity).publish_state(cap);
+
+    - can_id: 0x364
+      then:
+        - lambda: |-
+            id(deye${deye_id}_module_amount_normal_state).publish_state(x[0]);
+            id(deye${deye_id}_module_amount_charge_disabled).publish_state(x[1]);
+            id(deye${deye_id}_module_amount_discharge_disabled).publish_state(x[2]);
+            id(deye${deye_id}_module_amount_communication_disconnected).publish_state(x[3]);
+            id(deye${deye_id}_module_amount).publish_state(x[4]);
+
+sensor:
+  # Charge voltage
+  - platform: template
+    name: "${name} ${deye_name} charge voltage"
+    id: deye${deye_id}_battery_charge_voltage
+    unit_of_measurement: 'V'
+    device_class: 'voltage'
+    state_class: 'measurement'
+    accuracy_decimals: 2
+
+  # Discharge voltage
+  - platform: template
+    name: "${name} ${deye_name} discharge voltage"
+    id: deye${deye_id}_battery_discharge_voltage
+    unit_of_measurement: 'V'
+    device_class: 'voltage'
+    state_class: 'measurement'
+    accuracy_decimals: 2
+
+  # Maximum charging current
+  - platform: template
+    id: deye${deye_id}_max_charge_current
+    name: "${name} ${deye_name} max charging current"
+    unit_of_measurement: 'A'
+    device_class: 'current'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 30s
+        - delta: 10
+
+  # Maximum discharging current
+  - platform: template
+    id: deye${deye_id}_max_discharge_current
+    name: "${name} ${deye_name} max discharging current"
+    unit_of_measurement: 'A'
+    device_class: 'current'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 30s
+        - delta: 10
+
+
+  # SOC
+  - platform: template
+    unit_of_measurement: '%'
+    device_class: 'battery'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+    id: deye${deye_id}_state_of_charge
+    name: "${name} ${deye_name} battery SoC"
+
+  # SOH
+  - platform: template
+    name: "${name} ${deye_name} battery SoH"
+    id: deye${deye_id}_battery_state_of_health
+    unit_of_measurement: '%'
+    device_class: 'battery'
+    state_class: 'measurement'
+    accuracy_decimals: 0
+
+  # Errors bitmask
+  - platform: template
+    id: deye${deye_id}_bms_errors_bitmask
+    name: "${name} ${deye_name} BMS Errors Bitmask"
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+
+  # Modules in normal state
+  - platform: template
+    name: "${name} ${deye_name} Module amount normal state"
+    id: deye${deye_id}_module_amount_normal_state
+    state_class: 'measurement'
+    accuracy_decimals: 0
+
+  # Modules with charge disabled
+  - platform: template
+    name: "${name} ${deye_name} Module amount charge disabled"
+    id: deye${deye_id}_module_amount_charge_disabled
+    state_class: 'measurement'
+    accuracy_decimals: 0
+
+  # Modules with discharge disabled
+  - platform: template
+    name: "${name} ${deye_name} Module amount discharge disabled"
+    id: deye${deye_id}_module_amount_discharge_disabled
+    state_class: 'measurement'
+    accuracy_decimals: 0
+
+  # Modules with communication errors
+  - platform: template
+    name: "${name} ${deye_name} Module amount communication disconnected"
+    id: deye${deye_id}_module_amount_communication_disconnected
+    state_class: 'measurement'
+    accuracy_decimals: 0
+
+  # Number of modules
+  - platform: template
+    name: "${name} ${deye_name} Module amount"
+    id: deye${deye_id}_module_amount
+    state_class: 'measurement'
+    accuracy_decimals: 0
+
+  # Battery capacity
+  - platform: template
+    name: "${name} ${deye_name} battery capacity"
+    id: deye${deye_id}_battery_capacity
+    unit_of_measurement: 'Ah'
+    device_class: 'energy'
+    state_class: 'total_increasing'
+    accuracy_decimals: 0

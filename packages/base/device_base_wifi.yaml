@@ -1,5 +1,5 @@
-# Updated : 2025.01.20
-# Version : 1.5.3
+# Updated : 2025.08.12
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,21 +18,25 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 sensor:
-  # https://esphome.io/components/sensor/wifi_signal 
+  # https://esphome.io/components/sensor/wifi_signal
   - platform: wifi_signal
     name: ${name} ESP32 WiFi power
     id: esp32_wifi_power
-    update_interval: 10s
+    update_interval: 30s
     entity_category: diagnostic
 
-  - platform: copy # Reports the WiFi signal strength in %
-    source_id: esp32_wifi_power
+  # Reports the WiFi signal strength in %
+  - platform: template
     name: ${name} ESP32 WiFi power (%)
     id: esp32_wifi_power_percent
+    update_interval: 30s
     unit_of_measurement: '%'
+    icon: mdi:wifi
     entity_category: diagnostic
-    filters:
-      - lambda: 'return min(max(2 * (x + 100.0), 0.0), 100.0);'
+    accuracy_decimals: 0
+    lambda: |-
+      float wifi_power_dbm = id(esp32_wifi_power).state;
+      return min(max(2 * (wifi_power_dbm + 100.0), 0.0), 100.0);
 
 text_sensor:
   # https://esphome.io/components/text_sensor/wifi_info

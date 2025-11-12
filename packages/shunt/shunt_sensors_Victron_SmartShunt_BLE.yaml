@@ -61,6 +61,7 @@ binary_sensor:
     victron_ble_id: victron_ble${shunt_id}
     name: "${name} ${shunt_name} Battery has Alarm"
     type: ALARM
+    device_id: ${shunt_device_id}
   # Required sensors cannot be retrieved from Shunt
   # online_status
   - platform: template
@@ -71,42 +72,50 @@ binary_sensor:
         return true;
       else
         return false;
+    device_id: ${shunt_device_id}
 
 text_sensor:
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     name: "${name} ${shunt_name} Battery Alarm reason"
     type: ALARM_REASON
+    device_id: ${shunt_device_id}
 
 sensor:
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     name: "${name} ${shunt_name} Time remaining"
     type: TIME_TO_GO
+    device_id: ${shunt_device_id}
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_voltage
     name: "${name} ${shunt_name} Voltage"
     type: BATTERY_VOLTAGE
+    device_id: ${shunt_device_id}
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_current
     name: "${name} ${shunt_name} Current"
     type: BATTERY_CURRENT
+    device_id: ${shunt_device_id}
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_power
     name: "${name} ${shunt_name} Power"
     type: BATTERY_POWER
+    device_id: ${shunt_device_id}
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_soc
     name: "${name} ${shunt_name} State of Charge"
     type: STATE_OF_CHARGE
+    device_id: ${shunt_device_id}
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     name: "${name} ${shunt_name} Consumed Ah"
     type: CONSUMED_AH
+    device_id: ${shunt_device_id}
   # - platform: victron_ble
   #   victron_ble_id: victron_ble${shunt_id}
   #   name: "${name} ${shunt_name} Starter Battery" # BAUX_VOLTAGE or MID_VOLTAGE or TEMPERATURE, depending on configuration of SmartShunt.
