@@ -1,4 +1,4 @@
-# Updated : 2025.08.11
+# Updated : 2025.08.12
 # Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -38,7 +38,7 @@ logger:
   level: INFO # VERBOSE / DEBUG / INFO / WARN
 
 ota:
-  platform: esphome
+  - platform: esphome
 
 # Please use the native `api` component instead of the `mqtt` section.
 # If you use Home Assistant, the native API is more lightweight.
@@ -195,7 +195,10 @@ packages:
       # Web Server
       # - path: 'packages/yambms/yambms_web_server.yaml'
 
-      # Captive Portal
+      # WiFi AP @ 192.168.4.1
+      # - path: 'packages/board/board_options_wifi_ap.yaml'
+
+      # Captive Portal @ 192.168.4.1
       # - path: 'packages/board/board_options_captive_portal.yaml'
 
 
@@ -310,7 +313,7 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> YamBMS core
+  # | >>> YamBMS
   # +------------------------------------------------------------------------------+
 
   yambms:

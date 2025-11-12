@@ -1,5 +1,5 @@
-# Updated : 2025.08.11
-# Version : 1.1.1
+# Updated : 2025.08.12
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,11 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+ota:
+  - platform: web_server
+
 web_server:
   port: 80
   version: 3
+  local: true
   log: true
-  ota: false
+  # ota: false
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
   # Sorting groups
   sorting_groups:
     # YamBMS - Requested values

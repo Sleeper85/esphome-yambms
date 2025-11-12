@@ -1,5 +1,5 @@
-# Updated : 2025.09.04
-# Version : 1.3.0
+# Updated : 2025.09.12
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,30 +18,37 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  board_chip: "ESP32-C3"
-  board_name: "ETH01-EVO"
+  board_chip: "ESP32-S3" # N16R8
+  board_name: "ESP32-S3-ETH"
   # Interfaces GPIOs
   # uart_esp_1
-  tx_pin_1: '2'
-  rx_pin_1: '5'
+  tx_pin_1: '17'
+  rx_pin_1: '18'
   # uart_esp_2
-  tx_pin_2: '0'
-  rx_pin_2: '1'
+  tx_pin_2: '15'
+  rx_pin_2: '16'
+  # uart_esp_3
+  tx_pin_3: '2'
+  rx_pin_3: '3'
   # canbus_esp32_can
-  tx_pin_4: '19'
-  rx_pin_4: '18'
+  tx_pin_4: '47'
+  rx_pin_4: '48'
+  # canbus_mcp2515
+  spi_clk_pin: '39'
+  spi_mosi_pin: '40'
+  spi_miso_pin: '41'
+  mcp2515_cs_pin: '42'
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_ethernet: !include ../base/device_base_ethernet.yaml
 
 esp32:
-  board: esp32-c3-devkitm-1
-  variant: esp32c3
-  # flash_size: 2MB
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
-    # version: latest
 
 esphome:
   platformio_options:
@@ -49,14 +56,14 @@ esphome:
 
 ethernet:
   id: my_network
-  type: DM9051
-  clk_pin: 7
-  mosi_pin: 10
-  miso_pin: 3
-  cs_pin: 9
-  interrupt_pin: 8
-  reset_pin: 6
-  clock_speed: 8MHz
+  type: W5500
+  mosi_pin: 11
+  miso_pin: 12
+  clk_pin: 13
+  cs_pin: 14
+  reset_pin: 9
+  interrupt_pin: 10
+  clock_speed: 25MHz
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"

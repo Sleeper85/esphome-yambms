@@ -1,5 +1,5 @@
-# Updated : 2025.06.12
-# Version : 1.1.3
+# Updated : 2025.08.12
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -52,7 +52,9 @@ ethernet:
   type: LAN8720
   mdc_pin: 23
   mdio_pin: 18
-  clk_mode: GPIO0_IN
+  clk:
+    pin: GPIO0
+    mode: CLK_EXT_IN
   phy_addr: 0
 
 logger:

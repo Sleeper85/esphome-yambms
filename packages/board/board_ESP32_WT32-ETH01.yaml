@@ -1,5 +1,5 @@
-# Updated : 2025.09.04
-# Version : 1.3.0
+# Updated : 2025.08.13
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,31 +17,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+# https://github.com/egnor/wt32-eth01
+# https://hackerspace-ffm.de/wiki/index.php?title=WT32-ETH01_ESP32_Modul_mit_LAN
+
 substitutions:
-  board_chip: "ESP32-C3"
-  board_name: "ETH01-EVO"
+  board_chip: "ESP32"
+  board_name: "WT32-ETH01"
   # Interfaces GPIOs
   # uart_esp_1
-  tx_pin_1: '2'
-  rx_pin_1: '5'
+  tx_pin_1: '32'
+  rx_pin_1: '33'
   # uart_esp_2
-  tx_pin_2: '0'
-  rx_pin_2: '1'
+  tx_pin_2: '4'
+  rx_pin_2: '5' # Green LED
+  # uart_esp_3
+  tx_pin_3: '1'
+  rx_pin_3: '3'
   # canbus_esp32_can
-  tx_pin_4: '19'
-  rx_pin_4: '18'
+  tx_pin_4: '14' # to CAN transceiver CTX
+  rx_pin_4: '15' # to CAN transceiver CRX
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_ethernet: !include ../base/device_base_ethernet.yaml
 
 esp32:
-  board: esp32-c3-devkitm-1
-  variant: esp32c3
-  # flash_size: 2MB
+  board: esp32dev
+  cpu_frequency: 240MHz
   framework:
     type: esp-idf
-    # version: latest
 
 esphome:
   platformio_options:
@@ -49,14 +53,14 @@ esphome:
 
 ethernet:
   id: my_network
-  type: DM9051
-  clk_pin: 7
-  mosi_pin: 10
-  miso_pin: 3
-  cs_pin: 9
-  interrupt_pin: 8
-  reset_pin: 6
-  clock_speed: 8MHz
+  type: LAN8720
+  mdc_pin: 23
+  mdio_pin: 18
+  power_pin: 16
+  clk:
+    pin: GPIO0
+    mode: CLK_EXT_IN
+  phy_addr: 1
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
@@ -69,14 +73,12 @@ light:
   # ESP Light used to see the inverter heartbeat
   # Internal : only specifying an id without a name will implicitly set this to true.
   - platform: binary
+    output: esp_led
     id: esp_light
-    output: esp_output
 
 output:
-  # ESP32 board without LED
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
-      #- lambda: C++ code; # action to be performed at each inverter heartbeat
+  # ESP LED
+  - platform: gpio
+    pin: 17
+    id: esp_led
+    inverted: true

@@ -1,5 +1,5 @@
-# Updated : 2025.07.30
-# Version : 1.5.8
+# Updated : 2025.08.12
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,6 +30,12 @@ button:
   # https://esphome.io/components/button/restart
   - platform: restart
     name: ${name} ESP32 Restart
+    id: esp32_restart_button
+    entity_category: config
+  # https://esphome.io/components/button/factory_reset
+  - platform: factory_reset
+    name: ${name} ESP32 Factory Reset
+    id: esp32_factory_reset_button
     entity_category: config
 
 binary_sensor:

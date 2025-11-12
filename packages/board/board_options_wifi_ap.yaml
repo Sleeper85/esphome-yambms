@@ -1,5 +1,5 @@
 # Updated : 2025.08.12
-# Version : 1.2.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,15 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-text_sensor:
-  # https://esphome.io/components/text_sensor/ethernet_info.html
-  - platform: ethernet_info
-    ip_address:
-      name: ${name} ESP32 IP address
-      id: esp32_ip_address
-    dns_address:
-      name: ${name} ESP32 DNS address
-      id: esp32_dns_address
-    mac_address:
-      name: ${name} ESP32 MAC address
-      id: esp32_mac_address
+wifi:
+  id: my_network
+  reboot_timeout: 0s
+  ap:
+    ssid: !secret wifi_ap_ssid
+    password: !secret wifi_ap_password
+
+button:
+  # WiFi AP mode
+  - platform: template
+    name: "ESP32 WiFi AP mode"
+    on_press:
+      - lambda: |-
+          id(my_network).set_ap_timeout(1);
+          id(my_network).disable();
+          id(my_network).clear_sta();
+          id(my_network).enable();
+    entity_category: config
