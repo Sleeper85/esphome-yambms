@@ -37,6 +37,10 @@ packages:
   yambms_auto_cvl: !include yambms_auto_cvl.yaml
   yambms_auto_ccl: !include yambms_auto_ccl.yaml
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
+  yambus_auto_chg_limiter: !include yambms_auto_chg_limiter.yaml
+  yambus_auto_dischg_limiter: !include yambms_auto_dischg_limiter.yaml
+  # Custom user config
+  # yambms_custom: !include yambms_custom.yaml
   yambms_auto_float: !include yambms_auto_float.yaml
 
 # Execute once
@@ -133,6 +137,11 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: ${yambms_id}_auto_chg_limit
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_auto_dischg_limit
   - id: ${yambms_id}_auto_float
     type: float
     restore_value: no
@@ -472,7 +481,7 @@ sensor:
     lambda: |-
       // Charging Allowed
       if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float"))
-        return (id(${yambms_id}_max_charge_current).state + id(${yambms_id}_auto_ccl));
+        return (id(${yambms_id}_max_charge_current).state + min(id(${yambms_id}_auto_ccl), id(${yambms_id}_auto_chg_limit)));
       // Charging Not Allowed
       else return 0;
 
@@ -494,7 +503,7 @@ sensor:
     lambda: |-
       // Discharging Allowed
       if (id(${yambms_id}_discharging_instruction).state == true)
-        return (id(${yambms_id}_max_discharge_current).state + id(${yambms_id}_auto_dcl));
+        return (id(${yambms_id}_max_discharge_current).state + min(id(${yambms_id}_auto_dcl),id(${yambms_id}_auto_dischg_limit)));
       // Discharging Not Allowed
       else return 0;
 

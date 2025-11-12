@@ -1,0 +1,137 @@
+# Updated : 2025.01.25
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # +--------------------------------------+
+  # | Use the settings below with caution  |
+  # +--------------------------------------+
+  # Factor to adjust the proportional gain of the auto charge power limiter PI logic.
+  # The higher the setting, the faster the correcting response. Too high a value will cause oscillation.
+  discharge_w_kp: "25.0"
+  # Factor to adjust the integral gain of the auto charge power limiter PI logic.
+  # The higher the setting, the more the correction response will be increased over time. Too high a value will cause oscillation.
+  discharge_w_ki: "90.0"
+
+switch:
+  - platform: template
+    name: ${name} ${yambms_name} Automatic Discharge Limiter
+    id: ${yambms_id}_switch_auto_discharge_power
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  - platform: template
+    name: "${name} ${yambms_name} Auto Discharge Power Limit"
+    id: "${yambms_id}_auto_discharge_w_limit"
+    step: 5
+    min_value: 0
+    max_value: 10000
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 6000
+    unit_of_measurement: W
+    optimistic: true
+    entity_category: config
+
+sensor:
+  # +--------------------------------------+
+  # | Auto Discharge Power Limiter         |
+  # +--------------------------------------+
+  - platform: template
+    id: auto_discharge_a
+    update_interval: 1s
+    unit_of_measurement: A
+    device_class: current
+    internal: true
+    lambda: |-
+            // Variables
+
+            double static integral = 0.0;                                             // Integral term initialization
+            double static prev_integral = 0.0;                                        // Prior Integral term initialization
+            
+            double batt_v = id(${yambms_id}_total_voltage).state;
+            double batt_a = -id(${yambms_id}_current).state;
+            double batt_w = batt_v * batt_a;
+            
+            double target_batt_w = id(${yambms_id}_auto_discharge_w_limit).state;
+            double target_batt_a = target_batt_w / batt_v;
+            
+            double max_batt_a = id(${yambms_id}_max_discharge_current).state;
+            double min_batt_a = 0.0;
+            
+            double req_batt_a = target_batt_a;                 
+            
+            double kp = ${discharge_w_kp} / 1000;                                     // Proportional gain, scaled
+            double ki = ${discharge_w_ki} / 1000;                                     // Integral gain, scaled
+            double dt = 1;                                                            // Time step
+            double error = 0.0;                                                       // Starting error
+            double output = 0.0;                                                      // Starting output
+            double ki_control_zone = 200;
+
+            // Check feature enabled
+            if (!id(${yambms_id}_switch_auto_discharge_power).state){
+              id(${yambms_id}_auto_dischg_limit) = 0.0;
+              output = 0;
+              integral = 0.0;
+              prev_integral = 0;
+              return max_batt_a;
+              
+            } else {
+            
+            // Calculate error
+            error = target_batt_a - batt_a;
+
+            // Calculate integral control range
+            double lower_ki_range = target_batt_w - ki_control_zone;
+            double upper_ki_range = target_batt_w + ki_control_zone;
+
+            // Determine if the system is inside the integral control range
+            bool outside_ki_control_zone = (batt_w < lower_ki_range || batt_w > upper_ki_range);
+
+            // Do nothing if outside integral control zone
+            if (!outside_ki_control_zone) {
+              integral = prev_integral + error * dt;
+            }
+            
+            // Calculate PI output
+            output = kp * error + ki * integral;
+
+            // Update required discharge current
+            req_batt_a += output;
+            
+            // If required discharge current is less than lower limit, enforce limit
+            if (req_batt_a < min_batt_a) {
+              req_batt_a = min_batt_a;
+            }
+            
+            // If required discharge current is greater than upper limit, enforce limit
+            else if (req_batt_a > max_batt_a) {
+              req_batt_a = max_batt_a;
+            }
+            
+            else {
+              prev_integral = integral;
+            }
+            
+            id(${yambms_id}_auto_dischg_limit) = req_batt_a - max_batt_a;
+            return req_batt_a - max_batt_a;
+            }
+    filters:    
+      - round: 1
