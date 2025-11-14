@@ -1,4 +1,4 @@
-# Updated : 2025.08.14
+# Updated : 2025.11.14
 # Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -129,7 +129,9 @@ packages:
     refresh: 0s
     files:
       - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-ETH.yaml'
       # - path: 'packages/board/board_ESP32_EVB.yaml'
+
 
 
   # +------------------------------------------------------------------------------+
