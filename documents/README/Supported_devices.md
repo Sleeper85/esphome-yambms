@@ -36,17 +36,18 @@
 | --- | --- | --- |
 | <img src="../../images/MCU_AtomS3_Lite.png" width="300"> | <img src="../../images/MCU_AtomS3.png" width="300"> | <img src="../../images/MCU_AtomS3R.png" width="300"> |
 
+| [LilyGo T-CAN485 (ESP32)](https://github.com/Xinyuan-LilyGO/T-CAN485) | [LilyGo T-Connect (ESP32-S3)](https://github.com/Xinyuan-LilyGO/T-Connect) | [Waveshare ESP32-S3-RS485-CAN](https://www.waveshare.com/esp32-s3-rs485-can.htm) |
+| --- | --- | --- |
+| <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_WS-RS485-CAN.png" width="300"> |
+
 | [ESP32 DevKit-V1](https://a.aliexpress.com/_EG12CJ2) | [ESP32-S3 DevKitC-1](https://a.aliexpress.com/_EzFdrw3) | [ESP32-C3 ETH01-EVO](https://a.aliexpress.com/_Ey29fog) |
 | --- | --- | --- |
 | <img src="../../images/MCU_ESP32-DevKit-V1.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3-DevKitC-1.png" width="300"> | <img src="../../images/MCU_ESP32-C3_ETH01-EVO.png" width="300"> |
 
-| [espBerry + Waveshare 2-CH CAN HAT](https://copperhilltech.com/esp32-development-board-with-dual-isolated-can-bus-hat/) | [LilyGo T-CAN485 (ESP32)](https://github.com/Xinyuan-LilyGO/T-CAN485) | [LilyGo T-Connect (ESP32-S3)](https://github.com/Xinyuan-LilyGO/T-Connect) |
-| --- | --- | --- |
-| <img src="../../images/MCU_ESP32-DevKitC_espBerry_2-CH-CAN.png" width="300"> | <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> |
+| [Olimex ESP32-EVB](https://github.com/OLIMEX/ESP32-EVB) | [espBerry + Waveshare 2-CH CAN HAT](https://copperhilltech.com/esp32-development-board-with-dual-isolated-can-bus-hat/) |
+| --- | --- |
+| <img src="../../images/MCU_ESP32-EVB.jpg" width="300">| <img src="../../images/MCU_ESP32-DevKitC_espBerry_2-CH-CAN.png" width="300"> |
 
-| [Olimex ESP32-EVB](https://github.com/OLIMEX/ESP32-EVB) |
-| --- |
-| <img src="../../images/MCU_ESP32-EVB.jpg" width="300">|
 ## Supported CAN bus transceiver
 
 **Note: some inverters only accept a CAN bus at 3.3V in this case please choose the SN65HVD230 chip.**
