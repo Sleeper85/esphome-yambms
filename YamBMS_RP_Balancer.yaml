@@ -1,4 +1,4 @@
-# Updated : 2025.09.09
+# Updated : 2025.11.14
 # Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -125,7 +125,7 @@ packages:
 
   board:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       - path: 'packages/board/board_ESP32_Generic.yaml'
@@ -166,7 +166,7 @@ packages:
 
   board_options:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       # UART 1 (uart_id: uart_esp_1)
@@ -217,7 +217,7 @@ packages:
 
   bms:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       # Basen controller
@@ -260,7 +260,7 @@ packages:
 
   yambms:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       - path: 'packages/yambms/yambms.yaml'
@@ -273,7 +273,7 @@ packages:
 
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       - path: 'packages/yambms/yambms_canbus.yaml' # yambms_canbus_web_server.yaml
@@ -294,7 +294,7 @@ packages:
 
   # rs485_pylon:
   #   url: https://github.com/Sleeper85/esphome-yambms
-  #   ref: dev
+  #   ref: main
   #   refresh: 0s
   #   files:
   #     - path: 'packages/yambms/yambms_rs485_pylon.yaml' # yambms_rs485_pylon_web_server.yaml
@@ -313,7 +313,7 @@ packages:
 
   debug:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       - path: packages/base/device_debug_ESP32.yaml
