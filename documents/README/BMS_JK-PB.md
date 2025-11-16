@@ -6,6 +6,13 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+> [!WARNING]
+> The behavior described on this page is true up to the **first hardware version V19 shipped with firmware <= V19.10**.
+> This behavior changes with **firmware > V19.10**.
+> Using **DIP switch addresses 1 to 15** does not reliably guarantee that the **UART2 (RS485-2)** port protocol will be automatically configured to **001 - JK BMS RS485 Modbus V1.0**, which allows **YamBMS** to access BMS information.
+> The alternative solution is to use the **UART1 (RS485-1)** port configured with the **001 - JK BMS RS485 Modbus V1.0** protocol from the JK application.
+> Downgrading to **V19.10** does not guarantee to correct this problem, [please read this information before downgrading](BMS_JK-PB#downgrading-to-1910).
+
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
@@ -20,7 +27,7 @@
 
 ## JK-PB BMS protocol
 
-The datas from this BMS can be retrieved from the `RS485-2 (UART2)` network using the component [JK_RS485](https://github.com/txubelaxu/esphome-jk-bms/blob/main/components/jk_rs485_bms/README.md) of [@txubelaxu](https://github.com/txubelaxu).
+The datas from this BMS can be retrieved from the `RS485-1 (UART1)` or `RS485-2 (UART2)` network using the component [JK_RS485](https://github.com/Sleeper85/esphome-components/tree/main/components) originally developed by [@txubelaxu](https://github.com/txubelaxu).
 
 The BMS DIP switches must be set from `1` to `15` (server mode) and connected to each other using the `RS485-2` network available on the **two ports at the right ends**. `YamBMS` also connects to one of these two ports.
 
@@ -85,11 +92,11 @@ The following CAN protocols are supported on the CAN port:
 > [!TIP]
 > This solution only requires an ESP32 with a CAN transceiver and a RS485 transceiver.
 
-You are free to choose the hardware you want, the list below are 3 easy to use examples :
+You are free to choose the hardware you want, the list below are 3 easy to use examples of **ESP32-S3 with PSRAM** :
 
-- `AtomS3` with the isolated `Atomic CAN base` and `RS485 unit`
-- [`LilyGo T-Connect`, ESP32-S3 with 3x RS485 and 1x CAN](https://github.com/Xinyuan-LilyGO/T-Connect)
-- [`LilyGo T-CAN485`, ESP32 with 1x RS485 and 1x CAN](https://github.com/Xinyuan-LilyGO/T-CAN485)
+- [Waveshare ESP32-S3-RS485-CAN](https://www.waveshare.com/esp32-s3-rs485-can.htm), ESP32-S3 with 1x RS485 and 1x CAN
+- [LilyGo T-Connect](https://github.com/Xinyuan-LilyGO/T-Connect), ESP32-S3 with 3x RS485 and 1x CAN
+- [M5Stack AtomS3R](https://docs.m5stack.com/en/core/AtomS3R), ESP32-S3 with the isolated [Atomic CAN base](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) and [RS485 unit](https://docs.m5stack.com/en/unit/iso485)
 
 See the [documentation about supported hardware](Supported_devices.md).
 
@@ -175,6 +182,14 @@ When enabled, this function synchronizes the settings of all your BMS connected 
 > During the `Bulk` phase the YamBMS `SoC` cannot be more than `98%`.
 > When the battery is fully charged, the average `SoC` of your BMS will be sent.
 
+### Solution 1
+
+The simplest solution is to disable the **Charging Float Mode** switch to disable the new **SoC 100% reset logic** described below in **Solution 2**. Your BMS will simply use the **SOC 100% V.** value, and the SoC will be reset to 100% as soon as a cell reaches this value.
+
+![Image](../../images/BMS_JK-PB_Charging_Float_Mode.png "BMS JK-PB Charging Float Mode")
+
+### Solution 2
+
 The new `JK-PB` parameters `RCV` and `RCV timer` are not used by `YamBMS`, but you can adjust them to reach the `100%` faster, a little before `YamBMS` completes charging.
 
 If you are instructing `YamBMS` to Bulk charge at `3.5V/cell`, configure the `JK-PB` parameters like this:
@@ -192,3 +207,27 @@ Then, when charging is complete before switching to `Float`, `YamBMS` will again
 On the `YamBMS` side, disabling the `EOC Timer` (which will end charging after max `30min` in the `Cut-Off` phase without waiting for all `cells` to be `equalized`) will prolong charging until all your `cells` are `equalized` and the active balancer is no longer working for `60s`. This can give more time to the `JK-PB` to reset to `100%`.
 
 ![Image](../../images/BMS_JK-PB_SoC_100pct_Logic.png "Broadcasting JK-PB settings to all BMS")
+
+
+## Downgrading to 19.10
+
+Downgrading to **19.10** does **not definitely** fix the RS485‑2 issue in every situation, but it is the firmware version that most often restores the old, predictable behaviour on compatible V19 hardware.  
+
+### What 19.10 usually fixes
+
+- On early V19 units that originally ran something like 19.00–19.10, going back to 19.10 generally brings back the classic logic: DIP 0 → master protocol 015 on RS485‑2, DIP 1–15 → slave Modbus V1.0 on RS485‑2.  
+- Many users reporting RS485‑2 protocol problems on later 19.x builds have had the issue disappear or become much less erratic after flashing 19.10 on those same, early‑series V19 boards.  
+- If your BMS is from that first V19 hardware generation and has already worked correctly on 19.10 in the past, the probability that a downgrade will restore proper RS485‑2 auto‑selection is high, though never mathematically 100 %.  
+
+### Why it cannot be guaranteed
+
+- JK has shipped several hardware revisions under the **V19** label (different comms boards, inverter‑style variants, added 4G, etc.), and not all of them were designed or tested for use with the older 19.10 firmware.  
+- On newer V19 hardware that came from the factory with a much later 19.x firmware, flashing 19.10 may or may not fully fix RS485‑2; in some cases it can introduce other quirks, because that firmware doesn’t **know** about all the newer options and mappings.  
+- There is no official statement from JK saying **downgrading to 19.10 on any V19 guarantees correct RS485‑2 behaviour**, so any downgrade remains at your own risk: you might regain proper RS485‑2 logic, but you might also revive older bugs or hit incompatibilities.  
+
+### Practical recommendation
+
+- If you have an early V19 that you know worked fine with 19.10 before: downgrading is a reasonable, often effective attempt to get RS485‑2 back to the DIP‑driven behaviour.  
+- If your V19 is a later revision that never ran 19.10: do not assume a downgrade will solve everything; the safer path is usually to ignore RS485‑2 for Modbus and use RS485‑1 (UART1) explicitly set to **JK BMS RS485 Modbus V1.0** for all external reading, regardless of firmware.  
+
+So the honest answer is: downgrading to 19.10 often helps on compatible hardware, but it can’t be promised as a guaranteed fix for RS485‑2 on all V19 BMS units.
