@@ -17,6 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+external_components:
+  - source: github://pr#11781
+    components: [growatt_solar, havells_solar, kuntze, modbus, modbus_controller]
+    refresh: 1h
+
 substitutions:
   bms_model: "YamBMS"
   bms_protocol: "Modbus"
@@ -35,8 +40,8 @@ modbus_controller:
     setup_priority: -10
     address: ${bms_id}
     update_interval: ${modbus_update_interval}
-    command_throttle: ${modbus_command_throttle}
     max_cmd_retries: 3
+    # command_throttle: ${modbus_command_throttle}
     # offline_skip_updates: 5
     on_online:
       then:

@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.2.5
+# Updated : 2025.11.16
+# Version : 1.2.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -62,10 +62,33 @@ sensor:
       - multiply: 0.001
 
   # +--------------------------------------+
+  # | Battery Capacity Remaining           |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} Battery Capacity Remaining"
+    id: bms${bms_id}_battery_capacity_remaining
+    update_interval: ${yambms_update_interval}
+    unit_of_measurement: Ah
+    state_class: measurement
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float bcr = id(bms${bms_id}_capacity_remaining_ah).state;
+      float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
+      float cell_low_v = id(bms${bms_id}_cell_uvp).state + 0.2;
+
+      if (min_cell_v <= cell_low_v) return 0;        // return 0Ah
+      else return bcr;                               // return Battery Capacity Remaining
+
+  # +--------------------------------------+
   # | Battery State of Charge (SOC)        |
   # +--------------------------------------+
   - platform: template
-    name: ${name} ${bms_name} Battery SoC
+    name: "${name} ${bms_name} Battery SoC"
     id: bms${bms_id}_battery_soc
     update_interval: ${bms_update_interval}
     unit_of_measurement: "%"
@@ -80,9 +103,8 @@ sensor:
       float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
       float cell_low_v = id(bms${bms_id}_cell_uvp).state + 0.2;
 
-      if (min_cell_v <= cell_low_v) return 0;        // Real 0% => return 0%
-      else if (soc < 1) return 2;                    // False 0% => return 2%
-      else return soc;                               // Else => return BMS SoC
+      if (min_cell_v <= cell_low_v) return 0;        // return 0%
+      else return soc;                               // return BMS SoC
 
   # +--------------------------------------+
   # | Charging Cycles                      |

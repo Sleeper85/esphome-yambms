@@ -1,5 +1,5 @@
-# Updated : 2025.08.02
-# Version : 1.1.4
+# Updated : 2025.11.16
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -66,11 +66,11 @@ modbus_controller:
           value_type: U_WORD
           read_lambda: |-
             return uint16_t(id(bms${bms_id}_battery_capacity).state);
-        # capacity_remaining_ah (Ah)
+        # battery_capacity_remaining (Ah)
         - address: 13
           value_type: U_WORD
           read_lambda: |-
-            return uint16_t(id(bms${bms_id}_capacity_remaining_ah).state);
+            return uint16_t(id(bms${bms_id}_battery_capacity_remaining).state);
         # charging_cycles
         - address: 14
           value_type: U_WORD

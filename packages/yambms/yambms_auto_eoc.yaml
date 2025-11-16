@@ -1,5 +1,5 @@
-# Updated : 2025.07.26
-# Version : 1.1.1
+# Updated : 2025.11.16
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -163,7 +163,7 @@ sensor:
       // Check if enabled
       if (!id(${yambms_id}_switch_auto_eoc).state || 
           !id(${yambms_id}_battery_capacity).has_state() ||
-          !id(${yambms_id}_capacity_remaining_ah).has_state() ||
+          !id(${yambms_id}_battery_capacity_remaining).has_state() ||
           !id(${yambms_id}_max_charge_current).has_state()) {
         // Auto EOC Charging disabled
         //ESP_LOGI("auto_eoc", "Auto EOC Charging is disabled or battery capacity is not available");
@@ -225,7 +225,7 @@ sensor:
       battery_capacity += (battery_capacity * (id(${yambms_id}_auto_eoc_modifier).state / 100.0));
      
       // Calculate missing capacity
-      auto capacity_required = battery_capacity - id(${yambms_id}_capacity_remaining_ah).state;
+      auto capacity_required = battery_capacity - id(${yambms_id}_battery_capacity_remaining).state;
       if (capacity_required < 0) {
         capacity_required = 0;
       }

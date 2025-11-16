@@ -1,5 +1,5 @@
-# Updated : 2025.07.13
-# Version : 1.5.8
+# Updated : 2025.11.16
+# Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -91,7 +91,7 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
-  - id: ${yambms_id}_var_total_capacity_remaining_ah
+  - id: ${yambms_id}_var_total_battery_capacity_remaining
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -242,7 +242,7 @@ interval:
               if (id(${yambms_id}_var_shunt_use) == true)
                 soc = (id(${yambms_id}_var_shunt_total_soc) / id(${yambms_id}_var_to_combine_shunt_counter));
               else
-                soc = round(id(${yambms_id}_var_total_capacity_remaining_ah) / id(${yambms_id}_var_total_battery_capacity) * 100);
+                soc = round(id(${yambms_id}_var_total_battery_capacity_remaining) / id(${yambms_id}_var_total_battery_capacity) * 100);
 
               // MEAN battery_soh
               soh = (id(${yambms_id}_var_bms_total_soh) / id(${yambms_id}_var_to_combine_bms_counter));
@@ -262,8 +262,8 @@ interval:
             // TOTAL battery_capacity
             id(${yambms_id}_battery_capacity).publish_state(id(${yambms_id}_var_total_battery_capacity));
 
-            // TOTAL capacity_remaining_ah
-            id(${yambms_id}_capacity_remaining_ah).publish_state(id(${yambms_id}_var_total_capacity_remaining_ah));
+            // TOTAL battery_capacity_remaining
+            id(${yambms_id}_battery_capacity_remaining).publish_state(id(${yambms_id}_var_total_battery_capacity_remaining));
 
             // TOTAL max_charge_current
             id(${yambms_id}_max_charge_current).publish_state(id(${yambms_id}_var_total_max_charge_current) * (id(${yambms_id}_max_charge_current_pct).state / 100));
@@ -338,7 +338,7 @@ interval:
             id(${yambms_id}_var_shunt_total_soc) = 0.0;
             id(${yambms_id}_var_bms_total_soh) = 0.0;
             id(${yambms_id}_var_total_battery_capacity) = 0.0;
-            id(${yambms_id}_var_total_capacity_remaining_ah) = 0.0;
+            id(${yambms_id}_var_total_battery_capacity_remaining) = 0.0;
             id(${yambms_id}_var_total_max_charge_current) = 0.0;
             id(${yambms_id}_var_total_max_discharge_current) = 0.0;
             id(${yambms_id}_var_total_charging_cycles) = 0.0;
@@ -576,9 +576,9 @@ sensor:
         - throttle: 10s
         - delta: 1
 
-  # capacity_remaining_ah SUM
+  # battery_capacity_remaining SUM
   - platform: template
-    id: ${yambms_id}_capacity_remaining_ah
+    id: ${yambms_id}_battery_capacity_remaining
     name: "${name} ${yambms_name} Capacity Remaining"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
