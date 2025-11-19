@@ -7,11 +7,15 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
 > [!WARNING]
-> The behavior described on this page is true up to the **first hardware version V19 shipped with firmware <= V19.10**.
-> This behavior changes with **firmware > V19.10**.
-> Using **DIP switch addresses 1 to 15** does not reliably guarantee that the **UART2 (RS485-2)** port protocol will be automatically configured to **001 - JK BMS RS485 Modbus V1.0**, which allows **YamBMS** to access BMS information.
+> There is a known bug with the latest version of **JK firmware >= V19.10**.
+> Using **DIP switch addresses 1 to 15** does not reliably guarantee that the **UART2 (RS485-2)** port protocol will be automatically configured to **001 - JK BMS RS485 Modbus V1.0**, which allows **YamBMS** to access BMS informations.
+> YamBMS users have confirmed that it is possible to resolve this issue by performing an [Erase History Data](BMS_JK-PB.md#erase-history-data) from the JK app on a smartphone.
+
+
 > The alternative solution is to use the **UART1 (RS485-1)** port configured with the **001 - JK BMS RS485 Modbus V1.0** protocol from the JK application.
 > Downgrading to **V19.10** does not guarantee to correct this problem, [please read this information before downgrading](BMS_JK-PB.md#downgrading-to-1910).
+
+
 
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
@@ -209,25 +213,13 @@ On the `YamBMS` side, disabling the `EOC Timer` (which will end charging after m
 ![Image](../../images/BMS_JK-PB_SoC_100pct_Logic.png "Broadcasting JK-PB settings to all BMS")
 
 
-## Downgrading to 19.10
+## Erase History Data
 
-Downgrading to **19.10** does **not definitely** fix the RS485‑2 issue in every situation, but it is the firmware version that most often restores the old, predictable behaviour on compatible V19 hardware.  
+The procedure below allows you to unblock the **UART2 (RS485-2)** port to restore normal behavior, depending on the DIP switch value :
+* DIP switch **0** = protocol **015 - dedicated to the master BMS**
+* DIP switches **1 to 15** = protocol **001 - JK BMS RS485 Modbus V1.0**
 
-### What 19.10 usually fixes
-
-- On early V19 units that originally ran something like 19.00–19.10, going back to 19.10 generally brings back the classic logic: DIP 0 → master protocol 015 on RS485‑2, DIP 1–15 → slave Modbus V1.0 on RS485‑2.  
-- Many users reporting RS485‑2 protocol problems on later 19.x builds have had the issue disappear or become much less erratic after flashing 19.10 on those same, early‑series V19 boards.  
-- If your BMS is from that first V19 hardware generation and has already worked correctly on 19.10 in the past, the probability that a downgrade will restore proper RS485‑2 auto‑selection is high, though never mathematically 100 %.  
-
-### Why it cannot be guaranteed
-
-- JK has shipped several hardware revisions under the **V19** label (different comms boards, inverter‑style variants, added 4G, etc.), and not all of them were designed or tested for use with the older 19.10 firmware.  
-- On newer V19 hardware that came from the factory with a much later 19.x firmware, flashing 19.10 may or may not fully fix RS485‑2; in some cases it can introduce other quirks, because that firmware doesn’t **know** about all the newer options and mappings.  
-- There is no official statement from JK saying **downgrading to 19.10 on any V19 guarantees correct RS485‑2 behaviour**, so any downgrade remains at your own risk: you might regain proper RS485‑2 logic, but you might also revive older bugs or hit incompatibilities.  
-
-### Practical recommendation
-
-- If you have an early V19 that you know worked fine with 19.10 before: downgrading is a reasonable, often effective attempt to get RS485‑2 back to the DIP‑driven behaviour.  
-- If your V19 is a later revision that never ran 19.10: do not assume a downgrade will solve everything; the safer path is usually to ignore RS485‑2 for Modbus and use RS485‑1 (UART1) explicitly set to **JK BMS RS485 Modbus V1.0** for all external reading, regardless of firmware.  
-
-So the honest answer is: downgrading to 19.10 often helps on compatible hardware, but it can’t be promised as a guaranteed fix for RS485‑2 on all V19 BMS units.
+| 1. Generate a JK code | 2. Erase History Data | 3. Enter the code |
+| --- | --- | --- |
+| Go to [this page](https://mirofromdiro.github.io/JK-firmware-code/) to generate a new code valid for one hour. | In the JK smartphone app, click on the **Erase History Data** function. | Enter the **generated code** and then click **Verify**. |
+| <img src="../../images/BMS_JK-PB_Erase_History_Data_1.jpg" width="300"> | <img src="../../images/BMS_JK-PB_Erase_History_Data_2.png" width="300"> | <img src="../../images/BMS_JK-PB_Erase_History_Data_3.png" width="300"> |
