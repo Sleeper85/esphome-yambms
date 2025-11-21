@@ -81,3 +81,6 @@ interval:
               root["canbus_protocol"] = id(${yambms_id}_canbus_protocol);
               root["uptime"] = id(esp32_uptime).state;
               root["date_time_now"] = id(esp32_date_time_now).state;
+        else:
+          - lambda: |-
+              ESP_LOGI("yambms", "Network update check disabled, or network down");

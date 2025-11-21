@@ -19,6 +19,7 @@
 
 substitutions:
   yambms_version: "1.5.8"
+  periodic_version_check: 'true'
   # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
   # The current requested will be proportional to the BMS count without ever exceeding this value.
   yambms_max_requested_charge_current: '300' # in Ampere
@@ -86,7 +87,7 @@ globals:
   - id: ${yambms_id}_service
     type: bool
     restore_value: no
-    initial_value: 'true'
+    initial_value: ${periodic_version_check}
   - id: ${yambms_id}_bms_charging_logic
     type: bool
     restore_value: no

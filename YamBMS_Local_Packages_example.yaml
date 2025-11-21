@@ -216,7 +216,10 @@ packages:
   # | >>> YamBMS
   # +------------------------------------------------------------------------------+
 
-  yambms: !include packages/yambms/yambms.yaml
+  yambms: !include
+    file: packages/yambms/yambms.yaml
+    #vars:
+    #  periodic_version_check: 'true'
 
 
 
