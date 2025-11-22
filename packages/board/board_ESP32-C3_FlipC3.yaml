@@ -1,0 +1,81 @@
+# Updated : 2025.11.22
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://wiki.vdbx.io/product/flip_c3
+
+substitutions:
+  board_chip: "ESP32-C3"
+  board_name: "FlipC3"
+  # Interfaces GPIOs
+  # uart_esp_1 # UART PORT
+  tx_pin_1: '21'
+  rx_pin_1: '20'
+  # uart_esp_2 # I2C PORT (Using Grove to STEMMA QT / Qwiic / JST SH Cable with 3.3 pulled out and tied to 5V)
+  tx_pin_2: '1'
+  rx_pin_2: '0'
+  # uart_esp_3
+  tx_pin_3: '2'
+  rx_pin_3: '3'
+  # canbus_esp32_can
+  tx_pin_4: '7'
+  rx_pin_4: '6'
+  # canbus_mcp2515
+  spi_mosi_pin: '2'
+  spi_miso_pin: '3'
+  spi_clk_pin: '4'
+  mcp2515_cs_pin: '5'
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  board_rgb_led: !include board_options_rgb_led_status.yaml
+
+esp32:
+  board: esp32-c3-devkitm-1
+  flash_size: 4MB # ajust according to your ESP32-C3 version
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+  hardware_uart: USB_SERIAL_JTAG
+
+light:
+  # https://esphome.io/components/light/esp32_rmt_led_strip
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: esp32_rmt_led_strip
+    id: esp_light
+    rgb_order: GRB
+    pin: 8
+    num_leds: 1
+    # rmt_channel: 0
+    chipset: ws2812
+    entity_category: config
+    default_transition_length: 0ms
