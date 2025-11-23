@@ -1,5 +1,5 @@
-# Updated : 2025.11.16
-# Version : 1.1.2
+# Updated : 2025.11.23
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,10 +22,10 @@ substitutions:
   # | Use the settings below with caution  |
   # +--------------------------------------+
   # Alpha value for the exponential moving average filter.
-  required_charge_current_alpha: "0.25"
+  required_charge_current_alpha: '0.25'
   # Filter delay in minutes. The charge current will not be updated more often than this value.
   # This is to prevent the charge current from fluctuating too much.
-  required_charge_current_filter_delay: "3"
+  required_charge_current_filter_delay: '3'
 
 switch:
   - platform: template
