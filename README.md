@@ -7,6 +7,11 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
+> [!WARNING]  
+> I'm currently working on releasing **YamBMS 1.6.0**, which will be compatible with **ESPHome >= 2025.11**.
+> **ESPHome 2025.11.0** introduces many changes and still contains many bugs.
+> For the time being, I advise you to stay with **ESPHome 2025.10.5**.
+
 > [!TIP]
 > Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](YamBMS_Remote_Packages_example.yaml)
 > is a good basis for creating your custom YAML.
