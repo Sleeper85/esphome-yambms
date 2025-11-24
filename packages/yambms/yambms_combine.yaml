@@ -1,4 +1,4 @@
-# Updated : 2025.11.23
+# Updated : 2025.11.24
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -260,10 +260,16 @@ interval:
             id(${yambms_id}_charging_cycles).publish_state(charging_cycles);
 
             // TOTAL battery_capacity
-            id(${yambms_id}_battery_capacity).publish_state(id(${yambms_id}_var_total_battery_capacity));
+            float battery_capacity = id(${yambms_id}_var_total_battery_capacity);
+            id(${yambms_id}_battery_capacity).publish_state(battery_capacity);
 
             // TOTAL battery_capacity_remaining
-            id(${yambms_id}_battery_capacity_remaining).publish_state(id(${yambms_id}_var_total_battery_capacity_remaining));
+            float capacity_remaining = id(${yambms_id}_var_total_battery_capacity_remaining);
+
+            if (id(${yambms_id}_var_shunt_use) == true)
+              capacity_remaining = battery_capacity / 100 * soc;
+            
+            id(${yambms_id}_battery_capacity_remaining).publish_state(capacity_remaining);
 
             // TOTAL max_charge_current
             float max_charge_current;
