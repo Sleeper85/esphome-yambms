@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.5.9
+# Updated : 2025.11.23
+# Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -303,7 +303,9 @@ views:
             name: Max charge current (%)
           - entity: number.yambms_yambms_1_max_discharge_current_percent
             name: Max discharge current (%)
-        title: YamBMS - Max current (%)
+          - entity: switch.yambms_yambms_1_temperature_based_current_limitation
+            name: Temperature-based current limitation
+        title: YamBMS - Max current
       - type: entities
         entities:
           - entity: switch.yambms_yambms_1_request_force_charge
