@@ -354,7 +354,7 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
     id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} battery capacity remaining"
+    name: "${name} ${bms_name} battery capacity remaining (Ah)"
     filters:
       - or:
         - throttle: 10s

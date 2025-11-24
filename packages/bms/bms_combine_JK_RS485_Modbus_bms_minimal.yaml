@@ -162,7 +162,7 @@ sensor:
       name: "${name} ${bms_name} battery capacity state of charge"
     battery_capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
-      name: "${name} ${bms_name} battery capacity remaining"
+      name: "${name} ${bms_name} battery capacity remaining (Ah)"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
       internal: true
