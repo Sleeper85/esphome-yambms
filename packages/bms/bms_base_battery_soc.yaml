@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.1
+# Updated : 2025.11.24
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -46,7 +46,7 @@ sensor:
   - platform: template
     name: "${name} ${bms_name} Battery Capacity Remaining"
     id: bms${bms_id}_battery_capacity_remaining
-    update_interval: ${yambms_update_interval}
+    update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: measurement
     icon: mdi:car-battery
