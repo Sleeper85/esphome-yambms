@@ -1,4 +1,4 @@
-# Updated : 2025.11.23
+# Updated : 2025.11.24
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -249,28 +249,28 @@ number:
     entity_category: config
     # internal: true
   - platform: template
-    name: "${name} ${yambms_name} Max charge current percent"
-    id: "${yambms_id}_max_charge_current_pct"
-    step: 1
+    name: "${name} ${yambms_name} Max requested charge current"
+    id: "${yambms_id}_max_requested_charge_current"
+    step: 5
     min_value: 0
-    max_value: 100
+    max_value: ${yambms_max_requested_charge_current}
     restore_value: true
     mode: "${yambms_input_number_mode}"
-    initial_value: 100
-    unit_of_measurement: '%'
+    initial_value: ${yambms_max_requested_charge_current}
+    unit_of_measurement: A
     icon: mdi:current-dc
     optimistic: true
     entity_category: config
   - platform: template
-    name: "${name} ${yambms_name} Max discharge current percent"
-    id: "${yambms_id}_max_discharge_current_pct"
-    step: 1
+    name: "${name} ${yambms_name} Max requested discharge current"
+    id: "${yambms_id}_max_requested_discharge_current"
+    step: 5
     min_value: 0
-    max_value: 100
+    max_value: ${yambms_max_requested_discharge_current}
     restore_value: true
     mode: "${yambms_input_number_mode}"
-    initial_value: 100
-    unit_of_measurement: '%'
+    initial_value: ${yambms_max_requested_discharge_current}
+    unit_of_measurement: A
     icon: mdi:current-dc
     optimistic: true
     entity_category: config

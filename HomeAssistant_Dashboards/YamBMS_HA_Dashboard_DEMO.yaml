@@ -325,13 +325,13 @@ views:
         title: YamBMS - ReBulk
       - type: entities
         entities:
-          - entity: number.yambms_demo_yambms_1_max_charge_current_percent
-            name: Max charge current (%)
-          - entity: number.yambms_demo_yambms_1_max_discharge_current_percent
-            name: Max discharge current (%)
+          - entity: number.yambms_demo_yambms_1_max_requested_charge_current
+            name: Max charge current
+          - entity: number.yambms_demo_yambms_1_max_requested_discharge_current
+            name: Max discharge current
           - entity: switch.yambms_demo_yambms_1_temperature_based_current_limitation
             name: Temperature-based current limitation
-        title: YamBMS - Max current
+        title: YamBMS - Max requested current
       - type: entities
         entities:
           - entity: switch.yambms_demo_yambms_1_request_force_charge
