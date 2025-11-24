@@ -1,5 +1,5 @@
-# Updated : 2025.11.16
-# Version : 2.4.4
+# Updated : 2025.11.23
+# Version : 2.4.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -156,8 +156,8 @@ interval:
     then:
       - lambda: |-
           // Save CANBUS options
-          id(${yambms_id}_canbus_name) = id(${canbus_id}_bms_name).state.c_str();
-          id(${yambms_id}_canbus_protocol) = id(${canbus_id}_protocol).state.c_str();
+          id(${yambms_id}_inverter_bms_name) = id(${canbus_id}_bms_name).current_option();
+          id(${yambms_id}_inverter_protocol) = id(${canbus_id}_protocol).current_option();
 
   - interval: 60s
     then:

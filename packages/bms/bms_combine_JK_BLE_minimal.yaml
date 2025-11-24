@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.3.0
+# Updated : 2025.11.23
+# Version : 1.3.1
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,7 +26,7 @@ packages:
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_BLE.yaml
-  bms_battery_soh: !include bms_battery_soh.yaml
+  bms_battery_soh: !include bms_base_battery_soh.yaml
 
 ota:
   on_begin:
@@ -77,8 +77,7 @@ binary_sensor:
     jk_bms_ble_id: jk_bms_ble${bms_id}
     balancing:
       id: bms${bms_id}_bms_equalizing
-      name: "${name} ${bms_name} balancing"
-      internal: true
+      # name: "${name} ${bms_name} balancing"
     charging:
       id: bms${bms_id}_charging_allowed
       name: "${name} ${bms_name} charging"
@@ -155,21 +154,19 @@ sensor:
       name: "${name} ${bms_name} temperature sensor 2"
     state_of_charge:
       id: bms${bms_id}_state_of_charge
-      name: "${name} ${bms_name} state of charge"
+      # name: "${name} ${bms_name} state of charge"
     capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
-      name: "${name} ${bms_name} capacity remaining"
+      # name: "${name} ${bms_name} capacity remaining"
     total_battery_capacity_setting:
       id: bms${bms_id}_battery_capacity
       name: "${name} ${bms_name} total battery capacity setting"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
-      internal: true
-      name: "${name} ${bms_name} charging cycles"
+      # name: "${name} ${bms_name} charging cycles"
     total_charging_cycle_capacity:
       id: bms${bms_id}_cycle_capacity_raw
-      internal: true
-      name: "${name} ${bms_name} total charging cycle capacity"
+      # name: "${name} ${bms_name} total charging cycle capacity"
     balancing_current:
       name: "${name} ${bms_name} balancing current"
     errors_bitmask:
@@ -217,7 +214,7 @@ number:
       name: "${name} ${bms_name} balance starting voltage"
     balance_trigger_voltage:
       id: bms${bms_id}_bms_balance_trigger_voltage
-      name: "${name} ${bms_name} balance trigger voltage"
+      # name: "${name} ${bms_name} balance trigger voltage"
 
 button:
   - platform: jk_bms_ble

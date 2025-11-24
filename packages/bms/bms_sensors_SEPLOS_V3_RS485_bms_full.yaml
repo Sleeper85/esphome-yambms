@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.2
+# Updated : 2025.11.23
+# Version : 1.1.3
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -101,8 +101,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_equalizing
-    name: "${name} ${bms_name} Equilibrium module to open"
-    internal: true
+    # name: "${name} ${bms_name} Equilibrium module to open"
     register_type: read
     address: 0x1280
     bitmask: 1 # bit 0
@@ -142,7 +141,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} remaining capacity"
+    # name: "${name} ${bms_name} remaining capacity"
     address: 0x1002
     register_type: read
     value_type: U_WORD
@@ -183,7 +182,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_state_of_charge
-    name: "${name} ${bms_name} state of charge"
+    # name: "${name} ${bms_name} state of charge"
     address: 0x1005
     register_type: read
     value_type: U_WORD
@@ -210,14 +209,13 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_cycles_raw
-    name: "${name} ${bms_name} cycle"
+    # name: "${name} ${bms_name} cycle"
     address: 0x1007
     register_type: read
     value_type: U_WORD
     unit_of_measurement: ""
     state_class: measurement
     accuracy_decimals: 0
-    internal: true
 
   # 1008    Averag of Cell Votage       R    UINT16    2    1mV
   - platform: modbus_controller
@@ -687,8 +685,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_balance_trigger_voltage
-    name: "${name} ${bms_name} Equalization open voltage difference"
-    internal: true
+    # name: "${name} ${bms_name} Equalization open voltage difference"
     address: 0x1351
     register_type: read
     value_type: U_WORD
@@ -747,13 +744,12 @@ sensor:
   # Charging cycle capacity
   - platform: template
     id: bms${bms_id}_cycle_capacity_raw
-    name: "${name} ${bms_name} charging cycle capacity"
+    # name: "${name} ${bms_name} charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: total
     icon: mdi:car-battery
     accuracy_decimals: 0
-    internal: true
     filters:
       - or:
         - throttle: 10s

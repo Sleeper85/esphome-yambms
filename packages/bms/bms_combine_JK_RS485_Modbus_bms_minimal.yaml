@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.3.0
+# Updated : 2025.11.23
+# Version : 1.3.1
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -79,8 +79,7 @@ binary_sensor:
     jk_rs485_bms_id: jk_rs485_bms${bms_id}
     status_balancing:
       id: bms${bms_id}_bms_equalizing
-      name: "${name} ${bms_name} status balancing"
-      internal: true
+      # name: "${name} ${bms_name} status balancing"
     status_precharging:
       name: "${name} ${bms_name} status precharging"
     status_charging:
@@ -159,18 +158,16 @@ sensor:
       name: "${name} ${bms_name} temperature powertube"
     battery_capacity_state_of_charge:
       id: bms${bms_id}_state_of_charge
-      name: "${name} ${bms_name} battery capacity state of charge"
+      # name: "${name} ${bms_name} battery capacity state of charge"
     battery_capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
-      name: "${name} ${bms_name} battery capacity remaining"
+      # name: "${name} ${bms_name} battery capacity remaining"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
-      internal: true
-      name: "${name} ${bms_name} charging cycles"
+      # name: "${name} ${bms_name} charging cycles"
     battery_capacity_total_charging_cycle:
       id: bms${bms_id}_cycle_capacity_raw
-      internal: true
-      name: "${name} ${bms_name} battery capacity total charging cycle"
+      # name: "${name} ${bms_name} battery capacity total charging cycle"
     battery_total_runtime:
       name: "${name} ${bms_name} battery total runtime"
     balancing_current:
@@ -245,7 +242,7 @@ number:
       name: "${name} ${bms_name} cell overvoltage protection recovery"
     cell_balancing_trigger_voltage:
       id: bms${bms_id}_bms_balance_trigger_voltage
-      name: "${name} ${bms_name} cell balancing trigger voltage"
+      # name: "${name} ${bms_name} cell balancing trigger voltage"
     cell_balancing_starting_voltage:
       name: "${name} ${bms_name} cell balancing starting voltage"
     max_balancing_current:

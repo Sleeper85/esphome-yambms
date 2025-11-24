@@ -254,84 +254,46 @@ packages:
     ref: main
     refresh: 0s
     files:
-      # RS485 Sniffer
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml'
+      # Seplos Parser
+      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_modbus_sniffer.yaml'
         vars:
-          sniffer_id: 'sniffer1'
-          sniffer_protocol: 'JK02_32S'
-          sniffer_uart_id: 'uart_esp_1'
+          seplos_uart_id: 'uart_esp_1'
+          seplos_baud_rate: '19200' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
+          seplos_bms_count: '3' # Seplos V3 BMS count
+          seplos_update_interval: '3' # # Time in seconds, update interval for all data points
       # BMS 1
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
+      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '1' # must be a number
-          bms_name: 'JK-BMS 1'
-          bms_address: '0x01' # BMS 1 ( JK app `Device Addr.` setting )
+          bms_id: '1'
+          bms_name: 'bms0' # DON'T CHANGE THIS NAME !
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
       # BMS 2
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
+      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '2' # must be a number
-          bms_name: 'JK-BMS 2'
-          bms_address: '0x02' # BMS 2 ( JK app `Device Addr.` setting )
+          bms_id: '2'
+          bms_name: 'bms1' # DON'T CHANGE THIS NAME !
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
       # BMS 3
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
+      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '3' # must be a number
-          bms_name: 'JK-BMS 3'
-          bms_address: '0x03' # BMS 3 ( JK app `Device Addr.` setting )
-      # BMS 4
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
-        vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '4' # must be a number
-          bms_name: 'JK-BMS 4'
-          bms_address: '0x04' # BMS 4 ( JK app `Device Addr.` setting )
-      # BMS 5
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
-        vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '5' # must be a number
-          bms_name: 'JK-BMS 5'
-          bms_address: '0x05' # BMS 5 ( JK app `Device Addr.` setting )
-      # BMS 6
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
-        vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '6' # must be a number
-          bms_name: 'JK-BMS 6'
-          bms_address: '0x06' # BMS 6 ( JK app `Device Addr.` setting )
-      # BMS 7
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
-        vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '7' # must be a number
-          bms_name: 'JK-BMS 7'
-          bms_address: '0x07' # BMS 7 ( JK app `Device Addr.` setting )
-      # BMS 8
-      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
-        vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
-          bms_id: '8' # must be a number
-          bms_name: 'JK-BMS 8'
-          bms_address: '0x08' # BMS 8 ( JK app `Device Addr.` setting )
+          bms_id: '3'
+          bms_name: 'bms2' # DON'T CHANGE THIS NAME !
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
 
 
 

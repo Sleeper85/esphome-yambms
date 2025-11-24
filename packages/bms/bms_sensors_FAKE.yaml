@@ -1,5 +1,5 @@
-# Updated : 2025.10.25
-# Version : 1.1.8
+# Updated : 2025.11.23
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,6 +19,7 @@
 
 packages:
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  bms_battery_soc: !include bms_base_battery_soc.yaml
 
 sensor:
   # battery_capacity
@@ -38,7 +39,7 @@ sensor:
   # capacity_remaining_ah
   - platform: template
     id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} Capacity Remaining"
+    # name: "${name} ${bms_name} Battery Capacity Remaining"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
@@ -93,8 +94,8 @@ sensor:
 
   # battery_soc
   - platform: template
-    id: bms${bms_id}_battery_soc
-    name: "${name} ${bms_name} Battery SoC"
+    id: bms${bms_id}_state_of_charge
+    # name: "${name} ${bms_name} Battery SoC"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: '%'

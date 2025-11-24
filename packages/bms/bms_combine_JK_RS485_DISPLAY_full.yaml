@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.5
+# Updated : 2025.11.23
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -25,7 +25,7 @@ packages:
   bms_base: !include bms_base.yaml
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
-  bms_battery_soh: !include bms_battery_soh.yaml
+  bms_battery_soh: !include bms_base_battery_soh.yaml
 
 # +--------------------------------------+
 # | DISPLAY port schematic               |
@@ -130,8 +130,7 @@ binary_sensor:
   # equalizing
   - platform: template
     id: bms${bms_id}_bms_equalizing
-    name: "${name} ${bms_name} balancing"
-    internal: true
+    # name: "${name} ${bms_name} balancing"
     lambda: return false;
 
 sensor:
@@ -166,7 +165,7 @@ sensor:
       name: "${name} ${bms_name} max voltage cell"
     state_of_charge:
       id: bms${bms_id}_state_of_charge
-      name: "${name} ${bms_name} state of charge"
+      # name: "${name} ${bms_name} state of charge"
     delta_cell_voltage:
       name: "${name} ${bms_name} delta cell voltage"
     mosfet_temperature:
@@ -245,7 +244,7 @@ sensor:
   # capacity_remaining_ah
   - platform: template
     id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} Capacity Remaining"
+    # name: "${name} ${bms_name} Capacity Remaining"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
@@ -315,8 +314,7 @@ sensor:
   # balance_trigger_voltage
   - platform: template
     id: bms${bms_id}_bms_balance_trigger_voltage
-    name: "${name} ${bms_name} balance trigger voltage"
-    internal: true
+    # name: "${name} ${bms_name} balance trigger voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V
@@ -330,8 +328,7 @@ sensor:
   # FAKE charging_cycles
   - platform: template
     id: bms${bms_id}_charging_cycles_raw
-    internal: true
-    name: "${name} ${bms_name} charging cycles"
+    # name: "${name} ${bms_name} charging cycles"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:counter
@@ -343,9 +340,8 @@ sensor:
 
   # FAKE cycle capacity
   - platform: template
-    name: "${name} ${bms_name} charging cycle capacity"
     id: "bms${bms_id}_cycle_capacity_raw"
-    internal: true
+    # name: "${name} ${bms_name} charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: 'measurement'

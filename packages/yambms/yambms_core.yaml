@@ -1,5 +1,5 @@
-# Updated : 2025.08.13
-# Version : 1.5.9
+# Updated : 2025.11.23
+# Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,13 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.5.9"
-  # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
-  # The current requested will be proportional to the BMS count without ever exceeding this value.
-  yambms_max_requested_charge_current: '300' # in Ampere
-  # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
-  # The current requested will be proportional to the BMS count without ever exceeding this value.
-  yambms_max_requested_discharge_current: '300' # in Ampere
+  yambms_version: "1.6.0"
 
 # Execute once
 esphome:
@@ -86,10 +80,10 @@ globals:
     type: std::string
     restore_value: no
     initial_value: '"Wait"'
-  - id: ${yambms_id}_canbus_name
+  - id: ${yambms_id}_inverter_bms_name
     type: std::string
     restore_value: no
-  - id: ${yambms_id}_canbus_protocol
+  - id: ${yambms_id}_inverter_protocol
     type: std::string
     restore_value: no
   - id: ${yambms_id}_cell_nominal_v
@@ -174,6 +168,12 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
+  - platform: template
+    name: "${name} ${yambms_name} Temperature-based current limitation"
+    id: ${yambms_id}_switch_temperature_based_current_limitation
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+    entity_category: config
 
 number:
   # +--------------------------------------+
@@ -253,10 +253,10 @@ number:
     id: "${yambms_id}_max_charge_current_pct"
     step: 1
     min_value: 0
-    max_value: 90
+    max_value: 100
     restore_value: true
     mode: "${yambms_input_number_mode}"
-    initial_value: 80
+    initial_value: 100
     unit_of_measurement: '%'
     icon: mdi:current-dc
     optimistic: true
@@ -266,10 +266,10 @@ number:
     id: "${yambms_id}_max_discharge_current_pct"
     step: 1
     min_value: 0
-    max_value: 90
+    max_value: 100
     restore_value: true
     mode: "${yambms_input_number_mode}"
-    initial_value: 80
+    initial_value: 100
     unit_of_measurement: '%'
     icon: mdi:current-dc
     optimistic: true

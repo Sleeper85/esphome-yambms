@@ -1,0 +1,76 @@
+# Updated : 2025.11.23
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+number:
+  # +--------------------------------------+
+  # | Charging Cycles Offset               |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} Charging Cycles Offset"
+    id: bms${bms_id}_charging_cycles_offset
+    step: 1
+    min_value: 0
+    max_value: 3000
+    initial_value: 0
+    restore_value: true
+    icon: mdi:counter
+    optimistic: true
+    entity_category: config
+
+sensor:
+  # +--------------------------------------+
+  # | Charging Cycles                      |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} charging cycles"
+    id: bms${bms_id}_charging_cycles
+    update_interval: ${bms_update_interval}
+    state_class: total
+    icon: mdi:counter
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float cycles_raw = id(bms${bms_id}_charging_cycles_raw).state;
+      if (isnan(cycles_raw)) cycles_raw = 0;
+      return cycles_raw + id(bms${bms_id}_charging_cycles_offset).state;
+
+  # +--------------------------------------+
+  # | Charging Cycle Capacity              |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} total charging cycle capacity"
+    id: bms${bms_id}_cycle_capacity
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float capacity_raw = id(bms${bms_id}_cycle_capacity_raw).state;
+      if (isnan(capacity_raw)) capacity_raw = 0;
+      return capacity_raw +
+             id(bms${bms_id}_charging_cycles_offset).state *
+             id(bms${bms_id}_battery_capacity).state;

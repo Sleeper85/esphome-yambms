@@ -1,3 +1,7 @@
+# Updated : 2025.11.23
+# Version : 1.1.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
 # This YAML is free software: you can redistribute it and/or
@@ -12,6 +16,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# RAR PR (https://github.com/RAR)
 
 packages:
   bms_base: !include bms_base.yaml
@@ -42,7 +48,7 @@ modbus_controller:
             id(bms${bms_id}_online_status).publish_state(false);
             id(bms${bms_id}_charging_allowed).publish_state(false);
             id(bms${bms_id}_discharging_allowed).publish_state(false);
-            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_bms_equalizing).publish_state(false);
             id(bms${bms_id}_total_voltage).publish_state(0);
             id(bms${bms_id}_current).publish_state(0);
             id(bms${bms_id}_power).publish_state(0);
@@ -62,7 +68,7 @@ modbus_controller:
             id(bms${bms_id}_max_temperature_sensor).publish_state(0);
             id(bms${bms_id}_cell_ovp).publish_state(0);
             id(bms${bms_id}_cell_uvp).publish_state(0);
-            id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
+            id(bms${bms_id}_bms_balance_trigger_voltage).publish_state(0);
             id(bms${bms_id}_charging_power).publish_state(0);
             id(bms${bms_id}_discharging_power).publish_state(0);
             id(bms${bms_id}_battery_soh).publish_state(0);
@@ -117,8 +123,8 @@ binary_sensor:
 ## Balancer Status
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
-    name: "${name} ${bms_name} balancing"
-    id: "bms${bms_id}_equalizing"
+    # name: "${name} ${bms_name} balancing"
+    id: "bms${bms_id}_bms_equalizing"
     register_type: holding
     address: 38
 
@@ -309,7 +315,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} remaining capacity"
+    # name: "${name} ${bms_name} remaining capacity"
     register_type: holding
     address: 21
     unit_of_measurement: "Ah"
@@ -340,7 +346,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_state_of_charge
-    name: "${name} ${bms_name} state of charge"
+    # name: "${name} ${bms_name} state of charge"
     register_type: holding
     address: 24
     unit_of_measurement: "%"
@@ -373,7 +379,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_cycles_raw
-    name: "${name} ${bms_name} cycle"
+    # name: "${name} ${bms_name} cycle"
     register_type: holding
     address: 29
     unit_of_measurement: ""
@@ -786,10 +792,9 @@ sensor:
     accuracy_decimals: 0
 
 ## Either Temp till I figure out bitmasks or unavailable from the BMS
-#
   - platform: template
-    id: bms${bms_id}_balance_trigger_voltage
-    name: "${name} ${bms_name} balance trigger voltage"
+    id: bms${bms_id}_bms_balance_trigger_voltage
+    # name: "${name} ${bms_name} balance trigger voltage"
     accuracy_decimals: 3
     unit_of_measurement: "V"
     state_class: measurement
@@ -869,13 +874,12 @@ sensor:
   # Charging cycle capacity
   - platform: template
     id: bms${bms_id}_cycle_capacity_raw
-    name: "${name} ${bms_name} charging cycle capacity"
+    # name: "${name} ${bms_name} charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: total
     icon: mdi:car-battery
     accuracy_decimals: 0
-    internal: true
     filters:
       - or:
         - throttle: 10s

@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.3.0
+# Updated : 2025.11.23
+# Version : 1.3.1
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,7 +26,7 @@ packages:
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_UART_4G-GPS.yaml
-  bms_battery_soh: !include bms_battery_soh.yaml
+  bms_battery_soh: !include bms_base_battery_soh.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -54,8 +54,7 @@ binary_sensor:
     jk_bms_id: jk_bms${bms_id}
     balancing:
       id: bms${bms_id}_bms_equalizing
-      name: "${name} ${bms_name} balancing"
-      internal: true
+      # name: "${name} ${bms_name} balancing"
     balancing_switch:
       name: "${name} ${bms_name} balancing switch"
     charging:
@@ -129,21 +128,19 @@ sensor:
       name: "${name} ${bms_name} discharging power"
     capacity_remaining:
       id: bms${bms_id}_state_of_charge
-      name: "${name} ${bms_name} state of charge"
+      # name: "${name} ${bms_name} state of charge"
     capacity_remaining_derived:
       id: bms${bms_id}_capacity_remaining_ah
-      name: "${name} ${bms_name} capacity remaining"
+      # name: "${name} ${bms_name} capacity remaining"
     temperature_sensors:
       name: "${name} ${bms_name} temperature sensors"
       entity_category: diagnostic
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
-      internal: true
-      name: "${name} ${bms_name} charging cycles"
+      # name: "${name} ${bms_name} charging cycles"
     total_charging_cycle_capacity:
       id: bms${bms_id}_cycle_capacity_raw
-      internal: true
-      name: "${name} ${bms_name} total charging cycle capacity"
+      # name: "${name} ${bms_name} total charging cycle capacity"
     battery_strings:
       id: bms${bms_id}_cell_count
       name: "${name} ${bms_name} battery strings"
@@ -189,8 +186,7 @@ sensor:
       name: "${name} ${bms_name} balance starting voltage"
     balance_opening_pressure_difference:
       id: bms${bms_id}_bms_balance_trigger_voltage
-      name: "${name} ${bms_name} balance opening pressure difference"
-      internal: true
+      # name: "${name} ${bms_name} balance opening pressure difference"
     power_tube_temperature_protection:
       name: "${name} ${bms_name} power tube temperature protection"
     power_tube_temperature_recovery:

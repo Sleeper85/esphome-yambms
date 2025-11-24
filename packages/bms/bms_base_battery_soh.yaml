@@ -1,5 +1,5 @@
 # Updated : 2025.11.23
-# Version : 1.6.0
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,15 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-substitutions:
-  yambms_version: "1.6.0"
-
-esphome:
-  name: ${hostname}
-  friendly_name: ${friendly_name}
-  # comment: 'Solar system braining and more !'
-  # area: 'Technical local'
-  project:
-    name: Sleeper85.YamBMS
-    version: ${yambms_version}
-  min_version: 2025.11.0
+sensor:
+  # +--------------------------------------+
+  # | Battery State of Health (SOH)        |
+  # +--------------------------------------+
+  - platform: template
+    name: ${name} ${bms_name} Battery SoH
+    id: bms${bms_id}_battery_soh
+    unit_of_measurement: "%"
+    device_class: battery
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return round(((id(bms${bms_id}_charging_cycles).state/${bms_cell_max_cycles})-1)*-100);

@@ -1,5 +1,5 @@
-# Updated : 2025.11.14
-# Version : 1.5.9
+# Updated : 2025.11.23
+# Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -110,6 +110,31 @@ substitutions:
 
 
 
+globals:
+  # +-------------------------------------------------------------------------
+  # | Temperature-based current limitation
+  # | Can be disabled via the switch "Temperature-based current limitation"
+  # +-------------------------------------------------------------------------
+  # | Temperature-based charging rate
+  # +-------------------------------------------------------------------------
+  # The default 'initial_value' rate values can be modified.
+  - id: ${yambms_id}_var_charging_rate
+    type: float[10]
+    restore_value: no
+    # Temp.°C Rate :    0,    5,  10,  15,  20,  25,  45,  50,  55,  60
+    initial_value: '{0.05, 0.12, 0.3, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0}'
+  # +-------------------------------------------------------------------------
+  # | Temperature-based discharging rate
+  # +-------------------------------------------------------------------------
+  # The default 'initial_value' rate values can be modified.
+  - id: ${yambms_id}_var_discharging_rate
+    type: float[10]
+    restore_value: no
+    # Temp.°C Rate : -30, -20, -10,  -5,   0,   5,  45,  50,  55,  60
+    initial_value: '{0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0}'
+
+
+
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
@@ -129,19 +154,22 @@ packages:
     refresh: 0s
     files:
       - path: 'packages/board/board_ESP32_Generic.yaml'
-      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
+      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_EVB.yaml'
+      # - path: 'packages/board/board_ESP32_iBMS_CAN_RS485_V3.3.yaml'
       # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
       # - path: 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
       # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+      # - path: 'packages/board/board_ESP32-C3_FlipC3.yaml'
       # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
       # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-ETH.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-RS485-CAN.yaml'
       # - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml'
       # - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-7.yaml'
-      # - path: 'packages/board/board_ESP32-S3_WS-RS485-CAN.yaml'
       # - path: 'packages/board/board_ESP32-S3_XIAO.yaml'
       # - path: 'packages/board/board_ESP32-S3_YBoard.yaml'
 
@@ -175,6 +203,12 @@ packages:
       # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
       # UART 3 (uart_id: uart_esp_3)
       # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
+
+      # UART flow control
+      # - path: 'packages/board/board_options_itf_uart_flow_control.yaml'
+      #   vars:
+      #     uart_id: 'uart_esp_1'
+      #     uart_flow_control_pin: ${talk_pin}
 
       # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
       - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'

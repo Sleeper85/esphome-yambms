@@ -1,5 +1,5 @@
-# Updated : 2025.06.10
-# Version : 1.1.2
+# Updated : 2025.11.23
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,17 +19,25 @@
 
 sensor:
   # +--------------------------------------+
-  # | Battery State of Health (SOH)        |
+  # | Total Daily Energy                   |
   # +--------------------------------------+
-  - platform: template
-    name: ${name} ${bms_name} Battery SoH
-    id: bms${bms_id}_battery_soh
-    unit_of_measurement: "%"
-    device_class: battery
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 0
+  - platform: total_daily_energy
+    name: "${name} ${bms_name} Daily Charging Energy"
+    power_id: bms${bms_id}_charging_power
+    unit_of_measurement: 'kWh'
+    device_class: energy
+    state_class: total_increasing
+    accuracy_decimals: 3
     filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: return round(((id(bms${bms_id}_charging_cycles).state/${bms_cell_max_cycles})-1)*-100);
+      # Multiplication factor from W to kW is 0.001
+      - multiply: 0.001
+  - platform: total_daily_energy
+    name: "${name} ${bms_name} Daily Discharging Energy"
+    power_id: bms${bms_id}_discharging_power
+    unit_of_measurement: 'kWh'
+    device_class: energy
+    state_class: total_increasing
+    accuracy_decimals: 3
+    filters:
+      # Multiplication factor from W to kW is 0.001
+      - multiply: 0.001

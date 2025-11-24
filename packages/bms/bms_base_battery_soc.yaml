@@ -1,0 +1,64 @@
+# Updated : 2025.11.23
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+sensor:
+  # +--------------------------------------+
+  # | Battery State of Charge (SOC)        |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} Battery SoC"
+    id: bms${bms_id}_battery_soc
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float soc = id(bms${bms_id}_state_of_charge).state;
+      float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
+      float cell_low_v = id(bms${bms_id}_cell_uvp).state + 0.2;
+
+      if (min_cell_v <= cell_low_v) return 0;        // return 0%
+      else return soc;                               // return BMS SoC
+
+  # +--------------------------------------+
+  # | Battery Capacity Remaining           |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${bms_name} Battery Capacity Remaining"
+    id: bms${bms_id}_battery_capacity_remaining
+    update_interval: ${yambms_update_interval}
+    unit_of_measurement: Ah
+    state_class: measurement
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      float bcr = id(bms${bms_id}_capacity_remaining_ah).state;
+      float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
+      float cell_low_v = id(bms${bms_id}_cell_uvp).state + 0.2;
+
+      if (min_cell_v <= cell_low_v) return 0;        // return 0Ah
+      else return bcr;                               // return Battery Capacity Remaining

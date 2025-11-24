@@ -1,5 +1,5 @@
-# Updated : 2025.11.16
-# Version : 1.2.0
+# Updated : 2025.11.23
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,7 +19,7 @@
 
 external_components:
   - source: github://pr#11781
-    components: [growatt_solar, havells_solar, kuntze, modbus, modbus_controller]
+    components: [modbus, modbus_controller]
     refresh: 1h
 
 substitutions:
@@ -28,7 +28,7 @@ substitutions:
 
 packages:
   bms_combine: !include bms_combine.yaml
-  bms_balancer: !include bms_balancer.yaml
+  bms_balancer: !include bms_base_balancer.yaml
 
 # +--------------------------------------+
 # | Component settings                   |

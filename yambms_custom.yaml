@@ -1,5 +1,5 @@
-# Updated : 2025.04.04
-# Version : 1.1.2
+# Updated : 2025.11.23
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,22 +17,43 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+# +---------------------------------------------------------------+
+# | These are example codes that you can copy into your main YAML |
+# +---------------------------------------------------------------+
+
 switch:
+  # Force Float switch
   - platform: template
     name: "${name} ${yambms_name} Force Float"
     id: ${yambms_id}_switch_force_float
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
+    turn_on_action:
+      - globals.set:
+          id: ${yambms_id}_force_float
+          value: 'true'
+    turn_off_action:
+      - globals.set:
+          id: ${yambms_id}_force_float
+          value: 'false'
+  # Update service switch
+  - platform: template
+    name: "${name} ${yambms_name} Update service"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+    entity_category: config
+    turn_on_action:
+      - globals.set:
+          id: ${yambms_id}_service
+          value: 'true'
+    turn_off_action:
+      - globals.set:
+          id: ${yambms_id}_service
+          value: 'false'
 
 interval:
-  - interval: ${yambms_update_interval}
-    then:
-      - lambda: |-
-          // Force Float
-          if (id(${yambms_id}_switch_force_float).state) id(${yambms_id}_force_float) = true;
-          else id(${yambms_id}_force_float) = false;
-
+  # Change the min/max values of a silder
   - interval: 24h # 60s
     then:
       - lambda: |-
