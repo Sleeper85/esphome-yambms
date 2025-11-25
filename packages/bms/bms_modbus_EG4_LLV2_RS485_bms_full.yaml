@@ -1,5 +1,5 @@
-# Updated : 2025.06.11
-# Version : 1.1.2
+# Updated : 2025.11.25
+# Version : 1.1.3
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  bms_model: "EG4 LLV2"
-  bms_protocol: "RS485"
+  bms_model: "EG4 LLV2 RS485"
+  bms_protocol: "Multi-node"
 
 packages:
   bms_sensors: !include bms_sensors_EG4_LLV2_RS485_bms_full.yaml

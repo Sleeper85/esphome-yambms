@@ -1,5 +1,5 @@
-# Updated : 2025.06.15
-# Version : 1.1.1
+# Updated : 2025.11.25
+# Version : 1.1.2
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  bms_model: "BASEN"
-  bms_protocol: "RS485"
+  bms_model: "BASEN RS485"
+  bms_protocol: "Multi-node"
 
 packages:
   bms_sensors: !include bms_sensors_BASEN_RS485_full.yaml

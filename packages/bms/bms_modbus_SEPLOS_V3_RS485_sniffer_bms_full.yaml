@@ -1,6 +1,6 @@
 # Updated : 2025.11.25
-# Version : 1.1.2
-# GitHub  : https://github.com/syssi/esphome-jk-bms
+# Version : 1.1.1
+# GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  bms_model: "JBD UART"
+  bms_model: "SEPLOS V3 RS485"
   bms_protocol: "Multi-node"
 
 packages:
-  bms_sensors: !include bms_sensors_JBD_UART_full.yaml
+  bms_sensors: !include bms_sensors_SEPLOS_V3_RS485_sniffer_bms_full.yaml
   bms_combine: !include bms_modbus_server.yaml
