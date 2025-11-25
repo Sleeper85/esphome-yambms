@@ -314,7 +314,7 @@ interval:
                 max_charge_current = rate_max_charge_current;
             }
             
-            id(${yambms_id}_max_charge_current).publish_state(max_charge_current);
+            id(${yambms_id}_max_charge_current).publish_state(round(max_charge_current));
 
             // TOTAL max_discharge_current
             float max_discharge_current;
@@ -359,7 +359,7 @@ interval:
                 max_discharge_current = rate_max_discharge_current;
             }
             
-            id(${yambms_id}_max_discharge_current).publish_state(max_discharge_current);
+            id(${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
 
             // MIN/MAX values
             // MAX balance_trigger_voltage
