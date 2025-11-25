@@ -1,4 +1,4 @@
-# Updated : 2025.11.23
+# Updated : 2025.11.25
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -114,6 +114,8 @@ globals:
   # +-------------------------------------------------------------------------
   # | Temperature-based current limitation
   # | Can be disabled via the switch "Temperature-based current limitation"
+  # | This factor is applied to the battery capacity (Ah), not the current 
+  # | maximum charge/discharge current. For example : 280Ah x 0.5 = 140A
   # +-------------------------------------------------------------------------
   # | Temperature-based charging rate
   # +-------------------------------------------------------------------------
