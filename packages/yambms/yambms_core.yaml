@@ -1,4 +1,4 @@
-# Updated : 2025.11.24
+# Updated : 2025.11.25
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -455,18 +455,18 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
-        - delta: 0.1
+        - delta: 1
     lambda: |-
       // Charging Allowed
       if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float")) {
         float requested_charge_current = id(${yambms_id}_max_charge_current).state + id(${yambms_id}_auto_ccl) + id(${yambms_id}_auto_eoc);
         if (requested_charge_current < 0) 
           return 0;
-        return requested_charge_current;
+        return round(requested_charge_current);
       }
       // Charging Not Allowed
       else return 0;
@@ -481,15 +481,15 @@ sensor:
     unit_of_measurement: A
     device_class: current
     state_class: measurement
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     filters:
       - or:
         - throttle: 10s
-        - delta: 0.1
+        - delta: 1
     lambda: |-
       // Discharging Allowed
       if (id(${yambms_id}_discharging_instruction).state == true)
-        return (id(${yambms_id}_max_discharge_current).state + id(${yambms_id}_auto_dcl));
+        return (round(id(${yambms_id}_max_discharge_current).state + id(${yambms_id}_auto_dcl)));
       // Discharging Not Allowed
       else return 0;
 
