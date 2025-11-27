@@ -44,12 +44,19 @@ views:
           - type: gauge
             entity: sensor.yambms_yambms_1_current
             needle: true
-            severity:
-              green: 0
-              yellow: -250
-              red: -500
-            max: 500
-            min: -500
+            segments:
+              - from: -300
+                color: "#db4437"
+              - from: -250
+                color: "#ffa600"
+              - from: -140
+                color: "#43a047"
+              - from: 140
+                color: "#ffa600"
+              - from: 250
+                color: "#db4437"
+            max: 300
+            min: -300
             name: Current
             layout_options:
               grid_columns: 2
@@ -57,12 +64,19 @@ views:
           - type: gauge
             entity: sensor.yambms_yambms_1_power
             needle: true
-            severity:
-              green: 0
-              yellow: -2500
-              red: -5000
-            max: 5000
-            min: -5000
+            segments:
+              - from: -12000
+                color: "#db4437"
+              - from: -10000
+                color: "#ffa600"
+              - from: -8000
+                color: "#43a047"
+              - from: 8000
+                color: "#ffa600"
+              - from: 10000
+                color: "#db4437"
+            max: 12000
+            min: -12000
             name: Power
             layout_options:
               grid_columns: 2
