@@ -29,10 +29,21 @@
 
 ### 1. Enter your WiFi credentials in the `SECRETS` YAML in the top right corner
 
+Copy, past and enter your credentials :
+
 ```YAML
+# WiFi
 wifi_ssid: YourSSID
 wifi_password: YourPassword
-domain : .local
+domain: .local
+
+# WiFi AP
+wifi_ap_ssid: YamBMS
+wifi_ap_password: Y4mBM$85
+
+# Web Server
+web_server_username: yambms
+web_server_password: Y4mBM$85
 ```
 
 ### 2. Add your `ESP32` by clicking on `+ NEW DEVICE` at the bottom right
@@ -56,7 +67,7 @@ In Home Assistant under **" Settings > Devices and services > Add Intergration "
 
 ### 1. Install ESPHome on your computer
 
-Before you can flash your ESP32 you need to install the [ESPHome 2025.6.0 or higher](https://github.com/esphome/esphome/releases) command line application.<br>
+Before you can flash your ESP32 you need to install the [ESPHome 2025.11.0 or higher](https://github.com/esphome/esphome/releases) command line application.<br>
 [Follow these instructions for installation on Windows, Mac or Linux.](https://esphome.io/guides/installing_esphome)
 
 > [!TIP]
@@ -89,10 +100,19 @@ cd esphome-yambms
 
 ### 3. Enter your WiFi credentials in the `secrets.yaml` files
 
-```yaml
+```YAML
+# WiFi
 wifi_ssid: YourSSID
 wifi_password: YourPassword
-domain : .local
+domain: .local
+
+# WiFi AP
+wifi_ap_ssid: YamBMS
+wifi_ap_password: Y4mBM$85
+
+# Web Server
+web_server_username: yambms
+web_server_password: Y4mBM$85
 ```
 
 ### 4. Install the `YamBMS.yaml` into your ESP32

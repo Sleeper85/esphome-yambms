@@ -60,6 +60,10 @@
 
 ![Image](images/YamBMS_Overview.png "YamBMS Overview")
 
+## Home Assistant
+
+![Image](images/YamBMS_HA_Dashboard.png "YamBMS HA Dashboard")
+
 ## Hardware highlighted
 
 This project works with various `ESP32` variants and also with the `Raspberry Pi Pico (RP2040)`.
@@ -93,21 +97,21 @@ The BMS/Shunt are connected to other ESP32 nodes connected on a dedicated RS485 
 
 The theoretical limit is `256` modbus server (BMS/Shunt) per `RS485 bus` but in reality this will depend on the capabilities of `node1` (YamBMS) which will have to combine all the BMS/Shunt/Balancer together.
 
-[You can find more information about creating your YAML in this How To.](documents/README/YamBMS_main_YAML_HowTo.md)
+[You can find more information about creating your YAML in this How To.](documents/README/YamBMS_RP_YAML.md)
 
 > [!TIP] 
 > If you have a lot of `BMS/Shunt/Balancer` to combine, using an `ESP32-S3` or `AtomS3` for `node1` is recommended.
 
 ![Image](images/YamBMS_multi-node_RS485_modbus.png "YamBMS multi-node RS485 modbus")
 
+[@GHswitt](https://github.com/GHswitt) multi-node example :
+
+![Image](images/YamBMS_multi-node_RS485_modbus_example.png "YamBMS multi-node RS485 modbus example")
+
 > [!NOTE]
 > Some boards with integrated `RS485 transceiver` have already a 120 Ohm resistor installed, for example the `LilyGo T-CAN485`, `LilyGo T-Connect` and `LilyGo T-Connect Pro`. 
 > If these devices are used in the middle, this resistor must be removed!
 > Otherwise transmission errors can occur.
-
-## Home Assistant
-
-![Image](images/YamBMS_HA_Dashboard.png "YamBMS HA Dashboard")
 
 ## Try YamBMS with the DEMO firmware
 
@@ -129,7 +133,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2025.6.0 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2025.11.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
@@ -140,7 +144,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 ## Data collection
 
 > [!NOTE]
-> For your information, in June 2025 there were `100` YamBMS users.
+> For your information, in November 2025 there were `140` YamBMS users.
 
 If the ESP32 has an internet connection, the following data is sent to [this script](http://script.opentel.be/yambms.post.php)
 for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have access to this information for the production of statistics, the support and the update service.
@@ -160,4 +164,5 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 
 * Thanks to [@syssi](https://github.com/syssi/esphome-jk-bms) for help and making many BMS components (JK, JBD, Seplos, Pace, etc.)
 * Thanks to [@txubelaxu](https://github.com/txubelaxu/esphome-jk-bms) for help and making the `JK-PB RS485` component.
-* Thanks to [@uksa007](https://www.patreon.com/Uksa007Codedevelopment) for making the original CANBUS code.
+* Thanks to [@uksa007](https://www.patreon.com/Uksa007Codedevelopment) for making the first CANBUS code.
+* Thanks to all the [contributors](https://github.com/Sleeper85/esphome-yambms/graphs/contributors).
