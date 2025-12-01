@@ -1,5 +1,5 @@
-# Updated : 2025.07.27
-# Version : 1.1.1
+# Updated : 2025.12.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,13 +28,14 @@ packages:
   # The sniffer represents the ESP node connected to the JK-BMS PB RS485 bus
   # If address 0x00 is not detected on the RS485 bus, the sniffer will act directly as a master BMS (mode 2, max 15 BMS)
 
+  # RS485 Sniffer with talk_pin (WS-RS485-CAN and other RS485 boards with a flow_control_pin)
   # sniffer1: !include
   #   file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer_talk_pin.yaml
   #   vars:
   #     sniffer_id: 'sniffer1'
   #     sniffer_protocol: 'JK02_32S'
   #     sniffer_uart_id: 'uart_esp_1'
-  #     sniffer_talk_pin: 8 # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
+  #     sniffer_talk_pin: ${talk_pin} # can be replaced by the GPIO number
 
   sniffer1: !include
     file: packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml
