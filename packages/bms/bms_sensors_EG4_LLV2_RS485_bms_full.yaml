@@ -188,12 +188,6 @@ sensor:
     temperature_4:
       id: bms${bms_id}_temperature_sensor_4
       name: "${name} ${bms_name} cell temperature 4"
-    temperature_5:
-      id: bms${bms_id}_temperature_sensor_5
-      name: "${name} ${bms_name} cell temperature 5"
-    temperature_6:
-      id: bms${bms_id}_temperature_sensor_6
-      name: "${name} ${bms_name} cell temperature 6"
     pcb_temperature:
       name: "${name} ${bms_name} mosfet temperature"
     avg_temperature:
