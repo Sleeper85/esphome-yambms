@@ -194,6 +194,15 @@ sensor:
       name: "${name} ${bms_name} average cell temperature"
     max_temperature:
       name: "${name} ${bms_name} max cell temperature"
+    errors_bitmask:
+      id: bms${bms_id}_errors_bitmask
+      name: "${name} ${bms_name} errors bitmask"
+    warnings_bitmask:
+      id: bms${bms_id}_warnings_bitmask
+      name: "${name} ${bms_name} warnings bitmask"
+    protection_bitmask:
+      id: bms${bms_id}_protection_bitmask
+      name: "${name} ${bms_name} protection bitmask"
   
   # Required sensors - min/max voltage cell numbers (calculated by component)
   - platform: template
