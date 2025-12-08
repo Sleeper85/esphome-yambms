@@ -19,7 +19,7 @@
 
 packages:
   bms_base: !include bms_base.yaml
-  bms_temperature_sensor: !include bms_temperature_sensor_6.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
