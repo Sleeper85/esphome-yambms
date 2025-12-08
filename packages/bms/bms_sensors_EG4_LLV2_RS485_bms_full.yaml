@@ -290,32 +290,6 @@ sensor:
         - delta: 1
     lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
 
-  # YamBMS errors bitmask - derived from text sensor state
-  # Component handles errors via text sensors, this provides YamBMS compatibility
-  - platform: template
-    id: bms${bms_id}_yambms_errors_bitmask
-    name: "${name} ${bms_name} errors bitmask"
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 0
-    icon: mdi:alert-circle-outline
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: |-
-      // Simple bitmask: 0 = no errors, >0 = has errors
-      // Component provides detailed error info via text sensors
-      std::string warnings = id(bms${bms_id}_warnings_text).state;
-      std::string protection = id(bms${bms_id}_protection_text).state;
-      std::string errors = id(bms${bms_id}_errors_text).state;
-      
-      uint32_t bitmask = 0;
-      if (warnings != "None" && !warnings.empty()) bitmask |= 0x01;
-      if (protection != "None" && !protection.empty()) bitmask |= 0x02;
-      if (errors != "None" && !errors.empty()) bitmask |= 0x04;
-      
-      return bitmask;
-
 text_sensor:
   - platform: eg4_bms
     eg4_bms_id: eg4_bms${bms_id}
