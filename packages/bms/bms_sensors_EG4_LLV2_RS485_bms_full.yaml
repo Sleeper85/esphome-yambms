@@ -125,9 +125,9 @@ sensor:
     delta_cell_voltage:
       id: bms${bms_id}_delta_cell_voltage
       name: "${name} ${bms_name} delta cell voltage"
-    average_cell_voltage:
-      id: bms${bms_id}_average_cell_voltage
-      name: "${name} ${bms_name} average cell voltage"
+    cell_average_voltage:
+      id: bms${bms_id}_cell_average_voltage
+      name: "${name} ${bms_name} cell average voltage"
     cell_voltage_1:
       id: bms${bms_id}_cell_voltage_1
       name: "${name} ${bms_name} cell voltage 01"
