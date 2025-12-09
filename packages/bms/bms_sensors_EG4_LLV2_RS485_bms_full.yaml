@@ -77,7 +77,7 @@ binary_sensor:
   # Required sensors cannot be retrieved from BMS
   # equalizing
   - platform: template
-    id: bms${bms_id}_equalizing
+    id: bms${bms_id}_bms_equalizing
     name: "${name} ${bms_name} balancing"
     lambda: return false;
 
@@ -220,7 +220,7 @@ sensor:
 
   # Required sensors cannot be retrieved from BMS
   - platform: template
-    id: bms${bms_id}_balance_trigger_voltage
+    id: bms${bms_id}_bms_balance_trigger_voltage
     name: "${name} ${bms_name} balance trigger voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
