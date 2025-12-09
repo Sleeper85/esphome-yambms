@@ -1,4 +1,4 @@
-# Updated : 2025.07.29
+# Updated : 2025.12.09
 # Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -39,14 +39,8 @@ substitutions:
   # | Shunt Settings                       |
   # +--------------------------------------+
   shunt_update_interval: '5s'  # frequency at which Shunt data is refreshed
-  shunt_combine_interval: '1s' # frequency at which Shunt data is combined in YamBMS
-  # +--------------------------------------+
-  # | Modbus Settings                      |
-  # +--------------------------------------+
-  modbus_update_interval: '5s' # frequency with which BMS/Shunt modbus servers are queried
-  modbus_baud_rate: '19200' # 9600 / 19200 / 11520
-  modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
-  modbus_send_wait_time: '250ms' # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+
+
 
 # +--------------------------------------+
 # | Packages                             |
@@ -66,10 +60,11 @@ packages:
   uart_6: !include packages/board/board_options_itf_uart_6.yaml
 
   modbus: !include
-    file: packages/base/device_modbus.yaml
+    file: packages/board/board_options_itf_modbus.yaml
     vars:
       modbus_role: 'server' # client / server
       modbus_uart_id: 'uart_1' # RS485 board
+      modbus_baud_rate: '19200' # 9600 / 19200 / 11520
       
   shunt1: !include
     file: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml

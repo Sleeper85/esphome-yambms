@@ -1,4 +1,4 @@
-# Updated : 2025.11.23
+# Updated : 2025.12.09
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -40,7 +40,7 @@ binary_sensor:
     lambda: return (id(bms${bms_id}_online_status).state && id(bms${bms_id}_battery_capacity).state > 0);
 
 interval:
-  - interval: ${bms_combine_interval}
+  - interval: ${yambms_update_interval}
     then:
       - lambda: |-
           // BMS number to combine ?

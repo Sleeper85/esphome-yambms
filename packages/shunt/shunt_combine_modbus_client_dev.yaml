@@ -29,7 +29,7 @@ modbus_controller:
     modbus_id: ${modbus_id}
     setup_priority: -10
     address: 20${shunt_id}
-    update_interval: ${modbus_update_interval}
+    update_interval: ${shunt_update_interval}
     max_cmd_retries: 3
     # command_throttle: ${modbus_command_throttle}
     # offline_skip_updates: 5
