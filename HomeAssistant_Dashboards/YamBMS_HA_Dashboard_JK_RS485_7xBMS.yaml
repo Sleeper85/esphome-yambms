@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.04
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -590,11 +590,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_1_charge_switch
+              - entity: switch.yambms_jk_bms_1_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_1_discharge_switch
+              - entity: switch.yambms_jk_bms_1_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_1_balance_switch
+              - entity: switch.yambms_jk_bms_1_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_1_enable_bluetooth_connection
                 name: Bluetooth
@@ -802,11 +802,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_2_charge_switch
+              - entity: switch.yambms_jk_bms_2_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_2_discharge_switch
+              - entity: switch.yambms_jk_bms_2_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_2_balance_switch
+              - entity: switch.yambms_jk_bms_2_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_2_enable_bluetooth_connection
                 name: Bluetooth
@@ -1014,11 +1014,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_3_charge_switch
+              - entity: switch.yambms_jk_bms_3_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_3_discharge_switch
+              - entity: switch.yambms_jk_bms_3_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_3_balance_switch
+              - entity: switch.yambms_jk_bms_3_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_3_enable_bluetooth_connection
                 name: Bluetooth
@@ -1226,11 +1226,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_4_charge_switch
+              - entity: switch.yambms_jk_bms_4_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_4_discharge_switch
+              - entity: switch.yambms_jk_bms_4_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_4_balance_switch
+              - entity: switch.yambms_jk_bms_4_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_4_enable_bluetooth_connection
                 name: Bluetooth
@@ -1438,11 +1438,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_5_charge_switch
+              - entity: switch.yambms_jk_bms_5_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_5_discharge_switch
+              - entity: switch.yambms_jk_bms_5_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_5_balance_switch
+              - entity: switch.yambms_jk_bms_5_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_5_enable_bluetooth_connection
                 name: Bluetooth
@@ -1650,11 +1650,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_6_charge_switch
+              - entity: switch.yambms_jk_bms_6_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_6_discharge_switch
+              - entity: switch.yambms_jk_bms_6_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_6_balance_switch
+              - entity: switch.yambms_jk_bms_6_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_6_enable_bluetooth_connection
                 name: Bluetooth
@@ -1862,11 +1862,11 @@ views:
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_7_charge_switch
+              - entity: switch.yambms_jk_bms_7_charging
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_7_discharge_switch
+              - entity: switch.yambms_jk_bms_7_discharging
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_7_balance_switch
+              - entity: switch.yambms_jk_bms_7_balancing
                 name: Balance switch
               - entity: switch.yambms_jk_bms_7_enable_bluetooth_connection
                 name: Bluetooth

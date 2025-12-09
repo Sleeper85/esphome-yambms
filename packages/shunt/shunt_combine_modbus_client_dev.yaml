@@ -1,4 +1,4 @@
-# Updated : 2025.11.16
+# Updated : 2025.12.05
 # Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -17,11 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-external_components:
-  - source: github://pr#11781
-    components: [growatt_solar, havells_solar, kuntze, modbus, modbus_controller]
-    refresh: 1h
-
 packages:
   shunt_combine: !include shunt_combine.yaml
 
@@ -34,7 +29,7 @@ modbus_controller:
     modbus_id: ${modbus_id}
     setup_priority: -10
     address: 20${shunt_id}
-    update_interval: ${modbus_update_interval}
+    update_interval: ${shunt_update_interval}
     max_cmd_retries: 3
     # command_throttle: ${modbus_command_throttle}
     # offline_skip_updates: 5

@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.09
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -180,6 +180,15 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  # YamBMS
+  - id: ${yambms_id}_var_charging_rate
+    type: float[10]
+    restore_value: no
+    initial_value: ${yambms_charging_rate_table}
+  - id: ${yambms_id}_var_discharging_rate
+    type: float[10]
+    restore_value: no
+    initial_value: ${yambms_discharging_rate_table}
 
 # Combine continuously
 interval:

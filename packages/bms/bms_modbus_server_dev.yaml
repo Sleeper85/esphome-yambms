@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.5
+# Updated : 2025.12.05
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,12 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-external_components:
-  - source: github://pr#11781
-    components: [modbus, modbus_controller]
-    refresh: 1h
-
-modbus_controller:
+modbus_server:
   - modbus_id: ${modbus_id}
     address: ${bms_id} # max 255 (8bit)
     server_registers:
