@@ -27,7 +27,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@main
+  - source: github://RAR/esphome-eg4-bms@v1.0.0
     refresh: 0s
 
 eg4_bms:
