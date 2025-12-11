@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.2
+# Updated : 2025.12.09
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,6 +38,7 @@ binary_sensor:
   # equalizing
   - platform: template
     id: bms${bms_id}_equalizing
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} equalizing"
     lambda: |-
       if (id(bms${bms_id}_var_ext_balancer_online))
@@ -49,6 +50,7 @@ sensor:
   # balance_trigger_voltage
   - platform: template
     id: bms${bms_id}_balance_trigger_voltage
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} balancer trigger voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3

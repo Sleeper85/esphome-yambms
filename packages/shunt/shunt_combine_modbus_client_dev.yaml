@@ -1,5 +1,5 @@
-# Updated : 2025.12.05
-# Version : 1.1.4
+# Updated : 2025.12.09
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -50,6 +50,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_online_status
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Online Status"
     register_type: read
     address: 1
@@ -59,6 +60,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_voltage
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Voltage"
     register_type: read
     address: 2
@@ -75,6 +77,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_current
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Current"
     register_type: read
     address: 4
@@ -91,6 +94,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_power
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Power"
     register_type: read
     address: 6
@@ -107,6 +111,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_soc
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} State of Charge"
     register_type: read
     address: 8
@@ -123,6 +128,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_charging_power
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Charging Power"
     register_type: read
     address: 9
@@ -139,6 +145,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_discharging_power
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Discharging Power"
     register_type: read
     address: 11

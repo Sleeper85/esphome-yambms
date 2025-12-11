@@ -1,5 +1,5 @@
 # Updated : 2025.12.09
-# Version : 1.5.7
+# Version : 1.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -33,6 +33,7 @@ switch:
   - platform: template
     name: "${name} ${shunt_name} Combine enabled"
     id: shunt${shunt_id}_switch_combine
+    device_id: shunt_${shunt_id}
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
 
@@ -41,6 +42,7 @@ binary_sensor:
   - platform: template
     name: "${name} ${shunt_name} Can be combined"
     id: shunt${shunt_id}_can_be_combined
+    device_id: shunt_${shunt_id}
     lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
 
 interval:

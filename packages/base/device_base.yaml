@@ -19,6 +19,7 @@
 
 packages:
   device_base_esphome: !include device_base_esphome.yaml
+  sub_device: !include device_base_sub_device.yaml
 
 time:
   # https://esphome.io/components/time/homeassistant

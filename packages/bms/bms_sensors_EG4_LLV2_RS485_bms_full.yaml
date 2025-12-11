@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.2
+# Updated : 2025.12.09
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -81,6 +81,7 @@ binary_sensor:
   # online_status
   - platform: template
     id: bms${bms_id}_online_status
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} online status"
     lambda: |-
       if (id(bms${bms_id}_total_voltage).state > 0)
@@ -91,6 +92,7 @@ binary_sensor:
   # bms_switch_charging
   - platform: template
     id: bms${bms_id}_charging_allowed
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} charging"
     lambda:
       if (id(bms${bms_id}_errors_bitmask).state == 0)
@@ -101,6 +103,7 @@ binary_sensor:
   # bms_switch_discharging
   - platform: template
     id: bms${bms_id}_discharging_allowed
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} discharging"
     lambda:
       if (id(bms${bms_id}_errors_bitmask).state == 0)
@@ -111,10 +114,12 @@ binary_sensor:
   # status heating
   - platform: template
     id: bms${bms_id}_status_heating
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} status heating"
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} float stopped"
     register_type: holding
     bitmask: 0x2000
@@ -125,6 +130,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     # name: "${name} ${bms_name} balancing"
     id: "bms${bms_id}_bms_equalizing"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 38
 
@@ -132,6 +138,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 01 balancing"
     id: "bms${bms_id}_cell_1_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0001
     address: 38
@@ -140,6 +147,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 02 balancing"
     id: "bms${bms_id}_cell_2_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0002
     address: 38
@@ -148,6 +156,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 03 balancing"
     id: "bms${bms_id}_cell_3_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0004
     address: 38
@@ -156,6 +165,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 04 balancing"
     id: "bms${bms_id}_cell_4_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0008
     address: 38
@@ -164,6 +174,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 05 balancing"
     id: "bms${bms_id}_cell_5_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0010
     address: 38
@@ -172,6 +183,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 06 balancing"
     id: "bms${bms_id}_cell_6_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0020
     address: 38
@@ -180,6 +192,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 07 balancing"
     id: "bms${bms_id}_cell_7_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0040
     address: 38
@@ -188,6 +201,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 08 balancing"
     id: "bms${bms_id}_cell_8_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0080
     address: 38
@@ -196,6 +210,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 09 balancing"
     id: "bms${bms_id}_cell_9_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0100
     address: 38
@@ -204,6 +219,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 10 balancing"
     id: "bms${bms_id}_cell_10_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0200
     address: 38
@@ -212,6 +228,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 11 balancing"
     id: "bms${bms_id}_cell_11_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0400
     address: 38
@@ -220,6 +237,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 12 balancing"
     id: "bms${bms_id}_cell_12_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x0800
     address: 38
@@ -228,6 +246,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 13 balancing"
     id: "bms${bms_id}_cell_13_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x1000
     address: 38
@@ -236,6 +255,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 14 balancing"
     id: "bms${bms_id}_cell_14_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x2000
     address: 38
@@ -244,6 +264,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 15 balancing"
     id: "bms${bms_id}_cell_15_balancing"
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x4000
     address: 38
@@ -252,6 +273,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell 16 balancing"
     id: "bms${bms_id}_cell_16_balancing"      
+    device_id: bms_${bms_id}
     register_type: holding
     bitmask: 0x8000
     address: 38
@@ -259,12 +281,14 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} voltage error"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 28
     bitmask: 0x0001
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} temperature error"
     register_type: holding
     address: 28
@@ -272,6 +296,7 @@ binary_sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} current flow error"
     register_type: holding
     address: 28
@@ -279,6 +304,7 @@ binary_sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell imbalance"
     register_type: holding
     address: 28
@@ -288,6 +314,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_total_voltage
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} total voltage"
     register_type: holding
     address: 0
@@ -301,6 +328,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_current
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} current"
     register_type: holding
     address: 1
@@ -315,6 +343,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_capacity_remaining_ah
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} remaining capacity"
     register_type: holding
     address: 21
@@ -325,6 +354,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_charge_current
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} max charging current"
     register_type: holding
     address: 22
@@ -336,6 +366,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_soh
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} state of health"
     register_type: holding
     address: 23
@@ -346,6 +377,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_state_of_charge
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} state of charge"
     register_type: holding
     address: 24
@@ -355,6 +387,7 @@ sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} warning internal"
     internal: true
     register_type: holding
@@ -363,6 +396,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_protection_bitmask
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} protection bitmask"
     internal: true
     register_type: holding
@@ -371,6 +405,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_errors_bitmask
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} errors bitmask"
     register_type: holding
     internal: true
@@ -379,6 +414,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_cycles_raw
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} cycle"
     register_type: holding
     address: 29
@@ -390,6 +426,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_capacity
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} total capacity"
     register_type: holding
     address: 37
@@ -403,6 +440,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_1
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell temperature 1"
     register_type: holding
     address: 33
@@ -414,6 +452,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_2
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell temperature 2"
     register_type: holding
     address: 33
@@ -425,6 +464,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_3
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell temperature 3"
     register_type: holding
     address: 34
@@ -436,6 +476,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_4
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell temperature 4"
     register_type: holding
     address: 34
@@ -447,6 +488,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_5
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell temperature 5"
     register_type: holding
     address: 35
@@ -458,6 +500,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_6
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell temperature 6"
     register_type: holding
     address: 35
@@ -469,6 +512,7 @@ sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} max cell temperature"
     register_type: holding
     address: 20
@@ -480,6 +524,7 @@ sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} average cell temperature"
     register_type: holding
     address: 19
@@ -491,6 +536,7 @@ sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} mosfet temperature"
     register_type: holding
     address: 18
@@ -505,6 +551,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 01"
     id: "bms${bms_id}_cell_voltage_1"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 2
     unit_of_measurement: "V"
@@ -518,6 +565,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 02"
     id: "bms${bms_id}_cell_voltage_2"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 3
     unit_of_measurement: "V"
@@ -531,6 +579,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 03"
     id: "bms${bms_id}_cell_voltage_3"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 4
     unit_of_measurement: "V"
@@ -544,6 +593,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 04"
     id: "bms${bms_id}_cell_voltage_4"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 5
     unit_of_measurement: "V"
@@ -557,6 +607,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 05"
     id: "bms${bms_id}_cell_voltage_5"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 6
     unit_of_measurement: "V"
@@ -570,6 +621,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 06"
     id: "bms${bms_id}_cell_voltage_6"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 7
     unit_of_measurement: "V"
@@ -583,6 +635,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 07"
     id: "bms${bms_id}_cell_voltage_7"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 8
     unit_of_measurement: "V"
@@ -596,6 +649,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 08"
     id: "bms${bms_id}_cell_voltage_8"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 9
     unit_of_measurement: "V"
@@ -609,6 +663,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 09"
     id: "bms${bms_id}_cell_voltage_9"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 10
     unit_of_measurement: "V"
@@ -622,6 +677,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 10"
     id: "bms${bms_id}_cell_voltage_10"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 11
     unit_of_measurement: "V"
@@ -635,6 +691,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 11"
     id: "bms${bms_id}_cell_voltage_11"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 12
     unit_of_measurement: "V"
@@ -648,6 +705,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 12"
     id: "bms${bms_id}_cell_voltage_12"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 13
     unit_of_measurement: "V"
@@ -661,6 +719,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 13"
     id: "bms${bms_id}_cell_voltage_13"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 14
     unit_of_measurement: "V"
@@ -674,6 +733,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 14"
     id: "bms${bms_id}_cell_voltage_14"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 15
     unit_of_measurement: "V"
@@ -687,6 +747,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 15"
     id: "bms${bms_id}_cell_voltage_15"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 16
     unit_of_measurement: "V"
@@ -700,6 +761,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     name: "${name} ${bms_name} cell voltage 16"
     id: "bms${bms_id}_cell_voltage_16"
+    device_id: bms_${bms_id}
     register_type: holding
     address: 17
     unit_of_measurement: "V"
@@ -713,6 +775,7 @@ sensor:
   - platform: template
     name: "${name} ${bms_name} min cell voltage"
     id: "bms${bms_id}_min_cell_voltage"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -765,6 +828,7 @@ sensor:
   - platform: template
     name: "${name} ${bms_name} max cell voltage"
     id: "bms${bms_id}_max_cell_voltage"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -774,6 +838,7 @@ sensor:
   - platform: template
     name: "${name} ${bms_name} delta cell voltage"
     id: "bms${bms_id}_delta_cell_voltage"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -783,17 +848,20 @@ sensor:
   - platform: template
     name: "${name} ${bms_name} min voltage cell"
     id: "bms${bms_id}_min_voltage_cell"
+    device_id: bms_${bms_id}
     accuracy_decimals: 0
 
   # Max. voltage cell
   - platform: template
     name: "${name} ${bms_name} max voltage cell"
     id: "bms${bms_id}_max_voltage_cell"
+    device_id: bms_${bms_id}
     accuracy_decimals: 0
 
 ## Either Temp till I figure out bitmasks or unavailable from the BMS
   - platform: template
     id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} balance trigger voltage"
     accuracy_decimals: 3
     unit_of_measurement: "V"
@@ -803,6 +871,7 @@ sensor:
 
   - platform: template
     id: bms${bms_id}_cell_ovp
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell ovp"
     accuracy_decimals: 3
     unit_of_measurement: "V"
@@ -812,6 +881,7 @@ sensor:
 
   - platform: template
     id: bms${bms_id}_cell_uvp
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell uvp"
     accuracy_decimals: 3
     unit_of_measurement: "V"
@@ -821,6 +891,7 @@ sensor:
 
   - platform: template
     id: bms${bms_id}_max_discharge_current
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} max discharge current"
     accuracy_decimals: 0
     unit_of_measurement: "A"
@@ -831,6 +902,7 @@ sensor:
   # Power
   - platform: template
     id: bms${bms_id}_power
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} Power"
     update_interval: ${bms_update_interval}
     unit_of_measurement: W
@@ -847,6 +919,7 @@ sensor:
   - platform: template
     name: ${name} ${bms_name} Charging Power
     id: bms${bms_id}_charging_power
+    device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
     device_class: power
@@ -861,6 +934,7 @@ sensor:
   - platform: template
     name: ${name} ${bms_name} Discharging Power
     id: bms${bms_id}_discharging_power
+    device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
     device_class: power
@@ -874,6 +948,7 @@ sensor:
   # Charging cycle capacity
   - platform: template
     id: bms${bms_id}_cycle_capacity_raw
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
@@ -898,6 +973,7 @@ sensor:
     
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     id: bms${bms_id}_status_internal    
     internal: true
     name: "${name} ${bms_name} status internal"
@@ -911,6 +987,7 @@ sensor:
 text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} model"
     register_type: holding
     register_count: 11
@@ -921,6 +998,7 @@ text_sensor:
     
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} version"
     register_type: holding
     register_count: 3
@@ -931,6 +1009,7 @@ text_sensor:
 
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} firmware date"
     register_type: holding
     register_count: 8
@@ -942,7 +1021,8 @@ text_sensor:
 ## Text Status
   - platform: template
     name: "${name} ${bms_name} status"
-    id: bms${bms_id}_status    
+    id: bms${bms_id}_status
+    device_id: bms_${bms_id}
     lambda: |-
       switch ((int)id(bms${bms_id}_status_internal).state) {
         default: return std::string("Unknown");

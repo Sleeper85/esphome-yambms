@@ -65,6 +65,7 @@
 sensor:
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} YamBMS Errors Bitmask"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0

@@ -1,5 +1,5 @@
-# Updated : 2025.06.18
-# Version : 1.1.2
+# Updated : 2025.12.12
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,11 +19,13 @@
 
 packages:
   shunt_base_minimal: !include shunt_base_minimal.yaml
+  sub_device: !include shunt_base_sub_device.yaml
 
 sensor:
   # Daily Charging Energy
   - platform: total_daily_energy
     name: "${name} ${shunt_name} Daily Charging Energy"
+    device_id: shunt_${shunt_id}
     power_id: shunt${shunt_id}_battery_charging_power
     unit_of_measurement: 'kWh'
     state_class: total_increasing
@@ -36,6 +38,7 @@ sensor:
   # Daily Discharging Energy
   - platform: total_daily_energy
     name: "${name} ${shunt_name} Daily Discharging Energy"
+    device_id: shunt_${shunt_id}
     power_id: shunt${shunt_id}_battery_discharging_power
     unit_of_measurement: 'kWh'
     state_class: total_increasing

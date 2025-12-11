@@ -1,5 +1,5 @@
-# Updated : 2025.10.25
-# Version : 1.1.4
+# Updated : 2025.12.09
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -25,6 +25,7 @@ binary_sensor:
   # online_status
   - platform: template
     id: shunt${shunt_id}_online_status
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Online Status"
     lambda: |-
       if (id(shunt${shunt_id}_voltage).state > 0)
@@ -36,6 +37,7 @@ sensor:
   # total_voltage
   - platform: template
     id: shunt${shunt_id}_voltage
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Voltage"
     update_interval: ${shunt_update_interval}
     accuracy_decimals: 2
@@ -50,6 +52,7 @@ sensor:
   # current
   - platform: template
     id: shunt${shunt_id}_current
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Current"
     update_interval: ${shunt_update_interval}
     accuracy_decimals: 1
@@ -64,6 +67,7 @@ sensor:
   # power
   - platform: template
     id: shunt${shunt_id}_power
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} Power"
     update_interval: ${shunt_update_interval}
     accuracy_decimals: 0
@@ -78,6 +82,7 @@ sensor:
   # state_of_charge
   - platform: template
     id: shunt${shunt_id}_soc
+    device_id: shunt_${shunt_id}
     name: "${name} ${shunt_name} State of Charge"
     update_interval: ${shunt_update_interval}
     accuracy_decimals: 0
