@@ -21,5 +21,5 @@ esphome:
   # The 'devices' block will merge into the main config's 'esphome' block.
   # The ID and Name are uniquely defined by the vars passed in the main config.
   devices:
-    - id: shunt_${board_id}
+    - id: shunt_${shunt_id}
       name: "${shunt_name}"
