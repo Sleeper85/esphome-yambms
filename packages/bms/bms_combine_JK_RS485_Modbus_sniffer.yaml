@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+packages:
+  modbus_sniffer: !include bms_base_sniffer_sub_device.yaml
+
 substitutions:
   bms_model: "JK"
   bms_protocol: "RS485"
@@ -48,7 +51,7 @@ jk_rs485_sniffer:
 
 switch:
   - platform: template
-    device_id: bms_${bms_id}
+    device_id: sniffer_${sniffer_id}
     name: ${name} ${sniffer_id} Broadcasting JK-PB settings to all BMS
     icon: "mdi:cast"
     restore_mode: RESTORE_DEFAULT_OFF
