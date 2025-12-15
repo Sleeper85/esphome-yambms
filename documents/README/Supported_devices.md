@@ -82,7 +82,7 @@ Inverters supporting CAN PYLON/Goodwe/SMA/Victron Low Voltage protocol should wo
 
 The following are confirmed and known to work:
 
-| Brand | Model | Satus | Reported by | Inverter bat. mode | BMS | BMS protocol | ESP32 board | CAN name | CAN protocol | CAN transceiver | RS485 board | Multi-BMS | Remarks |
+| Brand | Model | Status | Reported by | Inverter bat. mode | BMS | BMS protocol | ESP32 board | CAN name | CAN protocol | CAN transceiver | RS485 board | Multi-BMS | Remarks |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Deye | SUN-3.6K-SG03LP1-EU | Working | [@Der_Hannes](https://diysolarforum.com/members/der_hannes.16949/) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | SN65HVD230 **3.3V** | --- | no | --- |
 | Deye | SUN-5K-SG03LP1-EU | Working | [@vdiex](https://github.com/vdiex) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | no | --- |
@@ -123,3 +123,4 @@ The following are confirmed and known to work:
 | MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
 | SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | SRNE | HESP48120U200-H  | Working | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) | UZE | JK-PB | RS485 | Atom S3 Lite | Automtic | PYLON V2 | [Atomic CAN Base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | Yes | Most of the YamBMS PYLON based protocols show same results on inverter. Inverter itself does not work when it is set to PYLON protocol, but UZE works. Incorrect temp reported on inverter |
+| Studer | XTM-4000 | Working | [@kolins-cz](https://github.com/kolins-cz) | Pylontech | JK-B | UART | ESP32-S3_XIAO | PYLON  | PYLON V2 | XL1051T | --- | no | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1) |
