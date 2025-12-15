@@ -529,7 +529,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_1_battery_battery_capacity_remaining',
+                  states('sensor.yambms_demo_bms_1_battery_capacity_remaining',
                   rounded=True) }} Ah</font><br> Cycle Count :&nbsp;&nbsp;<font
                   color=#41CD52> {{ states('sensor.yambms_demo_bms_1_charging_cycles',
                   rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
@@ -680,7 +680,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_2_battery_battery_capacity_remaining',
+                  states('sensor.yambms_demo_bms_2_battery_capacity_remaining',
                   rounded=True) }} Ah</font><br> Cycle Count :&nbsp;&nbsp;<font
                   color=#41CD52> {{ states('sensor.yambms_demo_bms_2_charging_cycles',
                   rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
@@ -831,7 +831,7 @@ views:
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_demo_bms_3_battery_battery_capacity_remaining',
+                  states('sensor.yambms_demo_bms_3_battery_capacity_remaining',
                   rounded=True) }} Ah</font><br> Cycle Count :&nbsp;&nbsp;<font
                   color=#41CD52> {{ states('sensor.yambms_demo_bms_3_charging_cycles',
                   rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
