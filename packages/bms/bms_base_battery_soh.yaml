@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.1
+# Updated : 2025.12.09
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,6 +24,7 @@ sensor:
   - platform: template
     name: ${name} ${bms_name} Battery SoH
     id: bms${bms_id}_battery_soh
+    device_id: bms_${bms_id}
     unit_of_measurement: "%"
     device_class: battery
     update_interval: ${bms_update_interval}

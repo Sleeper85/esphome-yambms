@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.8
+# Updated : 2025.12.09
+# Version : 1.1.9
 # GitHub  : https://github.com/syssi/esphome-jdb-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -58,6 +58,7 @@ button:
   - platform: jbd_bms_ble
     jbd_bms_ble_id: jbd_bms_ble${bms_id}
     retrieve_hardware_version:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} retrieve hardware version"
 
 binary_sensor:
@@ -65,15 +66,19 @@ binary_sensor:
     jbd_bms_ble_id: jbd_bms_ble${bms_id}
     balancing:
       id: bms${bms_id}_bms_equalizing
+      device_id: bms_${bms_id}
       # name: "${name} ${bms_name} balancing"
     charging:
       id: bms${bms_id}_charging_allowed
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} charging"
     discharging:
       id: bms${bms_id}_discharging_allowed
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} discharging"
     online_status:
       id: bms${bms_id}_online_status
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} online status"
 
 switch:
@@ -81,14 +86,17 @@ switch:
     jbd_bms_ble_id: jbd_bms_ble${bms_id}
     charging:
       id: bms${bms_id}_charge_switch
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} Charge switch"
     discharging:
       id: bms${bms_id}_discharge_switch
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} Discharge switch"
   # +--------------------------------------+
   - platform: ble_client
     ble_client_id: ble_client${bms_id}
     id: bms${bms_id}_enable_bluetooth_connection
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} ${bms_name} Enable Bluetooth connection"
   # +--------------------------------------+
 
@@ -96,150 +104,209 @@ sensor:
   - platform: jbd_bms_ble
     jbd_bms_ble_id: jbd_bms_ble${bms_id}
     battery_strings:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} battery strings"
     current:
       id: bms${bms_id}_current
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} current"
     power:
       id: bms${bms_id}_power
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} power"
     charging_power:
       id: bms${bms_id}_charging_power
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} charging power"
     discharging_power:
       id: bms${bms_id}_discharging_power
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} discharging power"
     state_of_charge:
       id: bms${bms_id}_state_of_charge
+      device_id: bms_${bms_id}
       # name: "${name} ${bms_name} state of charge"
     nominal_capacity:
       id: bms${bms_id}_battery_capacity
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} nominal capacity"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
+      device_id: bms_${bms_id}
       # name: "${name} ${bms_name} charging cycles"
     capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
+      device_id: bms_${bms_id}
       # name: "${name} ${bms_name} capacity remaining"
     # battery_cycle_capacity:
     #   name: "${name} ${bms_name} battery cycle capacity" # https://github.com/syssi/esphome-jbd-bms/issues/143
     total_voltage:
       id: bms${bms_id}_total_voltage
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} total voltage"
     average_cell_voltage:
       id: bms${bms_id}_average_cell_voltage
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} average cell voltage"
     delta_cell_voltage:
       id: bms${bms_id}_delta_cell_voltage
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} delta cell voltage"
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} min cell voltage"
     max_cell_voltage:
       id: bms${bms_id}_max_cell_voltage
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} max cell voltage"
     min_voltage_cell:
       id: bms${bms_id}_min_voltage_cell
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} min voltage cell"
     max_voltage_cell:
       id: bms${bms_id}_max_voltage_cell
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} max voltage cell"
     temperature_1:
       id: bms${bms_id}_temperature_sensor_1
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature 1"
     temperature_2:
       id: bms${bms_id}_temperature_sensor_2
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature 2"
     temperature_3:
       id: bms${bms_id}_temperature_sensor_3
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature 3"
     temperature_4:
       id: bms${bms_id}_temperature_sensor_4
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature 4"
     temperature_5:
       id: bms${bms_id}_temperature_sensor_5
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature 5"
     temperature_6:
       id: bms${bms_id}_temperature_sensor_6
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature 6"
     cell_voltage_1:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 1"
     cell_voltage_2:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 2"
     cell_voltage_3:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 3"
     cell_voltage_4:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 4"
     cell_voltage_5:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 5"
     cell_voltage_6:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 6"
     cell_voltage_7:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 7"
     cell_voltage_8:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 8"
     cell_voltage_9:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 9"
     cell_voltage_10:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 10"
     cell_voltage_11:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 11"
     cell_voltage_12:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 12"
     cell_voltage_13:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 13"
     cell_voltage_14:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 14"
     cell_voltage_15:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 15"
     cell_voltage_16:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell voltage 16"
     # cell_voltage_17:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 17"
     # cell_voltage_18:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 18"
     # cell_voltage_19:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 19"
     # cell_voltage_20:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 20"
     # cell_voltage_21:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 21"
     # cell_voltage_22:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 22"
     # cell_voltage_23:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 23"
     # cell_voltage_24:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 24"
     # cell_voltage_25:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 25"
     # cell_voltage_26:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 26"
     # cell_voltage_27:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 27"
     # cell_voltage_28:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 28"
     # cell_voltage_29:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 29"
     # cell_voltage_30:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 30"
     # cell_voltage_31:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 31"
     # cell_voltage_32:
+    #   device_id: bms_${bms_id}
     #   name: "${name} ${bms_name} cell voltage 32"
     operation_status_bitmask:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} operation status bitmask"
     errors_bitmask:
       id: bms${bms_id}_errors_bitmask
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} errors bitmask"
     balancer_status_bitmask:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} balancer status bitmask"
     software_version:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} software version"
 
   # Required sensors cannot be retrieved from BMS
   # max_charge_current
   - platform: template
     id: bms${bms_id}_max_charge_current
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} max charge current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -253,6 +320,7 @@ sensor:
   # max_discharge_current
   - platform: template
     id: bms${bms_id}_max_discharge_current
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} max discharge current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -266,6 +334,7 @@ sensor:
   # cell_ovp
   - platform: template
     id: bms${bms_id}_cell_ovp
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell ovp"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -279,6 +348,7 @@ sensor:
   # cell_uvp
   - platform: template
     id: bms${bms_id}_cell_uvp
+    device_id: bms_${bms_id}
     name: "${name} ${bms_name} cell uvp"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -292,6 +362,7 @@ sensor:
   # balance_trigger_voltage
   - platform: template
     id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} balance trigger voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -306,6 +377,7 @@ sensor:
   # Charging cycle capacity - Calculated from charging cycles and battery capacity
   - platform: template
     id: bms${bms_id}_cycle_capacity_raw
+    device_id: bms_${bms_id}
     # name: "${name} ${bms_name} charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
@@ -322,8 +394,11 @@ text_sensor:
   - platform: jbd_bms_ble
     jbd_bms_ble_id: jbd_bms_ble${bms_id}
     errors:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} errors"
     operation_status:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} operation status"
     device_model:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} device model"

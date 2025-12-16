@@ -1,5 +1,5 @@
-# Updated : 2025.08.12
-# Version : 1.2.1
+# Updated : 2025.12.09
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@ sensor:
   - platform: wifi_signal
     name: ${name} ESP32 WiFi power
     id: esp32_wifi_power
+    device_id: board_${board_id}
     update_interval: 30s
     entity_category: diagnostic
 
@@ -29,6 +30,7 @@ sensor:
   - platform: template
     name: ${name} ESP32 WiFi power (%)
     id: esp32_wifi_power_percent
+    device_id: board_${board_id}
     update_interval: 30s
     unit_of_measurement: '%'
     icon: mdi:wifi
@@ -44,18 +46,24 @@ text_sensor:
     ip_address:
       name: ${name} ESP32 IP address
       id: esp32_ip_address
+      device_id: board_${board_id}
     ssid:
       name: ${name} ESP32 connected SSID
       id: esp32_connected_ssid
+      device_id: board_${board_id}
     bssid:
       name: ${name} ESP32 connected BSSID
       id: esp32_connected_bssid
+      device_id: board_${board_id}
     mac_address:
       name: ${name} ESP32 MAC address
       id: esp32_mac_address
+      device_id: board_${board_id}
     scan_results:
       name: ${name} ESP32 latest scan results
       id: esp32_latest_scan_results
+      device_id: board_${board_id}
     dns_address:
       name: ${name} ESP32 DNS address
       id: esp32_dns_address
+      device_id: board_${board_id}

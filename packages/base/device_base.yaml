@@ -1,5 +1,5 @@
-# Updated : 2025.08.12
-# Version : 1.2.1
+# Updated : 2025.12.09
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,6 +19,7 @@
 
 packages:
   device_base_esphome: !include device_base_esphome.yaml
+  sub_device: !include device_base_sub_device.yaml
 
 time:
   # https://esphome.io/components/time/homeassistant
@@ -31,11 +32,13 @@ button:
   - platform: restart
     name: ${name} ESP32 Restart
     id: esp32_restart_button
+    device_id: board_${board_id}
     entity_category: config
   # https://esphome.io/components/button/factory_reset
   - platform: factory_reset
     name: ${name} ESP32 Factory Reset
     id: esp32_factory_reset_button
+    device_id: board_${board_id}
     entity_category: config
 
 binary_sensor:
@@ -43,17 +46,20 @@ binary_sensor:
   - platform: status
     name: ${name} ESP32 Online Status
     id: esp32_online_status
+    device_id: board_${board_id}
     entity_category: diagnostic
   # Inverter communication status (CANBUS / RS485)
   - platform: template
     name: ${name} Inverter communication status
     id: inverter_com_status
+    device_id: board_${board_id}
     entity_category: diagnostic
 
 sensor:
   # https://esphome.io/components/sensor/uptime
   - platform: uptime
     id: esp32_uptime_sec
+    device_id: board_${board_id}
     update_interval: 10s
     internal: true
 
@@ -61,6 +67,7 @@ sensor:
   - platform: internal_temperature
     name: ${name} ESP32 internal temperature
     id: esp32_internal_temperature
+    device_id: board_${board_id}
     update_interval: 10s
     entity_category: diagnostic
 
@@ -69,6 +76,7 @@ text_sensor:
   - platform: template
     name: ${name} ESP32 Uptime
     id: esp32_uptime
+    device_id: board_${board_id}
     update_interval: 10s
     icon: mdi:clock-start
     entity_category: diagnostic
@@ -91,6 +99,7 @@ text_sensor:
   - platform: template
     name: ${name}_esp32_date_time_now
     id: esp32_date_time_now
+    device_id: board_${board_id}
     update_interval: 10s
     icon: mdi:clock-start
     entity_category: diagnostic
@@ -101,5 +110,6 @@ text_sensor:
   - platform: version
     name: ${name} ESP32 ESPHome version
     id: esp32_esphome_version
+    device_id: board_${board_id}
     hide_timestamp: false #true
     entity_category: diagnostic

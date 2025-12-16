@@ -1,5 +1,5 @@
-# Updated : 2025.10.22
-# Version : 1.3.0
+# Updated : 2025.12.09
+# Version : 1.3.1
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  modbus_sniffer: !include bms_base_sniffer_sub_device.yaml
 
 substitutions:
   bms_model: "JK"
@@ -49,6 +52,7 @@ jk_rs485_sniffer:
 
 switch:
   - platform: template
+    device_id: sniffer_${sniffer_id}
     name: ${name} ${sniffer_id} Broadcasting JK-PB settings to all BMS
     icon: "mdi:cast"
     restore_mode: RESTORE_DEFAULT_OFF

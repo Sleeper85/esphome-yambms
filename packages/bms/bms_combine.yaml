@@ -37,6 +37,7 @@ binary_sensor:
   - platform: template
     name: "${name} ${bms_name} Can be combined"
     id: bms${bms_id}_can_be_combined
+    device_id: bms_${bms_id}
     lambda: return (id(bms${bms_id}_online_status).state && id(bms${bms_id}_battery_capacity).state > 0);
 
 interval:

@@ -26,6 +26,7 @@ number:
   # errors_bitmask (16bits)
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask_number
+    device_id: bms_${bms_id}
     name: "${bms_name} YamBMS Errors Bitmask"
     step: 1
     min_value: 0
@@ -39,21 +40,25 @@ number:
 switch:
   - platform: template
     id: bms${bms_id}_online_status_switch
+    device_id: bms_${bms_id}
     name: "${bms_name} online status switch"
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
   - platform: template
     id: bms${bms_id}_charging_allowed_switch
+    device_id: bms_${bms_id}
     name: "${bms_name} charge switch"
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
   - platform: template
     id: bms${bms_id}_discharging_allowed_switch
+    device_id: bms_${bms_id}
     name: "${bms_name} discharge switch"
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
   - platform: template
     id: bms${bms_id}_equalizing_switch
+    device_id: bms_${bms_id}
     name: "${bms_name} balance switch"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -62,21 +67,25 @@ binary_sensor:
   # online_status
   - platform: template
     id: bms${bms_id}_online_status
+    device_id: bms_${bms_id}
     name: "${bms_name} online status"
     lambda: return id(bms${bms_id}_online_status_switch).state;
   # charging_allowed
   - platform: template
     id: bms${bms_id}_charging_allowed
+    device_id: bms_${bms_id}
     name: "${bms_name} charging"
     lambda: return id(bms${bms_id}_charging_allowed_switch).state;
   # discharging_allowed
   - platform: template
     id: bms${bms_id}_discharging_allowed
+    device_id: bms_${bms_id}
     name: "${bms_name} discharging"
     lambda: return id(bms${bms_id}_discharging_allowed_switch).state;
   # equalizing
   - platform: template
     id: bms${bms_id}_bms_equalizing
+    device_id: bms_${bms_id}
     name: "${bms_name} balancing"
     lambda: return id(bms${bms_id}_equalizing_switch).state;
 
@@ -84,6 +93,8 @@ sensor:
   # battery_capacity
   - platform: template
     id: bms${bms_id}_battery_capacity
+    device_id: bms_${bms_id}
+    device_id: bms_${bms_id}
     name: "${bms_name} Battery Capacity"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -98,6 +109,7 @@ sensor:
   # capacity_remaining_ah
   - platform: template
     id: bms${bms_id}_capacity_remaining_ah
+    device_id: bms_${bms_id}
     # name: "${bms_name} Battery Capacity Remaining"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -112,6 +124,7 @@ sensor:
   # total_voltage
   - platform: template
     id: bms${bms_id}_total_voltage
+    device_id: bms_${bms_id}
     name: "${bms_name} Total Voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 2
@@ -126,6 +139,7 @@ sensor:
   # current
   - platform: template
     id: bms${bms_id}_current
+    device_id: bms_${bms_id}
     name: "${bms_name} Current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
@@ -140,6 +154,7 @@ sensor:
   # power
   - platform: template
     id: bms${bms_id}_power
+    device_id: bms_${bms_id}
     name: "${bms_name} Power"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -154,6 +169,7 @@ sensor:
   # battery_soc
   - platform: template
     id: bms${bms_id}_state_of_charge
+    device_id: bms_${bms_id}
     # name: "${bms_name} Battery SoC"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -168,6 +184,7 @@ sensor:
   # battery_soh
   - platform: template
     id: bms${bms_id}_battery_soh
+    device_id: bms_${bms_id}
     name: "${bms_name} Battery SoH"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -182,6 +199,7 @@ sensor:
   # min_voltage_cell
   - platform: template
     id: bms${bms_id}_min_voltage_cell
+    device_id: bms_${bms_id}
     name: "${bms_name} Min Voltage Cell"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -195,6 +213,7 @@ sensor:
   # max_voltage_cell
   - platform: template
     id: bms${bms_id}_max_voltage_cell
+    device_id: bms_${bms_id}
     name: "${bms_name} Max Voltage Cell"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -208,6 +227,7 @@ sensor:
   # min_cell_voltage
   - platform: template
     id: bms${bms_id}_min_cell_voltage
+    device_id: bms_${bms_id}
     name: "${bms_name} Min Cell Voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -222,6 +242,7 @@ sensor:
   # max_cell_voltage
   - platform: template
     id: bms${bms_id}_max_cell_voltage
+    device_id: bms_${bms_id}
     name: "${bms_name} Max Cell Voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -236,6 +257,7 @@ sensor:
   # temperature_sensor_1
   - platform: template
     id: bms${bms_id}_temperature_sensor_1
+    device_id: bms_${bms_id}
     name: "${bms_name} Temperature Sensor 1"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
@@ -250,6 +272,7 @@ sensor:
   # temperature_sensor_2
   - platform: template
     id: bms${bms_id}_temperature_sensor_2
+    device_id: bms_${bms_id}
     name: "${bms_name} Temperature Sensor 2"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
@@ -264,6 +287,7 @@ sensor:
   # temperature_sensor_3
   - platform: template
     id: bms${bms_id}_temperature_sensor_3
+    device_id: bms_${bms_id}
     name: "${bms_name} Temperature Sensor 3"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
@@ -278,6 +302,7 @@ sensor:
   # temperature_sensor_4
   - platform: template
     id: bms${bms_id}_temperature_sensor_4
+    device_id: bms_${bms_id}
     name: "${bms_name} Temperature Sensor 4"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
@@ -292,6 +317,7 @@ sensor:
   # max_charge_current
   - platform: template
     id: bms${bms_id}_max_charge_current
+    device_id: bms_${bms_id}
     name: "${bms_name} Max Charge Current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -306,6 +332,7 @@ sensor:
   # max_discharge_current
   - platform: template
     id: bms${bms_id}_max_discharge_current
+    device_id: bms_${bms_id}
     name: "${bms_name} Max Discharge Current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -320,6 +347,7 @@ sensor:
   # cell_ovp
   - platform: template
     id: bms${bms_id}_cell_ovp
+    device_id: bms_${bms_id}
     name: "${bms_name} Cell OVP"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -334,6 +362,7 @@ sensor:
   # cell_uvp
   - platform: template
     id: bms${bms_id}_cell_uvp
+    device_id: bms_${bms_id}
     name: "${bms_name} Cell UVP"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -348,6 +377,7 @@ sensor:
   # balance_trigger_voltage
   - platform: template
     id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
     name: "${bms_name} BMS balance trigger voltage"
     internal: true
     update_interval: ${bms_update_interval}
@@ -363,6 +393,7 @@ sensor:
   # charging_cycles
   - platform: template
     id: bms${bms_id}_charging_cycles
+    device_id: bms_${bms_id}
     name: "${bms_name} charging cycles"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
@@ -376,6 +407,7 @@ sensor:
   # Charging power: Calculated from voltage and current
   - platform: template
     id: bms${bms_id}_charging_power
+    device_id: bms_${bms_id}
     name: "${bms_name} battery power charging"
     update_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
@@ -389,6 +421,7 @@ sensor:
   # Discharging power: Calculated from voltage and current
   - platform: template
     id: bms${bms_id}_discharging_power
+    device_id: bms_${bms_id}
     name: "${bms_name} battery power discharging"
     update_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
@@ -402,6 +435,7 @@ sensor:
   # errors_bitmask (internal)
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
+    device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline

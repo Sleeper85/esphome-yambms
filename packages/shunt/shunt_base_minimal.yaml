@@ -1,5 +1,5 @@
-# Updated : 2025.06.18
-# Version : 1.1.1
+# Updated : 2025.12.09
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@ sensor:
   - platform: template
     name: ${name} ${shunt_name} Battery Charging Power
     id: shunt${shunt_id}_battery_charging_power
+    device_id: shunt_${shunt_id}
     update_interval: ${shunt_update_interval}
     unit_of_measurement: 'W'
     device_class: power
@@ -35,6 +36,7 @@ sensor:
   - platform: template
     name: ${name} ${shunt_name} Battery Discharging Power
     id: shunt${shunt_id}_battery_discharging_power
+    device_id: shunt_${shunt_id}
     update_interval: ${shunt_update_interval}
     unit_of_measurement: 'W'
     device_class: power

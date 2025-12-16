@@ -1,5 +1,5 @@
 # Updated : 2025.12.02
-# Version : 1.2.8
+# Version : 1.0.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-packages:
-  balancer: !include bms_base_balancer.yaml
-  battery_soc: !include bms_base_battery_soc.yaml
-  charging_cycles: !include bms_base_charging_cycles.yaml
-  daily_energy: !include bms_base_daily_energy.yaml
-  sub_device: !include bms_base_sub_device.yaml
+esphome:
+  # The 'devices' block will merge into the main config's 'esphome' block.
+  # The ID and Name are uniquely defined by the vars passed in the main config.
+  devices:
+    - id: shunt_${shunt_id}
+      name: "${shunt_name}"
