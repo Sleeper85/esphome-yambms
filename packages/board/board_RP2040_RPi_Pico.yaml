@@ -1,5 +1,5 @@
-# Updated : 2025.06.18
-# Version : 1.1.1
+# Updated : 2026.02.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -40,7 +40,14 @@ substitutions:
   rx_pin_6: '15'
 
 packages:
-  device_base: !include ../base/device_base_esphome.yaml
+  device_base_esphome: !include ../base/device_base_esphome.yaml
+  sub_device: !include ../base/device_base_sub_device.yaml
+  fault_registry: !include ../base/device_base_fault_registry.yaml
+
+esphome:
+  platformio_options:
+    build_flags:
+      - -Dpadsbank0_hw=pads_bank0_hw
 
 rp2040:
   board: rpipico
