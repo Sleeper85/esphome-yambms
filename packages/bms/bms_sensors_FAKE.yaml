@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.10
+# Updated : 2025.12.15
+# Version : 1.2.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,15 +18,74 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  balancer: !include bms_base_balancer.yaml
   bms_battery_soc: !include bms_base_battery_soc.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+
+number:
+  # errors_bitmask (16bits)
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask_number
+    name: "${bms_name} YamBMS Errors Bitmask"
+    step: 1
+    min_value: 0
+    max_value: 65535
+    restore_value: true
+    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
+    icon: mdi:alert-circle-outline
+    optimistic: true
+    entity_category: config
+
+switch:
+  - platform: template
+    id: bms${bms_id}_online_status_switch
+    name: "${bms_name} online status switch"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+  - platform: template
+    id: bms${bms_id}_charging_allowed_switch
+    name: "${bms_name} charge switch"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+  - platform: template
+    id: bms${bms_id}_discharging_allowed_switch
+    name: "${bms_name} discharge switch"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+  - platform: template
+    id: bms${bms_id}_equalizing_switch
+    name: "${bms_name} balance switch"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
+binary_sensor:
+  # online_status
+  - platform: template
+    id: bms${bms_id}_online_status
+    name: "${bms_name} online status"
+    lambda: return id(bms${bms_id}_online_status_switch).state;
+  # charging_allowed
+  - platform: template
+    id: bms${bms_id}_charging_allowed
+    name: "${bms_name} charging"
+    lambda: return id(bms${bms_id}_charging_allowed_switch).state;
+  # discharging_allowed
+  - platform: template
+    id: bms${bms_id}_discharging_allowed
+    name: "${bms_name} discharging"
+    lambda: return id(bms${bms_id}_discharging_allowed_switch).state;
+  # equalizing
+  - platform: template
+    id: bms${bms_id}_bms_equalizing
+    name: "${bms_name} balancing"
+    lambda: return id(bms${bms_id}_equalizing_switch).state;
 
 sensor:
   # battery_capacity
   - platform: template
     id: bms${bms_id}_battery_capacity
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Battery Capacity"
+    name: "${bms_name} Battery Capacity"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
@@ -41,7 +100,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_capacity_remaining_ah
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} Battery Capacity Remaining"
+    # name: "${bms_name} Battery Capacity Remaining"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
@@ -56,7 +115,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_total_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Total Voltage"
+    name: "${bms_name} Total Voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 2
     unit_of_measurement: V
@@ -71,7 +130,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_current
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Current"
+    name: "${bms_name} Current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: A
@@ -86,7 +145,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_power
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Power"
+    name: "${bms_name} Power"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: W
@@ -101,7 +160,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_state_of_charge
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} Battery SoC"
+    # name: "${bms_name} Battery SoC"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: '%'
@@ -116,7 +175,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_battery_soh
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Battery SoH"
+    name: "${bms_name} Battery SoH"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: '%'
@@ -131,7 +190,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_min_voltage_cell
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Min Voltage Cell"
+    name: "${bms_name} Min Voltage Cell"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
@@ -145,7 +204,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_voltage_cell
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Max Voltage Cell"
+    name: "${bms_name} Max Voltage Cell"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
@@ -159,7 +218,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_min_cell_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Min Cell Voltage"
+    name: "${bms_name} Min Cell Voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V
@@ -174,7 +233,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_cell_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Max Cell Voltage"
+    name: "${bms_name} Max Cell Voltage"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V
@@ -189,7 +248,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_temperature_sensor_1
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Temperature Sensor 1"
+    name: "${bms_name} Temperature Sensor 1"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
@@ -204,7 +263,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_temperature_sensor_2
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Temperature Sensor 2"
+    name: "${bms_name} Temperature Sensor 2"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
@@ -219,7 +278,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_temperature_sensor_3
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Temperature Sensor 3"
+    name: "${bms_name} Temperature Sensor 3"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
@@ -234,7 +293,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_temperature_sensor_4
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Temperature Sensor 4"
+    name: "${bms_name} Temperature Sensor 4"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
@@ -249,7 +308,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_charge_current
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Max Charge Current"
+    name: "${bms_name} Max Charge Current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: A
@@ -264,7 +323,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_discharge_current
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Max Discharge Current"
+    name: "${bms_name} Max Discharge Current"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: A
@@ -279,7 +338,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_cell_ovp
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Cell OVP"
+    name: "${bms_name} Cell OVP"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V
@@ -294,7 +353,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_cell_uvp
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Cell UVP"
+    name: "${bms_name} Cell UVP"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
     unit_of_measurement: V
@@ -307,9 +366,9 @@ sensor:
 
   # balance_trigger_voltage
   - platform: template
-    id: bms${bms_id}_balance_trigger_voltage
+    id: bms${bms_id}_bms_balance_trigger_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} balance trigger voltage"
+    name: "${bms_name} BMS balance trigger voltage"
     internal: true
     update_interval: ${bms_update_interval}
     accuracy_decimals: 3
@@ -325,7 +384,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_charging_cycles
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging cycles"
+    name: "${bms_name} charging cycles"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:counter
@@ -337,7 +396,6 @@ sensor:
 
   # Charging power: Calculated from voltage and current
   - platform: template
-    name: "${name} ${bms_name} battery power charging"
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
@@ -350,7 +408,6 @@ sensor:
 
   # Discharging power: Calculated from voltage and current
   - platform: template
-    name: "${name} ${bms_name} battery power discharging"
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
@@ -361,17 +418,12 @@ sensor:
       if (id(bms${bms_id}_current).state < 0) return id(bms${bms_id}_total_voltage).state * -id(bms${bms_id}_current).state;
       else return 0;
 
-number:
-  # errors_bitmask (16bits)
+  # errors_bitmask (internal)
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} YamBMS Errors Bitmask"
-    step: 1
-    min_value: 0
-    max_value: 65535
-    restore_value: true
-    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
     icon: mdi:alert-circle-outline
     optimistic: true
     entity_category: config
@@ -405,3 +457,8 @@ switch:
     name: "${name} ${bms_name} balance switch"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_yambms_errors_bitmask_number).state;

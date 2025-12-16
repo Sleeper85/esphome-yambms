@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.15
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -206,21 +206,21 @@ views:
             heading: BMS control
           - type: entities
             entities:
-              - entity: switch.yambms_demo_bms_1_online_status
+              - entity: switch.yambms_demo_bms_1_online_status_switch
               - entity: switch.yambms_demo_bms_1_charge_switch
               - entity: switch.yambms_demo_bms_1_discharge_switch
               - entity: switch.yambms_demo_bms_1_balance_switch
             title: BMS 1
           - type: entities
             entities:
-              - entity: switch.yambms_demo_bms_2_online_status
+              - entity: switch.yambms_demo_bms_2_online_status_switch
               - entity: switch.yambms_demo_bms_2_charge_switch
               - entity: switch.yambms_demo_bms_2_discharge_switch
               - entity: switch.yambms_demo_bms_2_balance_switch
             title: BMS 2
           - type: entities
             entities:
-              - entity: switch.yambms_demo_bms_3_online_status
+              - entity: switch.yambms_demo_bms_3_online_status_switch
               - entity: switch.yambms_demo_bms_3_charge_switch
               - entity: switch.yambms_demo_bms_3_discharge_switch
               - entity: switch.yambms_demo_bms_3_balance_switch
@@ -427,7 +427,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: switch.yambms_demo_bms_1_online_status
+                entity: binary_sensor.yambms_demo_bms_1_online_status
                 color: state
                 name: Online
                 state_content: name
@@ -578,7 +578,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: switch.yambms_demo_bms_2_online_status
+                entity: binary_sensor.yambms_demo_bms_2_online_status
                 color: state
                 name: Online
                 state_content: name
@@ -729,7 +729,7 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: switch.yambms_demo_bms_3_online_status
+                entity: binary_sensor.yambms_demo_bms_3_online_status
                 color: state
                 name: Online
                 state_content: name
