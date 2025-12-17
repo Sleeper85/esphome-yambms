@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.7
+# Updated : 2025.12.17
+# Version : 1.1.8
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -420,7 +420,7 @@ number:
     cell_balancing_trigger_voltage:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} cell balancing trigger voltage"
+      name: "${name} ${bms_name} cell balancing trigger voltage"
     cell_balancing_starting_voltage:
       device_id: bms_${bms_id}
       name: "${name} ${bms_name} cell balancing starting voltage"
