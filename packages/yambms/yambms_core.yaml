@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.17
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -32,7 +32,7 @@ esphome:
           {
             // LFP
             id(${yambms_id}_cell_nominal_v) = 3.20;
-            id(${yambms_id}_cell_min_charge_v) = 3.35; // Fully charged at rest
+            id(${yambms_id}_cell_min_charge_v) = 3.375; // Fully charged at rest
             id(${yambms_id}_cell_max_charge_v) = 3.65;
             id(${yambms_id}_cell_max_discharge_v) = 3.00; // Not used
           }
