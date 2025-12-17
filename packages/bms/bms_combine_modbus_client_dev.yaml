@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.2.3
+# Updated : 2025.12.18
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,8 +22,9 @@ substitutions:
   bms_protocol: "Modbus"
 
 packages:
-  bms_combine: !include bms_combine.yaml
+  sub_device: !include bms_base_sub_device.yaml
   bms_balancer: !include bms_base_balancer.yaml
+  bms_combine: !include bms_combine.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
