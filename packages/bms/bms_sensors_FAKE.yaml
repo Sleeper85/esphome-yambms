@@ -1,5 +1,5 @@
-# Updated : 2025.12.15
-# Version : 1.2.0
+# Updated : 2025.12.17
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,6 +21,7 @@ packages:
   balancer: !include bms_base_balancer.yaml
   bms_battery_soc: !include bms_base_battery_soc.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  sub_device: !include bms_base_sub_device.yaml
 
 number:
   # errors_bitmask (16bits)
@@ -93,7 +94,6 @@ sensor:
   # battery_capacity
   - platform: template
     id: bms${bms_id}_battery_capacity
-    device_id: bms_${bms_id}
     device_id: bms_${bms_id}
     name: "${bms_name} Battery Capacity"
     update_interval: ${bms_update_interval}
