@@ -1,4 +1,4 @@
-# Updated : 2025.12.09
+# Updated : 2025.12.17
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -180,7 +180,7 @@ packages:
     refresh: 0s
     files:
       # UART 1 (uart_id: uart_esp_1)
-      - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
+      # - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
       # UART 2 (uart_id: uart_esp_2)
       # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
       # UART 3 (uart_id: uart_esp_3)
@@ -236,46 +236,26 @@ packages:
     ref: main
     refresh: 0s
     files:
-      # Seplos Parser
-      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_modbus_sniffer.yaml'
-        vars:
-          seplos_uart_id: 'uart_esp_1'
-          seplos_baud_rate: '19200' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
-          seplos_bms_count: '3' # Seplos V3 BMS count
-          seplos_update_interval: '3' # # Time in seconds, update interval for all data points
       # BMS 1
-      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
+      - path: 'packages/bms/bms_combine_JK_BLE_standard.yaml'
         vars:
-          bms_id: '1'
-          bms_name: 'bms0' # DON'T CHANGE THIS NAME !
-          # Required settings cannot be retrieved from BMS
-          # These values ​​must match your BMS settings
-          # LFP values example
-          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+          bms_id: '1' # must be a number
+          bms_name: 'JK-BMS 1'
+          bms_ble_protocol_version: 'JK02_32S' # JK02_24S < hardware version 11.0 >= JK02_32S
+          bms_ble_mac_address: 'C8:47:8C:10:7E:AA'
+          # Maximum cell charging cycles is used to calculate the battey SoH.
+          # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+          bms_cell_max_cycles: '6000.0'
       # BMS 2
-      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
+      - path: 'packages/bms/bms_combine_JK_BLE_standard.yaml'
         vars:
-          bms_id: '2'
-          bms_name: 'bms1' # DON'T CHANGE THIS NAME !
-          # Required settings cannot be retrieved from BMS
-          # These values ​​must match your BMS settings
-          # LFP values example
-          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
-      # BMS 3
-      - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
-        vars:
-          bms_id: '3'
-          bms_name: 'bms2' # DON'T CHANGE THIS NAME !
-          # Required settings cannot be retrieved from BMS
-          # These values ​​must match your BMS settings
-          # LFP values example
-          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
-          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
-          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+          bms_id: '2' # must be a number
+          bms_name: 'JK-BMS 2'
+          bms_ble_protocol_version: 'JK02_32S' # JK02_24S < hardware version 11.0 >= JK02_32S
+          bms_ble_mac_address: 'C8:47:8C:EE:16:EA'
+          # Maximum cell charging cycles is used to calculate the battey SoH.
+          # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
+          bms_cell_max_cycles: '6000.0'
 
 
 

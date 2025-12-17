@@ -1,4 +1,4 @@
-# Updated : 2025.12.09
+# Updated : 2025.12.17
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -180,7 +180,7 @@ packages:
     refresh: 0s
     files:
       # UART 1 (uart_id: uart_esp_1)
-      # - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
+      - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
       # UART 2 (uart_id: uart_esp_2)
       # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
       # UART 3 (uart_id: uart_esp_3)
@@ -200,11 +200,11 @@ packages:
           canbus_node_id: 'canbus_inverter_1'
       
       # CAN transceiver - MCP2515
-      - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
-        vars:
-          # to bms = canbus_bms_1
-          # to inverter = canbus_inverter_1
-          canbus_node_id: 'canbus_bms_1'
+      # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
+      #   vars:
+      #     # to bms = canbus_bms_1
+      #     # to inverter = canbus_inverter_1
+      #     canbus_node_id: 'canbus_inverter_1'
 
       # PSRAM octal 80Mhz
       # - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
@@ -232,37 +232,61 @@ packages:
   # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
   bms:
+  bms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
-      # Deye BMS top unit (required)
-      - path: 'packages/bms/bms_sensors_DEYE_CAN_top_full.yaml'
+      # Seplos Modbus
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_modbus.yaml'
         vars:
-          # CAN BUS ID
-          canbus_id: 'canbus_bms_1'
-          deye_name: 'DEYE-Top 1'
-          deye_id: '1'
-      # Deye module 1
-      - path: 'packages/bms/bms_combine_DEYE_CAN_module_full.yaml'
+          seplos_modbus_uart_id: 'uart_esp_1'
+          seplos_modbus_baud_rate: '9600' # 9600 / 19200 ; please set the baudrate of your Seplos BMS model here
+      # BMS 1
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml'
         vars:
-          # CAN BUS ID
-          canbus_id: 'canbus_bms_1'
-          # BMS vars
           bms_id: '1' # must be a number
-          bms_name: 'DEYE-BMS 1'
-          deye_id: '1'
-          deye_module_id: '0' # Modules are numbered with 0-9
-      # Deye module 2
-      - path: 'packages/bms/bms_combine_DEYE_CAN_module_full.yaml'
+          bms_name: 'BMS 1'
+          bms_address: '0x01' # BMS 1 DIP switch
+          bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+          bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # BMS 2
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml'
         vars:
-          # CAN BUS ID
-          canbus_id: 'canbus_bms_1'
-          # BMS vars
-          deye_id: '1'
           bms_id: '2' # must be a number
-          bms_name: 'DEYE-BMS 2'
-          deye_module_id: '1' # Modules are numbered with 0-9
+          bms_name: 'BMS 2'
+          bms_address: '0x02' # BMS 2 DIP switch
+          bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+          bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # BMS 3
+      - path: 'packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml'
+        vars:
+          bms_id: '3' # must be a number
+          bms_name: 'BMS 3'
+          bms_address: '0x03' # BMS 2 DIP switch
+          bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
+          # Required settings cannot be retrieved from BMS
+          # These values ​​must match your BMS settings
+          # LFP values example
+          bms_max_charge_current: '100' # A. Used to calculate maximum charge current
+          bms_max_discharge_current: '100' # A. Used to calculate maximum discharge current
+          bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
+          bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+          bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
 
 
 
