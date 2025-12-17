@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.17
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -295,7 +295,7 @@ views:
           - entity: number.yambms_yambms_1_rebulk_v
             name: Rebulk V.
           - entity: switch.yambms_yambms_1_force_bulk_top_bal
-            name: Force Bulk (top bal)
+            name: Force Bulk+Balancing
         title: YamBMS - ReBulk
       - type: entities
         entities:
