@@ -27,7 +27,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@v1.0.0
+  - source: github://RAR/esphome-eg4-bms@v1.0.1
     refresh: 0s
 
 eg4_bms:
@@ -252,21 +252,14 @@ sensor:
       id: bms${bms_id}_protection_bitmask
       device_id: bms_${bms_id}
       name: "${name} ${bms_name} protection bitmask"
-  
-  # Required sensors - min/max voltage cell numbers (calculated by component)
-  - platform: template
-    name: "${name} ${bms_name} min voltage cell"
-    id: bms${bms_id}_min_voltage_cell
-    device_id: bms_${bms_id}
-    accuracy_decimals: 0
-    lambda: return 0;  # Placeholder, calculated by component
-
-  - platform: template
-    name: "${name} ${bms_name} max voltage cell"
-    id: bms${bms_id}_max_voltage_cell
-    device_id: bms_${bms_id}
-    accuracy_decimals: 0
-    lambda: return 0;  # Placeholder, calculated by component
+    min_voltage_cell:
+      id: bms${bms_id}_min_voltage_cell
+      name: "${name} ${bms_name} min voltage cell"
+      device_id: bms_${bms_id}
+    max_voltage_cell:
+      id: bms${bms_id}_max_voltage_cell
+      device_id: bms_${bms_id}
+      name: "${name} ${bms_name} max voltage cell"
 
   # Required sensors cannot be retrieved from BMS
   - platform: template

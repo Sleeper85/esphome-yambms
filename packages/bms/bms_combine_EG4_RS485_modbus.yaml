@@ -25,7 +25,7 @@ substitutions:
   eg4_modbus_id: modbus_eg4
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@v1.0.0
+  - source: github://RAR/esphome-eg4-bms@v1.0.1
     refresh: 0s
 
 uart:
