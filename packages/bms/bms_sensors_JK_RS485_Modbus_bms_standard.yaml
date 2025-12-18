@@ -196,6 +196,7 @@ sensor:
       device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature sensor 5"
     temperature_powertube:
+      device_id: bms_${bms_id}
       name: "${name} ${bms_name} temperature powertube"
     battery_capacity_state_of_charge:
       id: bms${bms_id}_state_of_charge
