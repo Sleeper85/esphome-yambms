@@ -73,15 +73,15 @@ interval:
   - interval: ${display_auto_next_page_interval}
     startup_delay:  10s
     then:
-      - display.page.show_next: my_display
-      - component.update: my_display
+      - display.page.show_next: m5cores3_lcd
+      - component.update: m5cores3_lcd
 
 # +--------------------------------------+
 # | Display Handling                     |
 # +--------------------------------------+
 display:
   # S3Core display see https://esphome.io/components/display/ili9xxx.html
-  - id: !extend my_display
+  - id: !extend m5cores3_lcd
     pages:
       - id: page1
         lambda: |-
