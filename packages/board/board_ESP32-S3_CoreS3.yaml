@@ -100,6 +100,14 @@ light:
   - platform: binary
     id: esp_light
     output: esp_output
+  - platform: monochromatic
+    id: lcd_backlight
+    name: "LCD Backlight"
+    icon: "mdi:television"
+    entity_category: config
+    output: lcd_backlight_output
+    restore_mode: RESTORE_DEFAULT_ON
+    default_transition_length: 250ms
 
 # +--------------------------------------+
 # | Atom S3R related configuration       |
@@ -174,7 +182,7 @@ touchscreen:
       x_max: 320
       y_min: 0
       y_max: 240
-      
+
 display:
   - platform: mipi_spi
     model: M5CORE
@@ -187,13 +195,3 @@ display:
     invert_colors: true
     id: m5cores3_lcd
     show_test_card: true
-
-light:
-  - platform: monochromatic
-    id: lcd_backlight
-    name: "LCD Backlight"
-    icon: "mdi:television"
-    entity_category: config
-    output: lcd_backlight_output
-    restore_mode: RESTORE_DEFAULT_ON
-    default_transition_length: 250ms
