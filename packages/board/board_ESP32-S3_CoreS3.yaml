@@ -72,13 +72,7 @@ esphome:
 external_components:
   - source: github://m5stack/esphome-yaml/components
     components: [axp2101, aw88298, aw9523b ]
-  # Backlight
-  - source:
-      type: git
-      url: https://github.com/ssieb/esphome
-      ref: lp5562
-    components: [ lp5562 ]
-    refresh: 1min
+  
 
 wifi:
   id: my_network
