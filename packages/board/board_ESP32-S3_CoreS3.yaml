@@ -65,10 +65,13 @@ esphome:
     board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
   on_boot:
     then:
+      bm8563.read_time:
       - output.turn_on:
            id: white
 
 external_components:
+  - source: github://m5stack/esphome-yaml/components
+    components: [axp2101, aw88298, aw9523b ]
   # Backlight
   - source:
       type: git
@@ -103,33 +106,47 @@ light:
 # +--------------------------------------+
 
 spi:
-  - id: atom_spi_bus
-    clk_pin: 15
-    mosi_pin: 21
+  - id: spi_bus
+    clk_pin: GPIO36
+    mosi_pin: GPIO37
 
 i2c:
-  - id: atom_i2c_bus
-    sda: 45
-    scl: 0
-    scan: true
+  - id: bus_internal
+    sda: GPIO12
+    scl: GPIO11
 
-lp5562:
-  - i2c_id: atom_i2c_bus
+axp2101:
+  id: axp2101_pmu
+  i2c_id: bus_internal
+
+# IO Expander
+aw9523b:
+  - id: aw9523b_hub
+    i2c_id: bus_internal
 
 output:
-  # Backlight Output
-  - platform: lp5562
-    id: red
-    channel: 0
-  - platform: lp5562
-    id: green
-    channel: 1
-  - platform: lp5562
-    id: blue
-    channel: 2
-  - platform: lp5562
-    id: white
-    channel: 3
+  - platform: axp2101
+    type: range
+    channel: DLDO1
+    id: lcd_backlight_output
+    min_voltage: 2600
+    max_voltage: 3300
+
+  - platform: axp2101
+    channel: ALDO1
+    voltage: 1800
+
+  - platform: axp2101
+    channel: ALDO2
+    voltage: 3300
+
+  - platform: axp2101
+    channel: BLDO1
+    voltage: 2800
+
+  - platform: axp2101
+    channel: BLDO2
+    voltage: 1500
   # Inverter Heartbeat Output (ESP32 board without LED)
   - platform: template
     id: esp_output
@@ -137,40 +154,46 @@ output:
     write_action:
       - logger.log: "Inverter Heartbeat Output"
       #- lambda: C++ code; # action to be performed at each inverter heartbeat
-
-binary_sensor:
-  # Atom S3R Button
-  - platform: gpio
-    id: atom_button
-    pin:
-      number: 41
-      inverted: true
-      mode:
-        input: true
-        pullup: true
-    filters:
-      - delayed_off: 10ms
-    on_press:
+time:
+  - platform: bm8563
+    i2c_id: bus_internal
+    update_interval: never
+  - platform: homeassistant
+    on_time_sync:
       then:
-        - logger.log: Button Pressed
-        - display.page.show_next: my_display
-        #- display.page.show_previous: my_display
+        bm8563.write_time:
 
+touchscreen:
+  - platform: ft63x6
+    id: touch
+    reset_pin:
+      aw9523b: aw9523b_hub
+      number: 0
+    calibration:
+      x_min: 0
+      x_max: 320
+      y_min: 0
+      y_max: 240
+      
 display:
-  # Atom S3R display
-  # https://esphome.io/components/display/ili9xxx.html
-  - platform: ili9xxx
-    spi_id: atom_spi_bus
-    id: my_display
-    model: Custom
-    cs_pin: 14
-    dc_pin: 42
-    reset_pin: 48
-    height: 320
-    width: 240
-    offset_height: 2
-    offset_width: 1
-    eightbitcolor: true
-    update_interval: ${display_update_interval}
-    data_rate: 40Mhz
-    rotation: ${display_rotation}
+  - platform: mipi_spi
+    model: M5CORE
+    dc_pin: GPIO35
+    reset_pin:
+      aw9523b: aw9523b_hub
+      number: 9
+    cs_pin: GPIO3
+    data_rate: 40MHz
+    invert_colors: true
+    id: m5cores3_lcd
+    show_test_card: true
+
+light:
+  - platform: monochromatic
+    id: lcd_backlight
+    name: "LCD Backlight"
+    icon: "mdi:television"
+    entity_category: config
+    output: lcd_backlight_output
+    restore_mode: RESTORE_DEFAULT_ON
+    default_transition_length: 250ms
