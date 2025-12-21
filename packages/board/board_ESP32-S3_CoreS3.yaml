@@ -48,7 +48,7 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  display: !include board_options_display_128x128.yaml
+  display: !include board_options_display_320x240.yaml
   psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
@@ -158,16 +158,16 @@ binary_sensor:
 
 display:
   # Atom S3R display
-  # https://esphome.io/components/display/st7789v.html
-  - platform: st7789v
+  # https://esphome.io/components/display/ili9xxx.html
+  - platform: ili9xxx
     spi_id: atom_spi_bus
     id: my_display
     model: Custom
     cs_pin: 14
     dc_pin: 42
     reset_pin: 48
-    height: 128
-    width: 128
+    height: 320
+    width: 240
     offset_height: 2
     offset_width: 1
     eightbitcolor: true
