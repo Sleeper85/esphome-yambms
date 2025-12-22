@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# AtomS3R - SKU:C126
-# https://docs.m5stack.com/en/core/AtomS3R
+# CoreS3 - SKU:
+# https://docs.m5stack.com/en/core/CoreS3
 
 substitutions:
   board_chip: "ESP32-S3"
@@ -34,9 +34,9 @@ substitutions:
   # uart_esp_3           PWRCAN RS485 base CH3/CH6
   tx_pin_3: GPIO6
   rx_pin_3: GPIO7
-  # canbus_esp32_can     PWRCAN CAN base
-  tx_pin_4: GPIO6
-  rx_pin_4: GPIO7
+  # canbus_esp32_can     PWRCAN CAN base CH1/CH5
+  tx_pin_4: GPIO17
+  rx_pin_4: GPIO18
   # canbus_mcp2515
   spi_mosi_pin: GPIO37
   spi_miso_pin: GPIO35
@@ -52,7 +52,7 @@ packages:
   psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
-  board: m5stack-atoms3
+  board: m5stack-cores33
   variant: esp32s3
   flash_size: 16MB
   cpu_frequency: 240MHz
