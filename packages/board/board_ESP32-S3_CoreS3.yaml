@@ -25,23 +25,23 @@ substitutions:
   board_name: "m5stack-cores3"
   display_update_interval: "500ms"
   # Interfaces GPIOs
-  # uart_esp_1           Grove port : CAN / RS485 unit
-  tx_pin_1: '2'
-  rx_pin_1: '1'
-  # uart_esp_2
-  tx_pin_2: '7'
-  rx_pin_2: '8'
-  # uart_esp_3           Atomic RS485 base
-  tx_pin_3: '6'
-  rx_pin_3: '5'
-  # canbus_esp32_can     Atomic CAN base
-  tx_pin_4: '5'
-  rx_pin_4: '6'
+  # uart_esp_1           Grove port : DIN Base Blue for CAN / RS485 unit
+  tx_pin_1: GPIO17
+  rx_pin_1: GPIO18
+  # uart_esp_2           Grove port : DIN Base Black for Serial unit
+  tx_pin_2: GPIO8
+  rx_pin_2: GPIO9
+  # uart_esp_3           PWRCAN RS485 base CH3/CH6
+  tx_pin_3: GPIO6
+  rx_pin_3: GPIO7
+  # canbus_esp32_can     PWRCAN CAN base
+  tx_pin_4: GPIO6
+  rx_pin_4: GPIO7
   # canbus_mcp2515
-  spi_mosi_pin: '7'
-  spi_miso_pin: '8'
-  spi_clk_pin: '38'
-  mcp2515_cs_pin: '39'
+  spi_mosi_pin: GPIO37
+  spi_miso_pin: GPIO35
+  spi_clk_pin: GPIO36
+  mcp2515_cs_pin: GPIO35
   # talk_pin
   talk_pin: '8'
 
@@ -71,7 +71,7 @@ esp32:
 psram:
   mode: quad
   speed: 80MHz
-  
+
 esphome:
   platformio_options:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
