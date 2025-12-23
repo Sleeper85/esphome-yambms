@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.1
+# Updated : 2025.12.23
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,6 +20,9 @@
 substitutions:
   balancer_model: "YamBMS"
   balancer_protocol: "Modbus"
+
+packages:
+  sub_device: !include balancer_base_sub_device.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -53,7 +56,8 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_balancer${bms_id}
     id: balancer${bms_id}_online_status
-    name: "${name} ${balancer_name} Online Status"
+    device_id: balancer_${bms_id}
+    name: "Online status"
     register_type: read
     address: 1
     trigger_on_initial_state: true
@@ -65,7 +69,8 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_balancer${bms_id}
     id: balancer${bms_id}_equalizing
-    name: "${name} ${balancer_name} balancing"
+    device_id: balancer_${bms_id}
+    name: "balancing"
     register_type: read
     address: 2
     trigger_on_initial_state: true
@@ -79,7 +84,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_balancer${bms_id}
     id: balancer${bms_id}_balance_trigger_voltage
-    name: "${name} ${balancer_name} Balance Trigger Voltage"
+    device_id: balancer_${bms_id}
+    name: "Balance Trigger Voltage"
     register_type: read
     address: 3
     value_type: U_WORD
@@ -99,7 +105,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_balancer${bms_id}
     id: balancer${bms_id}_balance_starting_voltage
-    name: "${name} ${balancer_name} Balance Starting Voltage"
+    device_id: balancer_${bms_id}
+    name: "Balance Starting Voltage"
     register_type: read
     address: 4
     value_type: U_WORD
