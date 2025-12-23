@@ -1,5 +1,5 @@
-# Updated : 2025.11.15
-# Version : 1.1.2
+# Updated : 2025.12.23
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -35,7 +35,7 @@ packages:
     file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:
       bms_id: '1' # must be a number
-      bms_name: 'BMS 1'
+      bms_name: 'SEPLOS-BMS 1'
       bms_address: '0x01' # BMS 1 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
       # Required settings cannot be retrieved from BMS
@@ -51,7 +51,7 @@ packages:
     file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:
       bms_id: '2' # must be a number
-      bms_name: 'BMS 2'
+      bms_name: 'SEPLOS-BMS 2'
       bms_address: '0x02' # BMS 2 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
       # Required settings cannot be retrieved from BMS
@@ -67,7 +67,7 @@ packages:
     file: packages/bms/bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
     vars:
       bms_id: '3' # must be a number
-      bms_name: 'BMS 3'
+      bms_name: 'SEPLOS-BMS 3'
       bms_address: '0x03' # BMS 2 DIP switch
       bms_protocol_version: '0x20' # Known protocol versions: 0x20 (Seplos), 0x26 (Boqiang)
       # Required settings cannot be retrieved from BMS

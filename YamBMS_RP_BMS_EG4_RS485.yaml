@@ -1,4 +1,4 @@
-# Updated : 2025.12.17
+# Updated : 2025.12.23
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -240,19 +240,28 @@ packages:
       - path: 'packages/bms/bms_combine_EG4_RS485_modbus.yaml'
         vars:
           eg4_modbus_uart_id: 'uart_esp_1'
-          eg4_modbus_baud_rate: '9600'        
+          eg4_modbus_baud_rate: '9600'
       # BMS 1
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
-          bms_id: '1' # BMS id
-          bms_name: 'EG4 BMS 1'
-          bms_address: 2 # Modbus address
+          bms_id: '1' # must be a number
+          bms_name: 'EG4-BMS 1'
+          ## BMS address must start at 2 with EG4 LLV2, ID 1 is a special case and has different output.
+          bms_address: 2 # BMS 1 modbus address
       # BMS 2
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
-          bms_id: '2' # BMS id
-          bms_name: 'EG4 BMS 2'
-          bms_address: 3 # Modbus address
+          bms_id: '2' # must be a number
+          bms_name: 'EG4-BMS 2'
+          bms_address: 3 # BMS 2 modbus address
+      # BMS 3
+      - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
+        vars:
+          bms_id: '2' # must be a number
+          bms_name: 'EG4-BMS 3'
+          bms_address: 4 # BMS 3 modbus address
+
+
 
   # +------------------------------------------------------------------------------+
   # | >>> YamBMS

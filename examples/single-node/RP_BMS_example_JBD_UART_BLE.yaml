@@ -1,5 +1,5 @@
-# Updated : 2025.07.27
-# Version : 1.1.1
+# Updated : 2025.12.23
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -34,7 +34,7 @@ packages:
       - path: 'packages/bms/bms_combine_JBD_UART_full.yaml'
         vars:
           bms_id: '1' # must be a number
-          bms_name: 'BMS 1'
+          bms_name: 'JBD-BMS 1'
           bms_uart_id: 'uart_esp_1'
           bms_rx_timeout: '150ms'
           # Required settings cannot be retrieved from BMS
@@ -52,7 +52,7 @@ packages:
       - path: 'packages/bms/bms_combine_JBD_BLE_full.yaml'
         vars:
           bms_id: '2' # must be a number
-          bms_name: 'BMS 2'
+          bms_name: 'JBD-BMS 2'
           bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
           # Required settings cannot be retrieved from BMS
           # These values ​​must match your BMS settings
