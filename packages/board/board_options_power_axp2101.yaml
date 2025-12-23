@@ -1,5 +1,5 @@
 # Updated : 2025.12.23
-# Version : 1.0.0
+# Version : 1.0.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # +--------------------------------------+
@@ -13,7 +13,6 @@
 # FEATURES:
 #   - 14 configurable power rails (DCDC1-5, ALDO1-4, BLDO1-2, DLDO1-2, CPUSLDO)
 #   - Battery monitoring (voltage, level, temperature)
-#   - Charging status and control
 #   - Individual rail enable/disable switches
 #   - Configurable voltages via substitutions
 #
@@ -160,19 +159,6 @@ sensor:
     device_class: temperature
     entity_category: diagnostic
     update_interval: ${axp2101_update_interval}
-
-# +--------------------------------------+
-# | Binary Sensors                       |
-# +--------------------------------------+
-
-binary_sensor:
-  # Battery Charging Status
-  - platform: axp2101
-    type: battery_charging
-    name: "Battery Charging"
-    id: battery_charging
-    icon: "mdi:battery-charging"
-    device_class: battery_charging
 
 # +--------------------------------------+
 # | Advanced Power Rail Control          |

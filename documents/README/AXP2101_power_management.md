@@ -7,7 +7,7 @@ The AXP2101 is a comprehensive Power Management Unit (PMU) found in M5Stack Core
 ## Features
 
 - **14 Power Rails**: DCDC1-5, ALDO1-4, BLDO1-2, DLDO1-2, CPUSLDO
-- **Battery Management**: Charging control, voltage/level monitoring, fuel gauge
+- **Battery Monitoring**: Voltage, level (%), and temperature sensors
 - **Temperature Monitoring**: PMU temperature sensor
 - **Dynamic Control**: Enable/disable rails, adjust voltages
 - **Power Efficiency**: Disable unused rails to maximize battery life
@@ -196,10 +196,6 @@ sensor:
     type: battery_voltage    # Battery voltage (V)
   - platform: axp2101
     type: temperature        # PMU temperature (°C)
-
-binary_sensor:
-  - platform: axp2101
-    type: battery_charging   # Charging status (on/off)
 ```
 
 ### Monitoring in Home Assistant
@@ -208,7 +204,6 @@ All sensors appear automatically in Home Assistant:
 - **Battery Level**: Shows battery percentage with battery icon
 - **Battery Voltage**: Precise voltage reading (3 decimals)
 - **PMU Temperature**: Internal temperature monitoring
-- **Battery Charging**: Binary status (charging/not charging)
 - **LCD Backlight**: Brightness control slider
 
 ## Power Optimization
@@ -357,9 +352,10 @@ light:
 **Symptom**: Battery percentage decreases even when connected
 
 **Check**:
-1. Battery charging sensor shows "charging"
-2. Battery voltage increasing
-3. Check power supply provides enough current
+1. Monitor battery voltage - should increase when charging
+2. Check power supply provides enough current (1A+ recommended)
+3. Verify USB-C cable supports power delivery
+4. Check battery temperature isn't too high/low
 
 ### Power Rail Not Responding
 
