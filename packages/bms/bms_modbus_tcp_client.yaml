@@ -1,5 +1,5 @@
 # Updated : 2025.12.23
-# Version : 1.0.0
+# Version : 1.0.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,125 +18,64 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # +--------------------------------------+
-# | BMS Modbus TCP Client Configuration  |
+# | BMS Modbus TCP Client Package        |
 # +--------------------------------------+
-# This configuration enables the master node to poll BMS servers via TCP/IP.
 #
-# IMPORTANT: ESPHome does not currently have native Modbus TCP client support.
-# This file documents the recommended approach using hybrid hardware+software.
+# PURPOSE:
+#   Master node that polls BMS servers over network
+#   Combines data from multiple servers and controls inverter
 #
-# Architecture:
-#   ESP32 → RS485/UART → TCP-to-RS485 Bridge → Network → Server Nodes
+# CURRENT LIMITATION:
+#   ESPHome does not have native Modbus TCP client support yet
+#   (Feature request: https://github.com/esphome/feature-requests/issues/708)
 #
-# APPROACH 1: Hardware Bridge (Recommended - Available Now)
-#   - Use existing bms_combine_modbus_client.yaml (no changes needed!)
-#   - Add external hardware TCP-to-RS485 converter between ESP32 and network
-#   - Hardware examples: EBYTE NT1, USR-TCP232-410S, Elfin-EE11
-#   - ESP32 uses local RS485, hardware bridge forwards to TCP servers
+# SOLUTION:
+#   Use hardware TCP-to-Modbus bridge between ESP32 and network
 #
-# APPROACH 2: Software Bridge (Future - Requires Custom Component)
-#   - Waiting for native Modbus TCP client in ESPHome
-#   - Or custom C++ component for TCP client functionality
-#   - See GitHub issue: esphome/feature-requests#708
+# +--------------------------------------+
+# | Hardware Bridge Approach             |
+# +--------------------------------------+
+#
+# ARCHITECTURE:
+#   ESP32 → Modbus RTU → Hardware Bridge → Network (TCP) → Server Nodes
+#
+# The hardware bridge translates between:
+#   - Local: Modbus RTU (what ESP32 speaks)
+#   - Network: Modbus TCP (what servers expose)
+#
+# REQUIRED HARDWARE:
+#   - ESP32 (for YamBMS master logic)
+#   - Hardware TCP-to-Modbus bridge ($30-100):
+#     * EBYTE NT1 (~$40) - recommended
+#     * USR-TCP232-410S (~$30)
+#     * Elfin-EE11 (~$50)
+#
+# BRIDGE CONFIGURATION:
+#   The bridge maps Modbus addresses to server IPs:
+#     Address 1 → 192.168.1.101:502 (Server 1)
+#     Address 2 → 192.168.1.102:502 (Server 2)
+#     Address 3 → 192.168.1.103:502 (Server 3)
+#
+# ESP32 CODE:
+#   Uses standard Modbus client - no changes needed!
+#   The bridge handles all TCP communication transparently.
 
 # +--------------------------------------+
-# | Recommended Setup (Hardware Bridge)  |
+# | Configuration                        |
 # +--------------------------------------+
 
-# Include the standard Modbus client configuration
-# This works unchanged with hardware TCP-to-RS485 bridge
+# Use standard Modbus client package (works via bridge)
 packages:
   modbus_client: !include bms_combine_modbus_client.yaml
 
-# +--------------------------------------+
-# | Hardware Bridge Configuration        |
-# +--------------------------------------+
-#
-# External Hardware TCP-to-RS485 Bridge Setup:
-#
-# 1. Hardware Options:
-#    - EBYTE NT1: Modbus TCP to RTU converter
-#    - USR-TCP232-410S: Serial to Ethernet converter
-#    - Elfin-EE11: Industrial Modbus gateway
-#    - Any Modbus TCP to RTU gateway device
-#
-# 2. Wiring:
-#    ESP32 RS485 → Bridge RS485 input
-#    Bridge Ethernet → Network switch
-#    Server nodes on same network
-#
-# 3. Bridge Configuration:
-#    - Set bridge to "Modbus TCP Client" mode
-#    - Configure server IP addresses and ports
-#    - Map Modbus addresses (1, 2, 3...) to corresponding IPs
-#    - Example mapping:
-#      Address 1 → 192.168.1.101:502 (BMS Server 1)
-#      Address 2 → 192.168.1.102:502 (BMS Server 2)
-#      Address 3 → 192.168.1.103:502 (BMS Server 3)
-#
-# 4. ESP32 Configuration:
-#    - Use standard UART/RS485 interface
-#    - No changes to modbus_controller needed
-#    - Polls as normal with Modbus addresses 1, 2, 3, etc.
-#    - Bridge transparently forwards to TCP servers
-#
-# 5. Network Setup:
-#    - Ensure all nodes on same network/VLAN
-#    - Configure static IPs for servers (recommended)
-#    - Verify port 502 is open
-#
-# Advantages:
-#   - Works with existing ESPHome configuration
-#   - No custom components needed
-#   - Reliable hardware-based solution
-#   - Can mix RS485 and TCP nodes
-#
-# Disadvantages:
-#   - Requires external hardware (~$30-100 USD)
-#   - Additional device to configure
-#   - Extra point of failure
-
-# +--------------------------------------+
-# | Alternative: Direct TCP Client       |
-# +--------------------------------------+
-#
-# FUTURE OPTION: When ESPHome adds native Modbus TCP client support
-# or if you implement a custom component.
-#
-# Conceptual configuration (NOT currently functional):
-#
-# external_components:
-#   - source: github://future/esphome-modbus-tcp  # Hypothetical
-#     components: [ modbus_tcp_client ]
-#
-# modbus_tcp_client:
-#   - id: modbus_tcp_1
-#     host: 192.168.1.101  # BMS Server 1
-#     port: 502
-#     address: 1
-#     update_interval: 5s
-#   - id: modbus_tcp_2
-#     host: 192.168.1.102  # BMS Server 2
-#     port: 502
-#     address: 2
-#     update_interval: 5s
-#
-# This would allow direct ESP32 → Network → Servers without hardware bridge.
-# Track progress: https://github.com/esphome/feature-requests/issues/708
-
-# +--------------------------------------+
-# | Monitoring & Diagnostics             |
-# +--------------------------------------+
-
-# Network connectivity monitoring
+# Network monitoring
 binary_sensor:
   - platform: template
     id: modbus_tcp_network_active
-    name: "${name} Modbus Network Active"
+    name: "${name} Network Active"
     icon: "mdi:network"
     entity_category: diagnostic
     lambda: |-
-      // Network is active if connected
       return id(my_network).is_connected();
 
 sensor:
@@ -150,92 +89,54 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       id: client_ip_address
-      name: "${name} Client IP"
+      name: "${name} IP Address"
       icon: "mdi:ip-network"
       entity_category: diagnostic
 
 # +--------------------------------------+
-# | Implementation Guide                 |
+# | Setup Instructions                   |
 # +--------------------------------------+
 #
-# Quick Start for TCP Multi-Node:
+# STEP 1: Configure Hardware Bridge
+#   - Connect bridge to network
+#   - Access bridge web interface
+#   - Set mode: "Modbus TCP Client"
+#   - Add server mappings:
+#     Addr 1 → <server1-ip>:502
+#     Addr 2 → <server2-ip>:502
+#     Addr 3 → <server3-ip>:502
 #
-# 1. SERVER NODES (BMS/Shunt monitoring):
-#    a. Use bms_modbus_tcp_server.yaml package
-#    b. Configure unique bms_id: '1', '2', '3', etc.
-#    c. Connect to network (WiFi or Ethernet)
-#    d. Note each node's IP address
-#    e. Verify port 502 accessible
+# STEP 2: Wire ESP32 to Bridge
+#   - ESP32 TX → Bridge RX
+#   - ESP32 RX → Bridge TX
+#   - Configure UART in main YAML
 #
-# 2. CLIENT NODE (Master/Aggregator):
-#    a. Install hardware TCP-to-RS485 bridge
-#    b. Configure bridge with server IP mappings
-#    c. Use THIS package (unchanged from RS485 version)
-#    d. Wire ESP32 RS485 to bridge
-#    e. Normal operation - polls via addresses
+# STEP 3: Configure ESP32
+#   - Use standard Modbus client packages
+#   - Poll with bms_id: '1', '2', '3', etc.
+#   - Bridge forwards to corresponding server IPs
 #
-# 3. NETWORK SETUP:
-#    a. All nodes on same network
-#    b. Static IPs for servers (recommended)
-#    c. mDNS enabled for discovery
-#    d. Port 502 open in firewall
+# TESTING:
+#   1. Verify servers accessible: ping <server-ip>
+#   2. Test server port: nc -zv <server-ip> 502
+#   3. Check bridge can connect to servers
+#   4. Monitor ESP32 logs for BMS data
 #
-# 4. TESTING:
-#    a. Ping each server IP from client network
-#    b. Use Modbus TCP test tool to verify servers
-#    c. Monitor ESPHome logs for connectivity
-#    d. Check wifi_signal_strength on all nodes
-#
-# Benefits of TCP vs RS485:
-#   ✓ No distance limits (vs 1200m RS485 max)
-#   ✓ No RS485 transceivers needed
-#   ✓ Easier to add/remove nodes
-#   ✓ Can use existing network infrastructure
-#   ✓ Works across VLANs/subnets
-#   ✓ Better for distributed installations
-#
-# Considerations:
-#   ⚠ Network latency (5-50ms vs <1ms RS485)
-#   ⚠ WiFi reliability vs wired RS485
-#   ⚠ Requires hardware bridge for client
-#   ⚠ More complex troubleshooting
-#   ⚠ Network dependency for operation
-#
-# Recommendation:
-#   - Use Ethernet where possible for reliability
-#   - Keep update_interval at 5s or higher
-#   - Monitor network connectivity
-#   - Have fallback plan for network outage
-#
-# Example Configurations:
-#   See examples/multi-node-tcp/ directory
-
 # +--------------------------------------+
-# | Hardware Bridge Products             |
+# | Alternative: MQTT (Recommended)      |
 # +--------------------------------------+
 #
-# Recommended Hardware Bridges:
+# For a bridge-free solution, consider MQTT instead:
+#   - No hardware bridge needed
+#   - Native ESPHome support
+#   - More efficient (push vs poll)
+#   - See: YamBMS_MQTT_vs_ModbusTCP_analysis.md
 #
-# 1. EBYTE NT1 Modbus Gateway
-#    - Native Modbus TCP to RTU conversion
-#    - Web configuration interface
-#    - ~$40 USD
+# +--------------------------------------+
+# | Future: Native TCP Client            |
+# +--------------------------------------+
 #
-# 2. USR-TCP232-410S
-#    - Serial to Ethernet converter
-#    - Modbus gateway mode
-#    - ~$30 USD
-#
-# 3. Elfin-EE11
-#    - Industrial Modbus gateway
-#    - Din rail mountable
-#    - ~$50 USD
-#
-# 4. DIY Option:
-#    - Additional ESP32 running esphome_modbus_bridge
-#    - Acts as local bridge for client
-#    - Free (if you have spare ESP32)
-#    - Configuration:
-#      * Client ESP32 → UART → Bridge ESP32 (modbus_bridge)
-#      * Bridge ESP32 → Network → Server nodes
-#      * Bridge forwards UART Modbus RTU to TCP servers
+# When ESPHome adds native Modbus TCP client:
+#   - No hardware bridge needed
+#   - Direct ESP32 → Network → Servers
+#   - Watch: https://github.com/esphome/feature-requests/issues/708

@@ -1,19 +1,15 @@
 # Updated : 2025.12.23
-# Version : 1.0.0
+# Version : 1.0.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
-# YamBMS TCP Multi-Node Server 2 Example
-# See TCP_example_multi-node_YamBMS_server_1.yaml for detailed documentation
+# TCP Multi-Node Server 2 Example
+# See TCP_example_multi-node_YamBMS_server_1.yaml for detailed comments
 
 substitutions:
   friendly_name: 'YamBMS TCP Server 2'
   hostname: 'yambms-tcp-server-2'
   name: 'yambms-tcp-server-2'
-  bms_id: '2' # Different Modbus address from Server 1
-  static_ip: '192.168.1.102' # Different IP from Server 1
-  gateway_ip: '192.168.1.1'
-  subnet_mask: '255.255.255.0'
-  dns_ip: '192.168.1.1'
+  bms_id: '2' # Different from Server 1
 
 esphome:
   name: ${hostname}
@@ -33,10 +29,9 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   manual_ip:
-    static_ip: ${static_ip}
-    gateway: ${gateway_ip}
-    subnet: ${subnet_mask}
-    dns1: ${dns_ip}
+    static_ip: 192.168.1.102  # Different from Server 1
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
 
 logger:
   level: INFO

@@ -1,5 +1,5 @@
 # Updated : 2025.12.23
-# Version : 1.0.0
+# Version : 1.0.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,56 +20,54 @@
 # +--------------------------------------+
 # | Modbus TCP Bridge Configuration      |
 # +--------------------------------------+
-# This configuration enables Modbus communication over TCP/IP instead of RS485.
-# It uses the esphome_modbus_bridge component to provide a transparent
-# Modbus TCP to RTU bridge, allowing multi-node configurations over network.
 #
-# Requirements:
-#   - Network connectivity (WiFi or Ethernet)
-#   - esphome_modbus_bridge external component
+# PURPOSE:
+#   Exposes BMS data over network via Modbus TCP (port 502)
+#   Replaces RS485 bus for inter-node communication
 #
-# Architecture:
-#   TCP Clients → Bridge (port 502) → Modbus RTU → Local BMS
+# WHAT THIS DOES:
+#   - Listens on TCP port 502 (standard Modbus TCP)
+#   - Allows remote nodes to read BMS data over WiFi/Ethernet
+#   - No RS485 bus wiring needed between nodes!
 #
-# Usage:
-#   - Server nodes: Use this file to expose local Modbus RTU as Modbus TCP
-#   - Client nodes: Use board_options_itf_modbus_tcp_client.yaml
+# USAGE:
+#   - Include in server nodes (BMS monitoring nodes)
+#   - Each server gets unique IP address
+#   - Master node connects via network instead of RS485 bus
 
-# The settings below can be changed via `vars` when importing the package
-# or by declaring new `substitutions` in the main YAML.
+# Configuration
 substitutions:
-  # UART for local Modbus RTU communication
-  modbus_baud_rate: '19200' # 9600 / 19200 / 115200
-  # Modbus settings
+  # TCP Bridge Settings
+  modbus_tcp_port: '502'                      # Standard Modbus TCP port
+  modbus_tcp_allowed_clients: '5'             # Max concurrent connections
+  modbus_tcp_client_timeout: '60s'            # Idle client timeout
+  # Internal Modbus Settings (used by bridge internally)
   modbus_id: 'modbus_1'
+  modbus_baud_rate: '19200'
   modbus_send_wait_time: '250ms'
-  # Modbus TCP Bridge settings
-  modbus_tcp_port: '502' # Standard Modbus TCP port
-  modbus_tcp_allowed_clients: '5' # Max concurrent TCP connections
-  modbus_tcp_client_timeout: '60s' # Disconnect inactive clients after this time
-  modbus_rtu_response_timeout: '3000ms' # Timeout waiting for RTU slave response
-  modbus_crc_bytes_swapped: 'false' # CRC byte order compatibility flag
+  modbus_rtu_response_timeout: '3000ms'
+  modbus_crc_bytes_swapped: 'false'
 
-# External component for Modbus TCP bridge
+# External component for TCP bridge functionality
 external_components:
   - source: github://rosenrot00/esphome_modbus_bridge@main
     components: [ modbus_bridge ]
     refresh: 1d
 
-# UART configuration for local Modbus RTU
+# Internal: UART for local BMS communication
+# (This is NOT for inter-node communication - that's now TCP!)
 uart:
   - id: !extend ${modbus_uart_id}
     baud_rate: ${modbus_baud_rate}
 
-# Modbus RTU configuration (local communication)
+# Internal: Modbus RTU server for local BMS
 modbus:
   - uart_id: ${modbus_uart_id}
     id: ${modbus_id}
     role: ${modbus_role}
     send_wait_time: ${modbus_send_wait_time}
 
-# Modbus TCP Bridge configuration
-# Listens on TCP port 502 and translates Modbus TCP frames to RTU
+# TCP Bridge: Exposes Modbus over network
 modbus_bridge:
   uart_id: ${modbus_uart_id}
   tcp_port: ${modbus_tcp_port}
@@ -77,32 +75,28 @@ modbus_bridge:
   tcp_client_timeout: ${modbus_tcp_client_timeout}
   rtu_response_timeout: ${modbus_rtu_response_timeout}
   crc_bytes_swapped: ${modbus_crc_bytes_swapped}
+  # Event triggers
   on_tcp_clients:
-    # Triggered when TCP client count changes
     - logger.log:
-        format: "Modbus TCP clients connected: %d"
+        format: "TCP clients connected: %d"
         args: ['x']
   on_rtu_send:
-    # Triggered when RTU request is sent
-    - logger.log: "Modbus RTU request sent to slave"
+    - logger.log: "Reading BMS data"
   on_rtu_receive:
-    # Triggered when RTU response is received
-    - logger.log: "Modbus RTU response received from slave"
+    - logger.log: "BMS data received"
   on_rtu_timeout:
-    # Triggered when RTU response timeout occurs
     - logger.log:
-        format: "Modbus RTU timeout (no response from slave)"
+        format: "BMS timeout (check local BMS connection)"
         level: WARN
 
-# Network status sensors for monitoring
+# Network monitoring
 binary_sensor:
   - platform: template
     id: modbus_tcp_bridge_active
-    name: "${name} Modbus TCP Bridge Active"
+    name: "${name} TCP Bridge Active"
     icon: "mdi:bridge"
     entity_category: diagnostic
     lambda: |-
-      // Bridge is active if network is connected
       return id(my_network).is_connected();
 
 sensor:
@@ -120,43 +114,31 @@ text_sensor:
       name: "${name} IP Address"
       icon: "mdi:ip-network"
       entity_category: diagnostic
-    ssid:
-      id: wifi_ssid
-      name: "${name} WiFi SSID"
-      icon: "mdi:wifi"
-      entity_category: diagnostic
-      internal: true
 
 # +--------------------------------------+
-# | Notes                                |
+# | How This Works                       |
 # +--------------------------------------+
 #
-# Connection Information:
-#   - Modbus TCP clients should connect to this device's IP address on port ${modbus_tcp_port}
-#   - The bridge supports up to ${modbus_tcp_allowed_clients} concurrent connections
-#   - Standard Modbus TCP frame format is used (MBAP header + RTU PDU)
+# NETWORK EXPOSURE:
+#   This node exposes BMS data on: <node-ip>:502
+#   Master node connects via network (WiFi/Ethernet)
+#   No RS485 bus wiring needed between nodes!
 #
-# Multi-Node Setup:
-#   1. Server Nodes (BMS/Shunt):
-#      - Include this file to expose local Modbus RTU as TCP
-#      - Assign unique Modbus slave address (bms_id: 1, 2, 3, etc.)
-#      - Connect to network via WiFi or Ethernet
-#      - Note the IP address from wifi_ip_address sensor
+# CONNECTION INFO:
+#   - Protocol: Modbus TCP (standard)
+#   - Port: 502
+#   - Max clients: 5 concurrent connections
+#   - Data: All 33+ BMS registers
 #
-#   2. Client Node (Master):
-#      - Use board_options_itf_modbus_tcp_client.yaml
-#      - Configure server IP addresses in substitutions
-#      - Poll servers using standard Modbus TCP protocol
+# SETUP CHECKLIST:
+#   □ Configure WiFi or Ethernet
+#   □ Note the IP address (check wifi_ip_address sensor)
+#   □ Verify port 502 accessible (firewall)
+#   □ Test connection: nc -zv <ip> 502
 #
-# Performance Considerations:
-#   - Network latency: Typical WiFi adds 5-50ms vs RS485
-#   - Update interval: Keep at 5s or higher for network stability
-#   - Ethernet recommended for critical installations
-#   - Monitor wifi_signal_strength for WiFi reliability
-#
-# Troubleshooting:
-#   - Check IP address is accessible from client node
-#   - Verify firewall allows port ${modbus_tcp_port}
-#   - Monitor logs for timeout events
-#   - Ensure local Modbus RTU slave is responding
-#   - Check network connectivity with ping test
+# ADVANTAGES VS RS485 BUS:
+#   ✓ No distance limits (network reach)
+#   ✓ No RS485 wiring between nodes
+#   ✓ Easy to add/remove nodes
+#   ✓ Uses existing network infrastructure
+#   ✓ Works across VLANs/subnets
