@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.22
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -130,8 +130,8 @@ views:
             entity: binary_sensor.yambms_inverter_communication_status
             name: Inverter comm. status
           - type: tile
-            entity: binary_sensor.yambms_esp32_online_status
-            name: ESP32 status
+            entity: binary_sensor.yambms_board_online_status
+            name: Board status
           - type: tile
             entity: sensor.yambms_yambms_1_charging_status
             name: Charging Status
@@ -175,10 +175,10 @@ views:
               grid_columns: 2
               grid_rows: 2
           - type: tile
-            entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
+            entity: sensor.yambms_board_uptime
+            name: Board Uptime
           - type: tile
-            entity: sensor.yambms_esp32_esphome_version
+            entity: sensor.yambms_board_esphome_version
             name: ESPHome version
           - type: entities
             entities:
@@ -203,12 +203,12 @@ views:
     cards:
       - type: entity-filter
         entities:
-          - entity: select.yambms_canbus_1_bms_name
-            name: CANBUS 1 BMS Name
-          - entity: select.yambms_canbus_1_protocol
-            name: CANBUS 1 Protocol
-          - entity: select.yambms_rs485_1_protocol
-            name: RS485 1 Protocol
+          - entity: select.canbus_1_yambms_name
+            name: CANBUS YamBMS name
+          - entity: select.canbus_1_yambms_protocol
+            name: CANBUS YamBMS protocol
+          - entity: select.rs485_1_yambms_protocol
+            name: RS485 YamBMS protocol
         conditions:
           - condition: state
             state_not: unavailable
@@ -332,29 +332,29 @@ views:
         entities:
           - entity: sensor.yambms_yambms_1_last_complete_charge
             name: Last Complete Charge
-          - entity: binary_sensor.yambms_esp32_online_status
-            name: ESP32 Online Status
-          - entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
-          - entity: sensor.yambms_esp32_esphome_version
-            name: ESP32 ESPHome version
-          - entity: button.yambms_esp32_restart
-            name: ESP32 Restart
+          - entity: binary_sensor.yambms_board_online_status
+            name: Board Online Status
+          - entity: sensor.yambms_board_uptime
+            name: Board Uptime
+          - entity: sensor.yambms_board_esphome_version
+            name: Board ESPHome version
+          - entity: button.yambms_board_restart
+            name: Board Restart
         title: YamBMS - Diagnostic
       - type: entity-filter
         entities:
-          - entity: binary_sensor.yambms_canbus_1_status
-            name: CANBUS 1 Status
-          - entity: switch.yambms_canbus_1_inverter_heartbeat_monitoring
-            name: CANBUS 1 Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_canbus_1_inverter_heartbeat
-            name: CANBUS 1 Inverter Heartbeat
-          - entity: binary_sensor.yambms_rs485_1_status
-            name: RS485 1 Status
-          - entity: switch.yambms_rs485_1_inverter_heartbeat_monitoring
-            name: RS485 1 Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_rs485_1_inverter_heartbeat
-            name: RS485 1 Inverter Heartbeat
+          - entity: binary_sensor.canbus_1_status
+            name: CANBUS Status
+          - entity: switch.canbus_1_inverter_heartbeat_monitoring
+            name: CANBUS Inverter Heartbeat Monitoring
+          - entity: sensor.canbus_1_inverter_heartbeat
+            name: CANBUS Inverter Heartbeat
+          - entity: binary_sensor.rs485_1_status
+            name: RS485 Status
+          - entity: switch.rs485_1_inverter_heartbeat_monitoring
+            name: RS485 Inverter Heartbeat Monitoring
+          - entity: sensor.rs485_1_inverter_heartbeat
+            name: RS485 Inverter Heartbeat
         conditions:
           - condition: state
             state_not: unavailable
@@ -376,10 +376,10 @@ views:
             name: Debug Heap max block
           - entity: sensor.yambms_debug_loop_time
             name: Debug Loop time
-          - entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
-          - entity: sensor.yambms_esp32_esphome_version
-            name: ESPHome version
+          - entity: sensor.yambms_board_uptime
+            name: Board Uptime
+          - entity: sensor.yambms_board_esphome_version
+            name: Board ESPHome version
           - entity: sensor.yambms_debug_reset_reason
             name: Debug Reset reason
         conditions:
@@ -401,14 +401,14 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_1_online_status
+                entity: binary_sensor.jk_bms_1_online_status
                 color: state
                 name: Online
                 state_content: name
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_1_can_be_combined
+                entity: binary_sensor.jk_bms_1_can_be_combined
                 color: state
                 name: Combined
                 state_content: name
@@ -419,7 +419,7 @@ views:
               - type: markdown
                 content: >-
                   <center>Time : <b><font color=red>
-                  {{ states('sensor.yambms_jk_bms_1_total_runtime_formatted', rounded=True) | upper }}</font>
+                  {{ states('sensor.jk_bms_1_total_runtime_formatted', rounded=True) | upper }}</font>
             layout_options:
               grid_columns: 2
               grid_rows: 1
@@ -430,7 +430,7 @@ views:
               - type: markdown
                 content: >-
                   <center>Error : <b><font color=red>
-                  {{ states('sensor.yambms_jk_bms_1_errors', rounded=True) }}</font>
+                  {{ states('sensor.jk_bms_1_errors', rounded=True) }}</font>
             layout_options:
               grid_columns: 2
               grid_rows: 1
@@ -441,43 +441,43 @@ views:
               - type: markdown
                 content: >-
                   <center>Charge : <b>{% if
-                  states('binary_sensor.yambms_jk_bms_1_charging') == 'on'
+                  states('binary_sensor.jk_bms_1_charging') == 'on'
                   %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_1_charging') | upper
+                  states('binary_sensor.jk_bms_1_charging') | upper
                   }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_1_charging') | upper
+                  states('binary_sensor.jk_bms_1_charging') | upper
                   }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_1_discharging') ==
+                  states('binary_sensor.jk_bms_1_discharging') ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_1_discharging') |
+                  states('binary_sensor.jk_bms_1_discharging') |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_1_discharging') |
+                  states('binary_sensor.jk_bms_1_discharging') |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_1_equalizing') ==
+                  states('binary_sensor.jk_bms_1_equalizing') ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_1_equalizing') |
+                  states('binary_sensor.jk_bms_1_equalizing') |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_1_equalizing') |
+                  states('binary_sensor.jk_bms_1_equalizing') |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_total_voltage', rounded=True) }}
+                  states('sensor.jk_bms_1_total_voltage', rounded=True) }}
                   V</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_current', rounded=True) }} A</font></b>
+                  states('sensor.jk_bms_1_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_power', rounded=True) }} W</font>
+                  states('sensor.jk_bms_1_power', rounded=True) }} W</font>
           - type: grid
             square: false
             columns: 2
@@ -486,42 +486,42 @@ views:
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_battery_soc', rounded=True) }}
+                  states('sensor.jk_bms_1_battery_soc', rounded=True) }}
                   %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_1_battery_soh', rounded=True) }}
+                  states('sensor.jk_bms_1_battery_soh', rounded=True) }}
                   %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_total_battery_capacity_setting', rounded=True)
+                  states('sensor.jk_bms_1_total_battery_capacity_setting', rounded=True)
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_total_charging_cycle_capacity', rounded=True)
+                  states('sensor.jk_bms_1_total_charging_cycle_capacity', rounded=True)
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_average_cell_voltage', rounded=True) }}
+                  states('sensor.jk_bms_1_average_cell_voltage', rounded=True) }}
                   V</font><br> Balance Cur. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_balancing_current', rounded=True) }}
+                  states('sensor.jk_bms_1_balancing_current', rounded=True) }}
                   A</font><br> Max temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_max_temperature', rounded=True) }}
+                  states('sensor.jk_bms_1_max_temperature', rounded=True) }}
                   °C</font>
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_battery_capacity_remaining', rounded=True) }}
+                  states('sensor.jk_bms_1_battery_capacity_remaining', rounded=True) }}
                   Ah</font><br> Cycle Count :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_charging_cycles', rounded=True)
+                  states('sensor.jk_bms_1_charging_cycles', rounded=True)
                   }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_delta_cell_voltage', rounded=True) }}
+                  states('sensor.jk_bms_1_delta_cell_voltage', rounded=True) }}
                   V</font><br> MOS temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_power_tube_temperature', rounded=True)
+                  states('sensor.jk_bms_1_power_tube_temperature', rounded=True)
                   }} °C</font><br> Min temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_1_min_temperature', rounded=True) }}
+                  states('sensor.jk_bms_1_min_temperature', rounded=True) }}
                   °C</font>
           - type: grid
             square: false
@@ -547,14 +547,14 @@ views:
                   
                   <center>
 
-                  {{ cell_v(lead_zero=1, num=1, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=2, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=3, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=4, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=5, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=6, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=7, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=1, num=8, entity='.yambms_jk_bms_1') }}                  
+                  {{ cell_v(lead_zero=1, num=1, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=2, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=3, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=4, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=5, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=6, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=7, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=1, num=8, entity='.jk_bms_1') }}                  
 
                   </center>
               - type: markdown
@@ -577,27 +577,27 @@ views:
                   
                   <center>
                   
-                  {{ cell_v(lead_zero=1, num=9, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=10, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=11, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=12, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=13, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=14, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=15, entity='.yambms_jk_bms_1') }}
-                  {{ cell_v(lead_zero=0, num=16, entity='.yambms_jk_bms_1') }}              
+                  {{ cell_v(lead_zero=1, num=9, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=10, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=11, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=12, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=13, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=14, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=15, entity='.jk_bms_1') }}
+                  {{ cell_v(lead_zero=0, num=16, entity='.jk_bms_1') }}              
                   
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_1_charge_switch
+              - entity: switch.jk_bms_1_charge_switch
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_1_discharge_switch
+              - entity: switch.jk_bms_1_discharge_switch
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_1_balance_switch
+              - entity: switch.jk_bms_1_balance_switch
                 name: Balance switch
-              - entity: switch.yambms_jk_bms_1_enable_bluetooth_connection
+              - entity: switch.jk_bms_1_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: number.yambms_jk_bms_1_charging_cycles_offset
+              - entity: number.jk_bms_1_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
@@ -612,14 +612,14 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_2_online_status
+                entity: binary_sensor.jk_bms_2_online_status
                 color: state
                 name: Online
                 state_content: name
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_2_can_be_combined
+                entity: binary_sensor.jk_bms_2_can_be_combined
                 color: state
                 name: Combined
                 state_content: name
@@ -630,7 +630,7 @@ views:
               - type: markdown
                 content: >-
                   <center>Time : <b><font color=red>{{
-                  states('sensor.yambms_jk_bms_2_total_runtime_formatted', rounded=True)
+                  states('sensor.jk_bms_2_total_runtime_formatted', rounded=True)
                   | upper }}</font>
             layout_options:
               grid_columns: 2
@@ -642,7 +642,7 @@ views:
               - type: markdown
                 content: >-
                   <center>Error : <b><font color=red>{{
-                  states('sensor.yambms_jk_bms_2_errors', rounded=True)}}</font>
+                  states('sensor.jk_bms_2_errors', rounded=True)}}</font>
             layout_options:
               grid_columns: 2
               grid_rows: 1
@@ -653,43 +653,43 @@ views:
               - type: markdown
                 content: >-
                   <center>Charge : <b>{% if
-                  states('binary_sensor.yambms_jk_bms_2_charging') == 'on'
+                  states('binary_sensor.jk_bms_2_charging') == 'on'
                   %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_2_charging') | upper
+                  states('binary_sensor.jk_bms_2_charging') | upper
                   }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_2_charging') | upper
+                  states('binary_sensor.jk_bms_2_charging') | upper
                   }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_2_discharging') ==
+                  states('binary_sensor.jk_bms_2_discharging') ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_2_discharging') |
+                  states('binary_sensor.jk_bms_2_discharging') |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_2_discharging') |
+                  states('binary_sensor.jk_bms_2_discharging') |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_2_equalizing') ==
+                  states('binary_sensor.jk_bms_2_equalizing') ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_2_equalizing') |
+                  states('binary_sensor.jk_bms_2_equalizing') |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_2_equalizing') |
+                  states('binary_sensor.jk_bms_2_equalizing') |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_total_voltage', rounded=True) }}
+                  states('sensor.jk_bms_2_total_voltage', rounded=True) }}
                   V</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_current', rounded=True) }} A</font></b>
+                  states('sensor.jk_bms_2_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_power', rounded=True) }} W</font>
+                  states('sensor.jk_bms_2_power', rounded=True) }} W</font>
           - type: grid
             square: false
             columns: 2
@@ -698,42 +698,42 @@ views:
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_battery_soc', rounded=True) }}
+                  states('sensor.jk_bms_2_battery_soc', rounded=True) }}
                   %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_2_battery_soh', rounded=True) }}
+                  states('sensor.jk_bms_2_battery_soh', rounded=True) }}
                   %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_total_battery_capacity_setting', rounded=True)
+                  states('sensor.jk_bms_2_total_battery_capacity_setting', rounded=True)
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_total_charging_cycle_capacity', rounded=True)
+                  states('sensor.jk_bms_2_total_charging_cycle_capacity', rounded=True)
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_average_cell_voltage', rounded=True) }}
+                  states('sensor.jk_bms_2_average_cell_voltage', rounded=True) }}
                   V</font><br> Balance Cur. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_balancing_current', rounded=True) }}
+                  states('sensor.jk_bms_2_balancing_current', rounded=True) }}
                   A</font><br> Max temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_max_temperature', rounded=True) }}
+                  states('sensor.jk_bms_2_max_temperature', rounded=True) }}
                   °C</font>
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_battery_capacity_remaining', rounded=True) }}
+                  states('sensor.jk_bms_2_battery_capacity_remaining', rounded=True) }}
                   Ah</font><br> Cycle Count :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_charging_cycles', rounded=True)
+                  states('sensor.jk_bms_2_charging_cycles', rounded=True)
                   }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_delta_cell_voltage', rounded=True) }}
+                  states('sensor.jk_bms_2_delta_cell_voltage', rounded=True) }}
                   V</font><br> MOS temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_power_tube_temperature', rounded=True)
+                  states('sensor.jk_bms_2_power_tube_temperature', rounded=True)
                   }} °C</font><br> Min temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_2_min_temperature', rounded=True) }}
+                  states('sensor.jk_bms_2_min_temperature', rounded=True) }}
                   °C</font>
           - type: grid
             square: false
@@ -757,14 +757,14 @@ views:
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=1, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=2, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=3, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=4, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=5, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=6, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=7, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=1, num=8, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=1, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=2, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=3, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=4, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=5, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=6, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=7, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=8, entity='.jk_bms_2') }}
                   
                   </center>
               - type: markdown
@@ -785,27 +785,27 @@ views:
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=9, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=10, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=11, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=12, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=13, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=14, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=15, entity='.yambms_jk_bms_2') }}
-                  {{ cell_v(lead_zero=0, num=16, entity='.yambms_jk_bms_2') }}
+                  {{ cell_v(lead_zero=1, num=9, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=10, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=11, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=12, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=13, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=14, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=15, entity='.jk_bms_2') }}
+                  {{ cell_v(lead_zero=0, num=16, entity='.jk_bms_2') }}
                   
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_2_charge_switch
+              - entity: switch.jk_bms_2_charge_switch
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_2_discharge_switch
+              - entity: switch.jk_bms_2_discharge_switch
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_2_balance_switch
+              - entity: switch.jk_bms_2_balance_switch
                 name: Balance switch
-              - entity: switch.yambms_jk_bms_2_enable_bluetooth_connection
+              - entity: switch.jk_bms_2_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: number.yambms_jk_bms_2_charging_cycles_offset
+              - entity: number.jk_bms_2_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
@@ -820,14 +820,14 @@ views:
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_3_online_status
+                entity: binary_sensor.jk_bms_3_online_status
                 color: state
                 name: Online
                 state_content: name
               - type: entity
                 show_state: true
                 show_icon: true
-                entity: binary_sensor.yambms_jk_bms_3_can_be_combined
+                entity: binary_sensor.jk_bms_3_can_be_combined
                 color: state
                 name: Combined
                 state_content: name
@@ -838,7 +838,7 @@ views:
               - type: markdown
                 content: >-
                   <center>Time : <b><font color=red>{{
-                  states('sensor.yambms_jk_bms_3_total_runtime_formatted', rounded=True)
+                  states('sensor.jk_bms_3_total_runtime_formatted', rounded=True)
                   | upper }}</font>
             layout_options:
               grid_columns: 2
@@ -850,7 +850,7 @@ views:
               - type: markdown
                 content: >-
                   <center>Error : <b><font color=red>{{
-                  states('sensor.yambms_jk_bms_3_errors', rounded=True)}}</font>
+                  states('sensor.jk_bms_3_errors', rounded=True)}}</font>
             layout_options:
               grid_columns: 2
               grid_rows: 1
@@ -861,43 +861,43 @@ views:
               - type: markdown
                 content: >-
                   <center>Charge : <b>{% if
-                  states('binary_sensor.yambms_jk_bms_3_charging') == 'on'
+                  states('binary_sensor.jk_bms_3_charging') == 'on'
                   %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_3_charging') | upper
+                  states('binary_sensor.jk_bms_3_charging') | upper
                   }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_3_charging') | upper
+                  states('binary_sensor.jk_bms_3_charging') | upper
                   }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_3_discharging') ==
+                  states('binary_sensor.jk_bms_3_discharging') ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_3_discharging') |
+                  states('binary_sensor.jk_bms_3_discharging') |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_3_discharging') |
+                  states('binary_sensor.jk_bms_3_discharging') |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('binary_sensor.yambms_jk_bms_3_equalizing') ==
+                  states('binary_sensor.jk_bms_3_equalizing') ==
                   'on' %} <font color=#41CD52>{{
-                  states('binary_sensor.yambms_jk_bms_3_equalizing') |
+                  states('binary_sensor.jk_bms_3_equalizing') |
                   upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('binary_sensor.yambms_jk_bms_3_equalizing') |
+                  states('binary_sensor.jk_bms_3_equalizing') |
                   upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_total_voltage', rounded=True) }}
+                  states('sensor.jk_bms_3_total_voltage', rounded=True) }}
                   V</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_current', rounded=True) }} A</font></b>
+                  states('sensor.jk_bms_3_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_power', rounded=True) }} W</font>
+                  states('sensor.jk_bms_3_power', rounded=True) }} W</font>
           - type: grid
             square: false
             columns: 2
@@ -906,42 +906,42 @@ views:
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_battery_soc', rounded=True) }}
+                  states('sensor.jk_bms_3_battery_soc', rounded=True) }}
                   %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font
                   color=#41CD52 size=4>{{
-                  states('sensor.yambms_jk_bms_3_battery_soh', rounded=True) }}
+                  states('sensor.jk_bms_3_battery_soh', rounded=True) }}
                   %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_total_battery_capacity_setting', rounded=True)
+                  states('sensor.jk_bms_3_total_battery_capacity_setting', rounded=True)
                   }} Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_total_charging_cycle_capacity', rounded=True)
+                  states('sensor.jk_bms_3_total_charging_cycle_capacity', rounded=True)
                   }} Ah</font><br> Ave. Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_average_cell_voltage', rounded=True) }}
+                  states('sensor.jk_bms_3_average_cell_voltage', rounded=True) }}
                   V</font><br> Balance Cur. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_balancing_current', rounded=True) }}
+                  states('sensor.jk_bms_3_balancing_current', rounded=True) }}
                   A</font><br> Max temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_max_temperature', rounded=True) }}
+                  states('sensor.jk_bms_3_max_temperature', rounded=True) }}
                   °C</font>
               - type: markdown
                 content: >-
                   <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_battery_capacity_remaining', rounded=True) }}
+                  states('sensor.jk_bms_3_battery_capacity_remaining', rounded=True) }}
                   Ah</font><br> Cycle Count :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_charging_cycles', rounded=True)
+                  states('sensor.jk_bms_3_charging_cycles', rounded=True)
                   }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_delta_cell_voltage', rounded=True) }}
+                  states('sensor.jk_bms_3_delta_cell_voltage', rounded=True) }}
                   V</font><br> MOS temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_power_tube_temperature', rounded=True)
+                  states('sensor.jk_bms_3_power_tube_temperature', rounded=True)
                   }} °C</font><br> Min temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.yambms_jk_bms_3_min_temperature', rounded=True) }}
+                  states('sensor.jk_bms_3_min_temperature', rounded=True) }}
                   °C</font>
           - type: grid
             square: false
@@ -965,14 +965,14 @@ views:
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=1, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=2, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=3, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=4, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=5, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=6, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=7, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=1, num=8, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=1, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=2, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=3, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=4, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=5, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=6, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=7, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=8, entity='.jk_bms_3') }}
                   
                   </center>
               - type: markdown
@@ -993,27 +993,27 @@ views:
                   {% endmacro %}
                   
                   <center>
-                  {{ cell_v(lead_zero=1, num=9, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=10, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=11, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=12, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=13, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=14, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=15, entity='.yambms_jk_bms_3') }}
-                  {{ cell_v(lead_zero=0, num=16, entity='.yambms_jk_bms_3') }}
+                  {{ cell_v(lead_zero=1, num=9, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=10, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=11, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=12, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=13, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=14, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=15, entity='.jk_bms_3') }}
+                  {{ cell_v(lead_zero=0, num=16, entity='.jk_bms_3') }}
                   
                   </center>
           - type: entity-filter
             entities:
-              - entity: switch.yambms_jk_bms_3_charge_switch
+              - entity: switch.jk_bms_3_charge_switch
                 name: Charge switch
-              - entity: switch.yambms_jk_bms_3_discharge_switch
+              - entity: switch.jk_bms_3_discharge_switch
                 name: Discharge switch
-              - entity: switch.yambms_jk_bms_3_balance_switch
+              - entity: switch.jk_bms_3_balance_switch
                 name: Balance switch
-              - entity: switch.yambms_jk_bms_3_enable_bluetooth_connection
+              - entity: switch.jk_bms_3_enable_bluetooth_connection
                 name: Bluetooth
-              - entity: number.yambms_jk_bms_3_charging_cycles_offset
+              - entity: number.jk_bms_3_charging_cycles_offset
                 name: Charging Cycles Offset
             conditions:
               - condition: state
@@ -1026,7 +1026,7 @@ views:
         cards:
           - graph: line
             type: sensor
-            entity: sensor.yambms_shunt_1_voltage
+            entity: sensor.shunt_1_voltage
             detail: 2
             layout_options:
               grid_columns: 2
@@ -1035,12 +1035,12 @@ views:
             hours_to_show: 8
           - graph: line
             type: sensor
-            entity: sensor.yambms_shunt_1_state_of_charge
+            entity: sensor.shunt_1_state_of_charge
             detail: 2
             name: SoC
             hours_to_show: 8
           - type: gauge
-            entity: sensor.yambms_shunt_1_current
+            entity: sensor.shunt_1_current
             needle: true
             severity:
               green: 0
@@ -1053,7 +1053,7 @@ views:
               grid_columns: 2
               grid_rows: 3
           - type: gauge
-            entity: sensor.yambms_shunt_1_power
+            entity: sensor.shunt_1_power
             needle: true
             severity:
               green: 0
@@ -1067,30 +1067,30 @@ views:
               grid_rows: 3
           - type: entity-filter
             entities:
-              - entity: sensor.yambms_shunt_1_voltage
+              - entity: sensor.shunt_1_voltage
                 name: Shunt 1 Voltage
-              - entity: sensor.yambms_shunt_1_current
+              - entity: sensor.shunt_1_current
                 name: Shunt 1 Current
-              - entity: sensor.yambms_shunt_1_power
+              - entity: sensor.shunt_1_power
                 name: Shunt 1 Power
-              - entity: sensor.yambms_shunt_1_state_of_charge
+              - entity: sensor.shunt_1_state_of_charge
                 name: Shunt 1 SoC
-              - entity: sensor.yambms_shunt_1_temperature
+              - entity: sensor.shunt_1_temperature
                 name: Shunt 1 Temperature
-              - entity: sensor.yambms_shunt_1_charged_power
+              - entity: sensor.shunt_1_charged_power
                 name: Shunt 1 Charged Power
-              - entity: sensor.yambms_shunt_1_discharged_power
+              - entity: sensor.shunt_1_discharged_power
                 name: Shunt 1 Discharged Power
-              - entity: sensor.yambms_shunt_1_battery_capacity
+              - entity: sensor.shunt_1_battery_capacity
                 name: Shunt 1 Battery Capacity
             conditions:
               - condition: state
                 state_not: unavailable
           - type: entities
             entities:
-              - entity: switch.yambms_shunt_1_combine_enabled
+              - entity: switch.shunt_1_combine_enabled
                 name: Shunt 1 Combine enabled
-              - entity: binary_sensor.yambms_shunt_1_can_be_combined
+              - entity: binary_sensor.shunt_1_can_be_combined
                 name: Shunt 1 Can be combined
         title: Shunt 1
         column_span: 1

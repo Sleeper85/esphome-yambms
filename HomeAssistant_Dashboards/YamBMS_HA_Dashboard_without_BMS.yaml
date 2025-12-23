@@ -1,4 +1,4 @@
-# Updated : 2025.11.25
+# Updated : 2025.12.22
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -130,8 +130,8 @@ views:
             entity: binary_sensor.yambms_inverter_communication_status
             name: Inverter comm. status
           - type: tile
-            entity: binary_sensor.yambms_esp32_online_status
-            name: ESP32 status
+            entity: binary_sensor.yambms_board_online_status
+            name: Board status
           - type: tile
             entity: sensor.yambms_yambms_1_charging_status
             name: Charging Status
@@ -175,10 +175,10 @@ views:
               grid_columns: 2
               grid_rows: 2
           - type: tile
-            entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
+            entity: sensor.yambms_board_uptime
+            name: Board Uptime
           - type: tile
-            entity: sensor.yambms_esp32_esphome_version
+            entity: sensor.yambms_board_esphome_version
             name: ESPHome version
           - type: entities
             entities:
@@ -203,12 +203,12 @@ views:
     cards:
       - type: entity-filter
         entities:
-          - entity: select.yambms_canbus_1_bms_name
-            name: CANBUS 1 BMS Name
-          - entity: select.yambms_canbus_1_protocol
-            name: CANBUS 1 Protocol
-          - entity: select.yambms_rs485_1_protocol
-            name: RS485 1 Protocol
+          - entity: select.canbus_1_yambms_name
+            name: CANBUS YamBMS name
+          - entity: select.canbus_1_yambms_protocol
+            name: CANBUS YamBMS protocol
+          - entity: select.rs485_1_yambms_protocol
+            name: RS485 YamBMS protocol
         conditions:
           - condition: state
             state_not: unavailable
@@ -332,29 +332,29 @@ views:
         entities:
           - entity: sensor.yambms_yambms_1_last_complete_charge
             name: Last Complete Charge
-          - entity: binary_sensor.yambms_esp32_online_status
-            name: ESP32 Online Status
-          - entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
-          - entity: sensor.yambms_esp32_esphome_version
-            name: ESP32 ESPHome version
-          - entity: button.yambms_esp32_restart
-            name: ESP32 Restart
+          - entity: binary_sensor.yambms_board_online_status
+            name: Board Online Status
+          - entity: sensor.yambms_board_uptime
+            name: Board Uptime
+          - entity: sensor.yambms_board_esphome_version
+            name: Board ESPHome version
+          - entity: button.yambms_board_restart
+            name: Board Restart
         title: YamBMS - Diagnostic
       - type: entity-filter
         entities:
-          - entity: binary_sensor.yambms_canbus_1_status
-            name: CANBUS 1 Status
-          - entity: switch.yambms_canbus_1_inverter_heartbeat_monitoring
-            name: CANBUS 1 Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_canbus_1_inverter_heartbeat
-            name: CANBUS 1 Inverter Heartbeat
-          - entity: binary_sensor.yambms_rs485_1_status
-            name: RS485 1 Status
-          - entity: switch.yambms_rs485_1_inverter_heartbeat_monitoring
-            name: RS485 1 Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_rs485_1_inverter_heartbeat
-            name: RS485 1 Inverter Heartbeat
+          - entity: binary_sensor.canbus_1_status
+            name: CANBUS Status
+          - entity: switch.canbus_1_inverter_heartbeat_monitoring
+            name: CANBUS Inverter Heartbeat Monitoring
+          - entity: sensor.canbus_1_inverter_heartbeat
+            name: CANBUS Inverter Heartbeat
+          - entity: binary_sensor.rs485_1_status
+            name: RS485 Status
+          - entity: switch.rs485_1_inverter_heartbeat_monitoring
+            name: RS485 Inverter Heartbeat Monitoring
+          - entity: sensor.rs485_1_inverter_heartbeat
+            name: RS485 Inverter Heartbeat
         conditions:
           - condition: state
             state_not: unavailable
@@ -376,10 +376,10 @@ views:
             name: Debug Heap max block
           - entity: sensor.yambms_debug_loop_time
             name: Debug Loop time
-          - entity: sensor.yambms_esp32_uptime
-            name: ESP32 Uptime
-          - entity: sensor.yambms_esp32_esphome_version
-            name: ESPHome version
+          - entity: sensor.yambms_board_uptime
+            name: Board Uptime
+          - entity: sensor.yambms_board_esphome_version
+            name: Board ESPHome version
           - entity: sensor.yambms_debug_reset_reason
             name: Debug Reset reason
         conditions:
