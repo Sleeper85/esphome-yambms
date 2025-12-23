@@ -1,0 +1,314 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | AXP2101 Power Management Package     |
+# +--------------------------------------+
+#
+# PURPOSE:
+#   Comprehensive power management for boards with AXP2101 PMU
+#   Provides configurable control over all power rails
+#
+# FEATURES:
+#   - 14 configurable power rails (DCDC1-5, ALDO1-4, BLDO1-2, DLDO1-2, CPUSLDO)
+#   - Battery monitoring (voltage, level, temperature)
+#   - Charging status and control
+#   - Individual rail enable/disable switches
+#   - Configurable voltages via substitutions
+#
+# USAGE:
+#   Include this package and customize via substitutions
+#   See board_ESP32-S3_CoreS3.yaml for example
+#
+# POWER RAILS:
+#   DCDC1-5:  Buck converters (high current capability)
+#   ALDO1-4:  Analog LDOs (clean power for analog circuits)
+#   BLDO1-2:  Battery LDOs (backup power capability)
+#   DLDO1-2:  Digital LDOs (general purpose digital power)
+#   CPUSLDO:  CPU supply LDO (dedicated processor power)
+#
+# BOARD VARIABLES (optional):
+#   axp2101_i2c_id: I2C bus ID (default: bus_internal)
+#   axp2101_update_interval: Sensor update interval (default: 60s)
+#
+#   # Power rail voltages (mV):
+#   axp2101_dcdc1_voltage: DCDC1 voltage (default: disabled)
+#   axp2101_dcdc2_voltage: DCDC2 voltage (default: disabled)
+#   axp2101_dcdc3_voltage: DCDC3 voltage (default: disabled)
+#   axp2101_dcdc4_voltage: DCDC4 voltage (default: disabled)
+#   axp2101_dcdc5_voltage: DCDC5 voltage (default: disabled)
+#   axp2101_aldo1_voltage: ALDO1 voltage (default: 1800)
+#   axp2101_aldo2_voltage: ALDO2 voltage (default: 3300)
+#   axp2101_aldo3_voltage: ALDO3 voltage (default: disabled)
+#   axp2101_aldo4_voltage: ALDO4 voltage (default: disabled)
+#   axp2101_bldo1_voltage: BLDO1 voltage (default: 2800)
+#   axp2101_bldo2_voltage: BLDO2 voltage (default: 1500)
+#   axp2101_dldo1_voltage: DLDO1 LCD backlight (default: range 2600-3300)
+#   axp2101_dldo2_voltage: DLDO2 voltage (default: disabled)
+#   axp2101_cpusldo_voltage: CPUSLDO voltage (default: disabled)
+#
+#   # Backlight control:
+#   axp2101_backlight_min: Minimum backlight voltage (default: 2600)
+#   axp2101_backlight_max: Maximum backlight voltage (default: 3300)
+
+substitutions:
+  # Default I2C bus
+  axp2101_i2c_id: bus_internal
+  # Sensor update interval
+  axp2101_update_interval: "60s"
+
+  # Default power rail voltages (mV)
+  # Note: Set to "0" to disable a rail by default
+  axp2101_aldo1_voltage: "1800"
+  axp2101_aldo2_voltage: "3300"
+  axp2101_bldo1_voltage: "2800"
+  axp2101_bldo2_voltage: "1500"
+
+  # LCD Backlight (DLDO1 - range output)
+  axp2101_backlight_min: "2600"
+  axp2101_backlight_max: "3300"
+
+# AXP2101 PMU Configuration
+axp2101:
+  id: axp2101_pmu
+  i2c_id: ${axp2101_i2c_id}
+
+# +--------------------------------------+
+# | Power Output Configuration           |
+# +--------------------------------------+
+
+output:
+  # LCD Backlight (DLDO1) - Variable brightness
+  - platform: axp2101
+    type: range
+    channel: DLDO1
+    id: lcd_backlight_output
+    min_voltage: ${axp2101_backlight_min}
+    max_voltage: ${axp2101_backlight_max}
+
+  # ALDO1 - Analog LDO 1
+  - platform: axp2101
+    channel: ALDO1
+    voltage: ${axp2101_aldo1_voltage}
+    id: axp2101_aldo1
+
+  # ALDO2 - Analog LDO 2
+  - platform: axp2101
+    channel: ALDO2
+    voltage: ${axp2101_aldo2_voltage}
+    id: axp2101_aldo2
+
+  # BLDO1 - Battery LDO 1
+  - platform: axp2101
+    channel: BLDO1
+    voltage: ${axp2101_bldo1_voltage}
+    id: axp2101_bldo1
+
+  # BLDO2 - Battery LDO 2
+  - platform: axp2101
+    channel: BLDO2
+    voltage: ${axp2101_bldo2_voltage}
+    id: axp2101_bldo2
+
+# +--------------------------------------+
+# | Light Controls                       |
+# +--------------------------------------+
+
+light:
+  # LCD Backlight control
+  - platform: monochromatic
+    id: lcd_backlight
+    name: "LCD Backlight"
+    icon: "mdi:television"
+    entity_category: config
+    output: lcd_backlight_output
+    restore_mode: RESTORE_DEFAULT_ON
+    default_transition_length: 250ms
+
+# +--------------------------------------+
+# | Power Monitoring Sensors             |
+# +--------------------------------------+
+
+sensor:
+  # Battery Level (%)
+  - platform: axp2101
+    type: battery_level
+    name: "Battery Level"
+    id: battery_level
+    icon: "mdi:battery"
+    device_class: battery
+    update_interval: ${axp2101_update_interval}
+
+  # Battery Voltage
+  - platform: axp2101
+    type: battery_voltage
+    name: "Battery Voltage"
+    id: battery_voltage
+    icon: "mdi:battery-charging"
+    device_class: voltage
+    entity_category: diagnostic
+    accuracy_decimals: 3
+    update_interval: ${axp2101_update_interval}
+
+  # AXP2101 Temperature
+  - platform: axp2101
+    type: temperature
+    name: "PMU Temperature"
+    id: pmu_temperature
+    icon: "mdi:thermometer"
+    device_class: temperature
+    entity_category: diagnostic
+    update_interval: ${axp2101_update_interval}
+
+# +--------------------------------------+
+# | Binary Sensors                       |
+# +--------------------------------------+
+
+binary_sensor:
+  # Battery Charging Status
+  - platform: axp2101
+    type: battery_charging
+    name: "Battery Charging"
+    id: battery_charging
+    icon: "mdi:battery-charging"
+    device_class: battery_charging
+
+# +--------------------------------------+
+# | Advanced Power Rail Control          |
+# +--------------------------------------+
+#
+# Additional power rails can be enabled by adding these to your
+# main configuration file:
+#
+# # DCDC1 - Buck Converter 1 (high current)
+# output:
+#   - platform: axp2101
+#     channel: DCDC1
+#     voltage: 3300  # mV
+#     id: axp2101_dcdc1
+#
+# switch:
+#   - platform: output
+#     name: "DCDC1 Power Rail"
+#     output: axp2101_dcdc1
+#     icon: "mdi:power"
+#
+# # DCDC2 - Buck Converter 2
+# output:
+#   - platform: axp2101
+#     channel: DCDC2
+#     voltage: 1800
+#     id: axp2101_dcdc2
+#
+# # DCDC3 - Buck Converter 3
+# output:
+#   - platform: axp2101
+#     channel: DCDC3
+#     voltage: 1200
+#     id: axp2101_dcdc3
+#
+# # DCDC4 - Buck Converter 4
+# output:
+#   - platform: axp2101
+#     channel: DCDC4
+#     voltage: 1100
+#     id: axp2101_dcdc4
+#
+# # DCDC5 - Buck Converter 5
+# output:
+#   - platform: axp2101
+#     channel: DCDC5
+#     voltage: 1400
+#     id: axp2101_dcdc5
+#
+# # ALDO3 - Analog LDO 3
+# output:
+#   - platform: axp2101
+#     channel: ALDO3
+#     voltage: 3300
+#     id: axp2101_aldo3
+#
+# # ALDO4 - Analog LDO 4
+# output:
+#   - platform: axp2101
+#     channel: ALDO4
+#     voltage: 1800
+#     id: axp2101_aldo4
+#
+# # DLDO2 - Digital LDO 2
+# output:
+#   - platform: axp2101
+#     channel: DLDO2
+#     voltage: 3300
+#     id: axp2101_dldo2
+#
+# # CPUSLDO - CPU Supply LDO
+# output:
+#   - platform: axp2101
+#     channel: CPUSLDO
+#     voltage: 1800
+#     id: axp2101_cpusldo
+#
+# +--------------------------------------+
+# | Power Rail Switches                  |
+# +--------------------------------------+
+#
+# Add switches to dynamically enable/disable power rails:
+#
+# switch:
+#   # ALDO1 Control
+#   - platform: output
+#     name: "ALDO1 Power Rail"
+#     output: axp2101_aldo1
+#     icon: "mdi:power"
+#     entity_category: config
+#
+#   # ALDO2 Control
+#   - platform: output
+#     name: "ALDO2 Power Rail"
+#     output: axp2101_aldo2
+#     icon: "mdi:power"
+#     entity_category: config
+#
+#   # BLDO1 Control
+#   - platform: output
+#     name: "BLDO1 Power Rail"
+#     output: axp2101_bldo1
+#     icon: "mdi:power"
+#     entity_category: config
+#
+#   # BLDO2 Control
+#   - platform: output
+#     name: "BLDO2 Power Rail"
+#     output: axp2101_bldo2
+#     icon: "mdi:power"
+#     entity_category: config
+#
+# +--------------------------------------+
+# | Usage Notes                          |
+# +--------------------------------------+
+#
+# VOLTAGE RANGES:
+#   - DCDC1-5: 500-3400 mV (100 mV step)
+#   - ALDO1-4: 500-3500 mV (100 mV step)
+#   - BLDO1-2: 500-3500 mV (100 mV step)
+#   - DLDO1-2: 500-3400 mV (100 mV step)
+#   - CPUSLDO: 500-1400 mV (25 mV step)
+#
+# CURRENT LIMITS (typical):
+#   - DCDC1-5: Up to 2A per channel
+#   - ALDO1-4: Up to 300 mA per channel
+#   - BLDO1-2: Up to 300 mA per channel
+#   - DLDO1-2: Up to 300 mA per channel
+#   - CPUSLDO: Up to 200 mA
+#
+# POWER CONSIDERATIONS:
+#   - Unused rails should be disabled to save power
+#   - DCDC converters are more efficient for high current loads
+#   - LDOs provide cleaner power but less efficient
+#   - Battery LDOs (BLDO) maintain power when main supply fails
+#
+# BOARD-SPECIFIC USAGE:
+#   - M5Stack CoreS3: DLDO1=LCD, ALDO1=1.8V, ALDO2=3.3V, BLDO1/2=Various
+#   - Consult board schematic for specific rail assignments

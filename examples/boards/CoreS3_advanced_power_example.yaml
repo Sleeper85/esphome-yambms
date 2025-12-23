@@ -1,0 +1,221 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | M5Stack CoreS3 Advanced Power Example|
+# +--------------------------------------+
+#
+# PURPOSE:
+#   Demonstrates advanced AXP2101 power management features
+#   Shows how to enable additional power rails and control them
+#
+# FEATURES DEMONSTRATED:
+#   - Custom power rail voltages via substitutions
+#   - Additional DCDC and LDO rail configuration
+#   - Dynamic power rail control with switches
+#   - Battery and temperature monitoring
+#   - Custom backlight voltage range
+#
+# USAGE:
+#   This is a template/example - customize for your needs
+#   Copy relevant sections to your actual configuration
+
+substitutions:
+  friendly_name: 'YamBMS CoreS3 Advanced Power'
+  hostname: 'yambms-cores3-power'
+  name: 'yambms-cores3-power'
+
+  # Custom power rail voltages (mV)
+  # Override defaults from power management package
+  axp2101_aldo1_voltage: "1800"  # System 1.8V rail
+  axp2101_aldo2_voltage: "3300"  # System 3.3V rail
+  axp2101_bldo1_voltage: "2800"  # Backup power 2.8V
+  axp2101_bldo2_voltage: "1500"  # Backup power 1.5V
+
+  # Custom backlight range (for dimming control)
+  axp2101_backlight_min: "2500"
+  axp2101_backlight_max: "3300"
+
+  # Sensor update interval
+  axp2101_update_interval: "30s"  # More frequent updates
+
+esphome:
+  name: ${hostname}
+  friendly_name: ${friendly_name}
+
+# Include CoreS3 board (includes power_management package)
+packages:
+  board: !include ../../packages/board/board_ESP32-S3_CoreS3.yaml
+
+# +--------------------------------------+
+# | Additional Power Rails               |
+# +--------------------------------------+
+#
+# Enable extra power rails for external hardware
+
+output:
+  # DCDC1 - 3.3V High Current Rail (for external devices)
+  - platform: axp2101
+    channel: DCDC1
+    voltage: 3300
+    id: axp2101_dcdc1
+
+  # DCDC2 - 1.8V High Current Rail
+  - platform: axp2101
+    channel: DCDC2
+    voltage: 1800
+    id: axp2101_dcdc2
+
+  # ALDO3 - Analog 3.3V (for sensors)
+  - platform: axp2101
+    channel: ALDO3
+    voltage: 3300
+    id: axp2101_aldo3
+
+  # ALDO4 - Analog 1.8V (for sensors)
+  - platform: axp2101
+    channel: ALDO4
+    voltage: 1800
+    id: axp2101_aldo4
+
+  # DLDO2 - Digital 3.3V (for peripherals)
+  - platform: axp2101
+    channel: DLDO2
+    voltage: 3300
+    id: axp2101_dldo2
+
+# +--------------------------------------+
+# | Power Rail Control Switches          |
+# +--------------------------------------+
+#
+# Dynamic enable/disable control for each rail
+
+switch:
+  # External 3.3V High Current Rail
+  - platform: output
+    name: "3.3V High Current Rail (DCDC1)"
+    output: axp2101_dcdc1
+    icon: "mdi:power-plug"
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  # External 1.8V High Current Rail
+  - platform: output
+    name: "1.8V High Current Rail (DCDC2)"
+    output: axp2101_dcdc2
+    icon: "mdi:power-plug"
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  # Analog 3.3V Rail (for sensors)
+  - platform: output
+    name: "Sensor 3.3V Power (ALDO3)"
+    output: axp2101_aldo3
+    icon: "mdi:chip"
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  # Analog 1.8V Rail (for sensors)
+  - platform: output
+    name: "Sensor 1.8V Power (ALDO4)"
+    output: axp2101_aldo4
+    icon: "mdi:chip"
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  # Digital 3.3V Rail (for peripherals)
+  - platform: output
+    name: "Peripheral 3.3V Power (DLDO2)"
+    output: axp2101_dldo2
+    icon: "mdi:expansion-card"
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+
+  # System power rails control (use with caution!)
+  - platform: output
+    name: "System 1.8V Rail (ALDO1)"
+    output: axp2101_aldo1
+    icon: "mdi:alert-circle"
+    entity_category: diagnostic
+    disabled_by_default: true
+    restore_mode: RESTORE_DEFAULT_ON
+    internal: true  # Hide from Home Assistant by default
+
+  - platform: output
+    name: "System 3.3V Rail (ALDO2)"
+    output: axp2101_aldo2
+    icon: "mdi:alert-circle"
+    entity_category: diagnostic
+    disabled_by_default: true
+    restore_mode: RESTORE_DEFAULT_ON
+    internal: true  # Hide from Home Assistant by default
+
+# +--------------------------------------+
+# | Power Usage Example                  |
+# +--------------------------------------+
+#
+# Example: Power external sensor only when needed
+#
+# script:
+#   - id: read_external_sensor
+#     then:
+#       # Turn on sensor power
+#       - switch.turn_on: sensor_3v3_power
+#       # Wait for sensor to stabilize
+#       - delay: 100ms
+#       # Read sensor data
+#       - component.update: my_external_sensor
+#       # Turn off sensor to save power
+#       - delay: 1s
+#       - switch.turn_off: sensor_3v3_power
+#
+# +--------------------------------------+
+# | Power Monitoring Dashboard           |
+# +--------------------------------------+
+#
+# View power status in Home Assistant:
+#   - Battery Level (%)
+#   - Battery Voltage (V)
+#   - PMU Temperature (°C)
+#   - Battery Charging Status
+#   - LCD Backlight Control
+#   - All power rail switches
+#
+# +--------------------------------------+
+# | Notes and Best Practices             |
+# +--------------------------------------+
+#
+# POWER EFFICIENCY:
+#   - Disable unused rails to save power
+#   - Use DCDC converters for high current loads (more efficient)
+#   - Use LDOs for low noise/analog applications
+#
+# CURRENT LIMITS:
+#   - DCDC1-5: ~2A each (high current capability)
+#   - ALDO1-4: ~300mA each (low noise)
+#   - BLDO1-2: ~300mA each (backup capable)
+#   - DLDO1-2: ~300mA each (digital loads)
+#
+# VOLTAGE RANGES:
+#   - DCDC: 500-3400mV (100mV steps)
+#   - ALDO: 500-3500mV (100mV steps)
+#   - BLDO: 500-3500mV (100mV steps)
+#   - DLDO: 500-3400mV (100mV steps)
+#
+# SAFETY:
+#   - Do NOT disable system rails (ALDO1/ALDO2) unless you know what you're doing
+#   - Backup rails (BLDO) maintain power during battery operation
+#   - Monitor PMU temperature under heavy load
+#
+# BOARD-SPECIFIC (CoreS3):
+#   - DLDO1: LCD Backlight (2.6-3.3V range)
+#   - ALDO1: System 1.8V (touch, sensors)
+#   - ALDO2: System 3.3V (I2C, peripherals)
+#   - BLDO1/2: Various board functions
+#
+# EXTERNAL HARDWARE:
+#   - Use DCDC1 for 3.3V high current devices
+#   - Use DCDC2 for 1.8V high current devices
+#   - Use ALDO3/4 for low-noise sensor power
+#   - Use DLDO2 for switchable peripheral power

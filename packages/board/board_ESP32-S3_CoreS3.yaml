@@ -1,5 +1,5 @@
-# Updated : 2025.12.21
-# Version : 1.3.2
+# Updated : 2025.12.23
+# Version : 1.4.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -50,6 +50,7 @@ packages:
   device_base_wifi: !include ../base/device_base_wifi.yaml
   display: !include board_options_display_320x240.yaml
   psram: !include board_options_PSRAM_octal_80Mhz.yaml
+  power_management: !include board_options_power_axp2101.yaml
 
 esp32:
   board: m5stack-cores3
@@ -84,8 +85,7 @@ esphome:
 
 external_components:
   - source: github://m5stack/esphome-yaml/components
-    components: [axp2101, aw88298, aw9523b ]
-  
+    components: [axp2101, aw88298, aw9523b]
 
 wifi:
   id: my_network
@@ -107,14 +107,7 @@ light:
   - platform: binary
     id: esp_light
     output: esp_output
-  - platform: monochromatic
-    id: lcd_backlight
-    name: "LCD Backlight"
-    icon: "mdi:television"
-    entity_category: config
-    output: lcd_backlight_output
-    restore_mode: RESTORE_DEFAULT_ON
-    default_transition_length: 250ms
+  # Note: lcd_backlight is now provided by power_management package
 
 # +--------------------------------------+
 # | CoreS3 related configuration         |
@@ -130,38 +123,14 @@ i2c:
     sda: GPIO12
     scl: GPIO11
 
-axp2101:
-  id: axp2101_pmu
-  i2c_id: bus_internal
-
 # IO Expander
 aw9523b:
   - id: aw9523b_hub
     i2c_id: bus_internal
 
+# Note: AXP2101 PMU and power outputs are now provided by power_management package
+
 output:
-  - platform: axp2101
-    type: range
-    channel: DLDO1
-    id: lcd_backlight_output
-    min_voltage: 2600
-    max_voltage: 3300
-
-  - platform: axp2101
-    channel: ALDO1
-    voltage: 1800
-
-  - platform: axp2101
-    channel: ALDO2
-    voltage: 3300
-
-  - platform: axp2101
-    channel: BLDO1
-    voltage: 2800
-
-  - platform: axp2101
-    channel: BLDO2
-    voltage: 1500
   # Inverter Heartbeat Output (ESP32 board without LED)
   - platform: template
     id: esp_output
@@ -172,8 +141,10 @@ output:
 time:
   - platform: bm8563
     i2c_id: bus_internal
+    id: rtc_time
     update_interval: never
   - platform: homeassistant
+    id: ha_time
     on_time_sync:
       then:
         bm8563.write_time:
