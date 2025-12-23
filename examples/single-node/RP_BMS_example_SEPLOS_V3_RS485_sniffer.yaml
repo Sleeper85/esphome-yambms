@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.1
+# Updated : 2025.12.23
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -41,7 +41,8 @@ packages:
       - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
         vars:
           bms_id: '1'
-          bms_name: 'bms0' # DON'T CHANGE THIS NAME !
+          bms_prefix: 'bms0' # DON'T CHANGE THIS NAME !
+          bms_name: 'SEPLOS-BMS 1'
           # Required settings cannot be retrieved from BMS
           # These values ​​must match your BMS settings
           # LFP values example
@@ -52,7 +53,8 @@ packages:
       - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
         vars:
           bms_id: '2'
-          bms_name: 'bms1' # DON'T CHANGE THIS NAME !
+          bms_prefix: 'bms1' # DON'T CHANGE THIS NAME !
+          bms_name: 'SEPLOS-BMS 2'
           # Required settings cannot be retrieved from BMS
           # These values ​​must match your BMS settings
           # LFP values example
@@ -63,7 +65,8 @@ packages:
       - path: 'packages/bms/bms_combine_SEPLOS_V3_RS485_sniffer_bms_full.yaml'
         vars:
           bms_id: '3'
-          bms_name: 'bms2' # DON'T CHANGE THIS NAME !
+          bms_prefix: 'bms2' # DON'T CHANGE THIS NAME !
+          bms_name: 'SEPLOS-BMS 3'
           # Required settings cannot be retrieved from BMS
           # These values ​​must match your BMS settings
           # LFP values example
