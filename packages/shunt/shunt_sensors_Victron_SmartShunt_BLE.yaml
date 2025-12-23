@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.4
+# Updated : 2025.12.22
+# Version : 1.1.5
 # GitHub  : https://github.com/Fabian-Schmidt/esphome-victron_ble
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -60,14 +60,14 @@ binary_sensor:
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Battery has Alarm"
+    name: "Battery has Alarm"
     type: ALARM
   # Required sensors cannot be retrieved from Shunt
   # online_status
   - platform: template
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Online Status"
+    name: "Online Status"
     lambda: |-
       if (id(shunt${shunt_id}_voltage).state > 0)
         return true;
@@ -78,46 +78,46 @@ text_sensor:
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Battery Alarm reason"
+    name: "Battery Alarm reason"
     type: ALARM_REASON
 
 sensor:
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Time remaining"
+    name: "Time remaining"
     type: TIME_TO_GO
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_voltage
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Voltage"
+    name: "Voltage"
     type: BATTERY_VOLTAGE
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_current
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Current"
+    name: "Current"
     type: BATTERY_CURRENT
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_power
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Power"
+    name: "Power"
     type: BATTERY_POWER
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     id: shunt${shunt_id}_soc
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} State of Charge"
+    name: "State of Charge"
     type: STATE_OF_CHARGE
   - platform: victron_ble
     victron_ble_id: victron_ble${shunt_id}
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Consumed Ah"
+    name: "Consumed Ah"
     type: CONSUMED_AH
   # - platform: victron_ble
   #   victron_ble_id: victron_ble${shunt_id}
   #   device_id: shunt_${shunt_id}
-  #   name: "${name} ${shunt_name} Starter Battery" # BAUX_VOLTAGE or MID_VOLTAGE or TEMPERATURE, depending on configuration of SmartShunt.
+  #   name: "Starter Battery" # BAUX_VOLTAGE or MID_VOLTAGE or TEMPERATURE, depending on configuration of SmartShunt.
   #   type: AUX_VOLTAGE

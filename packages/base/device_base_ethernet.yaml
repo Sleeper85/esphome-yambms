@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.2.2
+# Updated : 2025.12.22
+# Version : 1.2.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,14 +21,14 @@ text_sensor:
   # https://esphome.io/components/text_sensor/ethernet_info.html
   - platform: ethernet_info
     ip_address:
-      name: ${name} ESP32 IP address
+      name: IP address
       id: esp32_ip_address
-      device_id: board_${board_id}
+      device_id: ${board_id}
     dns_address:
-      name: ${name} ESP32 DNS address
+      name: DNS address
       id: esp32_dns_address
-      device_id: board_${board_id}
+      device_id: ${board_id}
     mac_address:
-      name: ${name} ESP32 MAC address
+      name: MAC address
       id: esp32_mac_address
-      device_id: board_${board_id}
+      device_id: ${board_id}

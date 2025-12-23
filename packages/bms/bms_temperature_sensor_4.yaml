@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.3
+# Updated : 2025.12.22
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@
   - platform: template
     id: bms${bms_id}_min_temperature
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} min temperature"
+    name: "min temperature"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
@@ -58,7 +58,7 @@
   - platform: template
     id: bms${bms_id}_min_temperature_sensor
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} min temperature sensor"
+    name: "min temperature sensor"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
@@ -71,7 +71,7 @@
   - platform: template
     id: bms${bms_id}_max_temperature
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} max temperature"
+    name: "max temperature"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
@@ -107,7 +107,7 @@
   - platform: template
     id: bms${bms_id}_max_temperature_sensor
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} max temperature sensor"
+    name: "max temperature sensor"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric

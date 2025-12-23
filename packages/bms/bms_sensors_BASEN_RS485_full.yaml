@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.7
+# Updated : 2025.12.22
+# Version : 1.1.8
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -41,29 +41,29 @@ binary_sensor:
     connected:
       id: bms${bms_id}_online_status
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} status online"
+      name: "status online"
     alarm:
       id: bms${bms_id}_alarm
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} alarm"
+      name: "alarm"
     fault:
       id: bms${bms_id}_fault
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} fault"
+      name: "fault"
     charging_enabled:
       id: bms${bms_id}_charging_allowed
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging allowed"
+      name: "charging allowed"
     discharging_enabled:
       id: bms${bms_id}_discharging_allowed
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging allowed"
+      name: "discharging allowed"
 
   # Balancing
   - platform: template
     id: bms${bms_id}_bms_equalizing
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} balancing"
+    # name: "balancing"
     lambda: |-
       float max_cell_voltage = id(bms${bms_id}_max_cell_voltage).state;
       float delta_cell_voltage = id(bms${bms_id}_delta_voltage_cell).state;
@@ -83,429 +83,429 @@ sensor:
     error_bitmask:
       id: bms${bms_id}_errors_bitmask
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} errors bitmask"
+      name: "errors bitmask"
     voltage:
       id: bms${bms_id}_total_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery voltage"
+      name: "battery voltage"
     current:
       id: bms${bms_id}_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery current"
+      name: "battery current"
     power:
       id: bms${bms_id}_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery power"
+      name: "battery power"
     state_of_charge:
       id: bms${bms_id}_state_of_charge
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} battery capacity state of charge"
+      # name: "battery capacity state of charge"
     state_of_health:
       id: bms${bms_id}_battery_soh
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery soh valuation"
+      name: "battery soh valuation"
     capacity:
       id: bms${bms_id}_battery_capacity
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery capacity"
+      name: "battery capacity"
     cycles:
       id: bms${bms_id}_charging_cycles_raw
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} charging cycles"
+      # name: "charging cycles"
     temperature1:
       id: bms${bms_id}_temperature_sensor_1
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 1"
+      name: "temperature sensor 1"
     temperature2:
       id: bms${bms_id}_temperature_sensor_2
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 2"
+      name: "temperature sensor 2"
     temperature3:
       id: bms${bms_id}_temperature_sensor_3
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 3"
+      name: "temperature sensor 3"
     temperature4: 
       id: bms${bms_id}_temperature_sensor_4
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 4"
+      name: "temperature sensor 4"
     temperature_mos:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature MOSFET"
+      name: "temperature MOSFET"
     temperature_ambient:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature ambient"
+      name: "temperature ambient"
     avg_cell_voltage:
       id: bms${bms_id}_average_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell average voltage"
+      name: "cell average voltage"
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage min"
+      name: "cell voltage min"
     max_cell_voltage:
       id: bms${bms_id}_max_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage max"
+      name: "cell voltage max"
     min_cell_index:
       id: bms${bms_id}_min_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage min cell number"
+      name: "cell voltage min cell number"
     max_cell_index:
       id: bms${bms_id}_max_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage max cell number"
+      name: "cell voltage max cell number"
     delta_cell_voltage:
       id: bms${bms_id}_delta_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell delta voltage"
+      name: "cell delta voltage"
     cell_voltage_01:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 01"
+      name: "cell voltage 01"
     cell_voltage_02:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 02"
+      name: "cell voltage 02"
     cell_voltage_03:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 03"
+      name: "cell voltage 03"
     cell_voltage_04:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 04"
+      name: "cell voltage 04"
     cell_voltage_05:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 05"
+      name: "cell voltage 05"
     cell_voltage_06:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 06"
+      name: "cell voltage 06"
     cell_voltage_07:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 07"
+      name: "cell voltage 07"
     cell_voltage_08:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 08"
+      name: "cell voltage 08"
     cell_voltage_09:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 09"
+      name: "cell voltage 09"
     cell_voltage_10:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 10"
+      name: "cell voltage 10"
     cell_voltage_11:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 11"
+      name: "cell voltage 11"
     cell_voltage_12:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 12"
+      name: "cell voltage 12"
     cell_voltage_13:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 13"
+      name: "cell voltage 13"
     cell_voltage_14:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 14"
+      name: "cell voltage 14"
     cell_voltage_15:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 15"
+      name: "cell voltage 15"
     cell_voltage_16:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage 16"
+      name: "cell voltage 16"
 
     # Protection parameters
     CELL_OV_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_OV_Start"
+      name: "CELL_OV_Start"
     CELL_OV_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_OV_Delay"
+      name: "CELL_OV_Delay"
     CELL_OV_Stop:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_OV_Stop"
+      name: "CELL_OV_Stop"
     CELL_UV_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_UV_Start"
+      name: "CELL_UV_Start"
     CELL_UV_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_UV_Delay"
+      name: "CELL_UV_Delay"
     CELL_UV_Stop:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_UV_Stop"
+      name: "CELL_UV_Stop"
     PACK_OV_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_OV_Start"
+      name: "PACK_OV_Start"
     PACK_OV_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_OV_Delay"
+      name: "PACK_OV_Delay"
     PACK_OV_Stop:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_OV_Stop"
+      name: "PACK_OV_Stop"
     PACK_UV_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_UV_Start"
+      name: "PACK_UV_Start"
     PACK_UV_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_UV_Delay"
+      name: "PACK_UV_Delay"
     PACK_UV_Stop:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_UV_Stop"
+      name: "PACK_UV_Stop"
     Const_Pack_V:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Const_Pack_V"
+      name: "Const_Pack_V"
     Const_Current:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Const_Current"
+      name: "Const_Current"
     CHG_OC1_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OC1_Start"
+      name: "CHG_OC1_Start"
     CHG_OC1_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OC1_Delay"
+      name: "CHG_OC1_Delay"
     DISC_OC1_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OC1_Start"
+      name: "DISC_OC1_Start"
     DISC_OC1_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OC1_Delay"
+      name: "DISC_OC1_Delay"
     CHG_OC2_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OC2_Start"
+      name: "CHG_OC2_Start"
     CHG_OC2_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OC2_Delay"
+      name: "CHG_OC2_Delay"
     DISC_OC2_Start:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OC2_Start"
+      name: "DISC_OC2_Start"
     DISC_OC2_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OC2_Delay"
+      name: "DISC_OC2_Delay"
     CHG_OT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OT_START"
+      name: "CHG_OT_START"
     CHG_OT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OT_Delay"
+      name: "CHG_OT_Delay"
     CHG_OT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OT_STOP"
+      name: "CHG_OT_STOP"
     DISC_OT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OT_START"
+      name: "DISC_OT_START"
     DISC_OT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OT_Delay"
+      name: "DISC_OT_Delay"
     DISC_OT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OT_STOP"
+      name: "DISC_OT_STOP"
     CHG_UT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_UT_START"
+      name: "CHG_UT_START"
     CHG_UT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_UT_Delay"
+      name: "CHG_UT_Delay"
     CHG_UT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_UT_STOP"
+      name: "CHG_UT_STOP"
     DISC_UT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_UT_START"
+      name: "DISC_UT_START"
     DISC_UT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_UT_Delay"
+      name: "DISC_UT_Delay"
     DISC_UT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_UT_STOP"
+      name: "DISC_UT_STOP"
     MOS_OT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} MOS_OT_START"
+      name: "MOS_OT_START"
     MOS_OT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} MOS_OT_Delay"
+      name: "MOS_OT_Delay"
     MOS_OT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} MOS_OT_STOP"
+      name: "MOS_OT_STOP"
     ENV_OT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_OT_START"
+      name: "ENV_OT_START"
     ENV_OT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_OT_Delay"
+      name: "ENV_OT_Delay"
     ENV_OT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_OT_STOP"
+      name: "ENV_OT_STOP"
     ENV_UT_START:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_UT_START"
+      name: "ENV_UT_START"
     ENV_UT_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_UT_Delay"
+      name: "ENV_UT_Delay"
     ENV_UT_STOP:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_UT_STOP"
+      name: "ENV_UT_STOP"
     Balance_Start_Vol:
       id: bms${bms_id}_balance_starting_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} balancing starting voltage"
+      name: "balancing starting voltage"
     Balance_Start_Diff:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} balance trigger voltage"
+      # name: "balance trigger voltage"
     Sleep_Cell_Volt:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Sleep_Cell_Volt"
+      name: "Sleep_Cell_Volt"
     Shorts_Delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Shorts_Delay"
+      name: "Shorts_Delay"
     Standby_Time:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Standby_Time"
+      name: "Standby_Time"
     UV_OFF_Time:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} UV_OFF_Time"
+      name: "UV_OFF_Time"
     LC_Style:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} LC_Style"
+      name: "LC_Style"
     Sleep_Time:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Sleep_Time"
+      name: "Sleep_Time"
 
     # Alarm parameters
     CELL_OV_Start_Alarm:
       id: bms${bms_id}_cell_ovp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell overvoltage protection"
+      name: "cell overvoltage protection"
     CELL_OV_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_OV_Delay_Alarm"
+      name: "CELL_OV_Delay_Alarm"
     CELL_OV_Stop_Alarm:
       id: bms${bms_id}_cell_ovpr
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell overvoltage protection recovery"
+      name: "cell overvoltage protection recovery"
     CELL_UV_Start_Alarm:
       id: bms${bms_id}_cell_uvp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell undervoltage protection"
+      name: "cell undervoltage protection"
     CELL_UV_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CELL_UV_Delay_Alarm"
+      name: "CELL_UV_Delay_Alarm"
     CELL_UV_Stop_Alarm:
       id: bms${bms_id}_cell_uvpr
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell undervoltage protection recovery"
+      name: "cell undervoltage protection recovery"
     PACK_OV_Start_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_OV_Start_Alarm"
+      name: "PACK_OV_Start_Alarm"
     PACK_OV_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_OV_Delay_Alarm"
+      name: "PACK_OV_Delay_Alarm"
     PACK_OV_Stop_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_OV_Stop_Alarm"
+      name: "PACK_OV_Stop_Alarm"
     PACK_UV_Start_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_UV_Start_Alarm"
+      name: "PACK_UV_Start_Alarm"
     PACK_UV_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_UV_Delay_Alarm"
+      name: "PACK_UV_Delay_Alarm"
     PACK_UV_Stop_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} PACK_UV_Stop_Alarm"
+      name: "PACK_UV_Stop_Alarm"
     CHG_OC_Start_Alarm:
       id: bms${bms_id}_max_charge_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max charging current"
+      name: "max charging current"
     CHG_OC_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OC_Delay_Alarm"
+      name: "CHG_OC_Delay_Alarm"
     CHG_OC_Stop_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OC_Stop_Alarm"
+      name: "CHG_OC_Stop_Alarm"
     DISC_OC_Start_Alarm:
       id: bms${bms_id}_max_discharge_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max discharging current"
+      name: "max discharging current"
     DISC_OC_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OC_Delay_Alarm"
+      name: "DISC_OC_Delay_Alarm"
     DISC_OC_Stop_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OC_Stop_Alarm"
+      name: "DISC_OC_Stop_Alarm"
     CHG_OT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OT_START_Alarm"
+      name: "CHG_OT_START_Alarm"
     CHG_OT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OT_Delay_Alarm"
+      name: "CHG_OT_Delay_Alarm"
     CHG_OT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_OT_STOP_Alarm"
+      name: "CHG_OT_STOP_Alarm"
     CHG_UT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_UT_START_Alarm"
+      name: "CHG_UT_START_Alarm"
     CHG_UT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_UT_Delay_Alarm"
+      name: "CHG_UT_Delay_Alarm"
     CHG_UT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} CHG_UT_STOP_Alarm"
+      name: "CHG_UT_STOP_Alarm"
     DISC_OT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OT_START_Alarm"
+      name: "DISC_OT_START_Alarm"
     DISC_OT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OT_Delay_Alarm"
+      name: "DISC_OT_Delay_Alarm"
     DISC_OT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_OT_STOP_Alarm"
+      name: "DISC_OT_STOP_Alarm"
     DISC_UT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_UT_START_Alarm"
+      name: "DISC_UT_START_Alarm"
     DISC_UT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_UT_Delay_Alarm"
+      name: "DISC_UT_Delay_Alarm"
     DISC_UT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} DISC_UT_STOP_Alarm"
+      name: "DISC_UT_STOP_Alarm"
     MOS_OT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} MOS_OT_START_Alarm"
+      name: "MOS_OT_START_Alarm"
     MOS_OT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} MOS_OT_Delay_Alarm"
+      name: "MOS_OT_Delay_Alarm"
     MOS_OT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} MOS_OT_STOP_Alarm"
+      name: "MOS_OT_STOP_Alarm"
     ENV_OT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_OT_START_Alarm"
+      name: "ENV_OT_START_Alarm"
     ENV_OT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_OT_Delay_Alarm"
+      name: "ENV_OT_Delay_Alarm"
     ENV_OT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_OT_STOP_Alarm"
+      name: "ENV_OT_STOP_Alarm"
     ENV_UT_START_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_UT_START_Alarm"
+      name: "ENV_UT_START_Alarm"
     ENV_UT_Delay_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_UT_Delay_Alarm"
+      name: "ENV_UT_Delay_Alarm"
     ENV_UT_STOP_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} ENV_UT_STOP_Alarm"
+      name: "ENV_UT_STOP_Alarm"
     Capacity_Low_Start_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Capacity_Low_Start_Alarm"
+      name: "Capacity_Low_Start_Alarm"
     Capacity_Low_Stop_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Capacity_Low_Stop_Alarm"
+      name: "Capacity_Low_Stop_Alarm"
     Vol_Diff_Start_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Vol_Diff_Start_Alarm"
+      name: "Vol_Diff_Start_Alarm"
     Vol_Diff_Stop_Alarm:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Vol_Diff_Stop_Alarm"
+      name: "Vol_Diff_Stop_Alarm"
 
   # Charging cycle capacity - Calculated from charging cycles and battery capacity
   - platform: template
     id: bms${bms_id}_cycle_capacity_raw
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} charging cycle capacity"
+    # name: "charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: total
@@ -519,7 +519,7 @@ sensor:
       
   # Charging power: Calculated from voltage and current
   - platform: template
-    name: "${name} ${bms_name} battery power charging"
+    name: "battery power charging"
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
@@ -532,7 +532,7 @@ sensor:
   
   # Discharging power: Calculated from voltage and current  
   - platform: template
-    name: "${name} ${bms_name} battery power discharging"
+    name: "battery power discharging"
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
@@ -551,7 +551,7 @@ sensor:
     accuracy_decimals: 0
     id: bms${bms_id}_capacity_remaining_ah
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} battery capacity remaining"
+    # name: "battery capacity remaining"
     lambda: |-
       return (id(bms${bms_id}_state_of_charge).state * id(bms${bms_id}_battery_capacity).state) / 100;
     filters:
@@ -564,17 +564,17 @@ text_sensor:
    basen_bms_id: basen_bms_id${bms_id}
    bms_version:
      device_id: bms_${bms_id}
-     name: "${name} ${bms_name} BMS version"
+     name: "BMS version"
    barcode:
      device_id: bms_${bms_id}
-     name: "${name} ${bms_name} BMS barcode"
+     name: "BMS barcode"
    status_bitmask:
      id: bms${bms_id}_status_bitmask
      device_id: bms_${bms_id}
-     name: "${name} ${bms_name} status bitmask"
+     name: "status bitmask"
    status:
      device_id: bms_${bms_id}
-     name: "${name} ${bms_name} Status"
+     name: "Status"
    cell_balancing_bitmask:
      device_id: bms_${bms_id}
-     name: "${name} ${bms_name} cell balancing bitmask"
+     name: "cell balancing bitmask"

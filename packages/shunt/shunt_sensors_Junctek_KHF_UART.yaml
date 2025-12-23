@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.5
+# Updated : 2025.12.22
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,7 +43,7 @@ binary_sensor:
   - platform: template
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Online Status"
+    name: "Online status"
     lambda: |-
       if (id(shunt${shunt_id}_voltage).state > 0)
         return true;
@@ -61,55 +61,55 @@ sensor:
     voltage:
       id: shunt${shunt_id}_voltage
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Voltage
+      name: "Voltage"
     current:
       id: shunt${shunt_id}_current
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Current
+      name: "Current"
     power:
       id: shunt${shunt_id}_power
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Power
+      name: "Power"
     battery_level:
       id: shunt${shunt_id}_soc
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} State of Charge
+      name: "State of Charge"
     temperature:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Temperature
+      name: "Temperature"
     charged_kwh:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Charged Energy
+      name: "Charged Energy"
     discharged_kwh:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Discharged Energy
+      name: "Discharged Energy"
     battery_capacity_ah:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Battery Capacity
+      name: "Battery Capacity"
     soc100_voltage:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} SoC 100% Voltage
+      name: "SoC 100% Voltage"
     soc0_voltage:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} SoC 0% Voltage
+      name: "SoC 0% Voltage"
     over_voltage_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Over Voltage Protection
+      name: "Over Voltage Protection"
     under_voltage_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Under Voltage Protection
+      name: "Under Voltage Protection"
     over_discharge_current_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Over Discharge Current Protection
+      name: "Over Discharge Current Protection"
     over_charge_current_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Over Charge Current Protection
+      name: "Over Charge Current Protection"
     over_power_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Over Power Protection
+      name: "Over Power Protection"
     over_temperature_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Over Temperature Protection
+      name: "Over Temperature Protection"
     under_temperature_protection:
       device_id: shunt_${shunt_id}
-      name: ${name} ${shunt_name} Under Temperature Protection
+      name: "Under Temperature Protection"

@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 2.4.6
+# Updated : 2025.12.22
+# Version : 2.4.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -46,7 +46,7 @@ globals:
 
 select:
   - platform: template
-    name: ${name} ${canbus_name} BMS Name
+    name: "YamBMS name"
     id: ${canbus_id}_bms_name
     device_id: canbus_${canbus_id}
     options:
@@ -67,7 +67,7 @@ select:
           format: "Chosen option: %s"
           args: ["x.c_str()"]
   - platform: template
-    name: ${name} ${canbus_name} Protocol
+    name: "YamBMS protocol"
     id: ${canbus_id}_protocol
     device_id: canbus_${canbus_id}
     options:
@@ -92,7 +92,7 @@ select:
 # +--------------------------------------+
 switch:
   - platform: template
-    name: "${name} ${canbus_name} Inverter Heartbeat Monitoring"
+    name: "Inverter Heartbeat Monitoring"
     id: ${canbus_id}_switch_inverter_heartbeat_monitoring
     device_id: canbus_${canbus_id}
     restore_mode: RESTORE_DEFAULT_OFF
@@ -104,7 +104,7 @@ sensor:
   - platform: template
     id: ${canbus_id}_inverter_heartbeat
     device_id: canbus_${canbus_id}
-    name: "${name} ${canbus_name} Inverter Heartbeat"
+    name: "Inverter Heartbeat"
     unit_of_measurement: ms
     device_class: duration
     accuracy_decimals: 0
@@ -115,7 +115,7 @@ binary_sensor:
   - platform: template
     id: ${canbus_id}_status
     device_id: canbus_${canbus_id}
-    name: "${name} ${canbus_name} Status"
+    name: "Status"
     entity_category: diagnostic
 
 # +--------------------------------------+

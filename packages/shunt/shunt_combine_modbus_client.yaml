@@ -1,5 +1,5 @@
-# Updated : 2025.12.18
-# Version : 1.1.5
+# Updated : 2025.12.22
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -52,7 +52,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Online Status"
+    name: "Online status"
     register_type: read
     address: 1
 
@@ -62,7 +62,7 @@ sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_voltage
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Voltage"
+    name: "Voltage"
     register_type: read
     address: 2
     value_type: U_DWORD
@@ -79,7 +79,7 @@ sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_current
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Current"
+    name: "Current"
     register_type: read
     address: 4
     value_type: S_DWORD
@@ -96,7 +96,7 @@ sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_power
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Power"
+    name: "Power"
     register_type: read
     address: 6
     value_type: S_DWORD
@@ -113,7 +113,7 @@ sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_soc
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} State of Charge"
+    name: "State of Charge"
     register_type: read
     address: 8
     value_type: U_WORD
@@ -130,7 +130,7 @@ sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_charging_power
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Charging Power"
+    name: "Charging Power"
     register_type: read
     address: 9
     value_type: U_DWORD
@@ -147,7 +147,7 @@ sensor:
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_discharging_power
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Discharging Power"
+    name: "Discharging Power"
     register_type: read
     address: 11
     value_type: U_DWORD

@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.4
+# Updated : 2025.12.22
+# Version : 1.1.5
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -83,9 +83,9 @@ canbus:
 sensor:
   # Charge voltage
   - platform: template
-    name: "${name} ${deye_name} charge voltage"
+    name: "charge voltage"
     id: deye${deye_id}_battery_charge_voltage
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -93,9 +93,9 @@ sensor:
 
   # Discharge voltage
   - platform: template
-    name: "${name} ${deye_name} discharge voltage"
+    name: "discharge voltage"
     id: deye${deye_id}_battery_discharge_voltage
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -104,8 +104,8 @@ sensor:
   # Maximum charging current
   - platform: template
     id: deye${deye_id}_max_charge_current
-    device_id: bms_${bms_id}
-    name: "${name} ${deye_name} max charging current"
+    device_id: deye_${deye_id}
+    name: "max charging current"
     unit_of_measurement: 'A'
     device_class: 'current'
     state_class: 'measurement'
@@ -118,8 +118,8 @@ sensor:
   # Maximum discharging current
   - platform: template
     id: deye${deye_id}_max_discharge_current
-    device_id: bms_${bms_id}
-    name: "${name} ${deye_name} max discharging current"
+    device_id: deye_${deye_id}
+    name: "max discharging current"
     unit_of_measurement: 'A'
     device_class: 'current'
     state_class: 'measurement'
@@ -137,14 +137,14 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
     id: deye${deye_id}_state_of_charge
-    device_id: bms_${bms_id}
-    name: "${name} ${deye_name} battery SoC"
+    device_id: deye_${deye_id}
+    name: "battery SoC"
 
   # SOH
   - platform: template
-    name: "${name} ${deye_name} battery SoH"
+    name: "battery SoH"
     id: deye${deye_id}_battery_state_of_health
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     unit_of_measurement: '%'
     device_class: 'battery'
     state_class: 'measurement'
@@ -153,56 +153,56 @@ sensor:
   # Errors bitmask
   - platform: template
     id: deye${deye_id}_bms_errors_bitmask
-    device_id: bms_${bms_id}
-    name: "${name} ${deye_name} BMS Errors Bitmask"
+    device_id: deye_${deye_id}
+    name: "BMS Errors Bitmask"
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline
 
   # Modules in normal state
   - platform: template
-    name: "${name} ${deye_name} Module amount normal state"
+    name: "Module amount normal state"
     id: deye${deye_id}_module_amount_normal_state
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   # Modules with charge disabled
   - platform: template
-    name: "${name} ${deye_name} Module amount charge disabled"
+    name: "Module amount charge disabled"
     id: deye${deye_id}_module_amount_charge_disabled
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   # Modules with discharge disabled
   - platform: template
-    name: "${name} ${deye_name} Module amount discharge disabled"
+    name: "Module amount discharge disabled"
     id: deye${deye_id}_module_amount_discharge_disabled
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   # Modules with communication errors
   - platform: template
-    name: "${name} ${deye_name} Module amount communication disconnected"
+    name: "Module amount communication disconnected"
     id: deye${deye_id}_module_amount_communication_disconnected
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   # Number of modules
   - platform: template
-    name: "${name} ${deye_name} Module amount"
+    name: "Module amount"
     id: deye${deye_id}_module_amount
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   # Battery capacity
   - platform: template
-    name: "${name} ${deye_name} battery capacity"
+    name: "battery capacity"
     id: deye${deye_id}_battery_capacity
-    device_id: bms_${bms_id}
+    device_id: deye_${deye_id}
     unit_of_measurement: 'Ah'
     device_class: 'energy'
     state_class: 'total_increasing'

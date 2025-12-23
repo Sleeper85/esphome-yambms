@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.4
+# Updated : 2025.12.22
+# Version : 1.1.5
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -63,7 +63,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} YamBMS Errors Bitmask"
+    name: "YamBMS Errors Bitmask"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:alert-circle-outline

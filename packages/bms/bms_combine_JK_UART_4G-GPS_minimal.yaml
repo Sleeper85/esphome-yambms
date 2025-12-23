@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.3.2
+# Updated : 2025.12.22
+# Version : 1.3.3
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -55,27 +55,27 @@ binary_sensor:
     balancing:
       id: bms${bms_id}_bms_equalizing
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} balancing"
+      # name: "balancing"
     balancing_switch:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} balancing switch"
+      name: "balancing switch"
     charging:
       id: bms${bms_id}_charging_allowed
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging"
+      name: "charging"
     charging_switch:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging switch"
+      name: "charging switch"
     discharging:
       id: bms${bms_id}_discharging_allowed
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging"
+      name: "discharging"
     discharging_switch:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging switch"
+      name: "discharging switch"
     dedicated_charger_switch:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} dedicated charger switch"
+      name: "dedicated charger switch"
 
 switch:
   - platform: jk_bms
@@ -83,11 +83,11 @@ switch:
     charging:
       id: bms${bms_id}_charge_switch
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Charge switch"
+      name: "Charge switch"
     discharging:
       id: bms${bms_id}_discharge_switch
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} Discharge switch"
+      name: "Discharge switch"
     # It is not possible to control the balancer from UART-TTL (confirmed by @syssi)
 
 sensor:
@@ -96,210 +96,210 @@ sensor:
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} min cell voltage"
+      name: "min cell voltage"
     max_cell_voltage:
       id: bms${bms_id}_max_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max cell voltage"
+      name: "max cell voltage"
     min_voltage_cell:
       id: bms${bms_id}_min_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} min voltage cell"
+      name: "min voltage cell"
     max_voltage_cell:
       id: bms${bms_id}_max_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max voltage cell"
+      name: "max voltage cell"
     delta_cell_voltage:
       id: bms${bms_id}_delta_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} delta cell voltage"
+      name: "delta cell voltage"
     average_cell_voltage:
       id: bms${bms_id}_average_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} average cell voltage"
+      name: "average cell voltage"
     power_tube_temperature:
       id: bms${bms_id}_power_tube_temperature
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} power tube temperature"
+      name: "power tube temperature"
     temperature_sensor_1:
       id: bms${bms_id}_temperature_sensor_1
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 1"
+      name: "temperature sensor 1"
     temperature_sensor_2:
       id: bms${bms_id}_temperature_sensor_2
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 2"
+      name: "temperature sensor 2"
     total_voltage:
       id: bms${bms_id}_total_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} total voltage"
+      name: "total voltage"
     current:
       id: bms${bms_id}_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} current"
+      name: "current"
     power:
       id: bms${bms_id}_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} power"
+      name: "power"
     charging_power:
       id: bms${bms_id}_charging_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging power"
+      name: "charging power"
     discharging_power:
       id: bms${bms_id}_discharging_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging power"
+      name: "discharging power"
     capacity_remaining:
       id: bms${bms_id}_state_of_charge
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} state of charge"
+      # name: "state of charge"
     capacity_remaining_derived:
       id: bms${bms_id}_capacity_remaining_ah
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} capacity remaining"
+      # name: "capacity remaining"
     temperature_sensors:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensors"
+      name: "temperature sensors"
       entity_category: diagnostic
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} charging cycles"
+      # name: "charging cycles"
     total_charging_cycle_capacity:
       id: bms${bms_id}_cycle_capacity_raw
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} total charging cycle capacity"
+      # name: "total charging cycle capacity"
     battery_strings:
       id: bms${bms_id}_cell_count
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery strings"
+      name: "battery strings"
     errors_bitmask:
       id: bms${bms_id}_errors_bitmask
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} errors bitmask"
+      name: "errors bitmask"
       entity_category: diagnostic
     total_voltage_overvoltage_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} total voltage overvoltage protection"
+      name: "total voltage overvoltage protection"
     total_voltage_undervoltage_protection:
       id: bms${bms_id}_total_uvp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} total voltage undervoltage protection"
+      name: "total voltage undervoltage protection"
     cell_voltage_overvoltage_protection:
       id: bms${bms_id}_cell_ovp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage overvoltage protection"
+      name: "cell voltage overvoltage protection"
     cell_voltage_overvoltage_recovery:
       id: bms${bms_id}_cell_ovpr
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage overvoltage recovery"
+      name: "cell voltage overvoltage recovery"
     cell_voltage_overvoltage_delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage overvoltage delay"
+      name: "cell voltage overvoltage delay"
     cell_voltage_undervoltage_protection:
       id: bms${bms_id}_cell_uvp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage undervoltage protection"
+      name: "cell voltage undervoltage protection"
     cell_voltage_undervoltage_recovery:
       id: bms${bms_id}_cell_uvpr
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage undervoltage recovery"
+      name: "cell voltage undervoltage recovery"
     cell_voltage_undervoltage_delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage undervoltage delay"
+      name: "cell voltage undervoltage delay"
     cell_pressure_difference_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell pressure difference protection"
+      name: "cell pressure difference protection"
     discharging_overcurrent_protection:
       id: bms${bms_id}_max_discharge_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging overcurrent protection"
+      name: "discharging overcurrent protection"
     discharging_overcurrent_delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging overcurrent delay"
+      name: "discharging overcurrent delay"
     charging_overcurrent_protection:
       id: bms${bms_id}_max_charge_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging overcurrent protection"
+      name: "charging overcurrent protection"
     charging_overcurrent_delay:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging overcurrent delay"
+      name: "charging overcurrent delay"
     balance_starting_voltage:
       id: bms${bms_id}_balance_starting_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} balance starting voltage"
+      name: "balance starting voltage"
     balance_opening_pressure_difference:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} balance opening pressure difference"
+      # name: "balance opening pressure difference"
     power_tube_temperature_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} power tube temperature protection"
+      name: "power tube temperature protection"
     power_tube_temperature_recovery:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} power tube temperature recovery"
+      name: "power tube temperature recovery"
     temperature_sensor_temperature_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor temperature protection"
+      name: "temperature sensor temperature protection"
     temperature_sensor_temperature_recovery:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor temperature recovery"
+      name: "temperature sensor temperature recovery"
     temperature_sensor_temperature_difference_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor temperature difference protection"
+      name: "temperature sensor temperature difference protection"
     charging_high_temperature_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging high temperature protection"
+      name: "charging high temperature protection"
     discharging_high_temperature_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging high temperature protection"
+      name: "discharging high temperature protection"
     charging_low_temperature_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging low temperature protection"
+      name: "charging low temperature protection"
     charging_low_temperature_recovery:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging low temperature recovery"
+      name: "charging low temperature recovery"
     discharging_low_temperature_protection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging low temperature protection"
+      name: "discharging low temperature protection"
     discharging_low_temperature_recovery:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging low temperature recovery"
+      name: "discharging low temperature recovery"
     total_battery_capacity_setting:
       id: bms${bms_id}_battery_capacity
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} total battery capacity setting"
+      name: "total battery capacity setting"
 
 text_sensor:
   - platform: jk_bms
     jk_bms_id: jk_bms${bms_id}
     errors:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} errors"
+      name: "errors"
       entity_category: diagnostic
     operation_mode:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} operation mode"
+      name: "operation mode"
       entity_category: diagnostic
     battery_type:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery type"
+      name: "battery type"
       entity_category: diagnostic
     # password:
-    #   name: "${name} ${bms_name} password"
+    #   name: "password"
     device_type:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} device type"
+      name: "device type"
       entity_category: diagnostic
     software_version:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} software version"
+      name: "software version"
       entity_category: diagnostic
     manufacturer:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} manufacturer"
+      name: "manufacturer"
       entity_category: diagnostic
     total_runtime_formatted:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} total runtime formatted"
+      name: "total runtime formatted"
       entity_category: diagnostic

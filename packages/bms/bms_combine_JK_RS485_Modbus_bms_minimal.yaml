@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.3.2
+# Updated : 2025.12.22
+# Version : 1.3.3
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,52 +42,52 @@ switch:
     jk_rs485_bms_id: jk_rs485_bms${bms_id}
     precharging:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} precharging"
+      name: "precharging"
     charging:
       id: bms${bms_id}_charge_switch
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging"
+      name: "charging"
     discharging:
       id: bms${bms_id}_discharge_switch
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} discharging"
+      name: "discharging"
     balancing:
       id: bms${bms_id}_balance_switch
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} balancing"
+      name: "balancing"
     emergency:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} emergency"
+      name: "emergency"
     heating:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} heating"
+      name: "heating"
     display_always_on:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} display_always_on"
+      name: "display_always_on"
     charging_float_mode:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} charging float mode"
+      name: "charging float mode"
     timed_stored_data:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} timed stored data"
+      name: "timed stored data"
     disable_temperature_sensors:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} disable temperature sensors"
+      name: "disable temperature sensors"
     smart_sleep_on:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} smart sleep on"
+      name: "smart sleep on"
     disable_pcl_module:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} disable pcl module"
+      name: "disable pcl module"
     gps_heartbeat:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} gps heartbeat"
+      name: "gps heartbeat"
     port_selection:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} port selection"
+      name: "port selection"
     special_charger:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} special charger"
+      name: "special charger"
 
 binary_sensor:
   - platform: jk_rs485_bms
@@ -95,250 +95,250 @@ binary_sensor:
     status_balancing:
       id: bms${bms_id}_bms_equalizing
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} status balancing"
+      # name: "status balancing"
     status_precharging:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} status precharging"
+      name: "status precharging"
     status_charging:
       id: bms${bms_id}_charging_allowed
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} status charging"
+      name: "status charging"
     status_discharging:
       id: bms${bms_id}_discharging_allowed
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} status discharging"
+      name: "status discharging"
     status_online:
       id: bms${bms_id}_online_status
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} status online"
+      name: "status online"
     status_heating:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} status heating"
+      name: "status heating"
 
 sensor:
   - platform: jk_rs485_bms
     jk_rs485_bms_id: jk_rs485_bms${bms_id}
     balancing_direction:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} balancing direction"
+      name: "balancing direction"
     cell_voltage_min:
       id: bms${bms_id}_min_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage min"
+      name: "cell voltage min"
     cell_voltage_max:
       id: bms${bms_id}_max_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage max"
+      name: "cell voltage max"
     cell_voltage_min_cell_number:
       id: bms${bms_id}_min_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage min cell number"
+      name: "cell voltage min cell number"
     cell_voltage_max_cell_number:
       id: bms${bms_id}_max_voltage_cell
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell voltage max cell number"
+      name: "cell voltage max cell number"
     cell_delta_voltage:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell delta voltage"
+      name: "cell delta voltage"
     cell_average_voltage:
       id: bms${bms_id}_average_cell_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell average voltage"
+      name: "cell average voltage"
     cell_resistance_min:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell resistance min"
+      name: "cell resistance min"
     cell_resistance_max:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell resistance max"
+      name: "cell resistance max"
     cell_resistance_min_cell_number:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell resistance min cell number"
+      name: "cell resistance min cell number"
     cell_resistance_max_cell_number:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell resistance max cell number"
+      name: "cell resistance max cell number"
     battery_voltage:
       id: bms${bms_id}_total_voltage
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery voltage"
+      name: "battery voltage"
     battery_current:
       id: bms${bms_id}_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery current"
+      name: "battery current"
     battery_power:
       id: bms${bms_id}_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery power"
+      name: "battery power"
     battery_power_charging:
       id: bms${bms_id}_charging_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery power charging"
+      name: "battery power charging"
     battery_power_discharging:
       id: bms${bms_id}_discharging_power
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery power discharging"
+      name: "battery power discharging"
     temperature_sensor_1:
       id: bms${bms_id}_temperature_sensor_1
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 1"
+      name: "temperature sensor 1"
     temperature_sensor_2:
       id: bms${bms_id}_temperature_sensor_2
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 2"
+      name: "temperature sensor 2"
     temperature_sensor_3:
       id: bms${bms_id}_temperature_sensor_3
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 3"
+      name: "temperature sensor 3"
     temperature_sensor_4:
       id: bms${bms_id}_temperature_sensor_4
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 4"
+      name: "temperature sensor 4"
     temperature_sensor_5:
       id: bms${bms_id}_temperature_sensor_5
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature sensor 5"
+      name: "temperature sensor 5"
     temperature_powertube:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} temperature powertube"
+      name: "temperature powertube"
     battery_capacity_state_of_charge:
       id: bms${bms_id}_state_of_charge
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} battery capacity state of charge"
+      # name: "battery capacity state of charge"
     battery_capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} battery capacity remaining"
+      # name: "battery capacity remaining"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} charging cycles"
+      # name: "charging cycles"
     battery_capacity_total_charging_cycle:
       id: bms${bms_id}_cycle_capacity_raw
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} battery capacity total charging cycle"
+      # name: "battery capacity total charging cycle"
     battery_total_runtime:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery total runtime"
+      name: "battery total runtime"
     balancing_current:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} balancing current"
+      name: "balancing current"
     errors_bitmask:
       id: bms${bms_id}_errors_bitmask
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} errors bitmask"
+      name: "errors bitmask"
     cell_count_real:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell count real"
+      name: "cell count real"
     battery_total_alarms_count:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery total alarms count"
+      name: "battery total alarms count"
     battery_total_alarms_active:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery total alarms active"
+      name: "battery total alarms active"
     uart1_protocol_number:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} uart1 protocol number"
+      name: "uart1 protocol number"
     uart2_protocol_number:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} uart2 protocol number"
+      name: "uart2 protocol number"
     battery_soh_valuation:
       id: bms${bms_id}_battery_soh
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery soh valuation"
+      name: "battery soh valuation"
 
 text_sensor:
   - platform: jk_rs485_bms
     jk_rs485_bms_id: jk_rs485_bms${bms_id}
     errors:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} errors"
+      name: "errors"
     operation_status:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} operation status"
+      name: "operation status"
     battery_type:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery type"
+      name: "battery type"
     total_runtime_formatted:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} total runtime formatted"
+      name: "total runtime formatted"
     info_vendorid:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info vendorid"
+      name: "info vendorid"
     info_hardware_version:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info hardware version"
+      name: "info hardware version"
     info_software_version:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info software version"
+      name: "info software version"
     info_device_name:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info device name"
+      name: "info device name"
     info_device_password:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info device password"
+      name: "info device password"
     network_nodes_available:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} network nodes available"
+      name: "network nodes available"
     info_device_serial_number:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info device serial number"
+      name: "info device serial number"
     info_device_setup_passcode:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} info device setup passcode"
+      name: "info device setup passcode"
 
 number:
   - platform: jk_rs485_bms
     jk_rs485_bms_id: jk_rs485_bms${bms_id}
     cell_smart_sleep_voltage:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell smart sleep voltage"
+      name: "cell smart sleep voltage"
     battery_capacity_total_settings:
       id: bms${bms_id}_battery_capacity
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} battery capacity total setting"
+      name: "battery capacity total setting"
     cell_count_settings:
       id: bms${bms_id}_cell_count
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell count settings"
+      name: "cell count settings"
     max_charging_current:
       id: bms${bms_id}_max_charge_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max charging current"
+      name: "max charging current"
     max_discharging_current:
       id: bms${bms_id}_max_discharge_current
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max discharging current"
+      name: "max discharging current"
     cell_overvoltage_protection:
       id: bms${bms_id}_cell_ovp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell overvoltage protection"
+      name: "cell overvoltage protection"
     cell_overvoltage_protection_recovery:
       id: bms${bms_id}_cell_ovpr
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell overvoltage protection recovery"
+      name: "cell overvoltage protection recovery"
     cell_balancing_trigger_voltage:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}
-      # name: "${name} ${bms_name} cell balancing trigger voltage"
+      # name: "cell balancing trigger voltage"
     cell_balancing_starting_voltage:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell balancing starting voltage"
+      name: "cell balancing starting voltage"
     max_balancing_current:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} max balancing current"
+      name: "max balancing current"
     cell_soc100_voltage:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell soc100 voltage"
+      name: "cell soc100 voltage"
     cell_soc0_voltage:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell soc0 voltage"
+      name: "cell soc0 voltage"
     cell_undervoltage_protection:
       id: bms${bms_id}_cell_uvp
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell undervoltage protection"
+      name: "cell undervoltage protection"
     cell_undervoltage_protection_recovery:
       id: bms${bms_id}_cell_uvpr
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell undervoltage protection recovery"
+      name: "cell undervoltage protection recovery"
     cell_power_off_voltage:
       device_id: bms_${bms_id}
-      name: "${name} ${bms_name} cell power off voltage"
+      name: "cell power off voltage"

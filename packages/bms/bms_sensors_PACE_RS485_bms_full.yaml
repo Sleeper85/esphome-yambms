@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.4
+# Updated : 2025.12.22
+# Version : 1.1.5
 # GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -78,14 +78,14 @@ binary_sensor:
   - platform: template
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} online status"
+    name: "online status"
 
   #  11  Status/Fault flag                     2 byte   R  uint16  Hex See ^3
   #      Bit 8: Status: Charging operation
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging operation"
+    name: "charging operation"
     address: 11
     register_type: holding
     bitmask: 0x0100
@@ -94,7 +94,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging operation"
+    name: "discharging operation"
     address: 11
     register_type: holding
     bitmask: 0x0200
@@ -104,7 +104,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_allowed
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging"
+    name: "charging"
     address: 11
     register_type: holding
     bitmask: 0x0400
@@ -114,7 +114,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_discharging_allowed
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging"
+    name: "discharging"
     address: 11
     register_type: holding
     bitmask: 0x0800
@@ -125,7 +125,7 @@ binary_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_equalizing
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} balancing"
+    # name: "balancing"
     address: 12
     register_type: holding
 
@@ -133,7 +133,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 1"
+    name: "cell balancing 1"
     address: 12
     register_type: holding
     bitmask: 0x0001
@@ -142,7 +142,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 2"
+    name: "cell balancing 2"
     address: 12
     register_type: holding
     bitmask: 0x0002
@@ -151,7 +151,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 3"
+    name: "cell balancing 3"
     address: 12
     register_type: holding
     bitmask: 0x0004
@@ -160,7 +160,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 4"
+    name: "cell balancing 4"
     address: 12
     register_type: holding
     bitmask: 0x0008
@@ -169,7 +169,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 5"
+    name: "cell balancing 5"
     address: 12
     register_type: holding
     bitmask: 0x0010
@@ -178,7 +178,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 6"
+    name: "cell balancing 6"
     address: 12
     register_type: holding
     bitmask: 0x0020
@@ -187,7 +187,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 7"
+    name: "cell balancing 7"
     address: 12
     register_type: holding
     bitmask: 0x0040
@@ -196,7 +196,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 8"
+    name: "cell balancing 8"
     address: 12
     register_type: holding
     bitmask: 0x0080
@@ -205,7 +205,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 9"
+    name: "cell balancing 9"
     address: 12
     register_type: holding
     bitmask: 0x0100
@@ -214,7 +214,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 10"
+    name: "cell balancing 10"
     address: 12
     register_type: holding
     bitmask: 0x0200
@@ -223,7 +223,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 11"
+    name: "cell balancing 11"
     address: 12
     register_type: holding
     bitmask: 0x0400
@@ -232,7 +232,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 12"
+    name: "cell balancing 12"
     address: 12
     register_type: holding
     bitmask: 0x0800
@@ -241,7 +241,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 13"
+    name: "cell balancing 13"
     address: 12
     register_type: holding
     bitmask: 0x1000
@@ -250,7 +250,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 14"
+    name: "cell balancing 14"
     address: 12
     register_type: holding
     bitmask: 0x2000
@@ -259,7 +259,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 15"
+    name: "cell balancing 15"
     address: 12
     register_type: holding
     bitmask: 0x4000
@@ -268,7 +268,7 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell balancing 16"
+    name: "cell balancing 16"
     address: 12
     register_type: holding
     bitmask: 0x8000
@@ -279,7 +279,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_current
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} current"
+    name: "current"
     address: 0
     register_type: holding
     value_type: S_WORD
@@ -295,7 +295,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_total_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} total voltage"
+    name: "total voltage"
     address: 1
     register_type: holding
     value_type: U_WORD
@@ -310,7 +310,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_power
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} power"
+    name: "power"
     address: 0
     register_type: holding
     value_type: U_WORD
@@ -333,7 +333,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_state_of_charge
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} state of charge"
+    # name: "state of charge"
     address: 2
     register_type: holding
     value_type: U_WORD
@@ -347,7 +347,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_soh
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} state of health"
+    name: "state of health"
     address: 3
     register_type: holding
     value_type: U_WORD
@@ -360,7 +360,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_capacity_remaining_ah
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} remaining capacity"
+    # name: "remaining capacity"
     address: 4
     register_type: holding
     value_type: U_WORD
@@ -375,7 +375,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_capacity
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} full capacity"
+    name: "full capacity"
     address: 5
     register_type: holding
     value_type: U_WORD
@@ -389,7 +389,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} design capacity"
+    name: "design capacity"
     address: 6
     register_type: holding
     value_type: U_WORD
@@ -404,7 +404,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_cycles_raw
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} charging cycles"
+    # name: "charging cycles"
     address: 7
     register_type: holding
     value_type: U_WORD
@@ -418,7 +418,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} warnings bitmask"
+    name: "warnings bitmask"
     address: 9
     register_type: holding
     value_type: U_WORD
@@ -430,7 +430,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} protections bitmask"
+    name: "protections bitmask"
     address: 10
     register_type: holding
     value_type: U_WORD
@@ -442,7 +442,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} fault status bitmask"
+    name: "fault status bitmask"
     address: 11
     register_type: holding
     value_type: U_WORD
@@ -454,7 +454,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} balancer status"
+    name: "balancer status"
     address: 12
     register_type: holding
     value_type: U_WORD
@@ -469,7 +469,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 1"
+    name: "cell voltage 1"
     address: 15
     register_type: holding
     value_type: U_WORD
@@ -483,7 +483,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 2"
+    name: "cell voltage 2"
     address: 16
     register_type: holding
     value_type: U_WORD
@@ -497,7 +497,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 3"
+    name: "cell voltage 3"
     address: 17
     register_type: holding
     value_type: U_WORD
@@ -511,7 +511,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 4"
+    name: "cell voltage 4"
     address: 18
     register_type: holding
     value_type: U_WORD
@@ -525,7 +525,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 5"
+    name: "cell voltage 5"
     address: 19
     register_type: holding
     value_type: U_WORD
@@ -539,7 +539,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 6"
+    name: "cell voltage 6"
     address: 20
     register_type: holding
     value_type: U_WORD
@@ -553,7 +553,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 7"
+    name: "cell voltage 7"
     address: 21
     register_type: holding
     value_type: U_WORD
@@ -567,7 +567,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 8"
+    name: "cell voltage 8"
     address: 22
     register_type: holding
     value_type: U_WORD
@@ -581,7 +581,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 9"
+    name: "cell voltage 9"
     address: 23
     register_type: holding
     value_type: U_WORD
@@ -595,7 +595,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 10"
+    name: "cell voltage 10"
     address: 24
     register_type: holding
     value_type: U_WORD
@@ -609,7 +609,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 11"
+    name: "cell voltage 11"
     address: 25
     register_type: holding
     value_type: U_WORD
@@ -623,7 +623,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 12"
+    name: "cell voltage 12"
     address: 26
     register_type: holding
     value_type: U_WORD
@@ -637,7 +637,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 13"
+    name: "cell voltage 13"
     address: 27
     register_type: holding
     value_type: U_WORD
@@ -651,7 +651,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 14"
+    name: "cell voltage 14"
     address: 28
     register_type: holding
     value_type: U_WORD
@@ -665,7 +665,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 15"
+    name: "cell voltage 15"
     address: 29
     register_type: holding
     value_type: U_WORD
@@ -679,7 +679,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell voltage 16"
+    name: "cell voltage 16"
     address: 30
     register_type: holding
     value_type: U_WORD
@@ -695,7 +695,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} delta cell voltage"
+    name: "delta cell voltage"
     address: 15
     register_type: holding
     value_type: U_WORD
@@ -741,7 +741,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_average_cell_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} average cell voltage"
+    name: "average cell voltage"
     update_interval: never
     unit_of_measurement: V
     device_class: voltage
@@ -751,7 +751,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_min_cell_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} min cell voltage"
+    name: "min cell voltage"
     update_interval: never
     unit_of_measurement: V
     device_class: voltage
@@ -761,7 +761,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_cell_voltage
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} max cell voltage"
+    name: "max cell voltage"
     update_interval: never
     unit_of_measurement: V
     device_class: voltage
@@ -771,7 +771,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_min_voltage_cell
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} min voltage cell"
+    name: "min voltage cell"
     update_interval: never
     unit_of_measurement: ""
     state_class: measurement
@@ -780,7 +780,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_max_voltage_cell
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} max voltage cell"
+    name: "max voltage cell"
     update_interval: never
     unit_of_measurement: ""
     state_class: measurement
@@ -793,7 +793,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_1
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} battery temperature 1"
+    name: "battery temperature 1"
     address: 31
     register_type: holding
     value_type: S_WORD
@@ -809,7 +809,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_2
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} battery temperature 2"
+    name: "battery temperature 2"
     address: 32
     register_type: holding
     value_type: S_WORD
@@ -825,7 +825,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_3
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} battery temperature 3"
+    name: "battery temperature 3"
     address: 33
     register_type: holding
     value_type: S_WORD
@@ -841,7 +841,7 @@ sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_temperature_sensor_4
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} battery temperature 4"
+    name: "battery temperature 4"
     address: 34
     register_type: holding
     value_type: S_WORD
@@ -856,7 +856,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} mosfet temperature"
+    name: "mosfet temperature"
     address: 35
     register_type: holding
     value_type: S_WORD
@@ -871,7 +871,7 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment temperature"
+    name: "environment temperature"
     address: 36
     register_type: holding
     value_type: S_WORD
@@ -920,7 +920,7 @@ sensor:
   - platform: template
     id: bms${bms_id}_cycle_capacity_raw
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} charging cycle capacity"
+    # name: "charging cycle capacity"
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: total
@@ -952,7 +952,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack overvoltage alarm"
+    name: "pack overvoltage alarm"
     use_write_multiple: true
     address: 60
     register_type: holding
@@ -967,7 +967,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack overvoltage protection"
+    name: "pack overvoltage protection"
     use_write_multiple: true
     address: 61
     register_type: holding
@@ -982,7 +982,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack overvoltage protection release"
+    name: "pack overvoltage protection release"
     use_write_multiple: true
     address: 62
     register_type: holding
@@ -997,7 +997,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack overvoltage protection delay time"
+    name: "pack overvoltage protection delay time"
     use_write_multiple: true
     address: 63
     register_type: holding
@@ -1014,7 +1014,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell overvoltage alarm"
+    name: "cell overvoltage alarm"
     use_write_multiple: true
     address: 64
     register_type: holding
@@ -1030,7 +1030,7 @@ number:
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
     id: bms${bms_id}_cell_ovp
-    name: "${name} ${bms_name} cell overvoltage protection"
+    name: "cell overvoltage protection"
     use_write_multiple: true
     address: 65
     register_type: holding
@@ -1045,7 +1045,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell overvoltage protection release"
+    name: "cell overvoltage protection release"
     use_write_multiple: true
     address: 66
     register_type: holding
@@ -1060,7 +1060,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell overvoltage protection delay time"
+    name: "cell overvoltage protection delay time"
     use_write_multiple: true
     address: 67
     register_type: holding
@@ -1077,7 +1077,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack undervoltage alarm"
+    name: "pack undervoltage alarm"
     use_write_multiple: true
     address: 68
     register_type: holding
@@ -1092,7 +1092,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack undervoltage protection"
+    name: "pack undervoltage protection"
     use_write_multiple: true
     address: 69
     register_type: holding
@@ -1107,7 +1107,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack undervoltage protection release"
+    name: "pack undervoltage protection release"
     use_write_multiple: true
     address: 70
     register_type: holding
@@ -1122,7 +1122,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack undervoltage protection delay time"
+    name: "pack undervoltage protection delay time"
     use_write_multiple: true
     address: 71
     register_type: holding
@@ -1139,7 +1139,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell undervoltage alarm"
+    name: "cell undervoltage alarm"
     use_write_multiple: true
     address: 72
     register_type: holding
@@ -1155,7 +1155,7 @@ number:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_cell_uvp
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell undervoltage protection"
+    name: "cell undervoltage protection"
     use_write_multiple: true
     address: 73
     register_type: holding
@@ -1170,7 +1170,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell undervoltage protection release"
+    name: "cell undervoltage protection release"
     use_write_multiple: true
     address: 74
     register_type: holding
@@ -1185,7 +1185,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell undervoltage protection delay time"
+    name: "cell undervoltage protection delay time"
     use_write_multiple: true
     address: 75
     register_type: holding
@@ -1202,7 +1202,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overcurrent alarm"
+    name: "charging overcurrent alarm"
     use_write_multiple: true
     address: 76
     register_type: holding
@@ -1218,7 +1218,7 @@ number:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_charge_current
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overcurrent protection"
+    name: "charging overcurrent protection"
     use_write_multiple: true
     address: 77
     register_type: holding
@@ -1233,7 +1233,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overcurrent protection delay time"
+    name: "charging overcurrent protection delay time"
     use_write_multiple: true
     address: 78
     register_type: holding
@@ -1250,7 +1250,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overcurrent alarm"
+    name: "discharging overcurrent alarm"
     use_write_multiple: true
     address: 79
     register_type: holding
@@ -1266,7 +1266,7 @@ number:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_discharge_current
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overcurrent protection"
+    name: "discharging overcurrent protection"
     use_write_multiple: true
     address: 80
     register_type: holding
@@ -1281,7 +1281,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overcurrent protection delay time"
+    name: "discharging overcurrent protection delay time"
     use_write_multiple: true
     address: 81
     register_type: holding
@@ -1298,7 +1298,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overcurrent 2 protection"
+    name: "discharging overcurrent 2 protection"
     use_write_multiple: true
     address: 82
     register_type: holding
@@ -1313,7 +1313,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overcurrent 2 protection delay time"
+    name: "discharging overcurrent 2 protection delay time"
     use_write_multiple: true
     address: 83
     register_type: holding
@@ -1330,7 +1330,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overtemperature alarm"
+    name: "charging overtemperature alarm"
     use_write_multiple: true
     address: 84
     register_type: holding
@@ -1347,7 +1347,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overtemperature protection"
+    name: "charging overtemperature protection"
     use_write_multiple: true
     address: 85
     register_type: holding
@@ -1364,7 +1364,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overtemperature protection release"
+    name: "charging overtemperature protection release"
     use_write_multiple: true
     address: 86
     register_type: holding
@@ -1381,7 +1381,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overtemperature alarm"
+    name: "discharging overtemperature alarm"
     use_write_multiple: true
     address: 87
     register_type: holding
@@ -1398,7 +1398,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overtemperature protection"
+    name: "discharging overtemperature protection"
     use_write_multiple: true
     address: 88
     register_type: holding
@@ -1415,7 +1415,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging overtemperature protection release"
+    name: "discharging overtemperature protection release"
     use_write_multiple: true
     address: 89
     register_type: holding
@@ -1432,7 +1432,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging undertemperature alarm"
+    name: "charging undertemperature alarm"
     use_write_multiple: true
     address: 90
     register_type: holding
@@ -1449,7 +1449,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging undertemperature protection"
+    name: "charging undertemperature protection"
     use_write_multiple: true
     address: 91
     register_type: holding
@@ -1466,7 +1466,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging undertemperature protection release"
+    name: "charging undertemperature protection release"
     use_write_multiple: true
     address: 92
     register_type: holding
@@ -1483,7 +1483,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging undertemperature alarm"
+    name: "discharging undertemperature alarm"
     use_write_multiple: true
     address: 93
     register_type: holding
@@ -1500,7 +1500,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging undertemperature protection"
+    name: "discharging undertemperature protection"
     use_write_multiple: true
     address: 94
     register_type: holding
@@ -1517,7 +1517,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} discharging undertemperature protection release"
+    name: "discharging undertemperature protection release"
     use_write_multiple: true
     address: 95
     register_type: holding
@@ -1534,7 +1534,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} mosfet overtemperature alarm"
+    name: "mosfet overtemperature alarm"
     use_write_multiple: true
     address: 96
     register_type: holding
@@ -1551,7 +1551,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} mosfet overtemperature protection"
+    name: "mosfet overtemperature protection"
     use_write_multiple: true
     address: 97
     register_type: holding
@@ -1568,7 +1568,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} mosfet overtemperature protection release"
+    name: "mosfet overtemperature protection release"
     use_write_multiple: true
     address: 98
     register_type: holding
@@ -1585,7 +1585,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment overtemperature alarm"
+    name: "environment overtemperature alarm"
     use_write_multiple: true
     address: 99
     register_type: holding
@@ -1602,7 +1602,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment overtemperature protection"
+    name: "environment overtemperature protection"
     use_write_multiple: true
     address: 100
     register_type: holding
@@ -1619,7 +1619,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment overtemperature protection release"
+    name: "environment overtemperature protection release"
     use_write_multiple: true
     address: 101
     register_type: holding
@@ -1636,7 +1636,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment undertemperature alarm"
+    name: "environment undertemperature alarm"
     use_write_multiple: true
     address: 102
     register_type: holding
@@ -1653,7 +1653,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment undertemperature protection"
+    name: "environment undertemperature protection"
     use_write_multiple: true
     address: 103
     register_type: holding
@@ -1670,7 +1670,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} environment undertemperature protection release"
+    name: "environment undertemperature protection release"
     use_write_multiple: true
     address: 104
     register_type: holding
@@ -1688,7 +1688,7 @@ number:
     modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_balance_trigger_voltage
     device_id: bms_${bms_id}
-    # name: "${name} ${bms_name} balance start cell voltage"
+    # name: "balance start cell voltage"
     use_write_multiple: true
     address: 105
     register_type: holding
@@ -1703,7 +1703,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} balance start delta voltage"
+    name: "balance start delta voltage"
     use_write_multiple: true
     address: 106
     register_type: holding
@@ -1718,7 +1718,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack full charge voltage"
+    name: "pack full charge voltage"
     use_write_multiple: true
     address: 107
     register_type: holding
@@ -1733,7 +1733,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} pack full-charge current"
+    name: "pack full-charge current"
     use_write_multiple: true
     address: 108
     register_type: holding
@@ -1748,7 +1748,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell sleep voltage"
+    name: "cell sleep voltage"
     use_write_multiple: true
     address: 109
     register_type: holding
@@ -1763,7 +1763,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} cell sleep delay time"
+    name: "cell sleep delay time"
     use_write_multiple: true
     address: 110
     register_type: holding
@@ -1778,7 +1778,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} short circuit protect delay time"
+    name: "short circuit protect delay time"
     use_write_multiple: true
     address: 111
     register_type: holding
@@ -1795,7 +1795,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} state of charge alarm threshold"
+    name: "state of charge alarm threshold"
     use_write_multiple: true
     address: 112
     register_type: holding
@@ -1810,7 +1810,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} charging overcurrent 2 protection"
+    name: "charging overcurrent 2 protection"
     use_write_multiple: true
     address: 113
     register_type: holding
@@ -1825,7 +1825,7 @@ number:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} Charging overcurrent 2 protection delay time"
+    name: "Charging overcurrent 2 protection delay time"
     use_write_multiple: true
     address: 114
     register_type: holding
@@ -1843,7 +1843,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} warnings"
+    name: "warnings"
     address: 9
     register_type: holding
     register_count: 1
@@ -1889,7 +1889,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} protections"
+    name: "protections"
     address: 10
     register_type: holding
     register_count: 1
@@ -1935,7 +1935,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} faults"
+    name: "faults"
     address: 11
     register_type: holding
     register_count: 1
@@ -1973,7 +1973,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} status"
+    name: "status"
     address: 11
     register_type: holding
     register_count: 1
@@ -2011,7 +2011,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} version information"
+    name: "version information"
     skip_updates: 60
     address: 150
     register_type: holding
@@ -2022,7 +2022,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} bms serial number"
+    name: "bms serial number"
     skip_updates: 60
     address: 160
     register_type: holding
@@ -2033,7 +2033,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
-    name: "${name} ${bms_name} battery pack serial number"
+    name: "battery pack serial number"
     skip_updates: 60
     address: 170
     register_type: holding

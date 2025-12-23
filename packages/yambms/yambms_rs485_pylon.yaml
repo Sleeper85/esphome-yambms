@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.3.2
+# Updated : 2025.12.22
+# Version : 1.3.3
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,6 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+esphome:
+  devices:
+    - id: rs485_${rs485_id}
+      name: "${rs485_name}"
+
 external_components:
   - source: github://fahmula/esphome-pylontech-rs485@main
     refresh: 0s
@@ -27,8 +32,9 @@ uart:
 
 select:
   - platform: template
-    name: "${name} ${rs485_name} Protocol"
+    name: "YamBMS protocol"
     id: ${rs485_id}_protocol
+    device_id: rs485_${rs485_id}
     options:
       - "Pylontech"
       - "Disabled"
@@ -39,8 +45,9 @@ select:
 
 switch:
   - platform: template
-    name: "${name} ${rs485_name} Inverter Heartbeat Monitoring"
+    name: "Inverter Heartbeat Monitoring"
     id: ${rs485_id}_switch_inverter_heartbeat_monitoring
+    device_id: rs485_${rs485_id}
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: diagnostic
@@ -91,7 +98,8 @@ sensor:
   # --- Inverter Heartbeat ---
   - platform: template
     id: ${rs485_id}_inverter_heartbeat
-    name: "${name} ${rs485_name} Inverter Heartbeat"
+    device_id: rs485_${rs485_id}
+    name: "Inverter Heartbeat"
     unit_of_measurement: ms
     device_class: duration
     accuracy_decimals: 0
@@ -151,7 +159,8 @@ binary_sensor:
   # --- RS485 Status ---
   - platform: template
     id: ${rs485_id}_status
-    name: "${name} ${rs485_name} Status"
+    device_id: rs485_${rs485_id}
+    name: "Status"
     entity_category: diagnostic
 
 interval:

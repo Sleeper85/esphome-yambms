@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.2
+# Updated : 2025.12.22
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@ number:
   # | Charging Cycles Offset               |
   # +--------------------------------------+
   - platform: template
-    name: "${name} ${bms_name} Charging Cycles Offset"
+    name: "Charging Cycles Offset"
     id: bms${bms_id}_charging_cycles_offset
     device_id: bms_${bms_id}
     step: 1
@@ -39,7 +39,7 @@ sensor:
   # | Charging Cycles                      |
   # +--------------------------------------+
   - platform: template
-    name: "${name} ${bms_name} charging cycles"
+    name: "charging cycles"
     id: bms${bms_id}_charging_cycles
     device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}
@@ -59,7 +59,7 @@ sensor:
   # | Charging Cycle Capacity              |
   # +--------------------------------------+
   - platform: template
-    name: "${name} ${bms_name} total charging cycle capacity"
+    name: "total charging cycle capacity"
     id: bms${bms_id}_cycle_capacity
     device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}

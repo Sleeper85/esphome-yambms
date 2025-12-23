@@ -1,4 +1,4 @@
-# Updated : 2025.12.09
+# Updated : 2025.12.22
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -35,7 +35,7 @@ esphome:
 binary_sensor:
   # Indicates whether the BMS can be combined
   - platform: template
-    name: "${name} ${bms_name} Can be combined"
+    name: "Can be combined"
     id: bms${bms_id}_can_be_combined
     device_id: bms_${bms_id}
     lambda: return (id(bms${bms_id}_online_status).state && id(bms${bms_id}_battery_capacity).state > 0);

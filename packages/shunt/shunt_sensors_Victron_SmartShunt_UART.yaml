@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.4
+# Updated : 2025.12.22
+# Version : 1.1.5
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,13 +42,13 @@ binary_sensor:
     victron_id: victron${shunt_id}
     relay_state:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} relay state"
+      name: "relay state"
   # Required sensors cannot be retrieved from Shunt
   # online_status
   - platform: template
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Online Status"
+    name: "Online Status"
     lambda: |-
       if (id(shunt${shunt_id}_voltage).state > 0)
         return true;
@@ -58,119 +58,121 @@ binary_sensor:
 sensor:
   - platform: victron
     victron_id: victron${shunt_id}
+    # Minimal sensors
     battery_voltage:
       id: shunt${shunt_id}_voltage
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} battery voltage"
-    auxiliary_battery_voltage:
-      device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} auxiliary battery voltage"
-    midpoint_voltage_of_the_battery_bank:
-      device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} midpoint voltage of the battery bank"
-    midpoint_deviation_of_the_battery_bank:
-      device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} midpoint deviation of the battery bank"
+      name: "Voltage"
     battery_current:
       id: shunt${shunt_id}_current
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} battery current"
-    battery_temperature:
-      device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} battery temperature"
+      name: "Current"
     instantaneous_power:
       id: shunt${shunt_id}_power
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} instantaneous power"
-    consumed_amp_hours:
-      device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} consumed amp hours"
+      name: "Power"
     state_of_charge:
       id: shunt${shunt_id}_soc
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} state of charge"
+      name: "State of charge"
+    # Extras sensors
+    auxiliary_battery_voltage:
+      device_id: shunt_${shunt_id}
+      name: "auxiliary battery voltage"
+    midpoint_voltage_of_the_battery_bank:
+      device_id: shunt_${shunt_id}
+      name: "midpoint voltage of the battery bank"
+    midpoint_deviation_of_the_battery_bank:
+      device_id: shunt_${shunt_id}
+      name: "midpoint deviation of the battery bank"
+    battery_temperature:
+      device_id: shunt_${shunt_id}
+      name: "battery temperature"
+    consumed_amp_hours:
+      device_id: shunt_${shunt_id}
+      name: "consumed amp hours"
     time_to_go:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} time to go"
+      name: "time to go"
     depth_of_the_deepest_discharge:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} depth of the deepest discharge"
+      name: "depth of the deepest discharge"
     depth_of_the_last_discharge:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} depth of the last discharge"
+      name: "depth of the last discharge"
     depth_of_the_average_discharge:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} depth of the average discharge"
+      name: "depth of the average discharge"
     number_of_charge_cycles:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of charge cycles"
+      name: "number of charge cycles"
     number_of_full_discharges:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of full discharges"
+      name: "number of full discharges"
     cumulative_amp_hours_drawn:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} cumulative amp hours drawn"
+      name: "cumulative amp hours drawn"
     min_battery_voltage:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} min battery voltage"
+      name: "min battery voltage"
     max_battery_voltage:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} max battery voltage"
+      name: "max battery voltage"
     last_full_charge:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} last full charge"
+      name: "last full charge"
     number_of_automatic_synchronizations:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of automatic synchronizations"
+      name: "number of automatic synchronizations"
     number_of_low_main_voltage_alarms:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of low main voltage alarms"
+      name: "number of low main voltage alarms"
     number_of_high_main_voltage_alarms:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of high main voltage alarms"
+      name: "number of high main voltage alarms"
     number_of_low_auxiliary_voltage_alarms:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of low auxiliary voltage alarms"
+      name: "number of low auxiliary voltage alarms"
     number_of_high_auxiliary_voltage_alarms:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} number of high auxiliary voltage alarms"
+      name: "number of high auxiliary voltage alarms"
     min_auxiliary_battery_voltage:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} min auxiliary battery voltage"
+      name: "min auxiliary battery voltage"
     max_auxiliary_battery_voltage:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} max auxiliary battery voltage"
+      name: "max auxiliary battery voltage"
     amount_of_discharged_energy:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} amount of discharged energy"
+      name: "amount of discharged energy"
     amount_of_charged_energy:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} amount of charged energy"
+      name: "amount of charged energy"
     dc_monitor_mode_id:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} dc monitor mode id"
+      name: "dc monitor mode id"
 
 text_sensor:
   - platform: victron
     victron_id: victron${shunt_id}
     alarm_condition_active:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} alarm condition active"
+      name: "alarm condition active"
     alarm_reason:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} alarm reason"
+      name: "alarm reason"
     model_description:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} model description"
+      name: "model description"
     firmware_version:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} firmware version"
+      name: "firmware version"
     device_type:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} device type"
+      name: "device type"
     serial_number:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} serial number"
+      name: "serial number"
     dc_monitor_mode:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} dc monitor mode"
+      name: "dc monitor mode"

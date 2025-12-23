@@ -1,5 +1,5 @@
-# Updated : 2024.12.09
-# Version : 1.1.2
+# Updated : 2025.12.22
+# Version : 1.1.3
 # GitHub  : https://github.com/Fabian-Schmidt/esphome-victron_ble
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -54,7 +54,7 @@ binary_sensor:
   - platform: template
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
-    name: "${name} ${shunt_name} Online Status"
+    name: "Online Status"
     lambda: |-
       if (id(shunt${shunt_id}_voltage).state > 0)
         return true;
@@ -72,25 +72,25 @@ sensor:
     state_of_charge:
       id: shunt${shunt_id}_soc
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} State of Charge"
+      name: "State of Charge"
     voltage:
       id: shunt${shunt_id}_voltage
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} Voltage"
+      name: "Voltage"
     current:
       id: shunt${shunt_id}_current
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} Current"
+      name: "Current"
     power:
       id: shunt${shunt_id}_power
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} Power"
+      name: "Power"
     ah:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} Consumed Ah"
+      name: "Consumed Ah"
     starter_battery_voltage:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} Starter Battery Voltage"
+      name: "Starter Battery Voltage"
     remaining_time:
       device_id: shunt_${shunt_id}
-      name: "${name} ${shunt_name} Remaining Time"
+      name: "Remaining Time"

@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.3
+# Updated : 2025.12.22
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@ sensor:
   # | Battery State of Charge (SOC)        |
   # +--------------------------------------+
   - platform: template
-    name: "${name} ${bms_name} Battery SoC"
+    name: "Battery SoC"
     id: bms${bms_id}_battery_soc
     device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}
@@ -45,7 +45,7 @@ sensor:
   # | Battery Capacity Remaining           |
   # +--------------------------------------+
   - platform: template
-    name: "${name} ${bms_name} Battery Capacity Remaining"
+    name: "Battery Capacity Remaining"
     id: bms${bms_id}_battery_capacity_remaining
     device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}

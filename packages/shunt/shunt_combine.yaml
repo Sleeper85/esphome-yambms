@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.5.8
+# Updated : 2025.12.22
+# Version : 1.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -31,7 +31,7 @@ esphome:
 switch:
   # Combine enable/disable Switch
   - platform: template
-    name: "${name} ${shunt_name} Combine enabled"
+    name: "Combine enabled"
     id: shunt${shunt_id}_switch_combine
     device_id: shunt_${shunt_id}
     restore_mode: RESTORE_DEFAULT_ON
@@ -40,7 +40,7 @@ switch:
 binary_sensor:
   # Indicates whether the Shunt can be combined
   - platform: template
-    name: "${name} ${shunt_name} Can be combined"
+    name: "Can be combined"
     id: shunt${shunt_id}_can_be_combined
     device_id: shunt_${shunt_id}
     lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
