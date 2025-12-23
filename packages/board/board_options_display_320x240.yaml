@@ -21,9 +21,6 @@
 # | Display Related                      |
 # +--------------------------------------+
 
-packages:
-  psram: !include board_options_PSRAM_octal_80Mhz.yaml
-
 color:
   - id: my_black
     hex: "000000"
@@ -80,33 +77,84 @@ interval:
 # | Display Handling                     |
 # +--------------------------------------+
 display:
-  # S3Core display see https://esphome.io/components/display/ili9xxx.html
+  # CoreS3 display see https://esphome.io/components/display/mipi_spi.html
   - id: !extend m5cores3_lcd
     pages:
       - id: page1
         lambda: |-
           it.rectangle(0,  0, it.get_width(), it.get_height(), id(my_blue));
           it.rectangle(0, 20, it.get_width(), it.get_height(), id(my_blue));   // header bar
-          it.rectangle(0, 100, it.get_width(), it.get_height(), id(my_blue));  // footer bar
-          it.printf(64, 118, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(${yambms_id}_charging_status).state.c_str());
+          it.rectangle(0, 220, it.get_width(), it.get_height(), id(my_blue));  // footer bar
+          it.printf(160, 230, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(${yambms_id}_charging_status).state.c_str());
           // ESP status
           if (id(esp32_online_status).state)
           {
-            it.print(115, 5, id(roboto_12), id(my_green), TextAlign::TOP_RIGHT, "ESP OK");
+            it.print(310, 5, id(roboto_12), id(my_green), TextAlign::TOP_RIGHT, "ESP OK");
           }
           else
           {
-            it.print(115, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
+            it.print(310, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
           }
           // Inverter communication status (CANBUS / RS485)
           if (id(inverter_com_status).state)
           {
-            it.print(2, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
+            it.print(5, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
           }
           else
           {
-            it.print(2, 5, id(roboto_12), id(my_red), TextAlign::TOP_LEFT, "CAN KO");
+            it.print(5, 5, id(roboto_12), id(my_red), TextAlign::TOP_LEFT, "CAN KO");
           }
-          it.print((128 / 2), (128 / 3) * 1, id(roboto_24), id(my_gray), TextAlign::CENTER,"SoC %");
-          it.printf((128 / 2), (128 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(${yambms_id}_battery_soc).state);
-          
+          it.print((320 / 2), (240 / 3) * 1, id(roboto_24), id(my_gray), TextAlign::CENTER,"SoC %");
+          it.printf((320 / 2), (240 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(${yambms_id}_battery_soc).state);
+      - id: page2
+        lambda: |-
+          it.rectangle(0,  0, it.get_width(), it.get_height(), id(my_blue));
+          it.rectangle(0, 20, it.get_width(), it.get_height(), id(my_blue));   // header bar
+          it.rectangle(0, 220, it.get_width(), it.get_height(), id(my_blue));  // footer bar
+          it.printf(160, 230, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(${yambms_id}_charging_status).state.c_str());
+          // ESP status
+          if (id(esp32_online_status).state)
+          {
+            it.print(310, 5, id(roboto_12), id(my_green), TextAlign::TOP_RIGHT, "ESP OK");
+          }
+          else
+          {
+            it.print(310, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
+          }
+          // Inverter communication status (CANBUS / RS485)
+          if (id(inverter_com_status).state)
+          {
+            it.print(5, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
+          }
+          else
+          {
+            it.print(5, 5, id(roboto_12), id(my_red), TextAlign::TOP_LEFT, "CAN KO");
+          }
+          it.print((320 / 2), (240 / 3) * 1, id(roboto_24), id(my_gray), TextAlign::CENTER,"Current A");
+          it.printf((320 / 2), (240 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(${yambms_id}_current).state);
+      - id: page3
+        lambda: |-
+          it.rectangle(0,  0, it.get_width(), it.get_height(), id(my_blue));
+          it.rectangle(0, 20, it.get_width(), it.get_height(), id(my_blue));   // header bar
+          it.rectangle(0, 220, it.get_width(), it.get_height(), id(my_blue));  // footer bar
+          it.printf(160, 230, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(${yambms_id}_charging_status).state.c_str());
+          // ESP status
+          if (id(esp32_online_status).state)
+          {
+            it.print(310, 5, id(roboto_12), id(my_green), TextAlign::TOP_RIGHT, "ESP OK");
+          }
+          else
+          {
+            it.print(310, 5, id(roboto_12), id(my_red), TextAlign::TOP_RIGHT, "ESP KO");
+          }
+          // Inverter communication status (CANBUS / RS485)
+          if (id(inverter_com_status).state)
+          {
+            it.print(5, 5, id(roboto_12), id(my_green), TextAlign::TOP_LEFT, "CAN OK");
+          }
+          else
+          {
+            it.print(5, 5, id(roboto_12), id(my_red), TextAlign::TOP_LEFT, "CAN KO");
+          }
+          it.print((320 / 2), (240 / 3) * 1, id(roboto_24), id(my_gray), TextAlign::CENTER,"Voltage V");
+          it.printf((320 / 2), (240 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(${yambms_id}_total_voltage).state);

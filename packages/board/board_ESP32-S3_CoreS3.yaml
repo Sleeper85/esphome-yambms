@@ -52,7 +52,7 @@ packages:
   psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
-  board: m5stack-cores33
+  board: m5stack-cores3
   variant: esp32s3
   flash_size: 16MB
   cpu_frequency: 240MHz
@@ -117,7 +117,7 @@ light:
     default_transition_length: 250ms
 
 # +--------------------------------------+
-# | Atom S3R related configuration       |
+# | CoreS3 related configuration         |
 # +--------------------------------------+
 
 spi:
@@ -201,4 +201,4 @@ display:
     data_rate: 40MHz
     invert_colors: true
     id: m5cores3_lcd
-    show_test_card: true
+    show_test_card: false
