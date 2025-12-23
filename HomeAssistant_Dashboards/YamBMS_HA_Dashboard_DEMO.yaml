@@ -1,4 +1,4 @@
-# Updated : 2025.12.22
+# Updated : 2025.12.23
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -59,10 +59,10 @@ views:
             needle: true
             severity:
               green: 0
-              yellow: -2500
-              red: -5000
-            max: 5000
-            min: -5000
+              yellow: -5000
+              red: -10000
+            max: 10000
+            min: -10000
             name: Power
             layout_options:
               grid_columns: 2
