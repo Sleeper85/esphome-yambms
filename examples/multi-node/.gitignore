@@ -1,0 +1,6 @@
+# Ignore secrets file
+secrets.yaml
+
+# ESPHome build artifacts
+.esphome/
+*.bin

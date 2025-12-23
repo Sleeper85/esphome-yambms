@@ -1,5 +1,5 @@
 # Updated : 2025.12.23
-# Version : 1.0.1
+# Version : 1.0.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # +--------------------------------------+
@@ -18,16 +18,17 @@
 # REQUIREMENTS:
 #   - Network (WiFi or Ethernet)
 #   - Unique bms_id per server
-#   - Static IP recommended
+#   - secrets.yaml configured (copy from secrets.yaml.example)
 #
 # SEE ALSO:
+#   - secrets.yaml.example (network configuration)
 #   - Full documentation: documents/README/YamBMS_multi-node_TCP_modbus_solution.md
 #   - Package details: packages/bms/bms_modbus_tcp_server.yaml
 
 substitutions:
   friendly_name: 'YamBMS TCP Server 1'
-  hostname: 'yambms-tcp-server-1'
-  name: 'yambms-tcp-server-1'
+  hostname: !secret server1_hostname  # From secrets: yambms-server-1
+  name: !secret server1_hostname
   bms_id: '1' # Unique Modbus address (1-255)
 
 esphome:
@@ -45,17 +46,40 @@ esp32:
   framework:
     type: esp-idf
 
-# Network - WiFi
+# +--------------------------------------+
+# | Network Configuration                |
+# +--------------------------------------+
+
+# OPTION 1: WiFi with Static IPv4 (Recommended)
 wifi:
   id: my_network
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  domain: !secret domain
+  # Enable IPv6 (optional)
+  enable_ipv6: true
+  # Static IPv4
   manual_ip:
-    static_ip: 192.168.1.101  # Change for each server
-    gateway: 192.168.1.1
-    subnet: 255.255.255.0
+    static_ip: !secret server1_ip
+    gateway: !secret gateway_ipv4
+    subnet: !secret subnet_ipv4
+    dns1: !secret dns1_ipv4
+  # Fallback AP
+  ap:
+    ssid: !secret ap_ssid
+    password: !secret ap_password
 
-# Alternative: Ethernet (uncomment for Ethernet boards)
+# OPTION 2: WiFi with DHCP + mDNS (Easier management)
+# wifi:
+#   id: my_network
+#   ssid: !secret wifi_ssid
+#   password: !secret wifi_password
+#   domain: !secret domain
+#   enable_ipv6: true
+#   # No manual_ip - use DHCP
+#   # Node accessible via: yambms-server-1.local
+
+# OPTION 3: Ethernet with Static IPv4 (Best reliability)
 # ethernet:
 #   id: my_network
 #   type: LAN8720
@@ -64,10 +88,24 @@ wifi:
 #   clk_mode: GPIO0_IN
 #   phy_addr: 1
 #   power_pin: GPIO16
+#   enable_ipv6: true
 #   manual_ip:
-#     static_ip: 192.168.1.101
-#     gateway: 192.168.1.1
-#     subnet: 255.255.255.0
+#     static_ip: !secret server1_ip
+#     gateway: !secret gateway_ipv4
+#     subnet: !secret subnet_ipv4
+
+# mDNS Configuration
+mdns:
+  disabled: false
+  # Advertises services for discovery
+  services:
+    - service: modbus-tcp
+      protocol: tcp
+      port: 502
+      txt:
+        version: "1.0"
+        bms_id: "1"
+        role: "server"
 
 logger:
   level: INFO
@@ -77,6 +115,10 @@ api:
 
 ota:
   - platform: esphome
+
+# +--------------------------------------+
+# | BMS Configuration                    |
+# +--------------------------------------+
 
 # TCP Server: Exposes BMS data on port 502
 packages:
@@ -116,23 +158,58 @@ uart:
     baud_rate: 115200
 
 # +--------------------------------------+
+# | Network Discovery Info               |
+# +--------------------------------------+
+
+text_sensor:
+  # Show all network addresses for easy reference
+  - platform: template
+    name: "${friendly_name} Access URLs"
+    id: access_urls
+    icon: "mdi:link-variant"
+    entity_category: diagnostic
+    lambda: |-
+      std::string urls = "";
+      // IPv4
+      if (id(my_network).is_connected()) {
+        urls += "IPv4: " + id(my_network).get_ip_address().str() + ":502\n";
+      }
+      // IPv6 (if enabled)
+      #ifdef USE_NETWORK_IPV6
+        auto ipv6 = id(my_network).get_ipv6();
+        if (ipv6.size() > 0) {
+          urls += "IPv6: [" + ipv6[0].str() + "]:502\n";
+        }
+      #endif
+      // mDNS
+      urls += "mDNS: " + std::string("${hostname}") + ".local:502";
+      return urls;
+
+# +--------------------------------------+
 # | Quick Start                          |
 # +--------------------------------------+
 #
-# 1. Configure WiFi in secrets.yaml
-# 2. Set unique static_ip (101, 102, 103...)
-# 3. Set unique bms_id ('1', '2', '3'...)
+# 1. Copy secrets.yaml.example to secrets.yaml
+# 2. Configure network settings in secrets.yaml
+# 3. Set server1_ip or server1_hostname
 # 4. Configure BMS package (JK, Daly, etc.)
 # 5. Set UART pins for your board
 # 6. Flash: esphome run this-file.yaml
-# 7. Check IP address in logs
-# 8. Test: nc -zv <ip> 502
+# 7. Check "Access URLs" sensor for connection info
+#
+# TESTING:
+#   # IPv4
+#   nc -zv 192.168.1.101 502
+#   # mDNS
+#   nc -zv yambms-server-1.local 502
+#   # IPv6
+#   nc -zv fe80::xxxx:xxxx:xxxx:xxxx 502
 #
 # MONITORING:
 #   - "TCP Bridge Active" sensor
 #   - "WiFi Signal" sensor
-#   - "IP Address" text sensor
+#   - "Access URLs" sensor (shows all connection methods)
 #
 # DATA EXPOSED:
-#   All 33+ BMS registers on <ip>:502
-#   Master node polls via network
+#   All 33+ BMS registers on port 502
+#   Accessible via IPv4, IPv6, and/or mDNS

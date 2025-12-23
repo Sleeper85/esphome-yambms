@@ -1,5 +1,5 @@
 # Updated : 2025.12.23
-# Version : 1.0.1
+# Version : 1.0.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # TCP Multi-Node Server 2 Example
@@ -7,8 +7,8 @@
 
 substitutions:
   friendly_name: 'YamBMS TCP Server 2'
-  hostname: 'yambms-tcp-server-2'
-  name: 'yambms-tcp-server-2'
+  hostname: !secret server2_hostname
+  name: !secret server2_hostname
   bms_id: '2' # Different from Server 1
 
 esphome:
@@ -28,10 +28,26 @@ wifi:
   id: my_network
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  domain: !secret domain
+  enable_ipv6: true
   manual_ip:
-    static_ip: 192.168.1.102  # Different from Server 1
-    gateway: 192.168.1.1
-    subnet: 255.255.255.0
+    static_ip: !secret server2_ip  # Different from Server 1
+    gateway: !secret gateway_ipv4
+    subnet: !secret subnet_ipv4
+    dns1: !secret dns1_ipv4
+  ap:
+    ssid: !secret ap_ssid
+    password: !secret ap_password
+
+mdns:
+  disabled: false
+  services:
+    - service: modbus-tcp
+      protocol: tcp
+      port: 502
+      txt:
+        bms_id: "2"
+        role: "server"
 
 logger:
   level: INFO
@@ -67,3 +83,22 @@ uart:
     tx_pin: GPIO14
     rx_pin: GPIO12
     baud_rate: 115200
+
+text_sensor:
+  - platform: template
+    name: "${friendly_name} Access URLs"
+    icon: "mdi:link-variant"
+    entity_category: diagnostic
+    lambda: |-
+      std::string urls = "";
+      if (id(my_network).is_connected()) {
+        urls += "IPv4: " + id(my_network).get_ip_address().str() + ":502\n";
+      }
+      #ifdef USE_NETWORK_IPV6
+        auto ipv6 = id(my_network).get_ipv6();
+        if (ipv6.size() > 0) {
+          urls += "IPv6: [" + ipv6[0].str() + "]:502\n";
+        }
+      #endif
+      urls += "mDNS: " + std::string("${hostname}") + ".local:502";
+      return urls;
