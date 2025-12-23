@@ -1,0 +1,131 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | BMS Modbus TCP Server Configuration  |
+# +--------------------------------------+
+# This configuration exposes BMS data via Modbus TCP over network.
+# It combines the standard Modbus RTU server with a TCP bridge.
+#
+# Architecture:
+#   BMS Data → Modbus RTU Server → TCP Bridge → Network (port 502)
+#
+# Usage:
+#   - Use this package on slave nodes (BMS/Shunt monitoring nodes)
+#   - Each node exposes its BMS data via Modbus TCP
+#   - Master node connects via TCP instead of RS485
+#
+# Requirements:
+#   - Network connectivity (WiFi or Ethernet board)
+#   - Unique bms_id for each node (1-255)
+#   - IP address accessible from master node
+
+# Required substitutions (define these in your main YAML):
+#   bms_id: Unique Modbus address (e.g., '1', '2', '3')
+#   modbus_uart_id: UART ID for local Modbus (e.g., 'uart_esp_1')
+#   modbus_role: Must be 'server' for this configuration
+
+# Include the standard Modbus RTU server configuration
+# This defines all the server registers (33+ registers) for BMS data
+packages:
+  modbus_server: !include bms_modbus_server.yaml
+  modbus_tcp_bridge: !include ../board/board_options_itf_modbus_tcp_bridge.yaml
+
+# +--------------------------------------+
+# | Additional TCP Server Configuration  |
+# +--------------------------------------+
+
+# Optional: Static IP configuration for reliable client connections
+# Uncomment and configure if you want fixed IP addresses for each node
+
+# wifi:
+#   id: !extend my_network
+#   manual_ip:
+#     static_ip: 192.168.1.100  # Unique IP for this node
+#     gateway: 192.168.1.1
+#     subnet: 255.255.255.0
+#     dns1: 192.168.1.1
+
+# Optional: mDNS configuration for easy discovery
+# The node will be accessible at: <name>.local
+
+mdns:
+  disabled: false
+
+# +--------------------------------------+
+# | Monitoring & Diagnostics             |
+# +--------------------------------------+
+
+# Log Modbus server activity
+logger:
+  logs:
+    modbus_controller: INFO
+    modbus: INFO
+    modbus_bridge: INFO
+
+# Optional: Web server for easy monitoring
+# Uncomment to enable built-in web interface
+
+# web_server:
+#   port: 80
+#   auth:
+#     username: admin
+#     password: !secret web_server_password
+
+# +--------------------------------------+
+# | Notes                                |
+# +--------------------------------------+
+#
+# Server Node Setup:
+#   1. Each BMS/Shunt node includes this package
+#   2. Assign unique bms_id (1, 2, 3, etc.)
+#   3. Configure network (WiFi or Ethernet)
+#   4. Note the IP address (check wifi_ip_address sensor or use static IP)
+#   5. Ensure port 502 is accessible on network
+#
+# What Gets Exposed via Modbus TCP:
+#   - All 33+ BMS registers from bms_modbus_server.yaml
+#   - Register 1: online_status
+#   - Register 2-3: charging/discharging_allowed
+#   - Register 5-6: total_voltage (mV)
+#   - Register 7-8: current (mA, signed)
+#   - Register 9-10: power (mW, signed)
+#   - And all other BMS data (SoC, capacity, temps, cell voltages, etc.)
+#
+# Client Connection:
+#   - Clients connect to: <node_ip>:502
+#   - Use standard Modbus TCP protocol
+#   - Poll with same register addresses as RS485 version
+#   - Supports up to 5 concurrent clients (configurable)
+#
+# Advantages Over RS485:
+#   - No distance limitations (network reach vs 1200m RS485 max)
+#   - No RS485 transceivers needed
+#   - Can traverse VLANs/networks
+#   - Easier to add/remove nodes
+#   - Standard network tools for monitoring
+#
+# Performance:
+#   - Recommended update_interval: 5s or higher
+#   - Network latency: typically 5-50ms (WiFi)
+#   - Use Ethernet for critical applications
+#   - Monitor wifi_signal_strength for reliability
+#
+# Example Integration:
+#   See examples/multi-node-tcp/ for complete configuration examples

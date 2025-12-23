@@ -1,0 +1,267 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ TCP Multi-Node Server Example ############################
+#
+# This example shows how to configure a BMS server node that exposes its
+# data via Modbus TCP over WiFi/Ethernet instead of RS485.
+#
+# Server Node Architecture:
+#   BMS/Shunt → Modbus RTU Server → TCP Bridge → Network (port 502)
+#
+# Use Case:
+#   - Distributed battery installations
+#   - Long distance between nodes (>1200m RS485 limit)
+#   - Existing network infrastructure
+#   - Easier to add/remove nodes
+#
+# Network Requirements:
+#   - WiFi or Ethernet connectivity
+#   - Static IP recommended (or reliable DHCP)
+#   - Port 502 accessible from master node
+#   - Same network/VLAN as master node
+#
+##########################################################################################
+
+substitutions:
+  friendly_name: 'YamBMS TCP Server 1'
+  hostname: 'yambms-tcp-server-1'
+  name: 'yambms-tcp-server-1'
+
+  # BMS Configuration
+  bms_id: '1' # Unique Modbus address for this server (1-255)
+
+  # Network Configuration
+  # Option 1: Static IP (recommended for production)
+  use_static_ip: 'true'
+  static_ip: '192.168.1.101'
+  gateway_ip: '192.168.1.1'
+  subnet_mask: '255.255.255.0'
+  dns_ip: '192.168.1.1'
+
+  # Option 2: DHCP (set use_static_ip: 'false')
+  # Node will get IP from DHCP server
+  # Check logs or Home Assistant for assigned IP
+
+# Base ESPHome configuration
+esphome:
+  name: ${hostname}
+  friendly_name: ${friendly_name}
+
+# Board selection - choose your hardware
+# Example boards with Ethernet support for best reliability:
+# - ESP32-C3-ETH01-EVO (DM9051 Ethernet)
+# - ESP32-WT32-ETH01 (LAN8720 Ethernet)
+# - ESP32-S3-WS-ETH (W5500 Ethernet)
+#
+# Or use any ESP32 board with WiFi:
+# - ESP32-DevKit
+# - M5Stack CoreS3
+# - ESP32-C3-DevKitM-1
+
+# Uncomment your board configuration:
+
+# Example: ESP32-C3 with Ethernet (RECOMMENDED)
+# packages:
+#   board: !include ../../packages/board/board_ESP32-C3_ETH01-EVO.yaml
+
+# Example: ESP32 with WiFi
+packages:
+  board_base: !include ../../packages/base/device_base.yaml
+  board_wifi: !include ../../packages/base/device_base_wifi.yaml
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Network configuration
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  # Static IP configuration (optional but recommended)
+  manual_ip:
+    static_ip: ${static_ip}
+    gateway: ${gateway_ip}
+    subnet: ${subnet_mask}
+    dns1: ${dns_ip}
+
+# Alternative: Ethernet configuration (uncomment if using Ethernet board)
+# ethernet:
+#   id: my_network
+#   type: LAN8720  # or W5500, DM9051, etc. depending on board
+#   mdc_pin: GPIO23
+#   mdio_pin: GPIO18
+#   clk_mode: GPIO0_IN
+#   phy_addr: 1
+#   power_pin: GPIO16
+#   manual_ip:
+#     static_ip: ${static_ip}
+#     gateway: ${gateway_ip}
+#     subnet: ${subnet_mask}
+
+# Enable logging
+logger:
+  level: INFO
+  logs:
+    modbus_controller: INFO
+    modbus: INFO
+    modbus_bridge: INFO
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+
+# Enable OTA updates
+ota:
+  - platform: esphome
+
+# Modbus TCP Server Configuration
+packages:
+  # BMS with Modbus TCP bridge
+  bms1_tcp: !include
+    file: ../../packages/bms/bms_modbus_tcp_server.yaml
+    vars:
+      bms_id: '1'
+      modbus_uart_id: 'uart_esp_1' # UART for local BMS communication
+      modbus_role: 'server'
+
+  # Your BMS configuration (choose one):
+
+  # Example 1: JK-BMS via UART
+  bms1: !include
+    file: ../../packages/bms/bms_JK_UART.yaml
+    vars:
+      bms_id: '1'
+      bms_name: 'JK-BMS 1'
+      bms_uart_id: 'uart_esp_2' # Different UART for BMS data
+      bms_cell_max_cycles: '6000.0'
+
+  # Example 2: Daly BMS via UART
+  # bms1: !include
+  #   file: ../../packages/bms/bms_Daly_UART.yaml
+  #   vars:
+  #     bms_id: '1'
+  #     bms_name: 'Daly BMS 1'
+  #     bms_uart_id: 'uart_esp_2'
+
+  # Optional: Shunt monitoring
+  # shunt1: !include
+  #   file: ../../packages/shunt/shunt_Victron_SmartShunt_UART.yaml
+  #   vars:
+  #     shunt_id: '1'
+  #     shunt_name: 'Shunt 1'
+  #     shunt_uart_id: 'uart_esp_3'
+
+# UART Configuration
+# Define UARTs for your specific board
+uart:
+  # UART for Modbus communication (internal, used by modbus_bridge)
+  - id: uart_esp_1
+    tx_pin: GPIO17
+    rx_pin: GPIO16
+    baud_rate: 19200
+
+  # UART for BMS communication
+  - id: uart_esp_2
+    tx_pin: GPIO14
+    rx_pin: GPIO12
+    baud_rate: 115200 # Adjust for your BMS
+
+# Optional: Web server for monitoring
+# web_server:
+#   port: 80
+#   auth:
+#     username: admin
+#     password: !secret web_server_password
+
+# Status LED (optional)
+# light:
+#   - platform: status_led
+#     name: "${friendly_name} Status LED"
+#     pin: GPIO2
+
+##########################################################################################
+# DEPLOYMENT NOTES
+##########################################################################################
+#
+# 1. INITIAL SETUP:
+#    a. Configure WiFi credentials in secrets.yaml
+#    b. Set unique bms_id for this server (1, 2, 3, etc.)
+#    c. Configure static IP or note DHCP assignment
+#    d. Select appropriate board configuration
+#    e. Configure UART pins for your board
+#
+# 2. BMS CONNECTION:
+#    a. Connect BMS to uart_esp_2 (TX/RX pins)
+#    b. Verify BMS baud rate matches configuration
+#    c. Test BMS communication first before enabling TCP bridge
+#
+# 3. NETWORK SETUP:
+#    a. Flash firmware and monitor logs
+#    b. Verify network connectivity (check IP address)
+#    c. Test port 502 accessibility: nc -zv <ip> 502
+#    d. Use Modbus TCP test tool to verify server
+#
+# 4. FIREWALL:
+#    a. Ensure port 502 is open (Modbus TCP standard port)
+#    b. Allow traffic from master node IP
+#    c. Consider VLAN isolation for security
+#
+# 5. MONITORING:
+#    a. Check "Modbus TCP Bridge Active" sensor
+#    b. Monitor WiFi signal strength
+#    c. Watch logs for RTU timeout events
+#    d. Verify BMS data is being exposed
+#
+# 6. TROUBLESHOOTING:
+#    Problem: Can't connect to port 502
+#    - Check firewall rules
+#    - Verify IP address is correct
+#    - Ping test from master node
+#    - Check "Modbus TCP Bridge Active" sensor
+#
+#    Problem: RTU timeouts in logs
+#    - Verify BMS UART connection
+#    - Check baud rate setting
+#    - Test BMS communication separately
+#    - Check UART pin configuration
+#
+#    Problem: Network disconnections
+#    - Check WiFi signal strength
+#    - Consider using Ethernet for reliability
+#    - Verify router/AP stability
+#    - Check for IP conflicts
+#
+# 7. PERFORMANCE:
+#    - Expected latency: 5-50ms (WiFi), 2-10ms (Ethernet)
+#    - Recommended update_interval: 5s or higher
+#    - Monitor network load if using many nodes
+#    - Consider QoS for critical traffic
+#
+# 8. SECURITY:
+#    - Modbus TCP has no built-in encryption
+#    - Use isolated VLAN for BMS network
+#    - Consider VPN for remote access
+#    - Implement firewall rules
+#    - Change default passwords
+#
+##########################################################################################

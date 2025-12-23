@@ -1,0 +1,220 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS TCP Multi-Node Client Example
+#
+# IMPORTANT: This example requires HARDWARE TCP-to-RS485 BRIDGE
+# ESPHome does not yet have native Modbus TCP client support.
+#
+# Architecture:
+#   ESP32 → RS485 → Hardware Bridge → Network → TCP Servers
+#
+# See bms_modbus_tcp_client.yaml for detailed hardware bridge setup
+
+substitutions:
+  friendly_name: 'YamBMS TCP Client'
+  hostname: 'yambms-tcp-client'
+  name: 'yambms-tcp-client'
+  yambms_id: 'yambms'
+
+  # Hardware Bridge Configuration
+  # External device translates between local RS485 and remote TCP servers
+  # Configure bridge to map Modbus addresses to server IPs:
+  #   Address 1 → 192.168.1.101:502 (Server 1)
+  #   Address 2 → 192.168.1.102:502 (Server 2)
+  #   Address 3 → 192.168.1.103:502 (Server 3)
+
+esphome:
+  name: ${hostname}
+  friendly_name: ${friendly_name}
+
+# Board configuration (choose board with RS485 interface)
+packages:
+  board_base: !include ../../packages/base/device_base.yaml
+  board_wifi: !include ../../packages/base/device_base_wifi.yaml
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Network configuration
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.1.100 # Master node IP
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  - platform: esphome
+
+# Modbus Client Configuration
+# Connects to local RS485 (which connects to hardware bridge)
+packages:
+  modbus_itf: !include
+    file: ../../packages/board/board_options_itf_modbus.yaml
+    vars:
+      modbus_role: 'client'
+      modbus_uart_id: 'uart_esp_1'
+      modbus_baud_rate: '19200'
+      modbus_update_interval: '5s'
+
+  # BMS Server 1 (via TCP)
+  bms1: !include
+    file: ../../packages/bms/bms_combine_modbus_client.yaml
+    vars:
+      bms_id: '1'
+      bms_name: 'BMS 1 (TCP)'
+      bms_model: 'YamBMS'
+      bms_protocol: 'Modbus TCP'
+
+  # BMS Server 2 (via TCP)
+  bms2: !include
+    file: ../../packages/bms/bms_combine_modbus_client.yaml
+    vars:
+      bms_id: '2'
+      bms_name: 'BMS 2 (TCP)'
+      bms_model: 'YamBMS'
+      bms_protocol: 'Modbus TCP'
+
+  # Optional: BMS Server 3 (via TCP)
+  # bms3: !include
+  #   file: ../../packages/bms/bms_combine_modbus_client.yaml
+  #   vars:
+  #     bms_id: '3'
+  #     bms_name: 'BMS 3 (TCP)'
+  #     bms_model: 'YamBMS'
+  #     bms_protocol: 'Modbus TCP'
+
+  # Main YamBMS logic (combines all BMS data)
+  yambms: !include ../../packages/yambms.yaml
+
+  # CAN bus interface to inverter
+  canbus: !include
+    file: ../../packages/board/board_options_itf_canbus_esp32_can.yaml
+    vars:
+      canbus_node_id: 'canbus_1'
+      # CAN pins depend on your board
+
+  # Protocol to inverter
+  inverter: !include
+    file: ../../packages/inverter/protocol_PYLON_CAN.yaml
+    vars:
+      inverter_node_id: 'inverter_1'
+      inverter_canbus_id: 'canbus_1'
+
+# UART Configuration
+uart:
+  # UART connected to hardware TCP-to-RS485 bridge
+  - id: uart_esp_1
+    tx_pin: GPIO17 # To RS485 TX
+    rx_pin: GPIO16 # From RS485 RX
+    baud_rate: 19200
+
+  # Note: No direct connection to BMS here!
+  # BMS data comes via network → hardware bridge → RS485 → UART
+
+##########################################################################################
+# HARDWARE BRIDGE SETUP INSTRUCTIONS
+##########################################################################################
+#
+# Required Hardware:
+#   - External Modbus TCP to RTU gateway (e.g., EBYTE NT1, USR-TCP232-410S)
+#   - OR additional ESP32 running esphome_modbus_bridge as local client-side bridge
+#
+# Wiring:
+#   ESP32 (this client) ← RS485 cable → Hardware Bridge ← Ethernet → Network
+#                                                                      ↓
+#                                                           TCP Server Nodes
+#
+# Bridge Configuration Steps:
+#
+# 1. Connect hardware bridge to same network as server nodes
+#
+# 2. Access bridge web interface (check bridge documentation)
+#
+# 3. Configure Modbus TCP Client Mode
+#
+# 4. Map Modbus addresses to server IPs:
+#    Modbus Address 1 → TCP Server: 192.168.1.101, Port: 502
+#    Modbus Address 2 → TCP Server: 192.168.1.102, Port: 502
+#    Modbus Address 3 → TCP Server: 192.168.1.103, Port: 502
+#
+# 5. Set bridge RS485 settings:
+#    - Baud Rate: 19200
+#    - Data Bits: 8
+#    - Parity: None
+#    - Stop Bits: 1
+#
+# 6. Connect bridge RS485 output to ESP32 uart_esp_1
+#
+# 7. Verify connectivity:
+#    a. Check bridge can reach server IPs (ping test)
+#    b. Test Modbus communication with bridge diagnostic tools
+#    c. Monitor ESP32 logs for successful polling
+#
+# Alternative: DIY ESP32 Bridge
+#
+# If you have a spare ESP32, you can create your own bridge:
+#
+# 1. Flash spare ESP32 with modbus_bridge firmware:
+#    external_components:
+#      - source: github://rosenrot00/esphome_modbus_bridge@main
+#    modbus_bridge:
+#      uart_id: uart_local
+#      tcp_port: 502
+#
+# 2. Configure bridge to connect to remote TCP servers
+#    (This requires custom client-side bridge code - advanced)
+#
+# 3. Connect client ESP32 ← RS485 → Bridge ESP32 ← Network → Servers
+#
+# Recommended Products:
+#
+# - EBYTE NT1: ~$40, web config, Modbus native
+# - USR-TCP232-410S: ~$30, serial to Ethernet, Modbus mode
+# - Elfin-EE11: ~$50, industrial, DIN rail mount
+# - WaveShare RS485 to ETH: ~$25, basic conversion
+#
+# Network Considerations:
+#
+# - All devices must be on same network or routable
+# - Port 502 must be accessible between client and servers
+# - Consider network latency in update_interval setting
+# - Use Ethernet on servers for best reliability
+# - Monitor network connectivity
+#
+# Troubleshooting:
+#
+# Problem: No data from BMS nodes
+# - Check hardware bridge has network connectivity
+# - Verify server IPs are correct in bridge config
+# - Test direct connection to servers: nc -zv 192.168.1.101 502
+# - Check bridge logs for errors
+# - Verify Modbus address mapping in bridge
+#
+# Problem: Intermittent connection
+# - Check network stability (WiFi signal, Ethernet cables)
+# - Monitor bridge for timeout errors
+# - Verify no IP address conflicts
+# - Consider increasing modbus_update_interval
+# - Check for network congestion
+#
+# Problem: Slow polling
+# - Normal: TCP adds 5-50ms vs RS485
+# - Reduce number of registers polled if possible
+# - Use Ethernet instead of WiFi
+# - Check for network bottlenecks
+# - Monitor bridge performance
+#
+##########################################################################################

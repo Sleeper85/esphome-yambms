@@ -1,0 +1,241 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | BMS Modbus TCP Client Configuration  |
+# +--------------------------------------+
+# This configuration enables the master node to poll BMS servers via TCP/IP.
+#
+# IMPORTANT: ESPHome does not currently have native Modbus TCP client support.
+# This file documents the recommended approach using hybrid hardware+software.
+#
+# Architecture:
+#   ESP32 → RS485/UART → TCP-to-RS485 Bridge → Network → Server Nodes
+#
+# APPROACH 1: Hardware Bridge (Recommended - Available Now)
+#   - Use existing bms_combine_modbus_client.yaml (no changes needed!)
+#   - Add external hardware TCP-to-RS485 converter between ESP32 and network
+#   - Hardware examples: EBYTE NT1, USR-TCP232-410S, Elfin-EE11
+#   - ESP32 uses local RS485, hardware bridge forwards to TCP servers
+#
+# APPROACH 2: Software Bridge (Future - Requires Custom Component)
+#   - Waiting for native Modbus TCP client in ESPHome
+#   - Or custom C++ component for TCP client functionality
+#   - See GitHub issue: esphome/feature-requests#708
+
+# +--------------------------------------+
+# | Recommended Setup (Hardware Bridge)  |
+# +--------------------------------------+
+
+# Include the standard Modbus client configuration
+# This works unchanged with hardware TCP-to-RS485 bridge
+packages:
+  modbus_client: !include bms_combine_modbus_client.yaml
+
+# +--------------------------------------+
+# | Hardware Bridge Configuration        |
+# +--------------------------------------+
+#
+# External Hardware TCP-to-RS485 Bridge Setup:
+#
+# 1. Hardware Options:
+#    - EBYTE NT1: Modbus TCP to RTU converter
+#    - USR-TCP232-410S: Serial to Ethernet converter
+#    - Elfin-EE11: Industrial Modbus gateway
+#    - Any Modbus TCP to RTU gateway device
+#
+# 2. Wiring:
+#    ESP32 RS485 → Bridge RS485 input
+#    Bridge Ethernet → Network switch
+#    Server nodes on same network
+#
+# 3. Bridge Configuration:
+#    - Set bridge to "Modbus TCP Client" mode
+#    - Configure server IP addresses and ports
+#    - Map Modbus addresses (1, 2, 3...) to corresponding IPs
+#    - Example mapping:
+#      Address 1 → 192.168.1.101:502 (BMS Server 1)
+#      Address 2 → 192.168.1.102:502 (BMS Server 2)
+#      Address 3 → 192.168.1.103:502 (BMS Server 3)
+#
+# 4. ESP32 Configuration:
+#    - Use standard UART/RS485 interface
+#    - No changes to modbus_controller needed
+#    - Polls as normal with Modbus addresses 1, 2, 3, etc.
+#    - Bridge transparently forwards to TCP servers
+#
+# 5. Network Setup:
+#    - Ensure all nodes on same network/VLAN
+#    - Configure static IPs for servers (recommended)
+#    - Verify port 502 is open
+#
+# Advantages:
+#   - Works with existing ESPHome configuration
+#   - No custom components needed
+#   - Reliable hardware-based solution
+#   - Can mix RS485 and TCP nodes
+#
+# Disadvantages:
+#   - Requires external hardware (~$30-100 USD)
+#   - Additional device to configure
+#   - Extra point of failure
+
+# +--------------------------------------+
+# | Alternative: Direct TCP Client       |
+# +--------------------------------------+
+#
+# FUTURE OPTION: When ESPHome adds native Modbus TCP client support
+# or if you implement a custom component.
+#
+# Conceptual configuration (NOT currently functional):
+#
+# external_components:
+#   - source: github://future/esphome-modbus-tcp  # Hypothetical
+#     components: [ modbus_tcp_client ]
+#
+# modbus_tcp_client:
+#   - id: modbus_tcp_1
+#     host: 192.168.1.101  # BMS Server 1
+#     port: 502
+#     address: 1
+#     update_interval: 5s
+#   - id: modbus_tcp_2
+#     host: 192.168.1.102  # BMS Server 2
+#     port: 502
+#     address: 2
+#     update_interval: 5s
+#
+# This would allow direct ESP32 → Network → Servers without hardware bridge.
+# Track progress: https://github.com/esphome/feature-requests/issues/708
+
+# +--------------------------------------+
+# | Monitoring & Diagnostics             |
+# +--------------------------------------+
+
+# Network connectivity monitoring
+binary_sensor:
+  - platform: template
+    id: modbus_tcp_network_active
+    name: "${name} Modbus Network Active"
+    icon: "mdi:network"
+    entity_category: diagnostic
+    lambda: |-
+      // Network is active if connected
+      return id(my_network).is_connected();
+
+sensor:
+  - platform: wifi_signal
+    id: client_wifi_signal
+    name: "${name} WiFi Signal"
+    update_interval: 60s
+    entity_category: diagnostic
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: client_ip_address
+      name: "${name} Client IP"
+      icon: "mdi:ip-network"
+      entity_category: diagnostic
+
+# +--------------------------------------+
+# | Implementation Guide                 |
+# +--------------------------------------+
+#
+# Quick Start for TCP Multi-Node:
+#
+# 1. SERVER NODES (BMS/Shunt monitoring):
+#    a. Use bms_modbus_tcp_server.yaml package
+#    b. Configure unique bms_id: '1', '2', '3', etc.
+#    c. Connect to network (WiFi or Ethernet)
+#    d. Note each node's IP address
+#    e. Verify port 502 accessible
+#
+# 2. CLIENT NODE (Master/Aggregator):
+#    a. Install hardware TCP-to-RS485 bridge
+#    b. Configure bridge with server IP mappings
+#    c. Use THIS package (unchanged from RS485 version)
+#    d. Wire ESP32 RS485 to bridge
+#    e. Normal operation - polls via addresses
+#
+# 3. NETWORK SETUP:
+#    a. All nodes on same network
+#    b. Static IPs for servers (recommended)
+#    c. mDNS enabled for discovery
+#    d. Port 502 open in firewall
+#
+# 4. TESTING:
+#    a. Ping each server IP from client network
+#    b. Use Modbus TCP test tool to verify servers
+#    c. Monitor ESPHome logs for connectivity
+#    d. Check wifi_signal_strength on all nodes
+#
+# Benefits of TCP vs RS485:
+#   ✓ No distance limits (vs 1200m RS485 max)
+#   ✓ No RS485 transceivers needed
+#   ✓ Easier to add/remove nodes
+#   ✓ Can use existing network infrastructure
+#   ✓ Works across VLANs/subnets
+#   ✓ Better for distributed installations
+#
+# Considerations:
+#   ⚠ Network latency (5-50ms vs <1ms RS485)
+#   ⚠ WiFi reliability vs wired RS485
+#   ⚠ Requires hardware bridge for client
+#   ⚠ More complex troubleshooting
+#   ⚠ Network dependency for operation
+#
+# Recommendation:
+#   - Use Ethernet where possible for reliability
+#   - Keep update_interval at 5s or higher
+#   - Monitor network connectivity
+#   - Have fallback plan for network outage
+#
+# Example Configurations:
+#   See examples/multi-node-tcp/ directory
+
+# +--------------------------------------+
+# | Hardware Bridge Products             |
+# +--------------------------------------+
+#
+# Recommended Hardware Bridges:
+#
+# 1. EBYTE NT1 Modbus Gateway
+#    - Native Modbus TCP to RTU conversion
+#    - Web configuration interface
+#    - ~$40 USD
+#
+# 2. USR-TCP232-410S
+#    - Serial to Ethernet converter
+#    - Modbus gateway mode
+#    - ~$30 USD
+#
+# 3. Elfin-EE11
+#    - Industrial Modbus gateway
+#    - Din rail mountable
+#    - ~$50 USD
+#
+# 4. DIY Option:
+#    - Additional ESP32 running esphome_modbus_bridge
+#    - Acts as local bridge for client
+#    - Free (if you have spare ESP32)
+#    - Configuration:
+#      * Client ESP32 → UART → Bridge ESP32 (modbus_bridge)
+#      * Bridge ESP32 → Network → Server nodes
+#      * Bridge forwards UART Modbus RTU to TCP servers
