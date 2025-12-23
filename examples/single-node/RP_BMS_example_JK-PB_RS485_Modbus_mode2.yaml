@@ -1,5 +1,5 @@
-# Updated : 2025.12.1
-# Version : 1.1.2
+# Updated : 2025.12.23
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -36,85 +36,59 @@ packages:
       # RS485 Sniffer with talk_pin (WS-RS485-CAN and other RS485 boards with a flow_control_pin)
       # - path: 'packages/bms/bms_combine_JK_RS485_Modbus_sniffer_talk_pin.yaml'
       #   vars:
-      #     sniffer_id: 'sniffer1'
       #     sniffer_protocol: 'JK02_32S'
       #     sniffer_uart_id: 'uart_esp_1'
       #     sniffer_talk_pin: ${talk_pin} # can be replaced by the GPIO number
       # RS485 Sniffer
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml'
         vars:
-          sniffer_id: 'sniffer1'
           sniffer_protocol: 'JK02_32S'
           sniffer_uart_id: 'uart_esp_1'
       # BMS 1
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '1' # must be a number
           bms_name: 'JK-BMS 1'
           bms_address: '0x01' # BMS 1 DIP switch
       # BMS 2
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '2' # must be a number
           bms_name: 'JK-BMS 2'
           bms_address: '0x02' # BMS 2 DIP switch
       # BMS 3
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '3' # must be a number
           bms_name: 'JK-BMS 3'
           bms_address: '0x03' # BMS 3 DIP switch
       # BMS 4
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '4' # must be a number
           bms_name: 'JK-BMS 4'
           bms_address: '0x04' # BMS 4 DIP switch
       # BMS 5
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '5' # must be a number
           bms_name: 'JK-BMS 5'
           bms_address: '0x05' # BMS 5 DIP switch
       # BMS 6
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '6' # must be a number
           bms_name: 'JK-BMS 6'
           bms_address: '0x06' # BMS 6 DIP switch
       # BMS 7
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '7' # must be a number
           bms_name: 'JK-BMS 7'
           bms_address: '0x07' # BMS 7 DIP switch
       # BMS 8
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
         vars:
-          # Sniffer ID
-          sniffer_id: 'sniffer1'
-          # BMS vars
           bms_id: '8' # must be a number
           bms_name: 'JK-BMS 8'
           bms_address: '0x08' # BMS 8 DIP switch
