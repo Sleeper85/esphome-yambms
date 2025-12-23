@@ -1,0 +1,96 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# MQTT Multi-Node Server 2 Example
+# See MQTT_example_multi-node_YamBMS_server_1.yaml for detailed comments
+
+substitutions:
+  friendly_name: 'YamBMS MQTT Server 2'
+  hostname: !secret server2_hostname
+  name: !secret server2_hostname
+  bms_id: '2'  # Different from Server 1
+
+  # MQTT Configuration
+  mqtt_broker: !secret mqtt_broker
+  mqtt_username: !secret mqtt_username
+  mqtt_password: !secret mqtt_password
+
+esphome:
+  name: ${hostname}
+  friendly_name: ${friendly_name}
+
+packages:
+  board_base: !include ../../packages/base/device_base.yaml
+  board_wifi: !include ../../packages/base/device_base_wifi.yaml
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  enable_ipv6: true
+  manual_ip:
+    static_ip: !secret server2_ip  # Different from Server 1
+    gateway: !secret gateway_ipv4
+    subnet: !secret subnet_ipv4
+    dns1: !secret dns1_ipv4
+  ap:
+    ssid: !secret ap_ssid
+    password: !secret ap_password
+
+mdns:
+  disabled: false
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  - platform: esphome
+
+packages:
+  bms2: !include
+    file: ../../packages/bms/bms_JK_UART.yaml
+    vars:
+      bms_id: '2'
+      bms_name: 'JK-BMS 2'
+      bms_uart_id: 'uart_esp_1'
+      bms_cell_max_cycles: '6000.0'
+
+  mqtt_server: !include ../../packages/bms/bms_mqtt_server.yaml
+
+uart:
+  - id: uart_esp_1
+    tx_pin: GPIO17
+    rx_pin: GPIO16
+    baud_rate: 115200
+
+text_sensor:
+  - platform: template
+    name: "${friendly_name} Access Info"
+    icon: "mdi:information"
+    entity_category: diagnostic
+    lambda: |-
+      std::string info = "";
+      if (id(my_network).is_connected()) {
+        info += "IPv4: " + id(my_network).get_ip_address().str() + "\\n";
+      }
+      #ifdef USE_NETWORK_IPV6
+        auto ipv6 = id(my_network).get_ipv6();
+        if (ipv6.size() > 0) {
+          info += "IPv6: " + ipv6[0].str() + "\\n";
+        }
+      #endif
+      info += "mDNS: ${hostname}.local\\n";
+      info += "MQTT: " + std::string("${mqtt_broker}") + "\\n";
+      info += "Topic: yambms/server${bms_id}";
+      return info;
+    update_interval: 60s

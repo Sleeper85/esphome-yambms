@@ -1,0 +1,180 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | BMS MQTT Server Package              |
+# +--------------------------------------+
+#
+# PURPOSE:
+#   Publishes local BMS data to MQTT for consumption by master node
+#   Eliminates need for physical RS485/Modbus wiring between nodes
+#
+# FEATURES:
+#   - Publishes all BMS sensors to MQTT
+#   - Automatic discovery by master node
+#   - Native ESPHome MQTT support
+#   - Binary sensor state handling
+#   - Efficient JSON publishing
+#
+# USAGE:
+#   Include this package alongside your BMS package
+#   All sensors are automatically published to MQTT
+#
+# BOARD VARIABLES (required):
+#   bms_id: BMS identifier (1-255)
+#   bms_name: Friendly name for this BMS
+#   mqtt_broker: MQTT broker address
+#   mqtt_username: MQTT username (optional)
+#   mqtt_password: MQTT password (optional)
+#
+# MQTT TOPICS:
+#   yambms/server${bms_id}/status           - Online/offline status
+#   yambms/server${bms_id}/voltage          - Total voltage
+#   yambms/server${bms_id}/current          - Current
+#   yambms/server${bms_id}/power            - Power
+#   yambms/server${bms_id}/soc              - State of charge
+#   yambms/server${bms_id}/temperature_min  - Min temperature
+#   yambms/server${bms_id}/temperature_max  - Max temperature
+#   yambms/server${bms_id}/cell_voltage_min - Min cell voltage
+#   yambms/server${bms_id}/cell_voltage_max - Max cell voltage
+#   yambms/server${bms_id}/alarms           - Alarm bitmask
+#   yambms/server${bms_id}/warnings         - Warning bitmask
+#   ... and all other BMS sensors
+
+# MQTT Configuration
+mqtt:
+  broker: ${mqtt_broker}
+  username: ${mqtt_username}
+  password: ${mqtt_password}
+  topic_prefix: yambms/server${bms_id}
+  birth_message:
+    topic: yambms/server${bms_id}/status
+    payload: online
+  will_message:
+    topic: yambms/server${bms_id}/status
+    payload: offline
+  log_topic:
+    topic: yambms/server${bms_id}/log
+    level: INFO
+
+# +--------------------------------------+
+# | Automatic Sensor Publishing          |
+# +--------------------------------------+
+#
+# All sensors defined in your BMS package are automatically
+# published to MQTT. ESPHome handles this natively.
+#
+# Topic format: yambms/server${bms_id}/<sensor_id>/state
+#
+# Example topics published:
+#   yambms/server1/bms_1_total_voltage/state
+#   yambms/server1/bms_1_current/state
+#   yambms/server1/bms_1_power/state
+#   yambms/server1/bms_1_state_of_charge/state
+#   yambms/server1/bms_1_temperature_1/state
+#   yambms/server1/bms_1_temperature_2/state
+#   yambms/server1/bms_1_min_cell_voltage/state
+#   yambms/server1/bms_1_max_cell_voltage/state
+#   yambms/server1/bms_1_min_voltage_cell/state
+#   yambms/server1/bms_1_max_voltage_cell/state
+#   yambms/server1/bms_1_cells_number/state
+#   yambms/server1/bms_1_charging_mos/state
+#   yambms/server1/bms_1_discharging_mos/state
+#   yambms/server1/bms_1_balancer/state
+#   yambms/server1/bms_1_errors_bitmask/state
+#
+# Binary sensors publish "ON" or "OFF"
+# Numeric sensors publish their numeric value
+
+# +--------------------------------------+
+# | Server Discovery                     |
+# +--------------------------------------+
+#
+# Publish server metadata for client discovery
+
+text_sensor:
+  - platform: template
+    name: "${bms_name} MQTT Server Info"
+    id: mqtt_server_info
+    icon: "mdi:information"
+    entity_category: diagnostic
+    lambda: |-
+      char info[200];
+      snprintf(info, sizeof(info),
+        "BMS ID: %s | Name: %s | Topic: yambms/server%s | Status: Online",
+        "${bms_id}", "${bms_name}", "${bms_id}");
+      return {info};
+    update_interval: 60s
+
+# +--------------------------------------+
+# | Heartbeat                            |
+# +--------------------------------------+
+#
+# Regular heartbeat to indicate server is alive
+
+interval:
+  - interval: 10s
+    then:
+      - mqtt.publish:
+          topic: yambms/server${bms_id}/heartbeat
+          payload: !lambda |-
+            char payload[50];
+            snprintf(payload, sizeof(payload), "%lu", millis());
+            return {payload};
+
+# +--------------------------------------+
+# | Usage Notes                          |
+# +--------------------------------------+
+#
+# CONFIGURATION EXAMPLE:
+#
+# substitutions:
+#   bms_id: "1"
+#   bms_name: "JK-BMS 1"
+#   mqtt_broker: !secret mqtt_broker
+#   mqtt_username: !secret mqtt_username
+#   mqtt_password: !secret mqtt_password
+#
+# packages:
+#   # Your BMS package (JK, Daly, etc.)
+#   bms1: !include
+#     file: bms_JK_UART.yaml
+#     vars:
+#       bms_id: "1"
+#       bms_name: "JK-BMS 1"
+#       bms_uart_id: uart_esp_1
+#
+#   # MQTT server publishing
+#   mqtt_server: !include
+#     file: bms_mqtt_server.yaml
+#
+# BROKER REQUIREMENTS:
+#   - MQTT 3.1.1 or later
+#   - QoS 0, 1, or 2 support
+#   - Retained messages support
+#   - Birth/Will message support
+#
+# NETWORK REQUIREMENTS:
+#   - Reliable WiFi/Ethernet connection
+#   - Low latency preferred (<50ms)
+#   - Adequate bandwidth (>100 kbps)
+#
+# SECURITY:
+#   - Use TLS/SSL for production (port 8883)
+#   - Strong passwords required
+#   - Consider client certificates
+#   - Network segmentation recommended
+#
+# MONITORING:
+#   - Check heartbeat messages (every 10s)
+#   - Monitor status topic (online/offline)
+#   - Use MQTT Explorer for debugging
+#   - Check ESPHome logs for errors
+#
+# TROUBLESHOOTING:
+#   - Verify broker connectivity
+#   - Check username/password
+#   - Ensure topic permissions (ACLs)
+#   - Monitor network latency
+#   - Check ESPHome MQTT component logs

@@ -1,0 +1,381 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | BMS MQTT Client Package              |
+# +--------------------------------------+
+#
+# PURPOSE:
+#   Subscribes to remote BMS server MQTT topics
+#   Creates local sensors for YamBMS combination logic
+#   Eliminates need for physical RS485/Modbus wiring
+#
+# FEATURES:
+#   - Subscribes to all BMS server topics
+#   - Creates sensors compatible with YamBMS combine logic
+#   - Automatic reconnection and state restoration
+#   - Online status monitoring via heartbeat
+#   - Native ESPHome MQTT support
+#
+# USAGE:
+#   Include this package for each remote BMS server
+#   YamBMS will combine data from all BMS clients
+#
+# BOARD VARIABLES (required):
+#   bms_id: BMS identifier (must match server bms_id)
+#   bms_name: Friendly name for this BMS
+#   bms_model: BMS model name (e.g., "JK-BMS", "Daly BMS")
+#   bms_protocol: Protocol name (e.g., "MQTT")
+#   mqtt_server_id: Server ID to subscribe to (e.g., "1" for server1)
+#
+# MQTT BROKER:
+#   Configured in main configuration, shared across all clients
+#
+# SUBSCRIBED TOPICS:
+#   yambms/server${mqtt_server_id}/*
+#
+# NOTE:
+#   This package creates "virtual" BMS sensors that receive data via MQTT
+#   The sensor IDs match what YamBMS expects (bms${bms_id}_xxx)
+#   YamBMS combination logic works identically to local BMS packages
+
+# +--------------------------------------+
+# | MQTT Subscribe Sensors               |
+# +--------------------------------------+
+#
+# These sensors subscribe to the server's MQTT topics
+# and present the data as local sensors for YamBMS
+
+sensor:
+  # Total Voltage
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Total Voltage"
+    id: bms${bms_id}_total_voltage
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_total_voltage/state
+    device_class: voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    device_id: bms_${bms_id}
+
+  # Current
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Current"
+    id: bms${bms_id}_current
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_current/state
+    device_class: current
+    unit_of_measurement: "A"
+    accuracy_decimals: 2
+    device_id: bms_${bms_id}
+
+  # Power
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Power"
+    id: bms${bms_id}_power
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_power/state
+    device_class: power
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    device_id: bms_${bms_id}
+
+  # State of Charge (SOC)
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} State of Charge"
+    id: bms${bms_id}_state_of_charge
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_state_of_charge/state
+    device_class: battery
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    device_id: bms_${bms_id}
+
+  # Battery Capacity (Total Ah)
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Battery Capacity"
+    id: bms${bms_id}_battery_capacity
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_battery_capacity/state
+    unit_of_measurement: "Ah"
+    accuracy_decimals: 1
+    device_id: bms_${bms_id}
+
+  # Temperature 1 (Min)
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Temperature 1"
+    id: bms${bms_id}_temperature_1
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_temperature_1/state
+    device_class: temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_id: bms_${bms_id}
+
+  # Temperature 2 (Max)
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Temperature 2"
+    id: bms${bms_id}_temperature_2
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_temperature_2/state
+    device_class: temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    device_id: bms_${bms_id}
+
+  # Min Cell Voltage
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Min Cell Voltage"
+    id: bms${bms_id}_min_cell_voltage
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_min_cell_voltage/state
+    device_class: voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    device_id: bms_${bms_id}
+
+  # Max Cell Voltage
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Max Cell Voltage"
+    id: bms${bms_id}_max_cell_voltage
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_max_cell_voltage/state
+    device_class: voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    device_id: bms_${bms_id}
+
+  # Min Voltage Cell Number
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Min Voltage Cell"
+    id: bms${bms_id}_min_voltage_cell
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_min_voltage_cell/state
+    accuracy_decimals: 0
+    device_id: bms_${bms_id}
+
+  # Max Voltage Cell Number
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Max Voltage Cell"
+    id: bms${bms_id}_max_voltage_cell
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_max_voltage_cell/state
+    accuracy_decimals: 0
+    device_id: bms_${bms_id}
+
+  # Delta Cell Voltage
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Delta Cell Voltage"
+    id: bms${bms_id}_delta_cell_voltage
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_delta_cell_voltage/state
+    device_class: voltage
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    device_id: bms_${bms_id}
+
+  # Cells Number
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Cells Number"
+    id: bms${bms_id}_cells_number
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_cells_number/state
+    accuracy_decimals: 0
+    device_id: bms_${bms_id}
+
+  # Max Charge Current
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Max Charge Current"
+    id: bms${bms_id}_max_charge_current
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_max_charge_current/state
+    device_class: current
+    unit_of_measurement: "A"
+    accuracy_decimals: 1
+    device_id: bms_${bms_id}
+
+  # Max Discharge Current
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Max Discharge Current"
+    id: bms${bms_id}_max_discharge_current
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_max_discharge_current/state
+    device_class: current
+    unit_of_measurement: "A"
+    accuracy_decimals: 1
+    device_id: bms_${bms_id}
+
+  # YamBMS Errors Bitmask
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} YamBMS Errors Bitmask"
+    id: bms${bms_id}_yambms_errors_bitmask
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_yambms_errors_bitmask/state
+    accuracy_decimals: 0
+    device_id: bms_${bms_id}
+
+# +--------------------------------------+
+# | Binary Sensors                       |
+# +--------------------------------------+
+
+binary_sensor:
+  # Online Status (via heartbeat)
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Online Status"
+    id: bms${bms_id}_online_status
+    topic: yambms/server${mqtt_server_id}/status
+    payload_on: "online"
+    payload_off: "offline"
+    device_id: bms_${bms_id}
+
+  # Charging MOS
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Charging MOS"
+    id: bms${bms_id}_charging_mos
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_charging_mos/state
+    payload_on: "ON"
+    payload_off: "OFF"
+    device_id: bms_${bms_id}
+
+  # Discharging MOS
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Discharging MOS"
+    id: bms${bms_id}_discharging_mos
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_discharging_mos/state
+    payload_on: "ON"
+    payload_off: "OFF"
+    device_id: bms_${bms_id}
+
+  # Balancer Active
+  - platform: mqtt_subscribe
+    name: "${name} ${bms_name} Balancer"
+    id: bms${bms_id}_balancer
+    topic: yambms/server${mqtt_server_id}/bms_${mqtt_server_id}_balancer/state
+    payload_on: "ON"
+    payload_off: "OFF"
+    device_id: bms_${bms_id}
+
+  # Charging Allowed (derived from charging MOS and errors)
+  - platform: template
+    name: "${name} ${bms_name} Charging Allowed"
+    id: bms${bms_id}_charging_allowed
+    lambda: |-
+      return id(bms${bms_id}_charging_mos).state &&
+             id(bms${bms_id}_online_status).state &&
+             id(bms${bms_id}_yambms_errors_bitmask).state == 0;
+    device_id: bms_${bms_id}
+
+  # Discharging Allowed (derived from discharging MOS and errors)
+  - platform: template
+    name: "${name} ${bms_name} Discharging Allowed"
+    id: bms${bms_id}_discharging_allowed
+    lambda: |-
+      return id(bms${bms_id}_discharging_mos).state &&
+             id(bms${bms_id}_online_status).state &&
+             id(bms${bms_id}_yambms_errors_bitmask).state == 0;
+    device_id: bms_${bms_id}
+
+# +--------------------------------------+
+# | Heartbeat Monitor                    |
+# +--------------------------------------+
+#
+# Monitor server heartbeat to detect disconnection
+
+globals:
+  - id: bms${bms_id}_last_heartbeat_ms
+    type: unsigned long
+    initial_value: "0"
+
+script:
+  - id: bms${bms_id}_heartbeat_received
+    then:
+      - lambda: |-
+          id(bms${bms_id}_last_heartbeat_ms) = millis();
+
+# Subscribe to heartbeat
+mqtt:
+  on_message:
+    - topic: yambms/server${mqtt_server_id}/heartbeat
+      then:
+        - script.execute: bms${bms_id}_heartbeat_received
+
+# Check heartbeat timeout (30 seconds)
+interval:
+  - interval: 5s
+    then:
+      - lambda: |-
+          unsigned long now = millis();
+          unsigned long last = id(bms${bms_id}_last_heartbeat_ms);
+          if (last > 0 && (now - last) > 30000) {
+            // Heartbeat timeout - mark as offline
+            if (id(bms${bms_id}_online_status).state) {
+              ESP_LOGW("mqtt_client", "BMS ${bms_id} heartbeat timeout - marking offline");
+              id(bms${bms_id}_online_status).publish_state(false);
+            }
+          }
+
+# +--------------------------------------+
+# | Text Sensors                         |
+# +--------------------------------------+
+
+text_sensor:
+  - platform: template
+    name: "${name} ${bms_name} Protocol"
+    id: bms${bms_id}_protocol
+    icon: "mdi:connection"
+    entity_category: diagnostic
+    lambda: |-
+      return {"${bms_protocol}"};
+    device_id: bms_${bms_id}
+
+  - platform: template
+    name: "${name} ${bms_name} MQTT Client Info"
+    icon: "mdi:information"
+    entity_category: diagnostic
+    lambda: |-
+      char info[200];
+      snprintf(info, sizeof(info),
+        "BMS ID: ${bms_id} | Server: ${mqtt_server_id} | Topic: yambms/server${mqtt_server_id} | Status: %s",
+        id(bms${bms_id}_online_status).state ? "Online" : "Offline");
+      return {info};
+    update_interval: 10s
+    device_id: bms_${bms_id}
+
+# +--------------------------------------+
+# | Usage Notes                          |
+# +--------------------------------------+
+#
+# CONFIGURATION EXAMPLE:
+#
+# packages:
+#   # BMS 1 from remote server 1
+#   bms1: !include
+#     file: packages/bms/bms_mqtt_client.yaml
+#     vars:
+#       bms_id: "1"
+#       bms_name: "JK-BMS 1"
+#       bms_model: "JK-BMS"
+#       bms_protocol: "MQTT"
+#       mqtt_server_id: "1"
+#
+#   # BMS 2 from remote server 2
+#   bms2: !include
+#     file: packages/bms/bms_mqtt_client.yaml
+#     vars:
+#       bms_id: "2"
+#       bms_name: "Daly BMS 2"
+#       bms_model: "Daly BMS"
+#       bms_protocol: "MQTT"
+#       mqtt_server_id: "2"
+#
+#   # YamBMS combination logic
+#   yambms: !include packages/yambms.yaml
+#
+# IMPORTANT:
+#   - bms_id can be different from mqtt_server_id
+#   - mqtt_server_id must match the server's bms_id
+#   - All clients must connect to same MQTT broker
+#   - Heartbeat monitors server availability (30s timeout)
+#   - Online status indicates server connectivity
+#
+# SENSOR MAPPING:
+#   Server publishes: yambms/server1/bms_1_total_voltage/state
+#   Client subscribes: Same topic
+#   Creates sensor: bms${bms_id}_total_voltage
+#   YamBMS uses: id(bms1_total_voltage).state
+#
+# COMPATIBILITY:
+#   This package creates sensors with IDs matching local BMS packages
+#   YamBMS combination logic works identically
+#   Can mix local and MQTT BMS sources on same master node
+#
+# MONITORING:
+#   - Check "Online Status" sensor
+#   - Monitor heartbeat timeout in logs
+#   - Verify MQTT topics in MQTT Explorer
+#   - Check ESPHome logs for errors

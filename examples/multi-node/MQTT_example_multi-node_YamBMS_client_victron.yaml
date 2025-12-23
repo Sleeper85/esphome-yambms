@@ -1,0 +1,316 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | MQTT Multi-Node Client Example       |
+# +--------------------------------------+
+#
+# PURPOSE:
+#   Master node that subscribes to BMS servers via MQTT
+#   Combines data and controls Victron inverter via MQTT
+#
+# ARCHITECTURE:
+#   BMS Servers → MQTT Broker ← YamBMS Client → Victron Cerbo GX
+#                                               (Network only, $0!)
+#
+# BENEFITS:
+#   - No hardware required (vs $30-100 for TCP bridge or $20-50 for CAN)
+#   - No GPIO pins used (CAN TX/RX freed)
+#   - Native mDNS and IPv6 support
+#   - More efficient than TCP/Modbus polling
+#   - Standard protocols (MQTT/JSON)
+#   - Easier debugging (MQTT Explorer, mosquitto tools)
+#
+# REQUIREMENTS:
+#   - MQTT broker accessible by all nodes
+#   - BMS server nodes running and publishing
+#   - Victron Cerbo GX with venus-os_dbus-mqtt-battery driver
+#   - secrets.yaml configured
+#
+# NO HARDWARE BRIDGES NEEDED!
+# NO CAN BUS HARDWARE NEEDED!
+#
+# SEE ALSO:
+#   - secrets.yaml.example (MQTT and Victron configuration)
+#   - README.md (complete setup guide)
+#   - YamBMS_MQTT_to_Victron_solution.md (Victron integration details)
+#   - YamBMS_MQTT_vs_ModbusTCP_analysis.md (performance comparison)
+
+substitutions:
+  friendly_name: 'YamBMS MQTT Client'
+  hostname: !secret client_hostname
+  name: !secret client_hostname
+  yambms_id: 'yambms'
+
+  # MQTT Configuration
+  mqtt_broker: !secret mqtt_broker
+  mqtt_username: !secret mqtt_username
+  mqtt_password: !secret mqtt_password
+
+  # Victron Configuration
+  victron_mqtt_topic: "yambms/victron/battery"
+  victron_update_interval: "1s"
+
+esphome:
+  name: ${hostname}
+  friendly_name: ${friendly_name}
+
+packages:
+  board_base: !include ../../packages/base/device_base.yaml
+  board_wifi: !include ../../packages/base/device_base_wifi.yaml
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Client network configuration
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  enable_ipv6: true
+  manual_ip:
+    static_ip: !secret client_ip
+    gateway: !secret gateway_ipv4
+    subnet: !secret subnet_ipv4
+    dns1: !secret dns1_ipv4
+  ap:
+    ssid: !secret ap_ssid
+    password: !secret ap_password
+
+mdns:
+  disabled: false
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  - platform: esphome
+
+# +--------------------------------------+
+# | MQTT Configuration                   |
+# +--------------------------------------+
+
+mqtt:
+  broker: ${mqtt_broker}
+  username: ${mqtt_username}
+  password: ${mqtt_password}
+  id: mqtt_client
+  # Optional: TLS/SSL for production
+  # port: 8883
+  # certificate_authority: !secret mqtt_ca_cert
+
+# +--------------------------------------+
+# | BMS MQTT Clients                     |
+# +--------------------------------------+
+#
+# Subscribe to remote BMS servers via MQTT
+
+packages:
+  # BMS 1 from Server 1
+  bms1: !include
+    file: ../../packages/bms/bms_mqtt_client.yaml
+    vars:
+      bms_id: '1'
+      bms_name: 'JK-BMS 1'
+      bms_model: 'JK-BMS'
+      bms_protocol: 'MQTT'
+      mqtt_server_id: '1'  # Subscribes to server1 topics
+
+  # BMS 2 from Server 2
+  bms2: !include
+    file: ../../packages/bms/bms_mqtt_client.yaml
+    vars:
+      bms_id: '2'
+      bms_name: 'JK-BMS 2'
+      bms_model: 'JK-BMS'
+      bms_protocol: 'MQTT'
+      mqtt_server_id: '2'  # Subscribes to server2 topics
+
+  # Add more BMS clients as needed
+  # bms3: !include
+  #   file: ../../packages/bms/bms_mqtt_client.yaml
+  #   vars:
+  #     bms_id: '3'
+  #     bms_name: 'Daly BMS 3'
+  #     bms_model: 'Daly BMS'
+  #     bms_protocol: 'MQTT'
+  #     mqtt_server_id: '3'
+
+  # YamBMS combination logic
+  yambms: !include ../../packages/yambms.yaml
+
+  # Victron MQTT integration (replaces CAN bus!)
+  victron: !include
+    file: ../../packages/inverter/inverter_victron_mqtt.yaml
+    vars:
+      yambms_id: 'yambms'
+      victron_mqtt_topic: '${victron_mqtt_topic}'
+      victron_update_interval: '${victron_update_interval}'
+
+# +--------------------------------------+
+# | Alternative: Local Inverter via CAN  |
+# +--------------------------------------+
+#
+# If you still want to use CAN bus for inverter:
+#
+# packages:
+#   canbus: !include
+#     file: ../../packages/board/board_options_itf_canbus_esp32_can.yaml
+#     vars:
+#       canbus_node_id: 'canbus_1'
+#
+#   inverter: !include
+#     file: ../../packages/inverter/protocol_PYLON_CAN.yaml
+#     vars:
+#       inverter_node_id: 'inverter_1'
+#       inverter_canbus_id: 'canbus_1'
+#
+# But MQTT to Victron is recommended - no hardware needed!
+
+# +--------------------------------------+
+# | Status Information                   |
+# +--------------------------------------+
+
+text_sensor:
+  - platform: template
+    name: "${friendly_name} System Info"
+    icon: "mdi:information"
+    entity_category: diagnostic
+    lambda: |-
+      char info[300];
+      snprintf(info, sizeof(info),
+        "Network: %s\\n"
+        "MQTT: %s (%s)\\n"
+        "BMS Count: %d\\n"
+        "Victron: %s\\n"
+        "Combined: %.1fV %.1fA %d%% SOC",
+        id(my_network).is_connected() ? "Connected" : "Disconnected",
+        "${mqtt_broker}",
+        id(mqtt_client).is_connected() ? "Connected" : "Disconnected",
+        (int)id(${yambms_id}_bms_combined).state,
+        id(victron_mqtt_active).state ? "Active" : "Inactive",
+        id(${yambms_id}_total_voltage).state,
+        id(${yambms_id}_current).state,
+        (int)id(${yambms_id}_battery_soc).state);
+      return {info};
+    update_interval: 10s
+
+# +--------------------------------------+
+# | Cerbo GX Configuration               |
+# +--------------------------------------+
+#
+# SETUP INSTRUCTIONS:
+#
+# 1. Install venus-os_dbus-mqtt-battery on Cerbo GX:
+#    ssh root@cerbo-gx.local
+#    wget https://raw.githubusercontent.com/mr-manuel/venus-os_dbus-mqtt-battery/master/install.sh
+#    bash install.sh
+#
+# 2. Configure /data/etc/dbus-mqtt-battery/config.ini:
+#    [DEFAULT]
+#    MQTT_BROKER = homeassistant.local
+#    MQTT_PORT = 1883
+#    MQTT_USERNAME = victron
+#    MQTT_PASSWORD = your_password
+#    MQTT_TOPIC = yambms/victron/battery
+#    BATTERY_INSTANCE = 1
+#
+# 3. Restart driver:
+#    svc -t /service/dbus-mqtt-battery
+#
+# 4. Check logs:
+#    tail -f /var/log/dbus-mqtt-battery/current
+#
+# 5. Verify battery appears in Cerbo GX:
+#    - Settings → System Setup → Battery Monitor
+#    - Should see "MQTT Battery" device
+#
+# 6. Check VRM Portal:
+#    - Battery data should appear
+#    - All sensors visible
+#    - Alarms/warnings active
+#
+# +--------------------------------------+
+# | Testing                              |
+# +--------------------------------------+
+#
+# TEST BMS SERVERS:
+#   # Check server 1 online
+#   mosquitto_sub -h mqtt_broker -t "yambms/server1/status"
+#
+#   # Monitor server 1 voltage
+#   mosquitto_sub -h mqtt_broker -t "yambms/server1/bms_1_total_voltage/state"
+#
+# TEST VICTRON DATA:
+#   # View Victron JSON payload
+#   mosquitto_sub -h mqtt_broker -t "yambms/victron/battery"
+#
+#   # Should show complete battery data:
+#   # {"Voltage":51.2,"Current":12.5,"Soc":85,...}
+#
+# TEST CLIENT:
+#   # Check ESPHome logs
+#   esphome logs this-file.yaml
+#
+#   # Should see:
+#   # - MQTT connected
+#   # - BMS data received
+#   # - Victron publishing active
+#
+# +--------------------------------------+
+# | Monitoring                           |
+# +--------------------------------------+
+#
+# HOME ASSISTANT:
+#   All sensors automatically discovered
+#   - Individual BMS sensors (voltage, current, SOC, etc.)
+#   - Combined YamBMS sensors
+#   - Victron status sensors
+#
+# MQTT EXPLORER:
+#   Visual monitoring of all MQTT traffic
+#   - Server topics: yambms/server1/*, yambms/server2/*
+#   - Victron topic: yambms/victron/battery
+#   - Heartbeat messages
+#   - Online status
+#
+# VRM PORTAL:
+#   Battery data visible in Victron cloud
+#   - Real-time monitoring
+#   - Historical data
+#   - Alarms and warnings
+#
+# +--------------------------------------+
+# | Architecture Summary                 |
+# +--------------------------------------+
+#
+# COMPLETE SYSTEM:
+#   ESP32 #1 (Server 1) → Local BMS via UART → Publish MQTT
+#   ESP32 #2 (Server 2) → Local BMS via UART → Publish MQTT
+#                                ↓
+#                           MQTT Broker
+#                                ↓
+#   ESP32 #3 (Client)   → Subscribe MQTT → Combine Data → Publish to Victron
+#                                                              ↓
+#                                                      Victron Cerbo GX
+#                                                              ↓
+#                                                         Inverter
+#
+# NO WIRES BETWEEN NODES!
+# NO HARDWARE BRIDGES!
+# NO CAN BUS!
+# JUST NETWORK!
+#
+# TOTAL HARDWARE COST: $0 (uses existing network)
+# TOTAL GPIO PINS USED: 0 (network only)
+# PROTOCOLS: MQTT + JSON (industry standard)
+# LATENCY: 5-20ms (lower than CAN or Modbus TCP)
+# DEBUGGING: Standard MQTT tools
+# FLEXIBILITY: Nodes can be anywhere on network

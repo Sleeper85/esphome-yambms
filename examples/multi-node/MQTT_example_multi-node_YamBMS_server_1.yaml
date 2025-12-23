@@ -1,0 +1,200 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | MQTT Multi-Node Server 1 Example     |
+# +--------------------------------------+
+#
+# PURPOSE:
+#   BMS server node that publishes data via MQTT
+#   Eliminates physical RS485/Modbus wiring between nodes
+#
+# WHAT THIS DOES:
+#   - Monitors 1-3 local BMS units (via UART/BLE)
+#   - Publishes all BMS data to MQTT broker
+#   - Master node subscribes to this data over network
+#
+# BENEFITS vs TCP/Modbus:
+#   - No hardware bridge required ($0 vs $30-100)
+#   - Native mDNS support (use server1.local)
+#   - Native IPv6 support
+#   - More efficient (push vs poll)
+#   - Better security (TLS, authentication)
+#   - Lower CPU usage (3-5% vs 15%)
+#
+# REQUIREMENTS:
+#   - MQTT broker (Home Assistant, Mosquitto, etc.)
+#   - Network (WiFi or Ethernet)
+#   - Unique server ID per node
+#   - secrets.yaml configured
+#
+# SEE ALSO:
+#   - secrets.yaml.example (MQTT configuration)
+#   - README.md (setup instructions)
+#   - YamBMS_MQTT_vs_ModbusTCP_analysis.md (performance comparison)
+
+substitutions:
+  friendly_name: 'YamBMS MQTT Server 1'
+  hostname: !secret server1_hostname
+  name: !secret server1_hostname
+  bms_id: '1'  # Server ID (must be unique)
+
+  # MQTT Configuration
+  mqtt_broker: !secret mqtt_broker
+  mqtt_username: !secret mqtt_username
+  mqtt_password: !secret mqtt_password
+
+esphome:
+  name: ${hostname}
+  friendly_name: ${friendly_name}
+
+packages:
+  board_base: !include ../../packages/base/device_base.yaml
+  board_wifi: !include ../../packages/base/device_base_wifi.yaml
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Network Configuration
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  enable_ipv6: true
+  manual_ip:
+    static_ip: !secret server1_ip
+    gateway: !secret gateway_ipv4
+    subnet: !secret subnet_ipv4
+    dns1: !secret dns1_ipv4
+  ap:
+    ssid: !secret ap_ssid
+    password: !secret ap_password
+
+mdns:
+  disabled: false
+
+logger:
+  level: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  - platform: esphome
+
+# +--------------------------------------+
+# | BMS Configuration                    |
+# +--------------------------------------+
+
+# Local BMS monitoring (choose your BMS type)
+packages:
+  bms1: !include
+    file: ../../packages/bms/bms_JK_UART.yaml
+    vars:
+      bms_id: '1'
+      bms_name: 'JK-BMS 1'
+      bms_uart_id: 'uart_esp_1'
+      bms_cell_max_cycles: '6000.0'
+
+  # MQTT server publishing
+  mqtt_server: !include ../../packages/bms/bms_mqtt_server.yaml
+
+# UART configuration
+uart:
+  - id: uart_esp_1
+    tx_pin: GPIO17
+    rx_pin: GPIO16
+    baud_rate: 115200
+
+# +--------------------------------------+
+# | Optional: Additional BMS             |
+# +--------------------------------------+
+#
+# You can monitor multiple BMS units on one server node:
+#
+# packages:
+#   bms2: !include
+#     file: ../../packages/bms/bms_Daly_UART.yaml
+#     vars:
+#       bms_id: '1'  # Same server ID
+#       bms_name: 'Daly BMS 2'
+#       bms_uart_id: 'uart_esp_2'
+#
+# uart:
+#   - id: uart_esp_2
+#     tx_pin: GPIO14
+#     rx_pin: GPIO12
+#     baud_rate: 9600
+
+# +--------------------------------------+
+# | Network Discovery Info               |
+# +--------------------------------------+
+
+text_sensor:
+  # Show all network addresses
+  - platform: template
+    name: "${friendly_name} Access Info"
+    icon: "mdi:information"
+    entity_category: diagnostic
+    lambda: |-
+      std::string info = "";
+
+      // Network addresses
+      if (id(my_network).is_connected()) {
+        info += "IPv4: " + id(my_network).get_ip_address().str() + "\\n";
+      }
+      #ifdef USE_NETWORK_IPV6
+        auto ipv6 = id(my_network).get_ipv6();
+        if (ipv6.size() > 0) {
+          info += "IPv6: " + ipv6[0].str() + "\\n";
+        }
+      #endif
+      info += "mDNS: ${hostname}.local\\n";
+
+      // MQTT info
+      info += "MQTT: " + std::string("${mqtt_broker}") + "\\n";
+      info += "Topic: yambms/server${bms_id}";
+
+      return info;
+    update_interval: 60s
+
+# +--------------------------------------+
+# | Quick Start                          |
+# +--------------------------------------+
+#
+# 1. Copy secrets.yaml.example to secrets.yaml
+# 2. Configure MQTT broker settings
+# 3. Set server1_hostname and server1_ip
+# 4. Configure BMS package (JK, Daly, etc.)
+# 5. Set UART pins for your board
+# 6. Flash: esphome run this-file.yaml
+# 7. Check MQTT Explorer for published topics
+#
+# TESTING:
+#   # Subscribe to all server topics
+#   mosquitto_sub -h mqtt_broker -t "yambms/server1/#" -v
+#
+#   # Check specific sensor
+#   mosquitto_sub -h mqtt_broker -t "yambms/server1/bms_1_total_voltage/state"
+#
+# MONITORING:
+#   - "WiFi Signal" sensor
+#   - "Access Info" sensor
+#   - MQTT Explorer (visualize all topics)
+#   - Home Assistant MQTT integration
+#
+# DATA PUBLISHED:
+#   All BMS sensors automatically published
+#   Topic format: yambms/server1/<sensor_id>/state
+#   Examples:
+#     - yambms/server1/bms_1_total_voltage/state
+#     - yambms/server1/bms_1_current/state
+#     - yambms/server1/bms_1_state_of_charge/state
+#     - yambms/server1/bms_1_temperature_1/state
+#     - yambms/server1/bms_1_charging_mos/state
+#     - yambms/server1/status (online/offline)
+#     - yambms/server1/heartbeat (every 10s)

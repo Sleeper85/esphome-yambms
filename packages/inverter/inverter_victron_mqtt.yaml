@@ -1,0 +1,340 @@
+# Updated : 2025.12.23
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# +--------------------------------------+
+# | Victron MQTT Integration Package     |
+# +--------------------------------------+
+#
+# PURPOSE:
+#   Publishes YamBMS battery data to Victron Cerbo GX via MQTT
+#   Eliminates need for CAN bus hardware connection
+#
+# FEATURES:
+#   - Publishes to venus-os_dbus-mqtt-battery compatible format
+#   - Complete data mapping from YamBMS to Victron
+#   - Alarm and warning bitmask conversion
+#   - JSON payload formatting
+#   - Configurable update rate
+#
+# REQUIREMENTS:
+#   - Victron Cerbo GX with Venus OS
+#   - venus-os_dbus-mqtt-battery driver installed on Cerbo
+#   - MQTT broker accessible by both ESP32 and Cerbo
+#   - YamBMS combination logic active
+#
+# BOARD VARIABLES (required):
+#   yambms_id: YamBMS instance ID
+#   victron_mqtt_topic: MQTT topic for Victron (e.g., "yambms/victron/battery")
+#   victron_update_interval: Update rate (e.g., "1s")
+#
+# VICTRON DRIVER CONFIGURATION:
+#   On Cerbo GX, configure /data/etc/dbus-mqtt-battery/config.ini:
+#     MQTT_BROKER = your_broker_address
+#     MQTT_TOPIC = yambms/victron/battery
+#     BATTERY_INSTANCE = 1
+#
+# DATA PUBLISHED:
+#   Complete battery telemetry in JSON format:
+#   - Voltage, current, power, SOC, SOH
+#   - Cell voltages (min/max)
+#   - Temperatures (min/max/avg)
+#   - Charge/discharge limits
+#   - Capacity information
+#   - Alarms and warnings
+#   - Cell balancing status
+#
+# REPLACES:
+#   - CAN bus hardware ($20-50 saved)
+#   - 2 GPIO pins (CAN TX/RX freed)
+#   - All CAN protocol packages
+
+substitutions:
+  victron_mqtt_topic: "yambms/victron/battery"
+  victron_update_interval: "1s"
+
+# +--------------------------------------+
+# | Victron Data Publishing              |
+# +--------------------------------------+
+
+interval:
+  - interval: ${victron_update_interval}
+    then:
+      - lambda: |-
+          // Only publish if YamBMS has combined BMS data
+          if (id(${yambms_id}_bms_combined).state == 0) {
+            return;
+          }
+
+          // Build JSON payload for Victron
+          std::string payload = "{";
+
+          // Basic measurements
+          payload += "\"Voltage\":" + to_string(id(${yambms_id}_total_voltage).state) + ",";
+          payload += "\"Current\":" + to_string(id(${yambms_id}_current).state) + ",";
+          payload += "\"Power\":" + to_string(id(${yambms_id}_power).state) + ",";
+
+          // State of charge and health
+          payload += "\"Soc\":" + to_string((int)id(${yambms_id}_battery_soc).state) + ",";
+          payload += "\"Soh\":" + to_string((int)id(${yambms_id}_battery_soh).state) + ",";
+
+          // Temperature (average)
+          float temp_avg = (id(${yambms_id}_min_temperature).state +
+                           id(${yambms_id}_max_temperature).state) / 2.0;
+          payload += "\"Temperature\":" + to_string(temp_avg) + ",";
+
+          // Charge/discharge limits
+          payload += "\"MaxChargeCurrent\":" + to_string(id(${yambms_id}_requested_charge_current).state) + ",";
+          payload += "\"MaxDischargeCurrent\":" + to_string(id(${yambms_id}_requested_discharge_current).state) + ",";
+          payload += "\"ChargeVoltage\":" + to_string(id(${yambms_id}_requested_charge_voltage).state) + ",";
+          payload += "\"DischargeVoltage\":" + to_string(id(${yambms_id}_requested_discharge_voltage).state) + ",";
+
+          // Capacity
+          payload += "\"InstalledCapacity\":" + to_string(id(${yambms_id}_battery_capacity_total).state) + ",";
+          float consumed = id(${yambms_id}_battery_capacity_total).state -
+                          id(${yambms_id}_battery_capacity_remaining).state;
+          payload += "\"ConsumedAmphours\":" + to_string(consumed) + ",";
+
+          // Cell voltages
+          payload += "\"MinCellVoltage\":" + to_string(id(${yambms_id}_min_cell_voltage).state) + ",";
+          payload += "\"MaxCellVoltage\":" + to_string(id(${yambms_id}_max_cell_voltage).state) + ",";
+          payload += "\"MinVoltageCellId\":\"" + to_string((int)id(${yambms_id}_min_voltage_cell).state) + "\",";
+          payload += "\"MaxVoltageCellId\":\"" + to_string((int)id(${yambms_id}_max_voltage_cell).state) + "\",";
+
+          // Temperatures
+          payload += "\"MinTemperature\":" + to_string(id(${yambms_id}_min_temperature).state) + ",";
+          payload += "\"MaxTemperature\":" + to_string(id(${yambms_id}_max_temperature).state) + ",";
+
+          // Alarms object
+          uint16_t errors = (uint16_t)id(${yambms_id}_errors_bitmask).state;
+          payload += "\"Alarms\":{";
+          payload += "\"HighVoltage\":" + to_string((errors & 0x0002) ? 2 : 0) + ",";
+          payload += "\"LowVoltage\":" + to_string((errors & 0x0004) ? 2 : 0) + ",";
+          payload += "\"HighTemperature\":" + to_string((errors & 0x0008) ? 2 : 0) + ",";
+          payload += "\"LowTemperature\":" + to_string((errors & 0x0010) ? 2 : 0) + ",";
+          payload += "\"HighChargeCurrent\":" + to_string((errors & 0x0100) ? 2 : 0) + ",";
+          payload += "\"HighDischargeCurrent\":" + to_string((errors & 0x0080) ? 2 : 0) + ",";
+          payload += "\"CellImbalance\":" + to_string((errors & 0x1000) ? 2 : 0) + ",";
+          payload += "\"InternalFailure\":" + to_string((errors & 0x0800) ? 2 : 0);
+          payload += "},";
+
+          // Warnings object
+          uint16_t warnings = (uint16_t)id(${yambms_id}_warnings_bitmask).state;
+          payload += "\"Warnings\":{";
+          payload += "\"HighVoltage\":" + to_string((warnings & 0x0002) ? 1 : 0) + ",";
+          payload += "\"LowVoltage\":" + to_string((warnings & 0x0004) ? 1 : 0) + ",";
+          payload += "\"HighTemperature\":" + to_string((warnings & 0x0008) ? 1 : 0) + ",";
+          payload += "\"LowTemperature\":" + to_string((warnings & 0x0010) ? 1 : 0);
+          payload += "},";
+
+          // Metadata
+          payload += "\"ProductName\":\"YamBMS\",";
+          payload += "\"FirmwareVersion\":\"1.0.0\",";
+
+          // Cell balancing status
+          payload += "\"Balancing\":" + to_string(id(${yambms_id}_balancing).state ? 1 : 0);
+
+          payload += "}";
+
+          // Publish to Victron topic
+          id(mqtt_client).publish("${victron_mqtt_topic}", payload);
+
+          ESP_LOGI("victron_mqtt", "Published battery data: %.1fV %.1fA %d%% SOC",
+                   id(${yambms_id}_total_voltage).state,
+                   id(${yambms_id}_current).state,
+                   (int)id(${yambms_id}_battery_soc).state);
+
+# +--------------------------------------+
+# | Status Monitoring                    |
+# +--------------------------------------+
+
+binary_sensor:
+  - platform: template
+    name: "Victron MQTT Active"
+    id: victron_mqtt_active
+    icon: "mdi:transmission-tower"
+    entity_category: diagnostic
+    lambda: |-
+      // Active if MQTT connected and YamBMS has data
+      return id(mqtt_client).is_connected() &&
+             id(${yambms_id}_bms_combined).state > 0;
+
+text_sensor:
+  - platform: template
+    name: "Victron MQTT Status"
+    icon: "mdi:information"
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(mqtt_client).is_connected()) {
+        return {"MQTT Disconnected"};
+      }
+      if (id(${yambms_id}_bms_combined).state == 0) {
+        return {"No BMS Data"};
+      }
+      char status[100];
+      snprintf(status, sizeof(status),
+        "Publishing: %.1fV %.1fA %d%% SOC",
+        id(${yambms_id}_total_voltage).state,
+        id(${yambms_id}_current).state,
+        (int)id(${yambms_id}_battery_soc).state);
+      return {status};
+    update_interval: 10s
+
+# +--------------------------------------+
+# | Data Mapping Reference               |
+# +--------------------------------------+
+#
+# YamBMS Sensor → Victron MQTT Field
+#
+# BASIC MEASUREMENTS:
+#   total_voltage           → Voltage (V)
+#   current                 → Current (A)
+#   power                   → Power (W)
+#   battery_soc             → Soc (%)
+#   battery_soh             → Soh (%)
+#
+# TEMPERATURES:
+#   min_temperature         → MinTemperature (°C)
+#   max_temperature         → MaxTemperature (°C)
+#   (min + max) / 2         → Temperature (°C)
+#
+# CHARGE/DISCHARGE LIMITS:
+#   requested_charge_current     → MaxChargeCurrent (A)
+#   requested_discharge_current  → MaxDischargeCurrent (A)
+#   requested_charge_voltage     → ChargeVoltage (V)
+#   requested_discharge_voltage  → DischargeVoltage (V)
+#
+# CAPACITY:
+#   battery_capacity_total       → InstalledCapacity (Ah)
+#   total - remaining            → ConsumedAmphours (Ah)
+#
+# CELL VOLTAGES:
+#   min_cell_voltage        → MinCellVoltage (V)
+#   max_cell_voltage        → MaxCellVoltage (V)
+#   min_voltage_cell        → MinVoltageCellId (string)
+#   max_voltage_cell        → MaxVoltageCellId (string)
+#
+# ALARMS (from errors_bitmask):
+#   0x0002 → HighVoltage (2=alarm, 0=ok)
+#   0x0004 → LowVoltage
+#   0x0008 → HighTemperature
+#   0x0010 → LowTemperature
+#   0x0020 → HighChargeTemperature (included in HighTemperature)
+#   0x0040 → LowChargeTemperature (included in LowTemperature)
+#   0x0080 → HighDischargeCurrent
+#   0x0100 → HighChargeCurrent
+#   0x0800 → InternalFailure
+#   0x1000 → CellImbalance
+#
+# WARNINGS (from warnings_bitmask):
+#   0x0002 → HighVoltage (1=warning, 0=ok)
+#   0x0004 → LowVoltage
+#   0x0008 → HighTemperature
+#   0x0010 → LowTemperature
+#
+# STATUS:
+#   balancing               → Balancing (1=active, 0=inactive)
+#
+# METADATA:
+#   "YamBMS"                → ProductName
+#   "1.0.0"                 → FirmwareVersion
+#
+# +--------------------------------------+
+# | Victron Field Reference              |
+# +--------------------------------------+
+#
+# REQUIRED FIELDS (venus-os_dbus-mqtt-battery):
+#   Voltage               - Battery voltage (V)
+#   Current               - Battery current (A, positive=charging)
+#   Soc                   - State of charge (%)
+#
+# OPTIONAL FIELDS:
+#   Power                 - Power (W)
+#   Soh                   - State of health (%)
+#   Temperature           - Average temperature (°C)
+#   MaxChargeCurrent      - Charge current limit (A)
+#   MaxDischargeCurrent   - Discharge current limit (A)
+#   ChargeVoltage         - Charge voltage limit (V)
+#   DischargeVoltage      - Discharge cutoff voltage (V)
+#   InstalledCapacity     - Total capacity (Ah)
+#   ConsumedAmphours      - Energy consumed (Ah)
+#   MinCellVoltage        - Minimum cell voltage (V)
+#   MaxCellVoltage        - Maximum cell voltage (V)
+#   MinVoltageCellId      - Cell number with min voltage
+#   MaxVoltageCellId      - Cell number with max voltage
+#   MinTemperature        - Minimum temperature (°C)
+#   MaxTemperature        - Maximum temperature (°C)
+#   Alarms                - Alarm object (see mapping above)
+#   Warnings              - Warning object (see mapping above)
+#   Balancing             - Cell balancing active (1/0)
+#   ProductName           - Device name
+#   FirmwareVersion       - Firmware version
+#   TimeToGo              - Estimated runtime (seconds)
+#
+# ALARM/WARNING VALUES:
+#   0 = OK
+#   1 = Warning
+#   2 = Alarm
+#
+# +--------------------------------------+
+# | Usage Notes                          |
+# +--------------------------------------+
+#
+# CONFIGURATION EXAMPLE:
+#
+# packages:
+#   # Multi-node MQTT BMS clients
+#   bms1: !include ...
+#   bms2: !include ...
+#
+#   # YamBMS combination
+#   yambms: !include packages/yambms.yaml
+#
+#   # Victron MQTT (instead of CAN bus!)
+#   victron: !include
+#     file: packages/inverter/inverter_victron_mqtt.yaml
+#     vars:
+#       yambms_id: "yambms"
+#       victron_mqtt_topic: "yambms/victron/battery"
+#       victron_update_interval: "1s"
+#
+# NO CAN BUS HARDWARE NEEDED!
+# NO GPIO PINS USED!
+#
+# CERBO GX SETUP:
+#   1. Install venus-os_dbus-mqtt-battery driver
+#   2. Configure /data/etc/dbus-mqtt-battery/config.ini
+#   3. Set MQTT_TOPIC = yambms/victron/battery
+#   4. Restart driver: svc -t /service/dbus-mqtt-battery
+#   5. Check logs: tail -f /var/log/dbus-mqtt-battery/current
+#
+# MONITORING:
+#   - "Victron MQTT Active" binary sensor
+#   - "Victron MQTT Status" text sensor
+#   - MQTT Explorer: topic yambms/victron/battery
+#   - Cerbo GX: Check Battery device appears
+#   - VRM Portal: Battery data visible
+#
+# TROUBLESHOOTING:
+#   - Verify MQTT broker connectivity
+#   - Check Cerbo can reach broker
+#   - Ensure driver installed and running
+#   - Verify topic matches configuration
+#   - Check JSON format in MQTT Explorer
+#   - Review ESPHome and Cerbo logs
+#
+# PERFORMANCE:
+#   - 1 Hz update rate recommended
+#   - Lower latency than CAN bus
+#   - No CAN arbitration delays
+#   - Network bandwidth ~1-2 kbps
+#   - MQTT QoS 0 sufficient
+#
+# BENEFITS vs CAN BUS:
+#   - $20-50 saved (no CAN hardware)
+#   - 2 GPIO pins freed
+#   - Lower latency (5-20ms vs 10-50ms)
+#   - Easier debugging (MQTT tools)
+#   - Remote placement possible
+#   - Multiple inverters supported
+#   - Standard protocol (MQTT/JSON)
