@@ -1,5 +1,5 @@
 # Updated : 2025.12.23
-# Version : 1.0.1
+# Version : 1.0.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # +--------------------------------------+
@@ -12,7 +12,7 @@
 #
 # FEATURES:
 #   - 14 configurable power rails (DCDC1-5, ALDO1-4, BLDO1-2, DLDO1-2, CPUSLDO)
-#   - Battery monitoring (voltage, level, temperature)
+#   - Battery monitoring (voltage, level, temperature, charging status)
 #   - Individual rail enable/disable switches
 #   - Configurable voltages via substitutions
 #
@@ -130,35 +130,29 @@ light:
 # +--------------------------------------+
 
 sensor:
-  # Battery Level (%)
   - platform: axp2101
-    type: battery_level
-    name: "Battery Level"
-    id: battery_level
-    icon: "mdi:battery"
-    device_class: battery
+    id: axp2101_sensor
     update_interval: ${axp2101_update_interval}
 
-  # Battery Voltage
-  - platform: axp2101
-    type: battery_voltage
-    name: "Battery Voltage"
-    id: battery_voltage
-    icon: "mdi:battery-charging"
-    device_class: voltage
-    entity_category: diagnostic
-    accuracy_decimals: 3
-    update_interval: ${axp2101_update_interval}
+    # Battery Level (%)
+    battery_level:
+      name: "Battery Level"
+      id: battery_level
 
-  # AXP2101 Temperature
-  - platform: axp2101
-    type: temperature
-    name: "PMU Temperature"
-    id: pmu_temperature
-    icon: "mdi:thermometer"
-    device_class: temperature
-    entity_category: diagnostic
-    update_interval: ${axp2101_update_interval}
+    # Battery Voltage
+    battery_voltage:
+      name: "Battery Voltage"
+      id: battery_voltage
+
+    # PMU Temperature
+    axp_temperature:
+      name: "PMU Temperature"
+      id: pmu_temperature
+
+    # Battery Charging Status
+    battery_charging:
+      name: "Battery Charging"
+      id: battery_charging
 
 # +--------------------------------------+
 # | Advanced Power Rail Control          |

@@ -7,7 +7,7 @@ The AXP2101 is a comprehensive Power Management Unit (PMU) found in M5Stack Core
 ## Features
 
 - **14 Power Rails**: DCDC1-5, ALDO1-4, BLDO1-2, DLDO1-2, CPUSLDO
-- **Battery Monitoring**: Voltage, level (%), and temperature sensors
+- **Battery Monitoring**: Voltage, level (%), temperature, and charging status
 - **Temperature Monitoring**: PMU temperature sensor
 - **Dynamic Control**: Enable/disable rails, adjust voltages
 - **Power Efficiency**: Disable unused rails to maximize battery life
@@ -191,11 +191,20 @@ The power management package provides these sensors automatically:
 ```yaml
 sensor:
   - platform: axp2101
-    type: battery_level      # Battery % (0-100)
-  - platform: axp2101
-    type: battery_voltage    # Battery voltage (V)
-  - platform: axp2101
-    type: temperature        # PMU temperature (°C)
+    id: axp2101_sensor
+    update_interval: 60s
+
+    battery_level:
+      name: "Battery Level"      # Battery % (0-100)
+
+    battery_voltage:
+      name: "Battery Voltage"    # Battery voltage (V)
+
+    axp_temperature:
+      name: "PMU Temperature"    # PMU temperature (°C)
+
+    battery_charging:
+      name: "Battery Charging"   # Charging status (binary)
 ```
 
 ### Monitoring in Home Assistant
@@ -204,6 +213,7 @@ All sensors appear automatically in Home Assistant:
 - **Battery Level**: Shows battery percentage with battery icon
 - **Battery Voltage**: Precise voltage reading (3 decimals)
 - **PMU Temperature**: Internal temperature monitoring
+- **Battery Charging**: Charging status indicator (on/off)
 - **LCD Backlight**: Brightness control slider
 
 ## Power Optimization
@@ -352,10 +362,11 @@ light:
 **Symptom**: Battery percentage decreases even when connected
 
 **Check**:
-1. Monitor battery voltage - should increase when charging
-2. Check power supply provides enough current (1A+ recommended)
-3. Verify USB-C cable supports power delivery
-4. Check battery temperature isn't too high/low
+1. Check "Battery Charging" sensor shows "on" when plugged in
+2. Monitor battery voltage - should increase when charging
+3. Check power supply provides enough current (1A+ recommended)
+4. Verify USB-C cable supports power delivery
+5. Check battery temperature isn't too high/low
 
 ### Power Rail Not Responding
 
