@@ -69,7 +69,7 @@
 This project works with various `ESP32` variants and also with the `Raspberry Pi Pico (RP2040)`.
 Note that merging data from multiple BMS, balancers and shunts is resource-intensive, so I highly recommend a board based on the `ESP32-S3` with `PSRAM`.
 
-| [LilyGo T-Connect](https://github.com/Xinyuan-LilyGO/T-Connect) | [Waveshare ESP32-S3-RS485-CAN](https://www.waveshare.com/esp32-s3-rs485-can.htm) | [M5Stack AtomS3R](https://docs.m5stack.com/en/core/AtomS3R) |
+| [LilyGo T-Connect](documents/README/Board_LilyGo_T-Connect.md) | [Waveshare RS485-CAN](documents/README/Board_Waveshare_ESP32-S3-RS485-CAN.md) | [M5Stack AtomS3R](https://docs.m5stack.com/en/core/AtomS3R) |
 | --- | --- | --- |
 | - ESP32-S3<br>- 8MB PSRAM<br>- 3x RS485 port<br>- 1x CAN port<br>- 15x GPIOs | - ESP32-S3<br>- 8MB PSRAM<br>- 1x RS485 port<br>- 1x CAN port<br>- 1x SH1.0 connector<br>- 16x GPIOs | - ESP32-S3<br>- 8MB PSRAM<br>- 1x BASE port (**for adding RS485/CAN base**)<br>- 1x UNIT HY2.0 port (**for adding RS485/CAN unit**)<br>- 6x GPIOs |
 | <img src="images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> | <img src="images/MCU_ESP32-S3_WS-RS485-CAN.png" width="300"> | <img src="images/MCU_AtomS3R.png" width="300"> |
