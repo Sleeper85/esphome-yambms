@@ -52,11 +52,28 @@ The `Float voltage` slider allows you to set the voltage used after charging is 
 
 The `Inverter Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop. This allows you to reach the target `Bulk` or `Float` charge voltage by adding an offset.
 
-### Max current (%)
+### Max Requested Current
 
-![Image](../../images/YamBMS_Max_Current_PCT.png "YamBMS_Max_Current_PCT")
+![Image](../../images/YamBMS_Max_Requested_Current.png "Max Requested Current")
 
-The allowed charge or discharge current is automatically calculated based on the `OCP` values ​​of your BMS. The `OCP` currents of the combined BMS (not in alarm) are added together and the requested current is a percentage `0~90%` of this value.
+
+The required `charge/discharge current` is calculated as follows :
+
+1. You define a **maximum current** that can never be exceeded
+2. YamBMS calculates the **maximum current** accepted by your BMS (total of OCP values ​​* 0.9)
+3. The temperature-based current limiting function calculates the **maximum current** `based` on the **temperature**, the **battery capacity** and the **charging_rate_table** / **discharging_rate_table**
+
+The **current requested** by YamBMS will be **the lowest** of these three values.
+
+## Requested Values
+
+![Image](../../images/YamBMS_Requested_Values.png "YamBMS_Requested_Values")
+
+These 4 sensors allow you to see what is being requested of your inverter.
+
+In the example below, we are in the `Float` phase at a voltage of `53.6V` and an `Inverter Offset V.` of `0.1V`. The `Requested Charge Voltage` is therefore `53.7V`.
+
+The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplied by the number of cells, in this example (3V * 16).
 
 ### ReBulk
 
@@ -176,18 +193,6 @@ The current is increased at the end as it does not exactly hit its required char
 At about 18:08 the battery is 100% after a short balancing period.
 
 ![Image](../../images/YamBMS_Auto_EOC_Graph.png "YamBMS Auto EOC Graph")
-
-## Requested Values
-
-![Image](../../images/YamBMS_Requested_Values.png "YamBMS_Requested_Values")
-
-These 4 sensors allow you to see what is being requested of your inverter.
-
-In the example below, we are in the `Float` phase at a voltage of `53.6V` and an `Inverter Offset V.` of `0.1V`. The `Requested Charge Voltage` is therefore `53.7V`.
-
-The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplied by the number of cells, in this example (3V * 16).
-
-The `Requested Charge/Discharge Current` is the `OCP` value of your BMS multiplied by the `Max current` percentage, in this example (150A * 80%).
 
 ## Inverter Heartbeat Monitoring
 
