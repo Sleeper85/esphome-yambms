@@ -1,4 +1,4 @@
-# Updated : 2025.12.17
+# Updated : 2025.12.26
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -32,7 +32,7 @@ esphome:
           {
             // LFP
             id(${yambms_id}_cell_nominal_v) = 3.20;
-            id(${yambms_id}_cell_min_charge_v) = 3.375; // Fully charged at rest
+            id(${yambms_id}_cell_min_charge_v) = 3.37; // Fully charged at rest
             id(${yambms_id}_cell_max_charge_v) = 3.65;
             id(${yambms_id}_cell_max_discharge_v) = 3.00; // Not used
           }
@@ -573,19 +573,16 @@ text_sensor:
         // Variables
         float cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
         float cell_rebulk_v = (id(${yambms_id}_rebulk_voltage).state / id(${yambms_id}_cell_count).state);
-        float cutoff_offset_v = 0.005;
+        float max_cell_v = id(${yambms_id}_max_cell_voltage).state;
 
         // +-----------------------------------------------+
         // | Force Bulk Logic                              |
         // +-----------------------------------------------+
         if (id(${yambms_id}_switch_force_bulk).state)
         {
-          // Stop Force Bulk when the BMS starts to equalize the cells
-          if (id(${yambms_id}_equalizing).state)
-          {
-            id(${yambms_id}_charge_status) = "Balancing";
+          // Stop Force Bulk when entering the Cut-Off phase
+          if (id(${yambms_id}_charge_status) == "Cut-Off")
             id(${yambms_id}_switch_force_bulk).turn_off();
-          }
           // Force Bulk
           else id(${yambms_id}_charge_status) = "Force Bulk";
         }
@@ -594,7 +591,7 @@ text_sensor:
         // | Rebulk Logic                                  |
         // +-----------------------------------------------+
         // Max Cell V. <= 3.3V (default value)
-        else if (id(${yambms_id}_max_cell_voltage).state <= cell_rebulk_v) id(${yambms_id}_charge_status) = "Bulk";
+        else if (max_cell_v <= cell_rebulk_v) id(${yambms_id}_charge_status) = "Bulk";
         // SoC <= 85% (default value)
         else if (id(${yambms_id}_battery_soc).state <= id(${yambms_id}_rebulk_soc).state) id(${yambms_id}_charge_status) = "Bulk";
         // Force Charge requested
@@ -605,21 +602,31 @@ text_sensor:
         // +-----------------------------------------------+
         if ((id(${yambms_id}_charge_status) != "EOC") && (id(${yambms_id}_charge_status) != "Float"))
         {
+
+          float cv_min = id(${yambms_id}_cell_min_charge_v);
+          float cv_max = id(${yambms_id}_cell_max_charge_v);
+          float current = id(${yambms_id}_current).state;
+          float cutoff_resistance = ((cv_max - cv_min) / id(${yambms_id}_battery_capacity).state / 0.05);
+          static int cutoff_counter = 0;
+
           // +-----------------------------------------------+
           // | Cut-Off Charging Logic                        |
           // +-----------------------------------------------+
-          if (id(${yambms_id}_current).state >= 0)
+          if (current >= 0)
           {
-            float cv_min = id(${yambms_id}_cell_min_charge_v);
-            float cv_max = id(${yambms_id}_cell_max_charge_v);
-            float cutoff_current = (id(${yambms_id}_battery_capacity).state * 0.05 * (cell_bulk_v - cv_min) / (cv_max - cv_min));
-            float cutoff_voltage = (cv_min + (cv_max - cv_min)/(0.05 + cutoff_offset_v) * (id(${yambms_id}_current).state / id(${yambms_id}_battery_capacity).state));
+            float cutoff_voltage = (max_cell_v - cutoff_resistance * current);
 
-            // Stop Charging
-            if ((id(${yambms_id}_current).state <= cutoff_current) & (id(${yambms_id}_max_cell_voltage).state >= cutoff_voltage))
+            if(cutoff_voltage > cv_min)
+              cutoff_counter++;
+            else
+              cutoff_counter = 0;
+
+            // Entering the Cut-Off phase
+            // The criteria check must succeed 5 times in a row to ensure
+            // that these are not random/erroneous/false readings of the BMS
+            if (cutoff_counter > 4)
             {
-              ESP_LOGI("yambms", "Cut-Off Current : %f", cutoff_current);
-              ESP_LOGI("yambms", "Cut-Off Voltage : %f", cutoff_voltage);
+              ESP_LOGI("yambms", "Entering the Cut-Off phase...");
 
               // Cut-Off : the end of charging is near
               id(${yambms_id}_charge_status) = "Cut-Off";
@@ -627,21 +634,25 @@ text_sensor:
               // If the EOC Timer switch is enabled
               if (id(${yambms_id}_switch_eoc_timer).state)
               {
-                // Start EOC timer : the charging process ends at the latest at the end of this timer (30min by default)
-                if (!id(${yambms_id}_script_eoc_timer).is_running()) id(${yambms_id}_script_eoc_timer).execute();
+                // Start EOC timer
+                // The charging process ends at the latest at the end of this timer (30min by default)
+                if (!id(${yambms_id}_script_eoc_timer).is_running())
+                  id(${yambms_id}_script_eoc_timer).execute();
               }
               // End Of Charge
               // Equalizing
               if (id(${yambms_id}_equalizing).state)
               {
                 // Stop cut-off timer
-                if (id(${yambms_id}_script_cutoff_timer).is_running()) id(${yambms_id}_script_cutoff_timer).stop();
+                if (id(${yambms_id}_script_cutoff_timer).is_running())
+                  id(${yambms_id}_script_cutoff_timer).stop();
               }
-              // Not Equalizing
-              // Start cut-off timer : if the conditions continue to be respected the charging process will stop in 60s (default value)
-              else if (!id(${yambms_id}_script_cutoff_timer).is_running()) id(${yambms_id}_script_cutoff_timer).execute();
+              // Not Equalizing => Start cut-off timer
+              // If the conditions continue to be respected the charging process will stop in 60s (default value)
+              else if (!id(${yambms_id}_script_cutoff_timer).is_running())
+                id(${yambms_id}_script_cutoff_timer).execute();
             }
-            // Start Charging
+            // Continue charging
             else
             {
               // Stop timer
@@ -654,8 +665,11 @@ text_sensor:
             }
           }
           // Discharging (!= "EOC" | != "Float")
-          else if (id(${yambms_id}_max_cell_voltage).state < (cell_bulk_v - cutoff_offset_v))
+          // Condition for not exiting the Cut-Off phase too quickly if the discharge current is minimal
+          else if (max_cell_v < (cell_bulk_v - cutoff_resistance))
           {
+            // Reset cut-off counter
+            cutoff_counter = 0;
             // Stop timer
             if (id(${yambms_id}_script_eoc_timer).is_running()) id(${yambms_id}_script_eoc_timer).stop();
             if (id(${yambms_id}_script_cutoff_timer).is_running()) id(${yambms_id}_script_cutoff_timer).stop();
