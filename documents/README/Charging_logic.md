@@ -23,8 +23,7 @@ Special thanks to [@shvmm](https://github.com/shvmm) for deriving the equations.
 
 Note: The equations below can be adopted for other chemistries like Li-ion and LTO with specific CVmin and CVmax values.
 
-<img src="../..//images/YamBMS_Cut-Off_Charging_Logic_Equation.png" width="500">
-<img src="../..//images/YamBMS_Cut-Off_Charging_Logic_Plot.png" width="500">
+<img src="../..//images/YamBMS_Cut-Off_Charging_Logic_Equation.png" width="500"> <img src="../..//images/YamBMS_Cut-Off_Charging_Logic_Plot.png" width="500">
 
 ## Cut-Off Charging Logic Diagram (what's happening in the yellow diamond)
 
