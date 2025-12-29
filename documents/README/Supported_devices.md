@@ -11,6 +11,7 @@
 * `JK` BMS (BLE / UART / RS485)
 * `JBD` BMS (BLE / UART)
 * `Seplos V1 V2 V3` BMS (RS485)
+* `PACE` BMS (RS485)
 * `BASEN` BMS (RS485)
 * `DEYE` BMS (CAN)
 
@@ -35,21 +36,18 @@
 
 ## Supported ESP32
 
-**Recommended: AtomS3 or ESP32-S3**
+This project works with various `ESP32` variants and also with the `Raspberry Pi Pico (RP2040)`.
+Note that merging data from multiple BMS, balancers and shunts is resource-intensive, so I highly recommend a board based on the `ESP32-S3` with `PSRAM`.
 
-* [M5Stack AtomS3 dedicated documentation](Supported_devices_M5Stack_AtomS3.md)
-* [PVbrain2 with ESP32-S3](https://github.com/SeByDocKy/pvbrain2) (up to 11 BMS monitored with `UART`)
-* [Build your own PCB with ESP32 or ESP32-S3](Supported_devices_Build_your_own_PCB.md)
-
-| [AtomS3 Lite](https://docs.m5stack.com/en/core/AtomS3%20Lite) | [AtomS3](https://docs.m5stack.com/en/core/AtomS3) | [AtomS3R (8MB PSRAM)](https://docs.m5stack.com/en/core/AtomS3R) |
+| [AtomS3 Lite](Board_M5Stack_AtomS3.md) | [AtomS3](Board_M5Stack_AtomS3.md) | [AtomS3R (8MB PSRAM)](Board_M5Stack_AtomS3.md) |
 | --- | --- | --- |
 | <img src="../../images/MCU_AtomS3_Lite.png" width="300"> | <img src="../../images/MCU_AtomS3.png" width="300"> | <img src="../../images/MCU_AtomS3R.png" width="300"> |
 
-| [LilyGo T-CAN485 (ESP32)](https://github.com/Xinyuan-LilyGO/T-CAN485) | [LilyGo T-Connect (ESP32-S3)](https://github.com/Xinyuan-LilyGO/T-Connect) | [Waveshare ESP32-S3-RS485-CAN](https://www.waveshare.com/esp32-s3-rs485-can.htm) |
+| [LilyGo T-CAN485 (ESP32)](https://github.com/Xinyuan-LilyGO/T-CAN485) | [LilyGo T-Connect (ESP32-S3)](Board_LilyGo_T-Connect.md) | [Waveshare ESP32-S3-RS485-CAN](Board_Waveshare_ESP32-S3-RS485-CAN.md) |
 | --- | --- | --- |
-| <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_WS-RS485-CAN.png" width="300"> |
+| <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect_1.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_WS-RS485-CAN_1.png" width="300"> |
 
-| [ESP32 DevKit-V1](https://a.aliexpress.com/_EG12CJ2) | [ESP32-S3 DevKitC-1](https://a.aliexpress.com/_EzFdrw3) | [ESP32-C3 ETH01-EVO](https://a.aliexpress.com/_Ey29fog) |
+| [ESP32 DevKit-V1](Board_Build_your_own_PCB.md) | [ESP32-S3 DevKitC-1](Board_Build_your_own_PCB.md) | [ESP32-C3 ETH01-EVO](https://a.aliexpress.com/_Ey29fog) |
 | --- | --- | --- |
 | <img src="../../images/MCU_ESP32-DevKit-V1.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3-DevKitC-1.png" width="300"> | <img src="../../images/MCU_ESP32-C3_ETH01-EVO.png" width="300"> |
 

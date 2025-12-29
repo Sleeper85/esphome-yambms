@@ -20,7 +20,8 @@ The LilyGo T-Connect is a multi-functional development board based on the ESP32-
 - Rich Interfaces: Integrated APA102 LED driver, QWIIC expansion interface
 - Industrial Design: Wide voltage input (7V-12V DC), 4 positioning holes for easy installation
 
-![LilyGo T-Connect Board](../..//images/MCU_ESP32-S3_LilyGo-T-Connect.jpg)
+<img src="../..//images/MCU_ESP32-S3_LilyGo-T-Connect_1.jpg" width="400">
+<img src="../..//images/MCU_ESP32-S3_LilyGo-T-Connect_2.jpg" width="400">
 
 ## Board Specifications
 
@@ -44,6 +45,22 @@ The T-Connect is available as a single version with the following specifications
 | Dimensions | 94×83×13mm |
 
 **Note:** The T-Connect supports switching configuration between CAN and RS485 modules through onboard jumpers, allowing maximum flexibility with up to 3 RS485 ports + 1 CAN port simultaneously.
+
+## BMS Support Capacity
+
+Based on hardware limitations and testing, this board supports:
+
+| Communication Method | Maximum BMS | Notes |
+|----------------------|-------------|-------|
+| **RS485** | Multiple BMS | Best option for monitoring many BMS units |
+| **UART** | 3× BMS | Must be connected to the GPIOs header |
+| **Bluetooth (BLE)** | 3× BMS | BLE stack consumes significant RAM, may cause crashes/reboots |
+
+**Note:** These are theoretical limits. Not all combinations have been tested.
+
+## UART/IO Expander
+
+It would be possible to add one or more [WK2168 4x UART expander](https://esphome.io/components/weikai.html) to increase the number of `UART` port.
 
 ## Power Supply
 
@@ -105,12 +122,12 @@ The CAN bus port is positioned at location **No.4** (see photo at the beginning 
 
 To connect an RS485 device to any of the configured RS485 ports:
 
-| RS485 Port | Terminal Block |
+| RS485 | Terminal Block |
 | --- | --- |
-| SG | Shield/Signal Ground (optional but recommended) |
-| L pin | RS485 A (Data+) |
-| H pin | RS485 B (Data-) |
-| DG | Data/Device Ground (optional but recommended) |
+| - | SG : Shield/Signal Ground (optional but recommended) |
+| A + | L (RS485 A, Data+ non-inverting) |
+| B - | H (RS485 B, Data- inverting) |
+| GND | DG : Data/Device Ground (optional but recommended) |
 
 **Wiring Steps:**
 1. Ensure the port is configured for RS485 mode using the onboard jumpers
@@ -142,19 +159,19 @@ To connect an RS485 device to any of the configured RS485 ports:
 
 To connect a CAN bus device to the CAN port:
 
-| CAN Port | Terminal Block |
+| CAN bus | Terminal Block |
 | --- | --- |
-| SG | Shield/Signal Ground (optional but recommended) |
-| L pin | CAN L (CAN Low) |
-| H pin | CAN H (CAN High) |
-| DG | Data/Device Ground (optional but recommended) |
+| - | SG : Shield/Signal Ground (optional but recommended) |
+| CAN L | L (CAN Low) |
+| CAN H | H (CAN High) |
+| GND | DG : Data/Device Ground (optional but recommended) |
 
 **Wiring Steps:**
 1. Ensure the port is configured for CAN mode using the onboard jumpers
 2. Identify the CAN H and CAN L wires from your CAN device
 3. Connect the **CAN H wire** to the **H pin** of the CAN port
 4. Connect the **CAN L wire** to the **L pin** of the CAN port
-5. **Connect the ground wire** to the **DG pin** for common reference (highly recommended)
+5. **Connect the ground wire** to the **DG pin** for common reference (optional but recommended)
 6. If using **shielded cable**, connect the shield to the **SG pin** (recommended for noisy environments)
 
 **Ground Connection Best Practices:**
@@ -316,12 +333,12 @@ For a typical YamBMS setup with the LilyGo T-Connect board:
 ### Waveshare ESP32-S3-RS485-CAN vs LilyGo T-Connect
 
 | Feature | Waveshare | LilyGo T-Connect |
-| --- | --- | --- |
+| ------- | --------- | ---------------- |
 | RS485 Ports | 1 (isolated) | Up to 3 (isolated) |
 | CAN Ports | 1 (isolated) | 1 (isolated) |
 | Built-in Termination | ✅ Yes (120Ω jumper-selectable) | ❌ No (external resistors required) |
-| Power Isolation | ✅ Yes | Unknown |
-| Signal Isolation | ✅ Yes (RS485 & CAN) | Likely yes |
+| Power Isolation | ✅ Yes | ❌ No |
+| Signal Isolation | ✅ Yes (RS485 & CAN) | ✅ Yes (RS485 & CAN up to 2500V) |
 | Enclosure | ✅ DIN rail ABS case included | ❌ No enclosure |
 | Power Input | 7-36V DC or USB-C | 7-12V DC or USB-C |
 | LED Indicators | PWR, RS485 TX/RX, CAN | PWR, APA102 support |

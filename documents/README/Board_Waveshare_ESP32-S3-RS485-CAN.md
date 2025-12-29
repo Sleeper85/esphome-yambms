@@ -22,7 +22,8 @@ The Waveshare ESP32-S3-RS485-CAN is an industrial-grade WiFi wireless communicat
 - Wide voltage input range (7-36V DC)
 - DIN rail mountable protective enclosure
 
-![LilyGo T-Connect Board](../..//images/MCU_ESP32-S3_WS-RS485-CAN.png)
+<img src="../..//images/MCU_ESP32-S3_WS-RS485-CAN_1.png" width="400">
+<img src="../..//images/MCU_ESP32-S3_WS-RS485-CAN_2.png" width="400">
 
 ## Board Specifications
 
@@ -42,6 +43,22 @@ The Waveshare ESP32-S3-RS485-CAN is an industrial-grade WiFi wireless communicat
 | LED Indicators | PWR, RS485 TX/RX, CAN |
 | Enclosure | Rail-mounted ABS protective case |
 | Programming | USB Type-C (firmware download & debugging) |
+
+## BMS Support Capacity
+
+Based on hardware limitations and testing, this board supports:
+
+| Communication Method | Maximum BMS | Notes |
+|----------------------|-------------|-------|
+| **RS485** | Multiple BMS | Best option for monitoring many BMS units |
+| **UART** | 3× BMS | Must be connected to the GPIOs header |
+| **Bluetooth (BLE)** | 3× BMS | BLE stack consumes significant RAM, may cause crashes/reboots |
+
+**Note:** These are theoretical limits. Not all combinations have been tested.
+
+## UART/IO Expander
+
+It would be possible to add one or more [WK2168 4x UART expander](https://esphome.io/components/weikai.html) to increase the number of `UART` port.
 
 ## Power Supply
 
@@ -116,14 +133,13 @@ To connect an RS485 device to the RS485 port:
 
 | RS485 | Terminal Block |
 | --- | --- |
-| A (or +) | RS485 A / Data+ (non-inverting) |
-| B (or -) | RS485 B / Data- (inverting) |
-
+| A + | RS485 A+ (Data+ non-inverting) |
+| B - | RS485 B- (Data- inverting) |
 
 **Wiring Steps:**
 1. Identify the A and B wires from your RS485 device (may be labeled as D+/D-, A/B, or +/-)
-2. Connect the **A wire (D+ / Data+)** to the **A terminal**
-3. Connect the **B wire (D- / Data-)** to the **B terminal**
+2. Connect the **A wire (D+ / Data+)** to the **A+ terminal**
+3. Connect the **B wire (D- / Data-)** to the **B- terminal**
 4. Connect the **ground wire** to the **GND terminal** for common reference
 
 **RS485 Best Practices:**
@@ -138,16 +154,16 @@ To connect an RS485 device to the RS485 port:
 
 To connect a CAN device to the CAN port:
 
-| CAN | Terminal Block |
+| CAN bus | Terminal Block |
 | --- | --- |
-| H (CANH) | CAN High |
-| L (CANL) | CAN Low |
+| CAN H | CAN H (CAN High) |
+| CAN L | CAN L (CAN Low) |
 
 **Wiring Steps:**
 1. Identify the CAN H and CAN L wires from your CAN device
 2. Connect the **CAN H wire** to the **H (CANH) terminal**
 3. Connect the **CAN L wire** to the **L (CANL) terminal**
-4. Connect the **ground wire** to the **GND terminal** for common reference
+4. Connect the **ground wire** to the **GND terminal** for common reference (optional)
 
 **CAN Bus Best Practices:**
 - **Always connect the ground (GND)** for proper common mode voltage reference
@@ -346,12 +362,12 @@ Waveshare provides demo firmware with a web interface:
 ### Waveshare ESP32-S3-RS485-CAN vs LilyGo T-Connect
 
 | Feature | Waveshare | LilyGo T-Connect |
-| --- | --- | --- |
+| ------- | --------- | ---------------- |
 | RS485 Ports | 1 (isolated) | Up to 3 (isolated) |
 | CAN Ports | 1 (isolated) | 1 (isolated) |
 | Built-in Termination | ✅ Yes (120Ω jumper-selectable) | ❌ No (external resistors required) |
-| Power Isolation | ✅ Yes | Unknown |
-| Signal Isolation | ✅ Yes (RS485 & CAN) | Likely yes |
+| Power Isolation | ✅ Yes | ❌ No |
+| Signal Isolation | ✅ Yes (RS485 & CAN) | ✅ Yes (RS485 & CAN up to 2500V) |
 | Enclosure | ✅ DIN rail ABS case included | ❌ No enclosure |
 | Power Input | 7-36V DC or USB-C | 7-12V DC or USB-C |
 | LED Indicators | PWR, RS485 TX/RX, CAN | PWR, APA102 support |

@@ -9,17 +9,21 @@
 > [!IMPORTANT]
 > BMS monitoring with `UART` or `RS485` is recommended.
 
-## Number of BMS supported
+## BMS Support Capacity
 
-* 2x BMS with `Bluetooth` (BLE stack consumes significant amount of RAM on device and can cause crash and reboot)
-* 3x `JK-B` BMS with `UART/RS485`
-* several `JK-PB` BMS with `RS485` (already tested with 7 BMS)
+Based on hardware limitations and testing, this board supports:
 
-Note: these are theoretical limits, not all combinations have been tested.
+| Communication Method | Maximum BMS | Notes |
+|----------------------|-------------|-------|
+| **RS485** | Multiple BMS | Best option for monitoring many BMS units |
+| **UART** | 3× BMS | Must be connected to the GPIOs header |
+| **Bluetooth (BLE)** | 3× BMS (ESP32-S3) | BLE stack consumes significant RAM, may cause crashes/reboots |
+
+**Note:** These are theoretical limits. Not all combinations have been tested.
 
 ## UART/IO Expander
 
-It would be possible to add one or more [WK2168 4x UART expander](https://esphome.io/components/weikai.html) to increase the number of BMS monitored with `UART`.
+It would be possible to add one or more [WK2168 4x UART expander](https://esphome.io/components/weikai.html) to increase the number of `UART` port.
 
 ## Build your own PCB
 
