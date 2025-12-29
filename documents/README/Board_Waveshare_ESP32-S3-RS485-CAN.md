@@ -27,7 +27,7 @@ The Waveshare ESP32-S3-RS485-CAN is an industrial-grade WiFi wireless communicat
 ## Board Specifications
 
 | Specification | Details |
-| --- | --- |
+|-----|-----|
 | Microcontroller | ESP32-S3-WROOM-1 |
 | Processor | Xtensa 32-bit LX7 dual-core @ up to 240MHz |
 | FLASH | 16MB |
@@ -35,6 +35,7 @@ The Waveshare ESP32-S3-RS485-CAN is an industrial-grade WiFi wireless communicat
 | Wireless | Wi-Fi 802.11 b/g/n (2.4GHz) / Bluetooth 5.0 (LE) |
 | RS485 | 1× Isolated RS485 interface |
 | CAN Bus | 1× Isolated CAN interface |
+| UART | 1x SH1.0 interface (not isolated) |
 | Power Input (DC Terminal) | 7-36V DC (wide range) |
 | Power Input (USB) | 5V via USB Type-C |
 | Isolation | Power isolation + Optocoupler isolation |
@@ -43,15 +44,18 @@ The Waveshare ESP32-S3-RS485-CAN is an industrial-grade WiFi wireless communicat
 | Enclosure | Rail-mounted ABS protective case |
 | Programming | USB Type-C (firmware download & debugging) |
 
-## BMS Support Capacity
+## Interfaces Support Capacity
 
 Based on hardware limitations and testing, this board supports:
 
-| Communication Method | Maximum BMS | Notes |
-|----------------------|-------------|-------|
-| **RS485** | Multiple BMS | Best option for monitoring many BMS units |
-| **UART** | 3× BMS | Must be connected to the GPIOs header |
-| **Bluetooth (BLE)** | 3× BMS | BLE stack consumes significant RAM, may cause crashes/reboots |
+| Interface | Maximum | Notes |
+|-----------|---------|-------|
+| **CAN** | 1x bus | CAN bus to BMS or Inverter |
+| **RS485** | 1x bus | Best option for monitoring many BMS of the same brand |
+| **UART** | 3× devices¹ | Can be connected to the **SH1.0 interface** or **GPIOs header** (**shared with RS485**) |
+| **Bluetooth (BLE)** | 3× devices¹ | BLE stack consumes significant RAM, may cause crashes/reboots |
+
+¹ BMS / Balancer / Shunt
 
 **Note:** These are theoretical limits. Not all combinations have been tested.
 
@@ -131,7 +135,7 @@ The CAN port typically has a **2-pin screw terminal block**:
 To connect an RS485 device to the RS485 port:
 
 | RS485 | Terminal Block |
-| --- | --- |
+|-------|----------------|
 | A + | RS485 A+ (Data+ non-inverting) |
 | B - | RS485 B- (Data- inverting) |
 
@@ -154,7 +158,7 @@ To connect an RS485 device to the RS485 port:
 To connect a CAN device to the CAN port:
 
 | CAN bus | Terminal Block |
-| --- | --- |
+|---------|----------------|
 | CAN H | CAN H (CAN High) |
 | CAN L | CAN L (CAN Low) |
 
@@ -219,7 +223,7 @@ The board includes an **onboard 120Ω CAN termination resistor**.
 The board includes several LED indicators for monitoring system status:
 
 | LED | Color | Function |
-| --- | --- | --- |
+|-----|-------|----------|
 | **PWR** | Red/Green | Power indicator - lights up when board is powered |
 | **RS485 TX** | Green | Lights up when RS485 port **sends** data |
 | **RS485 RX** | Blue | Lights up when RS485 port **receives** data |
@@ -350,7 +354,7 @@ Waveshare provides demo firmware with a web interface:
 ### Waveshare ESP32-S3-RS485-CAN vs LilyGo T-Connect
 
 | Feature | Waveshare | LilyGo T-Connect |
-| ------- | --------- | ---------------- |
+|---------|-----------|------------------|
 | RS485 Ports | 1 (isolated) | Up to 3 (isolated) |
 | CAN Ports | 1 (isolated) | 1 (isolated) |
 | Built-in Termination | ✅ Yes (120Ω jumper-selectable) | ❌ No (external resistors required) |

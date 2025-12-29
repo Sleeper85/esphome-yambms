@@ -33,7 +33,7 @@ The M5Stack **AtomS3** combined with the **Atomic CAN Base** provides a compact 
 Choose one AtomS3 controller to clip onto the Atomic CAN Base:
 
 | [AtomS3 Lite](https://docs.m5stack.com/en/core/AtomS3%20Lite) | [AtomS3](https://docs.m5stack.com/en/core/AtomS3) | [AtomS3R (8MB PSRAM)](https://docs.m5stack.com/en/core/AtomS3R) |
-| --- | --- | --- |
+|-----|-----|-----|
 | <img src="../../images/MCU_AtomS3_Lite.png" width="300"> | <img src="../../images/MCU_AtomS3.png" width="300"> | <img src="../../images/MCU_AtomS3R.png" width="300"> |
 
 | Model | Flash | PSRAM | Display | IMU | Best For |
@@ -47,7 +47,7 @@ Choose one AtomS3 controller to clip onto the Atomic CAN Base:
 ### Base & Communication Units
 
 | [Atomic CAN Base](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [CAN Unit](https://docs.m5stack.com/en/unit/can) | [RS485 Unit](https://docs.m5stack.com/en/unit/iso485) |
-| --- | --- | --- |
+|-----|-----|-----|
 | <img src="../../images/CAN_Transceiver_M5Stack_Atomic_CAN_Base.png" width="300"> | <img src="../../images/CAN_Transceiver_M5Stack_CAN_Unit.png" width="300"> | <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="300"> |
 
 | Component | Type | Features | Use Case |
@@ -56,15 +56,18 @@ Choose one AtomS3 controller to clip onto the Atomic CAN Base:
 | **[CAN Unit](https://docs.m5stack.com/en/unit/can)** (U085) | HY2.0 Unit | Isolated CAN via Grove port | Alternative CAN solution |
 | **[RS485-ISO Unit](https://docs.m5stack.com/en/unit/iso485)** (U094) | HY2.0 Unit | Isolated RS485, up to 500kbps, 256 nodes | For RS485 BMS or multi-node |
 
-## BMS Support Capacity
+## Interfaces Support Capacity
 
 Based on hardware limitations and testing, this board supports:
 
-| Communication Method | Maximum BMS | Notes |
-|----------------------|-------------|-------|
-| **RS485** | Multiple BMS | Best option for monitoring many BMS units |
-| **UART** | 3× BMS | The 2nd and 3rd UARTs must be connected on Atomic CAN Base GPIOs |
-| **Bluetooth (BLE)** | 3× BMS | BLE stack consumes significant RAM, may cause crashes/reboots |
+| Interface | Maximum | Notes |
+|-----------|---------|-------|
+| **CAN** | 1x bus | CAN bus to BMS or Inverter (**after adding a CAN base/unit**) |
+| **RS485** | 1x bus | Best option for monitoring many BMS of the same brand (**after adding a RS485 base/unit**) |
+| **UART** | 3× devices¹ | CAN be connected to the **HY2.0 interface** or **Atomic Base GPIOs header** (**shared with RS485**) |
+| **Bluetooth (BLE)** | 3× devices¹ | BLE stack consumes significant RAM, may cause crashes/reboots |
+
+¹ BMS / Balancer / Shunt
 
 **Note:** These are theoretical limits. Not all combinations have been tested. For large installations with many BMS units, consider boards with more GPIOs like the LilyGo T-Connect or Waveshare ESP32-S3-RS485-CAN.
 
@@ -73,12 +76,13 @@ Based on hardware limitations and testing, this board supports:
 ### Hardware Specifications
 
 | Specification | Details |
-|--------------|---------|
+|---------------|---------|
 | **Microcontroller** | ESP32-S3FN8 |
 | **Processor** | Xtensa 32-bit LX7 dual-core @ up to 240MHz |
 | **Flash** | 8MB |
 | **PSRAM** | None (AtomS3 Lite/AtomS3) / 8MB Octal SPI (AtomS3R) |
 | **Display** | 0.85" IPS LCD, 128×128 resolution |
+| **UART** | 1x HY2.0 interface (not isolated) |
 | **IMU** | MPU6886 (6-axis gyro + accel, I2C 0x68) |
 | **Button** | 1× Programmable button |
 | **Infrared** | IR transmitter built-in |
@@ -106,7 +110,7 @@ Based on hardware limitations and testing, this board supports:
 **Internal Connections:**
 
 | Peripheral | GPIO Pins | Notes |
-|-----------|-----------|-------|
+|------------|-----------|-------|
 | **LCD Display** | MOSI: G21, SCK: G17, CS: G15, RS: G33, RST: G34, BL: G16 | SPI interface |
 | **MPU6886 (IMU)** | SDA: G38, SCL: G39 | I2C address 0x68 |
 | **IR Transmitter** | Built-in | For infrared control |
@@ -116,7 +120,7 @@ Based on hardware limitations and testing, this board supports:
 ### Hardware Specifications
 
 | Specification | Details |
-|--------------|---------|
+|---------------|---------|
 | **CAN Transceiver** | CA-IS3050G (isolated) |
 | **Maximum Rate** | 1 Mbps |
 | **Supported Nodes** | Up to 110 nodes |
@@ -153,7 +157,7 @@ The Atomic CAN Base connects to AtomS3 through the bottom pins:
 If you need RS485 communication (e.g., for RS485 BMS, multi-node), add the **RS485-ISO Unit (U094)**:
 
 | Specification | Details |
-|--------------|---------|
+|---------------|---------|
 | **Isolation Chip** | CA-IS3082W |
 | **Maximum Rate** | 500 kbps |
 | **Supported Nodes** | Up to 256 nodes |
@@ -264,7 +268,7 @@ If you have trouble uploading firmware to the AtomS3:
 ### Screen Specifications
 
 | Specification | Details |
-|--------------|---------|
+|---------------|---------|
 | **Size** | 0.85 inch IPS LCD |
 | **Resolution** | 128 × 128 pixels |
 | **Color Depth** | 65K colors |

@@ -27,7 +27,7 @@ The LilyGo T-Connect is a multi-functional development board based on the ESP32-
 The T-Connect is available as a single version with the following specifications:
 
 | Specification | Details |
-| --- | --- |
+|---------------|---------|
 | Model | T-Connect |
 | MCU | ESP32-S3-R8 |
 | FLASH | 16MB |
@@ -45,15 +45,18 @@ The T-Connect is available as a single version with the following specifications
 
 **Note:** The T-Connect supports switching configuration between CAN and RS485 modules through onboard jumpers, allowing maximum flexibility with up to 3 RS485 ports + 1 CAN port simultaneously.
 
-## BMS Support Capacity
+## Interfaces Support Capacity
 
 Based on hardware limitations and testing, this board supports:
 
-| Communication Method | Maximum BMS | Notes |
-|----------------------|-------------|-------|
-| **RS485** | Multiple BMS | Best option for monitoring many BMS units |
-| **UART** | 3× BMS | Must be connected to the GPIOs header |
-| **Bluetooth (BLE)** | 3× BMS | BLE stack consumes significant RAM, may cause crashes/reboots |
+| Interface | Maximum | Notes |
+|-----------|---------|-------|
+| **CAN** | 1x bus | CAN bus to BMS or Inverter |
+| **RS485** | 3x bus | Best option for monitoring many BMS of the same brand (**shared with UART**) |
+| **UART** | 3× devices¹ | Must be connected to the **GPIOs header** (**shared with RS485**) |
+| **Bluetooth (BLE)** | 3× devices¹ | BLE stack consumes significant RAM, may cause crashes/reboots |
+
+¹ BMS / Balancer / Shunt
 
 **Note:** These are theoretical limits. Not all combinations have been tested.
 
@@ -89,7 +92,7 @@ The T-Connect board features 4 communication ports that share pins through a swi
 **Pin Assignment :**
 
 | Port | TX Pin | RX Pin | Protocol |
-| --- | --- | --- | --- |
+|------|--------|--------|----------|
 | Port 1 | IO4 | IO5 | RS485 |
 | Port 2 | IO6 | IO7 | RS485 |
 | Port 3 | IO17 | IO18 | RS485 |
@@ -122,7 +125,7 @@ The CAN bus port is positioned at location **No.4** (see photo at the beginning 
 To connect an RS485 device to any of the configured RS485 ports:
 
 | RS485 | Terminal Block |
-| --- | --- |
+|-------|----------------|
 | - | SG : Shield/Signal Ground (optional but recommended) |
 | A + | L (RS485 A, Data+ non-inverting) |
 | B - | H (RS485 B, Data- inverting) |
@@ -159,7 +162,7 @@ To connect an RS485 device to any of the configured RS485 ports:
 To connect a CAN bus device to the CAN port:
 
 | CAN bus | Terminal Block |
-| --- | --- |
+|---------|----------------|
 | - | SG : Shield/Signal Ground (optional but recommended) |
 | CAN L | L (CAN Low) |
 | CAN H | H (CAN High) |
@@ -332,7 +335,7 @@ For a typical YamBMS setup with the LilyGo T-Connect board:
 ### Waveshare ESP32-S3-RS485-CAN vs LilyGo T-Connect
 
 | Feature | Waveshare | LilyGo T-Connect |
-| ------- | --------- | ---------------- |
+|---------|-----------|------------------|
 | RS485 Ports | 1 (isolated) | Up to 3 (isolated) |
 | CAN Ports | 1 (isolated) | 1 (isolated) |
 | Built-in Termination | ✅ Yes (120Ω jumper-selectable) | ❌ No (external resistors required) |
