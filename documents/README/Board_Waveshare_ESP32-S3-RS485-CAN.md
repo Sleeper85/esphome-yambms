@@ -305,17 +305,6 @@ Waveshare provides demo firmware with a web interface:
 - [ESP32-S3 Datasheet](https://files.waveshare.com/upload/f/f7/Esp32-s3_datasheet_en_(1).pdf)
 - [ESP32-S3 Technical Reference Manual](https://files.waveshare.com/wiki/common/Esp32-s3_technical_reference_manual_en.pdf)
 
-### YamBMS Integration
-- [YamBMS GitHub Repository](https://github.com/Sleeper85/esphome-yambms)
-- [YamBMS Issue #89 - Waveshare ESP32-S3-RS485-CAN Support](https://github.com/Sleeper85/esphome-yambms/issues/89)
-- [ESPHome Documentation](https://esphome.io/)
-
-### Development Tools
-- [Arduino IDE Official Download](https://www.arduino.cc/en/software)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [PlatformIO](https://platformio.org/)
-- [Flash Download Tool](https://www.espressif.com/en/support/download/other-tools)
-
 ## Troubleshooting
 
 ### RS485 Communication Issues
