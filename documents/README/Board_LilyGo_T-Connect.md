@@ -20,8 +20,7 @@ The LilyGo T-Connect is a multi-functional development board based on the ESP32-
 - Rich Interfaces: Integrated APA102 LED driver, QWIIC expansion interface
 - Industrial Design: Wide voltage input (7V-12V DC), 4 positioning holes for easy installation
 
-<img src="../..//images/MCU_ESP32-S3_LilyGo-T-Connect_1.jpg" width="400">
-<img src="../..//images/MCU_ESP32-S3_LilyGo-T-Connect_2.jpg" width="400">
+<img src="../..//images/MCU_ESP32-S3_LilyGo-T-Connect_1.jpg" width="500"> <img src="../..//images/MCU_ESP32-S3_LilyGo-T-Connect_2.jpg" width="500">
 
 ## Board Specifications
 

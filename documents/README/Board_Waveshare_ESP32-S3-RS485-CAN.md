@@ -22,8 +22,7 @@ The Waveshare ESP32-S3-RS485-CAN is an industrial-grade WiFi wireless communicat
 - Wide voltage input range (7-36V DC)
 - DIN rail mountable protective enclosure
 
-<img src="../..//images/MCU_ESP32-S3_WS-RS485-CAN_1.png" width="400">
-<img src="../..//images/MCU_ESP32-S3_WS-RS485-CAN_2.png" width="400">
+<img src="../..//images/MCU_ESP32-S3_WS-RS485-CAN_1.png" width="500"> <img src="../..//images/MCU_ESP32-S3_WS-RS485-CAN_2.png" width="500">
 
 ## Board Specifications
 
