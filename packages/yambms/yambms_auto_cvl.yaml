@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 2.4.4
+# Updated : 2025.12.30
+# Version : 2.4.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,17 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-substitutions:
-  # +--------------------------------------+
-  # | Use the settings below with caution  |
-  # +--------------------------------------+
-  # Factor to adjust the proportional gain of the auto voltage control PI logic.
-  # The higher the setting, the faster the correcting response. Too high a value will cause oscillation.
-  charge_v_kp: '0.05'
-  # Factor to adjust the integral gain of the auto voltage control PI logic.
-  # The higher the setting, the more the correction response will be increased over time. Too high a value will cause oscillation.
-  charge_v_ki: '0.5'
-
 switch:
   - platform: template
     name: ${name} ${yambms_name} Automatic Charge Voltage
@@ -37,6 +26,34 @@ switch:
     entity_category: config
 
 number:
+  - platform: template
+    name: "${name} ${yambms_name} Auto CVL Kp Term"
+    id: "${yambms_id}_auto_cvl_kp"
+    step: 0.005
+    min_value: 0
+    max_value: 1
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0.05
+    optimistic: true
+    entity_category: config
+  # Term to adjust the proportional gain of the auto voltage control PI logic.
+  # The higher the setting, the faster the correcting response. Too high a value will cause oscillation.
+
+  - platform: template
+    name: "${name} ${yambms_name} Auto CVL Ki Term"
+    id: "${yambms_id}_auto_cvl_ki"
+    step: 0.05
+    min_value: 0
+    max_value: 5
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0.5
+    optimistic: true
+    entity_category: config
+  # Term to adjust the integral gain of the auto voltage control PI logic.
+  # The higher the setting, the more the correction response will be increased over time. Too high a value will cause oscillation.
+
   - platform: template
     name: "${name} ${yambms_name} Auto CVL Boost Charge V."
     id: "${yambms_id}_auto_cvl_boost_charge_v"
@@ -78,8 +95,8 @@ sensor:
       double CVL = id(${yambms_id}_bulk_voltage).state;                                                       // Starting CVL
       double CVL_orig = id(${yambms_id}_bulk_voltage).state;                                                  // Starting CVL snapshot
 
-      double kp = ${charge_v_kp};                                               // Proportional gain, adjust as needed
-      double ki = ${charge_v_ki};                                               // Integral gain, adjust as needed
+      double kp = id(${yambms_id}_auto_cvl_kp).state;                           // Proportional gain, adjust as needed
+      double ki = id(${yambms_id}_auto_cvl_ki).state;                           // Integral gain, adjust as needed
       double dt = 1.0;                                                          // Time step, adjust based on update_interval
       double error = 0.0;                                                       // Starting error
       double output = 0.0;                                                      // Starting output
