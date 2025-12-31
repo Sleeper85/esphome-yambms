@@ -1,0 +1,120 @@
+# Updated : 2025.12.30
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+  # +-------------------------------------------------------------------------+
+  # | Temperature-based current limitation                                    |
+  # | Can be disabled via the switch "Temperature-based current limitation"   |
+  # | This factor is applied to the battery capacity (Ah), not the current    |
+  # | maximum charge/discharge current. For example : 280Ah x 0.5 = 140A      |
+  # +-------------------------------------------------------------------------
+
+switch:
+  - platform: template
+    name: "${name} ${yambms_name} Temperature-based Current Limitation"
+    id: ${yambms_id}_switch_temperature_based_current_limitation
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+    entity_category: config
+
+sensor:
+  # +---------------------------------------+
+  # | Auto Charge Current Temperature Limit |
+  # +---------------------------------------+
+  
+  - platform: copy
+    source_id: ${yambms_id}_max_temperature
+    id: auto_ccl_temp_limit
+    unit_of_measurement: A
+    device_class: current
+    internal: true
+    filters:
+      - calibrate_linear:
+         method: exact
+         datapoints:
+         # Temperature -> Charge Rate
+           - 0.0 -> 0.05
+           - 5.0 -> 0.12
+           - 10.0 -> 0.3
+           - 15.0 -> 0.5
+           - 20.0 -> 0.5
+           - 25.0 -> 0.5
+           - 45.0 -> 0.5
+           - 50.0 -> 0.5
+           - 55.0 -> 0.5
+           - 60.0 -> 0.0
+      - clamp:
+          min_value: 0.0
+          max_value: 0.5
+      - lambda: |-
+          float result = 0.0;
+          if (id(${yambms_id}_switch_temperature_based_current_limitation).state) {
+            float batt_capacity = id(${yambms_id}_battery_capacity).state; 
+            float max_current = id(${yambms_id}_max_charge_current).state;
+
+            result = x * batt_capacity;
+            result = result - max_current;
+            result = min(0.0f, result);
+            result = roundf(result * 10.0f) / 10.0f;
+          }
+
+          id(${yambms_id}_auto_temperature_ccl) = result;
+          return result;
+
+  # +------------------------------------------+
+  # | Auto Discharge Current Temperature Limit |
+  # +------------------------------------------+
+  
+  - platform: copy
+    source_id: ${yambms_id}_min_temperature
+    id: auto_dcl_temp_limit
+    unit_of_measurement: A
+    device_class: current
+    internal: true
+    filters:
+      - calibrate_linear:
+         method: exact
+         datapoints:
+         # Temperature -> Discharge Rate
+           - -30.0 -> 0.0
+           - -20.0 -> 0.5
+           - -10.0 -> 0.5
+           - -5.0 -> 0.5
+           - 0.0 -> 0.5
+           - 5.0 -> 0.5
+           - 45.0 -> 0.5
+           - 50.0 -> 0.5
+           - 55.0 -> 0.5
+           - 60.0 -> 0.0
+      - clamp:
+          min_value: 0.0
+          max_value: 0.5
+      - lambda: |-
+          float result = 0.0;
+          if (id(${yambms_id}_switch_temperature_based_current_limitation).state) {
+            float batt_capacity = id(${yambms_id}_battery_capacity).state; 
+            float max_current = id(${yambms_id}_max_discharge_current).state;
+
+            result = x * batt_capacity;
+            result = result - max_current;
+            result = min(0.0f, result);
+            result = roundf(result * 10.0f) / 10.0f;
+          }
+
+          id(${yambms_id}_auto_temperature_dcl) = result;
+          return result;
