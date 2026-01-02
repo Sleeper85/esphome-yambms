@@ -38,7 +38,7 @@ sensor:
   # +---------------------------------------+
   
   - platform: copy
-    source_id: ${yambms_id}_max_temperature
+    source_id: ${yambms_id}_min_temperature
     id: auto_ccl_temp_limit
     unit_of_measurement: A
     device_class: current
