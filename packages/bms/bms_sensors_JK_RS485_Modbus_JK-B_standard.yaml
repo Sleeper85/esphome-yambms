@@ -1,5 +1,5 @@
-# Updated : 2026.02.01
-# Version : 1.1.10
+# Updated : 2026.02.05
+# Version : 1.1.11
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -449,3 +449,9 @@ number:
     cell_power_off_voltage:
       device_id: bms_${bms_id}
       name: "cell power off voltage"
+    charging_lowtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charging lowtemperature protection"
+    charging_lowtemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "charging lowtemperature protection recovery"
