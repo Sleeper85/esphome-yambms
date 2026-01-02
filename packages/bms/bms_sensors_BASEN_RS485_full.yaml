@@ -1,5 +1,5 @@
-# Updated : 2026.01.13
-# Version : 1.1.9
+# Updated : 2026.01.27
+# Version : 1.1.10
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -58,6 +58,9 @@ binary_sensor:
       id: bms${bms_id}_discharging_allowed
       device_id: bms_${bms_id}
       name: "discharging allowed"
+    heating_status:
+      device_id: bms_${bms_id}
+      name: "Heating Status"
 
   # Balancing
   - platform: template
@@ -598,3 +601,20 @@ text_sensor:
    cell_balancing_bitmask:
      device_id: bms_${bms_id}
      name: "cell balancing bitmask"
+
+number:
+  - platform: basen_bms
+    basen_bms_id: basen_bms_id${bms_id}
+    heating_on_temperature:
+      device_id: bms_${bms_id}
+      name: "Heating on temperature"
+    heating_off_temperature:
+      device_id: bms_${bms_id}
+      name: "Heating off temperature"
+
+switch:
+  - platform: basen_bms
+    basen_bms_id: basen_bms_id${bms_id}
+    heating:
+      device_id: bms_${bms_id}
+      name: "Heating"
