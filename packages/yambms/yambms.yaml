@@ -27,6 +27,6 @@ packages:
   yambms_auto_dcl: !include yambms_auto_dcl.yaml
   yambms_auto_float: !include yambms_auto_float.yaml
   yambms_auto_eoc: !include yambms_auto_eoc.yaml
-  YamBMS_auto_temp-based_current: !include YamBMS_auto_temp-based_current.yaml
+  yambms_auto_temp-based_current: !include yambms_auto_temp-based_current.yaml
   # Update service
   yambms_service: !include yambms_service.yaml
