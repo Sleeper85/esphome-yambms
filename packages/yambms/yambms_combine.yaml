@@ -1,4 +1,4 @@
-# Updated : 2025.12.09
+# Updated : 2025.12.30
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -180,15 +180,7 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
-  # YamBMS
-  - id: ${yambms_id}_var_charging_rate
-    type: float[10]
-    restore_value: no
-    initial_value: ${yambms_charging_rate_table}
-  - id: ${yambms_id}_var_discharging_rate
-    type: float[10]
-    restore_value: no
-    initial_value: ${yambms_discharging_rate_table}
+
 
 # Combine continuously
 interval:
@@ -291,38 +283,6 @@ interval:
               max_charge_current = max_charge_current_yambms;
             else
               max_charge_current = max_charge_current_bms;
-
-            if (id(${yambms_id}_switch_temperature_based_current_limitation).state)
-            {
-              if (id(${yambms_id}_var_min_temperature) < 0)       // < 0°C
-                charge_rate = 0;
-              else if (id(${yambms_id}_var_min_temperature) < 5)  // 0°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[0];
-              else if (id(${yambms_id}_var_min_temperature) < 10) // 5°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[1];
-              else if (id(${yambms_id}_var_min_temperature) < 15) // 15°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[2];
-              else if (id(${yambms_id}_var_min_temperature) < 20) // 20°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[3];
-              else if (id(${yambms_id}_var_min_temperature) < 25) // 25°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[4];
-              else if (id(${yambms_id}_var_min_temperature) < 45) // 45°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[5];
-              else if (id(${yambms_id}_var_min_temperature) < 50) // 50°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[6];
-              else if (id(${yambms_id}_var_min_temperature) < 55) // 55°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[7];
-              else if (id(${yambms_id}_var_min_temperature) < 60) // 60°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[8];
-              else                                                // >= 60°C
-                charge_rate = id(${yambms_id}_var_charging_rate)[9];
-
-              rate_max_charge_current = id(${yambms_id}_var_total_battery_capacity) * charge_rate;
-
-              if (max_charge_current > rate_max_charge_current)
-                max_charge_current = rate_max_charge_current;
-            }
-            
             id(${yambms_id}_max_charge_current).publish_state(round(max_charge_current));
 
             // TOTAL max_discharge_current
@@ -335,39 +295,7 @@ interval:
             if (max_discharge_current_bms > max_discharge_current_yambms)
               max_discharge_current = max_discharge_current_yambms;
             else
-              max_discharge_current = max_discharge_current_bms;
-
-            if (id(${yambms_id}_switch_temperature_based_current_limitation).state)
-            {
-              if (id(${yambms_id}_var_min_temperature) < -30)        // < -30°C
-                discharge_rate = 0;
-              else if (id(${yambms_id}_var_min_temperature) < -20)   // -30°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[0];
-              else if (id(${yambms_id}_var_min_temperature) < -10)   // -20°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[1];
-              else if (id(${yambms_id}_var_min_temperature) < -5)    // -10°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[2];
-              else if (id(${yambms_id}_var_min_temperature) < 0)     // -5°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[3];
-              else if (id(${yambms_id}_var_min_temperature) < 5)     // 0°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[4];
-              else if (id(${yambms_id}_var_min_temperature) < 45)    // 5°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[5];
-              else if (id(${yambms_id}_var_min_temperature) < 50)    // 45°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[6];
-              else if (id(${yambms_id}_var_min_temperature) < 55)    // 50°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[7];
-              else if (id(${yambms_id}_var_min_temperature) < 60)    // 55°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[8];
-              else                                                   // >= 60°C
-                discharge_rate = id(${yambms_id}_var_charging_rate)[9];
-
-              rate_max_discharge_current = id(${yambms_id}_var_total_battery_capacity) * discharge_rate;
-
-              if (max_discharge_current > rate_max_discharge_current)
-                max_discharge_current = rate_max_discharge_current;
-            }
-            
+              max_discharge_current = max_discharge_current_bms;          
             id(${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
 
             // MIN/MAX values

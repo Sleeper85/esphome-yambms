@@ -1,4 +1,4 @@
-# Updated : 2025.12.26
+# Updated : 2025.12.30
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -114,6 +114,14 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: ${yambms_id}_auto_temperature_ccl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_auto_temperature_dcl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: ${yambms_id}_auto_eoc
     type: float
     restore_value: no
@@ -168,12 +176,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
-  - platform: template
-    name: "${name} ${yambms_name} Temperature-based current limitation"
-    id: ${yambms_id}_switch_temperature_based_current_limitation
-    restore_mode: RESTORE_DEFAULT_ON
-    optimistic: true
-    entity_category: config
+
 
 number:
   # +--------------------------------------+
@@ -462,14 +465,28 @@ sensor:
         - delta: 1
     lambda: |-
       // Charging Allowed
-      if ((id(${yambms_id}_charging_instruction).state == "Bulk") | (id(${yambms_id}_charging_instruction).state == "Float")) {
-        float requested_charge_current = id(${yambms_id}_max_charge_current).state + id(${yambms_id}_auto_ccl) + id(${yambms_id}_auto_eoc);
-        if (requested_charge_current < 0) 
+      if ((id(${yambms_id}_charging_instruction).state == "Bulk") || (id(${yambms_id}_charging_instruction).state == "Float")) {
+
+        float auto_limit = std::min({
+          id(${yambms_id}_auto_ccl), 
+          id(${yambms_id}_auto_eoc), 
+          id(${yambms_id}_auto_temperature_ccl)
+        });
+
+        float requested_charge_current = id(${yambms_id}_max_charge_current).state + auto_limit;
+        if (requested_charge_current < 0) {
           return 0;
+        }
         return round(requested_charge_current);
       }
       // Charging Not Allowed
-      else return 0;
+      else {
+        return 0;
+      }
+    on_value:
+      then:
+        - component.update: ${yambms_id}_ccl_derating_reason
+
 
   # +--------------------------------------+
   # |  Requested Discharge Current  (DCL)  |
@@ -488,10 +505,26 @@ sensor:
         - delta: 1
     lambda: |-
       // Discharging Allowed
-      if (id(${yambms_id}_discharging_instruction).state == true)
-        return (round(id(${yambms_id}_max_discharge_current).state + id(${yambms_id}_auto_dcl)));
+      if (id(${yambms_id}_discharging_instruction).state == true) {
+        
+        float auto_limit = std::min({
+          id(${yambms_id}_auto_dcl), 
+          id(${yambms_id}_auto_temperature_dcl)
+        });
+
+        float requested_discharge_current = id(${yambms_id}_max_discharge_current).state + auto_limit;
+        if (requested_discharge_current < 0) {
+          return 0;
+        }
+        return round(requested_discharge_current);
+      }
       // Discharging Not Allowed
-      else return 0;
+      else {
+        return 0;
+      }
+    on_value:
+      then:
+        - component.update: ${yambms_id}_dcl_derating_reason
 
   # +--------------------------------------+
   # | Battery State of Charge (SOC)        |
@@ -795,6 +828,58 @@ text_sensor:
       }
       // No Alarm
       else return {"NoAlarm"};
+
+  # +----------------------------------------+
+  # | Charge Current Derating Reason         |
+  # +----------------------------------------+
+  - platform: template
+    name: ${name} ${yambms_name} CCL Derating Reason
+    id: ${yambms_id}_ccl_derating_reason
+    icon: "mdi:information-outline"
+    update_interval: never
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(${yambms_id}_requested_charge_current).has_state() || id(${yambms_id}_requested_charge_current).state == 0) {
+        return {"Charge Disabled"};
+      }
+
+      float t_limit = id(${yambms_id}_auto_temperature_ccl);
+      float e_limit = id(${yambms_id}_auto_eoc);
+      float c_limit = id(${yambms_id}_auto_ccl);
+
+      float min_val = std::min({t_limit, e_limit, c_limit});
+
+      if (min_val == 0.0f) return {"No Derating"};
+      if (min_val == t_limit) return {"Temperature Derating"};
+      if (min_val == e_limit) return {"EOC Derating"};
+      if (min_val == c_limit) return {"AutoCCL Derating"};
+      
+      return {"Unknown"};
+
+  # +----------------------------------------+
+  # | Discharge Current Derating Reason      |
+  # +----------------------------------------+
+  - platform: template
+    name: ${name} ${yambms_name} DCL Derating Reason
+    id: ${yambms_id}_dcl_derating_reason
+    icon: "mdi:information-outline"
+    update_interval: never
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(${yambms_id}_requested_discharge_current).has_state() || id(${yambms_id}_requested_discharge_current).state == 0) {
+        return {"Discharge Disabled"};
+      }
+
+      float t_limit = id(${yambms_id}_auto_temperature_dcl);
+      float d_limit = id(${yambms_id}_auto_dcl);
+
+      float min_val = std::min(t_limit, d_limit);
+
+      if (min_val == 0.0f) return {"No Derating"};
+      if (min_val == t_limit) return {"Temperature Derating"};
+      if (min_val == d_limit) return {"AutoDCL Derating"};
+      
+      return {"Unknown"};
 
 binary_sensor:
   # +--------------------------------------+
