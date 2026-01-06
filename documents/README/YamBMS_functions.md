@@ -61,7 +61,7 @@ The required `charge/discharge current` is calculated as follows :
 
 1. You define a **maximum current** that can never be exceeded
 2. YamBMS calculates the **maximum current** accepted by your BMS (total of OCP values ​​* 0.9)
-3. The temperature-based current limiting function calculates the **maximum current** `based` on the **temperature**, the **battery capacity** and the **charging_rate_table** / **discharging_rate_table**
+3. The temperature-based current limiting function calculates the **maximum current** `based` on the **temperature**, the **battery capacity** and the **charging_rate_table** / **discharging_rate_table**. For further details see [Auto Temp-Based Current](Auto_temp-based_current.md).
 
 The **current requested** by YamBMS will be **the lowest** of these three values.
 
@@ -95,9 +95,9 @@ Works only with `PYLON`, `LuxPower` and `Victron` protocols.
 
 ## Auto functions
 
-Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing `Auto CVL`, `Auto CCL` and `Auto DCL` functions.
+Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing `Auto CVL`, `Auto CCL`, `Auto DCL` and `Auto Temp-Based Current` functions.
 
-A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto CVL, CCL & DCL` works.
+A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto CCL & DCL` works.
 
 Thanks to [@GHswitt](https://github.com/GHswitt) for developing `Auto Float` function.
 
@@ -193,6 +193,7 @@ The current is increased at the end as it does not exactly hit its required char
 At about 18:08 the battery is 100% after a short balancing period.
 
 ![Image](../../images/YamBMS_Auto_EOC_Graph.png "YamBMS Auto EOC Graph")
+
 
 ## Inverter Heartbeat Monitoring
 
