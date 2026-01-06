@@ -1,4 +1,4 @@
-# Updated : 2025.12.30
+# Updated : 2025.01.06
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -96,6 +96,39 @@ substitutions:
   # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
   # The current requested will be proportional to the BMS count without ever exceeding this value.
   yambms_max_requested_discharge_current: '300' # in Ampere
+  # +-------------------------------------------------------------------------
+  # | Temperature-based current limitation
+  # | Can be disabled via the switch "Temperature-based current limitation"
+  # | This factor is applied to the battery capacity (Ah), not the current 
+  # | maximum charge/discharge current. For example : 280Ah x 0.5 = 140A
+  # +-------------------------------------------------------------------------
+  # Temperature °C -> Charge Rate (0.0C to 1.0C)
+  yambms_charging_rate_table: |
+    {
+      {  0.0, 0.05 },
+      {  5.0, 0.12 },
+      { 10.0, 0.30 },
+      { 20.0, 0.50 },
+      { 25.0, 0.50 },
+      { 45.0, 0.50 },
+      { 50.0, 0.50 },
+      { 55.0, 0.50 },
+      { 60.0, 0.00 }
+    }
+ # Temperature °C -> Discharge Rate (0.0C to 1.0C)
+  yambms_discharging_rate_table: |
+    {
+      {-30.0, 0.00 },
+      {-20.0, 0.50 },
+      {-10.0, 0.30 },
+      { -5.0, 0.50 },
+      {  0.0, 0.50 },
+      {  5.0, 0.50 },
+      { 45.0, 0.50 },
+      { 50.0, 0.50 },
+      { 55.0, 0.50 },
+      { 60.0, 0.00 }
+    }
   # +--------------------------------------+
   # | Shunt Settings                       |
   # +--------------------------------------+
