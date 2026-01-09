@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.4
+# Updated : 2026.01.13
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,7 +30,7 @@
     filters:
       - or:
         - throttle: 10s
-        - delta: 0.1
+        - delta: 0.2
     lambda: |-
             // MIN temperature
             // MIN temperature_sensor
@@ -87,9 +87,8 @@
     unit_of_measurement: °C
     device_class: temperature
     filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
+      - throttle: 10s
+      - delta: 0.2
     lambda: |-
             // MAX temperature
             // MAX temperature_sensor
