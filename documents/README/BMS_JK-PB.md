@@ -6,6 +6,17 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+> [!WARNING]
+> There is a known bug with the latest version of **JK firmware >= V19.10**.
+> Using **DIP switch addresses 1 to 15** does not reliably guarantee that the **UART2 (RS485-2)** port protocol will be automatically configured to **001 - JK BMS RS485 Modbus V1.0**, which allows **YamBMS** to access BMS informations.
+> YamBMS users have confirmed that it is possible to resolve this issue by performing an [Erase History Data](BMS_JK-PB.md#erase-history-data) from the JK app on a smartphone.
+
+
+> The alternative solution is to use the **UART1 (RS485-1)** port configured with the **001 - JK BMS RS485 Modbus V1.0** protocol from the JK application.
+> Downgrading to **V19.10** does not guarantee to correct this problem, [please read this information before downgrading](BMS_JK-PB.md#downgrading-to-1910).
+
+
+
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.
@@ -20,7 +31,7 @@
 
 ## JK-PB BMS protocol
 
-The datas from this BMS can be retrieved from the `RS485-2 (UART2)` network using the component [JK_RS485](https://github.com/txubelaxu/esphome-jk-bms/blob/main/components/jk_rs485_bms/README.md) of [@txubelaxu](https://github.com/txubelaxu).
+The datas from this BMS can be retrieved from the `RS485-1 (UART1)` or `RS485-2 (UART2)` network using the component [JK_RS485](https://github.com/Sleeper85/esphome-components/tree/main/components) originally developed by [@txubelaxu](https://github.com/txubelaxu).
 
 The BMS DIP switches must be set from `1` to `15` (server mode) and connected to each other using the `RS485-2` network available on the **two ports at the right ends**. `YamBMS` also connects to one of these two ports.
 
@@ -85,11 +96,11 @@ The following CAN protocols are supported on the CAN port:
 > [!TIP]
 > This solution only requires an ESP32 with a CAN transceiver and a RS485 transceiver.
 
-You are free to choose the hardware you want, the list below are 3 easy to use examples :
+You are free to choose the hardware you want, the list below are 3 easy to use examples of **ESP32-S3 with PSRAM** :
 
-- `AtomS3` with the isolated `Atomic CAN base` and `RS485 unit`
-- [`LilyGo T-Connect`, ESP32-S3 with 3x RS485 and 1x CAN](https://github.com/Xinyuan-LilyGO/T-Connect)
-- [`LilyGo T-CAN485`, ESP32 with 1x RS485 and 1x CAN](https://github.com/Xinyuan-LilyGO/T-CAN485)
+- [Waveshare ESP32-S3-RS485-CAN](https://www.waveshare.com/esp32-s3-rs485-can.htm), ESP32-S3 with 1x RS485 and 1x CAN
+- [LilyGo T-Connect](https://github.com/Xinyuan-LilyGO/T-Connect), ESP32-S3 with 3x RS485 and 1x CAN
+- [M5Stack AtomS3R](https://docs.m5stack.com/en/core/AtomS3R), ESP32-S3 with the isolated [Atomic CAN base](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) and [RS485 unit](https://docs.m5stack.com/en/unit/iso485)
 
 See the [documentation about supported hardware](Supported_devices.md).
 
@@ -175,6 +186,14 @@ When enabled, this function synchronizes the settings of all your BMS connected 
 > During the `Bulk` phase the YamBMS `SoC` cannot be more than `98%`.
 > When the battery is fully charged, the average `SoC` of your BMS will be sent.
 
+### Solution 1
+
+The simplest solution is to disable the **Charging Float Mode** switch to disable the new **SoC 100% reset logic** described below in **Solution 2**. Your BMS will simply use the **SOC 100% V.** value, and the SoC will be reset to 100% as soon as a cell reaches this value.
+
+![Image](../../images/BMS_JK-PB_Charging_Float_Mode.png "BMS JK-PB Charging Float Mode")
+
+### Solution 2
+
 The new `JK-PB` parameters `RCV` and `RCV timer` are not used by `YamBMS`, but you can adjust them to reach the `100%` faster, a little before `YamBMS` completes charging.
 
 If you are instructing `YamBMS` to Bulk charge at `3.5V/cell`, configure the `JK-PB` parameters like this:
@@ -192,3 +211,15 @@ Then, when charging is complete before switching to `Float`, `YamBMS` will again
 On the `YamBMS` side, disabling the `EOC Timer` (which will end charging after max `30min` in the `Cut-Off` phase without waiting for all `cells` to be `equalized`) will prolong charging until all your `cells` are `equalized` and the active balancer is no longer working for `60s`. This can give more time to the `JK-PB` to reset to `100%`.
 
 ![Image](../../images/BMS_JK-PB_SoC_100pct_Logic.png "Broadcasting JK-PB settings to all BMS")
+
+
+## Erase History Data
+
+The procedure below allows you to unblock the **UART2 (RS485-2)** port to restore normal behavior, depending on the DIP switch value :
+* DIP switch **0** = protocol **015 - dedicated to the master BMS**
+* DIP switches **1 to 15** = protocol **001 - JK BMS RS485 Modbus V1.0**
+
+| 1. Generate a JK code | 2. Erase History Data | 3. Enter the code |
+| --- | --- | --- |
+| Go to [this page](https://mirofromdiro.github.io/JK-firmware-code/) to generate a new code valid for one hour. | In the JK smartphone app, click on the **Erase History Data** function. | Enter the **generated code** and then click **Verify**. |
+| <img src="../../images/BMS_JK-PB_Erase_History_Data_1.jpg" width="300"> | <img src="../../images/BMS_JK-PB_Erase_History_Data_2.png" width="300"> | <img src="../../images/BMS_JK-PB_Erase_History_Data_3.png" width="300"> |

@@ -1,5 +1,5 @@
-# Updated : 2025.10.11
-# Version : 1.1.3
+# Updated : 2025.10.25
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,74 +18,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  shunt_base: !include shunt_base.yaml
+  shunt_sensors: !include shunt_sensors_FAKE.yaml
   shunt_combine: !include shunt_combine.yaml
-
-binary_sensor:
-  # Required sensors cannot be retrieved from Shunt
-  # online_status
-  - platform: template
-    id: shunt${shunt_id}_online_status
-    name: "${name} ${shunt_name} Online Status"
-    lambda: |-
-      if (id(shunt${shunt_id}_voltage).state > 0)
-        return true;
-      else
-        return false;
-
-sensor:
-  # total_voltage
-  - platform: template
-    id: shunt${shunt_id}_voltage
-    name: "${name} ${shunt_name} Voltage"
-    update_interval: ${shunt_update_interval}
-    accuracy_decimals: 2
-    unit_of_measurement: V
-    device_class: voltage
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.01
-    lambda: return ${shunt_voltage};
-
-  # current
-  - platform: template
-    id: shunt${shunt_id}_current
-    name: "${name} ${shunt_name} Current"
-    update_interval: ${shunt_update_interval}
-    accuracy_decimals: 1
-    unit_of_measurement: A
-    device_class: current
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
-    lambda: return ${shunt_current};
-
-  # power
-  - platform: template
-    id: shunt${shunt_id}_power
-    name: "${name} ${shunt_name} Power"
-    update_interval: ${shunt_update_interval}
-    accuracy_decimals: 0
-    unit_of_measurement: W
-    device_class: power
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: return ${shunt_power};
-
-  # state_of_charge
-  - platform: template
-    id: shunt${shunt_id}_soc
-    name: "${name} ${shunt_name} State of Charge"
-    update_interval: ${shunt_update_interval}
-    accuracy_decimals: 0
-    unit_of_measurement: '%'
-    device_class: battery
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
-    lambda: return ${shunt_soc};

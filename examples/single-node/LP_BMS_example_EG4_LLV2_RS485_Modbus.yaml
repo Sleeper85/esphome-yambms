@@ -1,0 +1,54 @@
+# Updated : 2025.07.27
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into your main YAML.
+
+################################################################################
+
+packages:
+
+  eg4_modbus: !include
+    file: packages/bms/bms_combine_EG4_RS485_modbus.yaml
+    vars:
+      eg4_modbus_uart_id: 'uart_esp_1'
+      eg4_modbus_baud_rate: '9600'
+
+  bms1: !include
+    file: packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'BMS 1'
+      ## BMS address must start at 2 with EG4 LLV2, ID 1 is a special case and has different output.
+      bms_address: 2 # BMS 1 DIP switch
+  
+  bms2: !include
+    file: packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml
+    vars:
+      bms_id: '2' # must be a number
+      bms_name: 'BMS 2'
+      bms_address: 3 # BMS 2 DIP switch
+
+  bms3: !include
+    file: packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml
+    vars:
+      bms_id: '3' # must be a number
+      bms_name: 'BMS 3'
+      bms_address: 4 # BMS 3 DIP switch
