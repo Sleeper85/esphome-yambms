@@ -1,4 +1,4 @@
-# Updated : 2025.12.30
+# Updated : 2026.01.13
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -641,6 +641,7 @@ text_sensor:
           float current = id(${yambms_id}_current).state;
           float cutoff_resistance = ((cv_max - cv_min) / id(${yambms_id}_battery_capacity).state / 0.05);
           static int cutoff_counter = 0;
+          static int bulk_counter = 0;
 
           // +-----------------------------------------------+
           // | Cut-Off Charging Logic                        |
@@ -650,9 +651,15 @@ text_sensor:
             float cutoff_voltage = (max_cell_v - cutoff_resistance * current);
 
             if(cutoff_voltage > cv_min)
+            {
               cutoff_counter++;
+              bulk_counter = 0;
+            }
             else
+            {
+              bulk_counter++;
               cutoff_counter = 0;
+            }
 
             // Entering the Cut-Off phase
             // The criteria check must succeed 5 times in a row to ensure
@@ -686,7 +693,9 @@ text_sensor:
                 id(${yambms_id}_script_cutoff_timer).execute();
             }
             // Continue charging
-            else
+            // The criteria check must succeed 5 times in a row to ensure
+            // that these are not random/erroneous/false readings of the BMS
+            else if (bulk_counter > 4)
             {
               // Stop timer
               if (id(${yambms_id}_script_eoc_timer).is_running()) id(${yambms_id}_script_eoc_timer).stop();
