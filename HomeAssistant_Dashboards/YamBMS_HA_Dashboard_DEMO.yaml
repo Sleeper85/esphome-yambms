@@ -1,4 +1,4 @@
-# Updated : 2025.12.23
+# Updated : 2026.01.14
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -331,6 +331,10 @@ views:
             name: Max discharge current
           - entity: switch.yambms_demo_yambms_1_temperature_based_current_limitation
             name: Temperature-based current limitation
+          - entity: sensor.yambms_demo_yambms_1_ccl_derating_reason
+            name: CCL Derating Reason
+          - entity: sensor.yambms_demo_yambms_1_dcl_derating_reason
+            name: DCL Derating Reason
         title: YamBMS - Max requested current
       - type: entities
         entities:
@@ -462,31 +466,29 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center>Charge : <b>{% if
-                  states('switch.bms_1_charge_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_1_charge_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_1_charge_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  <center>Charge : <b>{% if states('switch.bms_1_charge_switch',
+                  rounded=True) == 'on' %} <font color=#41CD52>{{
+                  states('switch.bms_1_charge_switch', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('switch.bms_1_charge_switch', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('switch.bms_1_discharge_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_1_discharge_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_1_discharge_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  states('switch.bms_1_discharge_switch', rounded=True) == 'on'
+                  %} <font color=#41CD52>{{
+                  states('switch.bms_1_discharge_switch', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('switch.bms_1_discharge_switch', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.bms_1_balance_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_1_balance_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_1_balance_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  states('switch.bms_1_balance_switch', rounded=True) == 'on' %}
+                  <font color=#41CD52>{{ states('switch.bms_1_balance_switch',
+                  rounded=True) | upper }}</font> {% else %} <font
+                  color=#3090C7>{{ states('switch.bms_1_balance_switch',
+                  rounded=True) | upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -495,8 +497,7 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.bms_1_current', rounded=True) }}
-                  A</font></b>
+                  states('sensor.bms_1_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -508,13 +509,13 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.bms_1_battery_soc',
-                  rounded=True) }} %</font></font>
+                  size=4>{{ states('sensor.bms_1_battery_soc', rounded=True) }}
+                  %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.bms_1_battery_soh',
-                  rounded=True) }} %</font></font>
+                  size=4>{{ states('sensor.bms_1_battery_soh', rounded=True) }}
+                  %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
@@ -524,7 +525,7 @@ views:
                   :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br> Balance
                   Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br> Max
                   temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_1_max_temperature', rounded=True) }}
+                  states('number.bms_1_max_temperature', rounded=True) }}
                   °C</font>
               - type: markdown
                 content: >-
@@ -535,7 +536,7 @@ views:
                   rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>0.007 V</font><br> MOS temp. :&nbsp;&nbsp;<font
                   color=#41CD52>25.6 °C</font><br> Min temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{ states('sensor.bms_1_min_temperature',
+                  color=#41CD52>{{ states('number.bms_1_min_temperature',
                   rounded=True) }} °C</font>
           - type: grid
             square: false
@@ -553,21 +554,16 @@ views:
                   11. 3.311 V / 0.050 Ω<br> 12. 3.312 V / 0.050 Ω<br> 13. 3.313
                   V / 0.050 Ω<br> 14. 3.314 V / 0.050 Ω<br> 15. 3.315 V / 0.050
                   Ω<br> 16. 3.316 V / 0.050 Ω<br> </center>
-          - type: entity-filter
+          - type: entities
             entities:
+              - entity: switch.bms_1_online_status_switch
               - entity: switch.bms_1_charge_switch
-                name: Charge switch
               - entity: switch.bms_1_discharge_switch
-                name: Discharge switch
               - entity: switch.bms_1_balance_switch
-                name: Balance switch
-              - entity: switch.bms_1_enable_bluetooth_connection
-                name: Bluetooth
-              - entity: number.bms_1_charging_cycles_offset
-                name: Charging Cycles Offset
-            conditions:
-              - condition: state
-                state_not: unavailable
+              - entity: number.bms_1_min_cell_voltage
+              - entity: number.bms_1_max_cell_voltage
+              - entity: number.bms_1_min_temperature
+              - entity: number.bms_1_max_temperature
       - type: grid
         column_span: 1
         cards:
@@ -613,31 +609,29 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center>Charge : <b>{% if
-                  states('switch.bms_2_charge_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_2_charge_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_2_charge_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  <center>Charge : <b>{% if states('switch.bms_2_charge_switch',
+                  rounded=True) == 'on' %} <font color=#41CD52>{{
+                  states('switch.bms_2_charge_switch', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('switch.bms_2_charge_switch', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('switch.bms_2_discharge_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_2_discharge_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_2_discharge_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  states('switch.bms_2_discharge_switch', rounded=True) == 'on'
+                  %} <font color=#41CD52>{{
+                  states('switch.bms_2_discharge_switch', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('switch.bms_2_discharge_switch', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.bms_2_balance_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_2_balance_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_2_balance_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  states('switch.bms_2_balance_switch', rounded=True) == 'on' %}
+                  <font color=#41CD52>{{ states('switch.bms_2_balance_switch',
+                  rounded=True) | upper }}</font> {% else %} <font
+                  color=#3090C7>{{ states('switch.bms_2_balance_switch',
+                  rounded=True) | upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -646,8 +640,7 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.bms_2_current', rounded=True) }}
-                  A</font></b>
+                  states('sensor.bms_2_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -659,13 +652,13 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.bms_2_battery_soc',
-                  rounded=True) }} %</font></font>
+                  size=4>{{ states('sensor.bms_2_battery_soc', rounded=True) }}
+                  %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.bms_2_battery_soh',
-                  rounded=True) }} %</font></font>
+                  size=4>{{ states('sensor.bms_2_battery_soh', rounded=True) }}
+                  %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
@@ -675,7 +668,7 @@ views:
                   :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br> Balance
                   Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br> Max
                   temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_2_max_temperature', rounded=True) }}
+                  states('number.bms_2_max_temperature', rounded=True) }}
                   °C</font>
               - type: markdown
                 content: >-
@@ -686,7 +679,7 @@ views:
                   rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>0.007 V</font><br> MOS temp. :&nbsp;&nbsp;<font
                   color=#41CD52>25.6 °C</font><br> Min temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{ states('sensor.bms_2_min_temperature',
+                  color=#41CD52>{{ states('number.bms_2_min_temperature',
                   rounded=True) }} °C</font>
           - type: grid
             square: false
@@ -704,21 +697,16 @@ views:
                   11. 3.311 V / 0.050 Ω<br> 12. 3.312 V / 0.050 Ω<br> 13. 3.313
                   V / 0.050 Ω<br> 14. 3.314 V / 0.050 Ω<br> 15. 3.315 V / 0.050
                   Ω<br> 16. 3.316 V / 0.050 Ω<br> </center>
-          - type: entity-filter
+          - type: entities
             entities:
+              - entity: switch.bms_2_online_status_switch
               - entity: switch.bms_2_charge_switch
-                name: Charge switch
               - entity: switch.bms_2_discharge_switch
-                name: Discharge switch
               - entity: switch.bms_2_balance_switch
-                name: Balance switch
-              - entity: switch.bms_2_enable_bluetooth_connection
-                name: Bluetooth
-              - entity: number.bms_2_charging_cycles_offset
-                name: Charging Cycles Offset
-            conditions:
-              - condition: state
-                state_not: unavailable
+              - entity: number.bms_2_min_cell_voltage
+              - entity: number.bms_2_max_cell_voltage
+              - entity: number.bms_2_min_temperature
+              - entity: number.bms_2_max_temperature
       - type: grid
         column_span: 1
         cards:
@@ -764,31 +752,29 @@ views:
             cards:
               - type: markdown
                 content: >-
-                  <center>Charge : <b>{% if
-                  states('switch.bms_3_charge_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_3_charge_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_3_charge_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  <center>Charge : <b>{% if states('switch.bms_3_charge_switch',
+                  rounded=True) == 'on' %} <font color=#41CD52>{{
+                  states('switch.bms_3_charge_switch', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('switch.bms_3_charge_switch', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Discharge : <b> {% if
-                  states('switch.bms_3_discharge_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_3_discharge_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_3_discharge_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  states('switch.bms_3_discharge_switch', rounded=True) == 'on'
+                  %} <font color=#41CD52>{{
+                  states('switch.bms_3_discharge_switch', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('switch.bms_3_discharge_switch', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.bms_3_balance_switch', rounded=True) ==
-                  'on' %} <font color=#41CD52>{{
-                  states('switch.bms_3_balance_switch', rounded=True) |
-                  upper }}</font> {% else %} <font color=#3090C7>{{
-                  states('switch.bms_3_balance_switch', rounded=True) |
-                  upper }}</font> {% endif %}
+                  states('switch.bms_3_balance_switch', rounded=True) == 'on' %}
+                  <font color=#41CD52>{{ states('switch.bms_3_balance_switch',
+                  rounded=True) | upper }}</font> {% else %} <font
+                  color=#3090C7>{{ states('switch.bms_3_balance_switch',
+                  rounded=True) | upper }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -797,8 +783,7 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
-                  states('sensor.bms_3_current', rounded=True) }}
-                  A</font></b>
+                  states('sensor.bms_3_current', rounded=True) }} A</font></b>
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -810,13 +795,13 @@ views:
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoC :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.bms_3_battery_soc',
-                  rounded=True) }} %</font></font>
+                  size=4>{{ states('sensor.bms_3_battery_soc', rounded=True) }}
+                  %</font></font>
               - type: markdown
                 content: >-
                   <center><b><font size=4>SoH :&nbsp;&nbsp;<font color=#41CD52
-                  size=4>{{ states('sensor.bms_3_battery_soh',
-                  rounded=True) }} %</font></font>
+                  size=4>{{ states('sensor.bms_3_battery_soh', rounded=True) }}
+                  %</font></font>
               - type: markdown
                 content: >-
                   <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
@@ -826,7 +811,7 @@ views:
                   :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br> Balance
                   Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br> Max
                   temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_3_max_temperature', rounded=True) }}
+                  states('number.bms_3_max_temperature', rounded=True) }}
                   °C</font>
               - type: markdown
                 content: >-
@@ -837,7 +822,7 @@ views:
                   rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
                   color=#41CD52>0.007 V</font><br> MOS temp. :&nbsp;&nbsp;<font
                   color=#41CD52>25.6 °C</font><br> Min temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{ states('sensor.bms_3_min_temperature',
+                  color=#41CD52>{{ states('number.bms_3_min_temperature',
                   rounded=True) }} °C</font>
           - type: grid
             square: false
@@ -855,21 +840,16 @@ views:
                   11. 3.311 V / 0.050 Ω<br> 12. 3.312 V / 0.050 Ω<br> 13. 3.313
                   V / 0.050 Ω<br> 14. 3.314 V / 0.050 Ω<br> 15. 3.315 V / 0.050
                   Ω<br> 16. 3.316 V / 0.050 Ω<br> </center>
-          - type: entity-filter
+          - type: entities
             entities:
+              - entity: switch.bms_3_online_status_switch
               - entity: switch.bms_3_charge_switch
-                name: Charge switch
               - entity: switch.bms_3_discharge_switch
-                name: Discharge switch
               - entity: switch.bms_3_balance_switch
-                name: Balance switch
-              - entity: switch.bms_3_enable_bluetooth_connection
-                name: Bluetooth
-              - entity: number.bms_3_charging_cycles_offset
-                name: Charging Cycles Offset
-            conditions:
-              - condition: state
-                state_not: unavailable
+              - entity: number.bms_3_min_cell_voltage
+              - entity: number.bms_3_max_cell_voltage
+              - entity: number.bms_3_min_temperature
+              - entity: number.bms_3_max_temperature
   - title: Shunt
     type: sections
     max_columns: 3

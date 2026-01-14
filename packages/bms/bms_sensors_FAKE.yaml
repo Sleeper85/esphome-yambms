@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.2.2
+# Updated : 2026.01.14
+# Version : 1.2.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,8 +20,8 @@
 packages:
   balancer: !include bms_base_balancer.yaml
   bms_battery_soc: !include bms_base_battery_soc.yaml
-  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
   sub_device: !include bms_base_sub_device.yaml
+  # bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
 
 number:
   # errors_bitmask (16bits)
@@ -29,12 +29,71 @@ number:
     id: bms${bms_id}_yambms_errors_bitmask_number
     device_id: bms_${bms_id}
     name: "YamBMS Errors Bitmask"
+    mode: box
     step: 1
     min_value: 0
     max_value: 65535
     restore_value: true
     initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
     icon: mdi:alert-circle-outline
+    optimistic: true
+    entity_category: config
+  # min_cell_voltage
+  - platform: template
+    id: bms${bms_id}_min_cell_voltage
+    device_id: bms_${bms_id}
+    name: "min cell voltage"
+    mode: box
+    step: 0.005
+    min_value: 2.5
+    max_value: 3.65
+    restore_value: true
+    initial_value: ${bms_min_cell_voltage}
+    device_class: voltage
+    optimistic: true
+    entity_category: config
+  # max_cell_voltage
+  - platform: template
+    id: bms${bms_id}_max_cell_voltage
+    device_id: bms_${bms_id}
+    name: "max cell voltage"
+    mode: box
+    step: 0.005
+    min_value: 2.5
+    max_value: 3.65
+    restore_value: true
+    initial_value: ${bms_max_cell_voltage}
+    device_class: voltage
+    optimistic: true
+    entity_category: config
+  # min_temperature
+  - platform: template
+    id: bms${bms_id}_min_temperature
+    device_id: bms_${bms_id}
+    name: "min temperature"
+    mode: box
+    step: 0.1
+    min_value: -30.0
+    max_value: 60.0
+    restore_value: true
+    initial_value: ${bms_min_temperature}
+    unit_of_measurement: °C
+    device_class: temperature
+    optimistic: true
+    entity_category: config
+  # max_temperature
+  - platform: template
+    id: bms${bms_id}_max_temperature
+    device_id: bms_${bms_id}
+    name: "max temperature"
+    mode: box
+    step: 0.1
+    min_value: -30.0
+    max_value: 60.0
+    restore_value: true
+    initial_value: ${bms_max_temperature}
+    unit_of_measurement: °C
+    device_class: temperature
     optimistic: true
     entity_category: config
 
@@ -224,95 +283,33 @@ sensor:
         - delta: 1
     lambda: return ${bms_max_voltage_cell};
 
-  # min_cell_voltage
+  # MIN temperature sensor
   - platform: template
-    id: bms${bms_id}_min_cell_voltage
+    id: bms${bms_id}_min_temperature_sensor
     device_id: bms_${bms_id}
-    name: "Min Cell Voltage"
+    name: "min temperature sensor"
     update_interval: ${bms_update_interval}
-    accuracy_decimals: 3
-    unit_of_measurement: V
-    device_class: voltage
+    accuracy_decimals: 0
+    icon: mdi:numeric
     filters:
       - or:
         - throttle: 10s
-        - delta: 0.001
-    lambda: return ${bms_min_cell_voltage};
+        - delta: 1
+    lambda: return ${bms_id}01;
 
-  # max_cell_voltage
+  # MAX temperature sensor
   - platform: template
-    id: bms${bms_id}_max_cell_voltage
+    id: bms${bms_id}_max_temperature_sensor
     device_id: bms_${bms_id}
-    name: "Max Cell Voltage"
+    name: "max temperature sensor"
     update_interval: ${bms_update_interval}
-    accuracy_decimals: 3
-    unit_of_measurement: V
-    device_class: voltage
+    accuracy_decimals: 0
+    icon: mdi:numeric
     filters:
       - or:
         - throttle: 10s
-        - delta: 0.001
-    lambda: return ${bms_max_cell_voltage};
-
-  # temperature_sensor_1
-  - platform: template
-    id: bms${bms_id}_temperature_sensor_1
-    device_id: bms_${bms_id}
-    name: "Temperature Sensor 1"
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 1
-    unit_of_measurement: °C
-    device_class: temperature
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
-    lambda: return ${bms_temperature_sensor_1};
-
-  # temperature_sensor_2
-  - platform: template
-    id: bms${bms_id}_temperature_sensor_2
-    device_id: bms_${bms_id}
-    name: "Temperature Sensor 2"
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 1
-    unit_of_measurement: °C
-    device_class: temperature
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
-    lambda: return ${bms_temperature_sensor_2};
-
-  # temperature_sensor_3
-  - platform: template
-    id: bms${bms_id}_temperature_sensor_3
-    device_id: bms_${bms_id}
-    name: "Temperature Sensor 3"
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 1
-    unit_of_measurement: °C
-    device_class: temperature
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
-    lambda: return ${bms_temperature_sensor_3};
-
-  # temperature_sensor_4
-  - platform: template
-    id: bms${bms_id}_temperature_sensor_4
-    device_id: bms_${bms_id}
-    name: "Temperature Sensor 4"
-    update_interval: ${bms_update_interval}
-    accuracy_decimals: 1
-    unit_of_measurement: °C
-    device_class: temperature
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
-    lambda: return ${bms_temperature_sensor_4};
+        - delta: 1
+    lambda: return ${bms_id}02;
 
   # max_charge_current
   - platform: template
@@ -444,3 +441,63 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: return id(bms${bms_id}_yambms_errors_bitmask_number).state;
+
+  # # temperature_sensor_1
+  # - platform: template
+  #   id: bms${bms_id}_temperature_sensor_1
+  #   device_id: bms_${bms_id}
+  #   name: "Temperature Sensor 1"
+  #   update_interval: ${bms_update_interval}
+  #   accuracy_decimals: 1
+  #   unit_of_measurement: °C
+  #   device_class: temperature
+  #   filters:
+  #     - or:
+  #       - throttle: 10s
+  #       - delta: 0.1
+  #   lambda: return ${bms_temperature_sensor_1};
+
+  # # temperature_sensor_2
+  # - platform: template
+  #   id: bms${bms_id}_temperature_sensor_2
+  #   device_id: bms_${bms_id}
+  #   name: "Temperature Sensor 2"
+  #   update_interval: ${bms_update_interval}
+  #   accuracy_decimals: 1
+  #   unit_of_measurement: °C
+  #   device_class: temperature
+  #   filters:
+  #     - or:
+  #       - throttle: 10s
+  #       - delta: 0.1
+  #   lambda: return ${bms_temperature_sensor_2};
+
+  # # temperature_sensor_3
+  # - platform: template
+  #   id: bms${bms_id}_temperature_sensor_3
+  #   device_id: bms_${bms_id}
+  #   name: "Temperature Sensor 3"
+  #   update_interval: ${bms_update_interval}
+  #   accuracy_decimals: 1
+  #   unit_of_measurement: °C
+  #   device_class: temperature
+  #   filters:
+  #     - or:
+  #       - throttle: 10s
+  #       - delta: 0.1
+  #   lambda: return ${bms_temperature_sensor_3};
+
+  # # temperature_sensor_4
+  # - platform: template
+  #   id: bms${bms_id}_temperature_sensor_4
+  #   device_id: bms_${bms_id}
+  #   name: "Temperature Sensor 4"
+  #   update_interval: ${bms_update_interval}
+  #   accuracy_decimals: 1
+  #   unit_of_measurement: °C
+  #   device_class: temperature
+  #   filters:
+  #     - or:
+  #       - throttle: 10s
+  #       - delta: 0.1
+  #   lambda: return ${bms_temperature_sensor_4};
