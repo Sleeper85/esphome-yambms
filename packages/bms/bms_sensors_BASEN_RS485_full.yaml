@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.8
+# Updated : 2026.01.13
+# Version : 1.1.9
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -116,18 +116,38 @@ sensor:
       id: bms${bms_id}_temperature_sensor_1
       device_id: bms_${bms_id}
       name: "temperature sensor 1"
+      filters:
+        - exponential_moving_average:
+            alpha: 0.1
+            send_every: 4
+        - delta: 1
     temperature2:
       id: bms${bms_id}_temperature_sensor_2
       device_id: bms_${bms_id}
       name: "temperature sensor 2"
+      filters:
+        - exponential_moving_average:
+            alpha: 0.1
+            send_every: 4
+        - delta: 1
     temperature3:
       id: bms${bms_id}_temperature_sensor_3
       device_id: bms_${bms_id}
       name: "temperature sensor 3"
+      filters:
+        - exponential_moving_average:
+            alpha: 0.1
+            send_every: 4
+        - delta: 1
     temperature4: 
       id: bms${bms_id}_temperature_sensor_4
       device_id: bms_${bms_id}
       name: "temperature sensor 4"
+      filters:
+        - exponential_moving_average:
+            alpha: 0.1
+            send_every: 4
+        - delta: 1
     temperature_mos:
       device_id: bms_${bms_id}
       name: "temperature MOSFET"
