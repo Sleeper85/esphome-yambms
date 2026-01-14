@@ -1,5 +1,5 @@
-# Updated : 2025.12.28
-# Version : 1.1.2
+# Updated : 2026.01.14
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -54,6 +54,7 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   domain: !secret domain
+  reboot_timeout: 0s
 
 # ESPHome does not support W5500 and other SPI devices at the same SPI bus:
 # https://github.com/esphome/esphome/discussions/6720
