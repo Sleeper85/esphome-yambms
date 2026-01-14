@@ -1,4 +1,4 @@
-# Updated : 2026.01.07
+# Updated : 2026.01.14
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -36,6 +36,8 @@
 
 logger:
   level: INFO # VERBOSE / DEBUG / INFO / WARN
+  # baud_rate: 115200 # Send logs to the `hardware_uart` USB output (this consumes a UART interface)
+  # hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
 
 ota:
   - platform: esphome
@@ -60,8 +62,8 @@ api:
 # +--------------------------------------+
 substitutions:
   # Name
-  friendly_name : 'YamBMS' # Prefix added in front of the `entity display name`, also used to classify them.
-  hostname: 'yambms' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
+  friendly_name : 'YamBMS' # Prefix added in front of the `entity name`, also used to classify them.
+  hostname: 'yambms' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
   name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
   # +--------------------------------------+
   # | YamBMS Settings                      |
@@ -157,7 +159,7 @@ packages:
   board:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: 'packages/board/board_ESP32_Generic.yaml'
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
@@ -201,7 +203,7 @@ packages:
   board_options:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       # UART 1 (uart_id: uart_esp_1)
       - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
@@ -258,7 +260,7 @@ packages:
   bms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       # Basen controller
       - path: packages/bms/bms_combine_BASEN_RS485_controller.yaml
@@ -288,7 +290,7 @@ packages:
   yambms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: 'packages/yambms/yambms.yaml'
 
@@ -301,7 +303,7 @@ packages:
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: 'packages/yambms/yambms_canbus.yaml' # yambms_canbus_web_server.yaml
         vars:
@@ -322,7 +324,7 @@ packages:
   # rs485_pylon:
   #   url: https://github.com/Sleeper85/esphome-yambms
   #   ref: main
-  #   refresh: 0s
+  #   refresh: 60min
   #   files:
   #     - path: 'packages/yambms/yambms_rs485_pylon.yaml' # yambms_rs485_pylon_web_server.yaml
   #       vars:
@@ -341,7 +343,7 @@ packages:
   debug:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: packages/base/device_debug_ESP32.yaml
       # - path: packages/base/device_debug_ESP32_PSRAM.yaml
