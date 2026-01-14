@@ -1,4 +1,4 @@
-# Updated : 2025.12.23
+# Updated : 2026.01.14
 # Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -305,6 +305,10 @@ views:
             name: Max discharge current
           - entity: switch.yambms_yambms_1_temperature_based_current_limitation
             name: Temperature-based current limitation
+          - entity: sensor.yambms_yambms_1_ccl_derating_reason
+            name: CCL Derating Reason
+          - entity: sensor.yambms_yambms_1_dcl_derating_reason
+            name: DCL Derating Reason
         title: YamBMS - Max requested current
       - type: entities
         entities:
