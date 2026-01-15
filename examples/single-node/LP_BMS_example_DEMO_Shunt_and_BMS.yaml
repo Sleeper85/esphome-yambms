@@ -1,5 +1,5 @@
-# Updated : 2025.07.27
-# Version : 1.1.1
+# Updated : 2026.01.15
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -31,10 +31,10 @@ packages:
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
       # Shunt sensors values
-      shunt_voltage: '53.41' # V
-      shunt_current: '37.5' # A
-      shunt_power: '2003' # W
-      shunt_soc: '86' # %
+      shunt_voltage: '52.81' # V
+      shunt_current: '17.5' # A
+      shunt_power: '924' # W
+      shunt_soc: '50' # %
 
   bms1: !include
     file: packages/bms/bms_combine_FAKE.yaml
@@ -48,15 +48,13 @@ packages:
       bms_current: '9.2' # A
       bms_power: '492' # W
       bms_soc: '87' # %
-      bms_soh: '99' # %
+      bms_soh: '98' # %
       bms_min_cell_voltage: '3.339' # V
       bms_min_voltage_cell: '2' # cell number 1~16
       bms_max_cell_voltage: '3.341' # V
       bms_max_voltage_cell: '11' # cell number 1~16
-      bms_temperature_sensor_1: '21.1' # °C
-      bms_temperature_sensor_2: '21.3' # °C
-      bms_temperature_sensor_3: '21.5' # °C
-      bms_temperature_sensor_4: '21.7' # °C
+      bms_min_temperature: '9.1' # °C
+      bms_max_temperature: '9.3' # °C
       bms_max_charge_current: '100' # A
       bms_max_discharge_current: '100' # A
       bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
@@ -81,10 +79,8 @@ packages:
       bms_min_voltage_cell: '14' # cell number 1~16
       bms_max_cell_voltage: '3.339' # V
       bms_max_voltage_cell: '3' # cell number 1~16
-      bms_temperature_sensor_1: '21.8' # °C
-      bms_temperature_sensor_2: '21.6' # °C
-      bms_temperature_sensor_3: '21.4' # °C
-      bms_temperature_sensor_4: '21.2' # °C
+      bms_min_temperature: '15.1' # °C
+      bms_max_temperature: '15.3' # °C
       bms_max_charge_current: '100' # A
       bms_max_discharge_current: '100' # A
       bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
@@ -109,10 +105,8 @@ packages:
       bms_min_voltage_cell: '7' # cell number 1~16
       bms_max_cell_voltage: '3.336' # V
       bms_max_voltage_cell: '9' # cell number 1~16
-      bms_temperature_sensor_1: '21.9' # °C
-      bms_temperature_sensor_2: '22.0' # °C
-      bms_temperature_sensor_3: '22.1' # °C
-      bms_temperature_sensor_4: '22.2' # °C
+      bms_min_temperature: '20.1' # °C
+      bms_max_temperature: '20.3' # °C
       bms_max_charge_current: '100' # A
       bms_max_discharge_current: '100' # A
       bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
