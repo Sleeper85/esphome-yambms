@@ -31,6 +31,10 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+  - id: ${yambms_id}_var_bms_online_bitmask
+    type: int
+    restore_value: no
+    initial_value: '0'
   - id: ${yambms_id}_var_errors_bitmask_counter
     type: int
     restore_value: no

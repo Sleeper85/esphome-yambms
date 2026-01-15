@@ -50,6 +50,9 @@ interval:
             // The BMS can be combined ?
             if (id(bms${bms_id}_can_be_combined).state)
             {
+              // Store in bitmask
+              id(${yambms_id}_var_bms_online_bitmask) |= (1 << (${bms_id} - 1));
+
               // +-----------------------------------------------+
               // | Combine once only                             |
               // +-----------------------------------------------+
@@ -193,6 +196,9 @@ interval:
 
               // Uncombined
               id(bms${bms_id}_combined) = false;
+
+              // Remove from bitmask
+              id(${yambms_id}_var_bms_online_bitmask) &= ~(1 << (${bms_id} - 1));
             }
 
             // Increment the counter for next BMS processing

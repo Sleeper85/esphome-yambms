@@ -36,6 +36,10 @@ packages:
     vars:
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
+      # Optional: BMS IDs connected to this shunt
+      # If provided, the shunt will only be used when all listed BMS are online
+      # If not provided, the shunt will be used independently of the BMS online status
+      bms_ids: '{1, 2, 3}'
 
   bms1: !include
     file: packages/bms/bms_combine_modbus_client.yaml

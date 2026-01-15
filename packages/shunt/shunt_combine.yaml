@@ -15,8 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  bms_ids: '{0}'
+
 globals:
   - id: shunt${shunt_id}_combined
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  - id: shunt${shunt_id}_bms_map
+    type: std::vector<uint8_t>
+    initial_value: '${bms_ids}'
+  - id: shunt${shunt_id}_bms_caused_uncombine
     type: bool
     restore_value: no
     initial_value: "false"
@@ -55,6 +65,26 @@ interval:
             // The Shunt can be combined ?
             if (id(shunt${shunt_id}_can_be_combined).state)
             {
+              // +-----------------------------------------------+
+              // | Check if all connected BMS are online         |
+              // +-----------------------------------------------+
+              bool all_bms_online = true;
+              for (auto const& bms_id : id(shunt${shunt_id}_bms_map))
+              {
+                if (!bms_id) continue;
+                if ((id(${yambms_id}_var_bms_online_bitmask) & (1 << (bms_id - 1))) == 0)
+                {
+                  all_bms_online = false;
+                  break;
+                }
+              }
+
+              if (!all_bms_online) {
+                ESP_LOGI("shunt_combine", "Shunt %d: Not all connected BMS are online, uncombining.", ${shunt_id});
+                id(shunt${shunt_id}_switch_combine).turn_off();
+                id(shunt${shunt_id}_bms_caused_uncombine) = true;
+              }
+
               // +-----------------------------------------------+
               // | Combine not continuously                      |
               // +-----------------------------------------------+
@@ -99,6 +129,26 @@ interval:
 
               // Uncombined
               id(shunt${shunt_id}_combined) = false;
+            } else if (id(shunt${shunt_id}_bms_caused_uncombine)) {
+              // +-----------------------------------------------+
+              // | Check if all connected BMS are online again   |
+              // +-----------------------------------------------+
+              bool all_bms_online = true;
+              for (auto const& bms_id : id(shunt${shunt_id}_bms_map))
+              {
+                if (!bms_id) continue;
+                if ((id(${yambms_id}_var_bms_online_bitmask) & (1 << (bms_id - 1))) == 0)
+                {
+                  all_bms_online = false;
+                  break;
+                }
+              }
+
+              if (all_bms_online) {
+                ESP_LOGI("shunt_combine", "Shunt %d: All connected BMS are online again, combining.", ${shunt_id});
+                id(shunt${shunt_id}_switch_combine).turn_on();
+                id(shunt${shunt_id}_bms_caused_uncombine) = false;
+              }
             }
 
             // Increment the counter for next Shunt processing
