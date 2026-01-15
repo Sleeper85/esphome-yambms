@@ -1,5 +1,5 @@
-# Updated : 2026.01.21
-# Version : 1.6.0
+# Updated : 2026.01.24
+# Version : 1.6.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,6 +28,14 @@ globals:
     restore_value: no
     initial_value: '1'
   - id: ${yambms_id}_var_to_combine_bms_counter
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: ${yambms_id}_var_bms_online_bitmask
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: ${yambms_id}_var_bms_seen_online_bitmask
     type: int
     restore_value: no
     initial_value: '0'

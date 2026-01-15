@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.5.9
+# Updated : 2026.01.24
+# Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -15,11 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  bms_ids: '{0}'
+
 globals:
   - id: shunt${shunt_id}_combined
     type: bool
     restore_value: no
     initial_value: "false"
+  - id: shunt${shunt_id}_bms_map
+    type: std::vector<uint8_t>
+    initial_value: '${bms_ids}'
+  - id: shunt${shunt_id}_bms_caused_uncombine
+    type: int
+    restore_value: no
+    initial_value: "0"
 
 # Combine once without conditions
 esphome:
@@ -36,6 +46,21 @@ switch:
     device_id: shunt_${shunt_id}
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
+    on_turn_on:
+      - lambda: |-
+          id(shunt${shunt_id}_bms_caused_uncombine) = 0;
+          id(shunt${shunt_id}_combine_state).publish_state("Enabled (switch)");
+    on_turn_off:
+      - lambda: |-
+          if (id(shunt${shunt_id}_bms_caused_uncombine))
+          {
+            std::string state_msg = "Disabled (BMS " + std::to_string(id(shunt${shunt_id}_bms_caused_uncombine)) + " offline)";
+            id(shunt${shunt_id}_combine_state).publish_state(state_msg.c_str());
+          }
+          else
+          {
+            id(shunt${shunt_id}_combine_state).publish_state("Disabled (switch)");
+          }
 
 binary_sensor:
   # Indicates whether the Shunt can be combined
@@ -44,6 +69,16 @@ binary_sensor:
     id: shunt${shunt_id}_can_be_combined
     device_id: shunt_${shunt_id}
     lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
+
+text_sensor:
+  # Show diagnostic state and reason for combine/uncombine
+  - platform: template
+    name: "State"
+    id: shunt${shunt_id}_combine_state
+    device_id: shunt_${shunt_id}
+    entity_category: diagnostic
+    update_interval: never
+    icon: mdi:state-machine
 
 interval:
   - interval: ${yambms_update_interval}
@@ -55,6 +90,34 @@ interval:
             // The Shunt can be combined ?
             if (id(shunt${shunt_id}_can_be_combined).state)
             {
+              // +-----------------------------------------------+
+              // | Check if all connected BMS are online         |
+              // +-----------------------------------------------+
+              int bms_offline = 0;
+              for (auto const& bms_id : id(shunt${shunt_id}_bms_map))
+              {
+                if (!bms_id) continue;
+
+                // Ignore BMS that we've not seen online yet
+                if ((id(${yambms_id}_var_bms_seen_online_bitmask) & (1 << (bms_id - 1))) == 0)
+                {
+                  continue;
+                }
+
+                // Check if BMS is online
+                if ((id(${yambms_id}_var_bms_online_bitmask) & (1 << (bms_id - 1))) == 0)
+                {
+                  bms_offline = bms_id;
+                  break;
+                }
+              }
+
+              if (bms_offline) {
+                ESP_LOGI("shunt_combine", "Shunt %d: BMS %d is offline, uncombining.", ${shunt_id}, bms_offline);
+                id(shunt${shunt_id}_bms_caused_uncombine) = bms_offline;
+                id(shunt${shunt_id}_switch_combine).turn_off();
+              }
+
               // +-----------------------------------------------+
               // | Combine not continuously                      |
               // +-----------------------------------------------+
