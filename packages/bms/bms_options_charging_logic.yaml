@@ -1,5 +1,5 @@
-# Updated : 2025.04.07
-# Version : 1.1.4
+# Updated : 2025.12.09
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  bms_cutoff_timer: '50s' # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
 
 script:
   - id: bms${bms_id}_script_cutoff_timer

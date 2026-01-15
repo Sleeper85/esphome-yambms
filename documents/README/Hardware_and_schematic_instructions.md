@@ -6,14 +6,25 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
-## MCU default GPIOs
+## Default GPIOs
 
-![Image](../../images/MCU_default_GPIOs.png "MCU default GPIOs")
+![Image](../../images/MCU_default_GPIOs.png)
 
-## Contents
+## BMS
 
-1) [Galvanic isolation](Galvanic_isolation.md)
-2) [JK-B BMS](BMS_JK-B.md)
-3) [JK-PB BMS](BMS_JK-PB.md)
-4) [JK RS485 DISPLAY](BMS_JK_RS485_DISPLAY.md)
-5) [Victron SmartShunt](Shunt_Victron_SmartShunt.md)
+* [JK-B BMS](BMS_JK-B.md)
+* [JK-PB BMS](BMS_JK-PB.md)
+* [JK RS485 DISPLAY](BMS_JK_RS485_DISPLAY.md)
+
+## Shunts
+
+* [Victron SmartShunt](Shunt_Victron_SmartShunt.md)
+
+## Communication interfaces
+
+* [RS485 bus](Interface_RS485_bus.md)
+* [CAN bus](Interface_CAN_bus.md)
+
+## Others
+
+* [Galvanic isolation](Galvanic_isolation.md)

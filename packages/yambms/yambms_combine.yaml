@@ -1,5 +1,5 @@
-# Updated : 2025.07.13
-# Version : 1.5.8
+# Updated : 2026.01.13
+# Version : 1.6.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -91,7 +91,7 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
-  - id: ${yambms_id}_var_total_capacity_remaining_ah
+  - id: ${yambms_id}_var_total_battery_capacity_remaining
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -181,6 +181,7 @@ globals:
     restore_value: no
     initial_value: '0.0'
 
+
 # Combine continuously
 interval:
   - interval: ${yambms_update_interval}
@@ -242,7 +243,7 @@ interval:
               if (id(${yambms_id}_var_shunt_use) == true)
                 soc = (id(${yambms_id}_var_shunt_total_soc) / id(${yambms_id}_var_to_combine_shunt_counter));
               else
-                soc = round(id(${yambms_id}_var_total_capacity_remaining_ah) / id(${yambms_id}_var_total_battery_capacity) * 100);
+                soc = round(id(${yambms_id}_var_total_battery_capacity_remaining) / id(${yambms_id}_var_total_battery_capacity) * 100);
 
               // MEAN battery_soh
               soh = (id(${yambms_id}_var_bms_total_soh) / id(${yambms_id}_var_to_combine_bms_counter));
@@ -260,16 +261,42 @@ interval:
             id(${yambms_id}_charging_cycles).publish_state(charging_cycles);
 
             // TOTAL battery_capacity
-            id(${yambms_id}_battery_capacity).publish_state(id(${yambms_id}_var_total_battery_capacity));
+            float battery_capacity = id(${yambms_id}_var_total_battery_capacity);
+            id(${yambms_id}_battery_capacity).publish_state(battery_capacity);
 
-            // TOTAL capacity_remaining_ah
-            id(${yambms_id}_capacity_remaining_ah).publish_state(id(${yambms_id}_var_total_capacity_remaining_ah));
+            // TOTAL battery_capacity_remaining
+            float capacity_remaining = id(${yambms_id}_var_total_battery_capacity_remaining);
+
+            if (id(${yambms_id}_var_shunt_use) == true)
+              capacity_remaining = battery_capacity / 100 * soc;
+            
+            id(${yambms_id}_battery_capacity_remaining).publish_state(capacity_remaining);
 
             // TOTAL max_charge_current
-            id(${yambms_id}_max_charge_current).publish_state(id(${yambms_id}_var_total_max_charge_current) * (id(${yambms_id}_max_charge_current_pct).state / 100));
+            float max_charge_current;
+            float max_charge_current_yambms = id(${yambms_id}_max_requested_charge_current).state;
+            float max_charge_current_bms = id(${yambms_id}_var_total_max_charge_current) * 0.9;
+            float rate_max_charge_current;
+            float charge_rate;
+
+            if (max_charge_current_bms > max_charge_current_yambms)
+              max_charge_current = max_charge_current_yambms;
+            else
+              max_charge_current = max_charge_current_bms;
+            id(${yambms_id}_max_charge_current).publish_state(round(max_charge_current));
 
             // TOTAL max_discharge_current
-            id(${yambms_id}_max_discharge_current).publish_state(id(${yambms_id}_var_total_max_discharge_current) * (id(${yambms_id}_max_discharge_current_pct).state / 100));
+            float max_discharge_current;
+            float max_discharge_current_yambms = id(${yambms_id}_max_requested_discharge_current).state;
+            float max_discharge_current_bms = id(${yambms_id}_var_total_max_discharge_current) * 0.9;
+            float rate_max_discharge_current;
+            float discharge_rate;
+
+            if (max_discharge_current_bms > max_discharge_current_yambms)
+              max_discharge_current = max_discharge_current_yambms;
+            else
+              max_discharge_current = max_discharge_current_bms;          
+            id(${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
 
             // MIN/MAX values
             // MAX balance_trigger_voltage
@@ -338,7 +365,7 @@ interval:
             id(${yambms_id}_var_shunt_total_soc) = 0.0;
             id(${yambms_id}_var_bms_total_soh) = 0.0;
             id(${yambms_id}_var_total_battery_capacity) = 0.0;
-            id(${yambms_id}_var_total_capacity_remaining_ah) = 0.0;
+            id(${yambms_id}_var_total_battery_capacity_remaining) = 0.0;
             id(${yambms_id}_var_total_max_charge_current) = 0.0;
             id(${yambms_id}_var_total_max_discharge_current) = 0.0;
             id(${yambms_id}_var_total_charging_cycles) = 0.0;
@@ -576,9 +603,9 @@ sensor:
         - throttle: 10s
         - delta: 1
 
-  # capacity_remaining_ah SUM
+  # battery_capacity_remaining SUM
   - platform: template
-    id: ${yambms_id}_capacity_remaining_ah
+    id: ${yambms_id}_battery_capacity_remaining
     name: "${name} ${yambms_name} Capacity Remaining"
     update_interval: ${yambms_update_interval}
     unit_of_measurement: Ah
@@ -643,8 +670,8 @@ sensor:
     accuracy_decimals: 1
     filters:
       - or:
-        - throttle: 10s
-        - delta: 0.1
+        - throttle_average: 15s
+        - delta: 0.2
 
   # MAX temperature
   - platform: template
@@ -657,8 +684,8 @@ sensor:
     accuracy_decimals: 1
     filters:
       - or:
-        - throttle: 10s
-        - delta: 0.1
+        - throttle_average: 15s
+        - delta: 0.2
 
   # MIN temperature sensor
   - platform: template

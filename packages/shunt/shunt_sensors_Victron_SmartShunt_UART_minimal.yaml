@@ -1,5 +1,5 @@
-# Updated : 2025.06.18
-# Version : 1.1.2
+# Updated : 2025.12.22
+# Version : 1.1.4
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -41,7 +41,8 @@ binary_sensor:
   # online_status
   - platform: template
     id: shunt${shunt_id}_online_status
-    name: "${name} ${shunt_name} Online Status"
+    device_id: shunt_${shunt_id}
+    name: "Online status"
     lambda: |-
       if (id(shunt${shunt_id}_voltage).state > 0)
         return true;
@@ -53,14 +54,17 @@ sensor:
     victron_id: victron${shunt_id}
     battery_voltage:
       id: shunt${shunt_id}_voltage
-      name: "${name} ${shunt_name} battery voltage"
+      device_id: shunt_${shunt_id}
+      name: "Voltage"
     battery_current:
       id: shunt${shunt_id}_current
-      name: "${name} ${shunt_name} battery current"
+      device_id: shunt_${shunt_id}
+      name: "Current"
     instantaneous_power:
       id: shunt${shunt_id}_power
-      name: "${name} ${shunt_name} instantaneous power"
+      device_id: shunt_${shunt_id}
+      name: "Power"
     state_of_charge:
       id: shunt${shunt_id}_soc
-      name: "${name} ${shunt_name} state of charge"
-
+      device_id: shunt_${shunt_id}
+      name: "State of charge"

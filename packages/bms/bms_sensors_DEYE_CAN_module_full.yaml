@@ -1,5 +1,5 @@
-# Updated : 2025.08.08
-# Version : 1.1.4
+# Updated : 2025.12.22
+# Version : 1.1.8
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -116,7 +116,7 @@ canbus:
             id(bms${bms_id}_cell_14_balancing).publish_state(x[5] & 0x20);
             id(bms${bms_id}_cell_15_balancing).publish_state(x[5] & 0x40);
             id(bms${bms_id}_cell_16_balancing).publish_state(x[5] & 0x80);
-            id(bms${bms_id}_equalizing).publish_state(x[4] | x[5]);
+            id(bms${bms_id}_bms_equalizing).publish_state(x[4] | x[5]);
 
     - can_id: 0x55${deye_module_id}
       then:
@@ -149,7 +149,8 @@ binary_sensor:
   # Online status: TODO
   - platform: template
     id: bms${bms_id}_online_status
-    name: "${name} ${bms_name} status online"
+    device_id: bms_${bms_id}
+    name: "status online"
     lambda: |-
       if (id(bms${bms_id}_total_voltage).state > 0)
         return true;
@@ -158,119 +159,145 @@ binary_sensor:
 
   # Equalizing
   - platform: template
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} status balancing"
+    id: bms${bms_id}_bms_equalizing
+    device_id: bms_${bms_id}
+    # name: "balancing"
     filters:
       - delayed_off: 300s
 
   # Charging allowed
   - platform: template
     id: bms${bms_id}_charging_allowed
-    name: "${name} ${bms_name} charging allowed"
+    device_id: bms_${bms_id}
+    name: "charging allowed"
     lambda: |-
       return id(bms${bms_id}_charge_mos_state).state && !id(bms${bms_id}_fault).state;
 
   # Discharging allowed
   - platform: template
     id: bms${bms_id}_discharging_allowed
-    name: "${name} ${bms_name} discharging allowed"
+    device_id: bms_${bms_id}
+    name: "discharging allowed"
     lambda: |-
       return id(bms${bms_id}_discharge_mos_state).state && !id(bms${bms_id}_fault).state;
 
   # Fault
   - platform: template
-    name: "${name} ${bms_name} fault"
+    name: "fault"
     id: "bms${bms_id}_fault"
+    device_id: bms_${bms_id}
 
   - platform: template
     id: "bms${bms_id}_heat_mos_state"
-    name: "${name} ${bms_name} status heating"
+    name: "status heating"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} precharge mos state"
+    name: "precharge mos state"
     id: "bms${bms_id}_precharge_mos_state"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} discharge mos state"
+    name: "discharge mos state"
     id: "bms${bms_id}_discharge_mos_state"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} charge mos state"
+    name: "charge mos state"
     id: "bms${bms_id}_charge_mos_state"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} parallel finish"
+    name: "parallel finish"
     id: "bms${bms_id}_parallel_finish"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 01 balancing"
+    name: "cell 01 balancing"
     id: "bms${bms_id}_cell_1_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 02 balancing"
+    name: "cell 02 balancing"
     id: "bms${bms_id}_cell_2_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 03 balancing"
+    name: "cell 03 balancing"
     id: "bms${bms_id}_cell_3_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 04 balancing"
+    name: "cell 04 balancing"
     id: "bms${bms_id}_cell_4_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 05 balancing"
+    name: "cell 05 balancing"
     id: "bms${bms_id}_cell_5_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 06 balancing"
+    name: "cell 06 balancing"
     id: "bms${bms_id}_cell_6_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 07 balancing"
+    name: "cell 07 balancing"
     id: "bms${bms_id}_cell_7_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 08 balancing"
+    name: "cell 08 balancing"
     id: "bms${bms_id}_cell_8_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 09 balancing"
+    name: "cell 09 balancing"
     id: "bms${bms_id}_cell_9_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 10 balancing"
+    name: "cell 10 balancing"
     id: "bms${bms_id}_cell_10_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 11 balancing"
+    name: "cell 11 balancing"
     id: "bms${bms_id}_cell_11_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 12 balancing"
+    name: "cell 12 balancing"
     id: "bms${bms_id}_cell_12_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 13 balancing"
+    name: "cell 13 balancing"
     id: "bms${bms_id}_cell_13_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 14 balancing"
+    name: "cell 14 balancing"
     id: "bms${bms_id}_cell_14_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 15 balancing"
+    name: "cell 15 balancing"
     id: "bms${bms_id}_cell_15_balancing"
+    device_id: bms_${bms_id}
 
   - platform: template
-    name: "${name} ${bms_name} cell 16 balancing"
+    name: "cell 16 balancing"
     id: "bms${bms_id}_cell_16_balancing"
+    device_id: bms_${bms_id}
 
 sensor:
   # Total voltage
   - platform: template
-    name: "${name} ${bms_name} total voltage"
+    name: "total voltage"
     id: "bms${bms_id}_total_voltage"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -282,8 +309,9 @@ sensor:
 
   # Current
   - platform: template
-    name: "${name} ${bms_name} current"
+    name: "current"
     id: "bms${bms_id}_current"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'A'
     device_class: 'current'
     state_class: 'measurement'
@@ -292,7 +320,8 @@ sensor:
   # Battery power (calculated)
   - platform: template
     id: bms${bms_id}_power
-    name: "${name} ${bms_name} battery power"
+    device_id: bms_${bms_id}
+    name: "battery power"
     unit_of_measurement: 'W'
     device_class: 'current'
     state_class: 'measurement'
@@ -302,8 +331,9 @@ sensor:
 
   # Charging power: Calculated from voltage and current
   - platform: template
-    name: "${name} ${bms_name} battery power charging"
+    name: "battery power charging"
     id: bms${bms_id}_charging_power
+    device_id: bms_${bms_id}
     unit_of_measurement: 'W'
     device_class: 'current'
     state_class: 'measurement'
@@ -314,8 +344,9 @@ sensor:
 
   # Discharging power: Calculated from voltage and current
   - platform: template
-    name: "${name} ${bms_name} battery power discharging"
+    name: "battery power discharging"
     id: bms${bms_id}_discharging_power
+    device_id: bms_${bms_id}
     unit_of_measurement: 'W'
     device_class: 'current'
     state_class: 'measurement'
@@ -326,8 +357,9 @@ sensor:
 
   # SoC
   - platform: template
-    name: "${name} ${bms_name} SoC"
+    # name: "SoC"
     id: "bms${bms_id}_state_of_charge"
+    device_id: bms_${bms_id}
     unit_of_measurement: '%'
     device_class: 'battery'
     state_class: 'measurement'
@@ -335,8 +367,9 @@ sensor:
 
   # Battery capacity
   - platform: template
-    name: "${name} ${bms_name} battery capacity"
+    name: "battery capacity"
     id: bms${bms_id}_battery_capacity
+    device_id: bms_${bms_id}
     unit_of_measurement: 'Ah'
     device_class: 'energy'
     state_class: 'total_increasing'
@@ -348,12 +381,13 @@ sensor:
 
   # Remaining capacity - Calculated from SoC and battery capacity
   - platform: template
+    # name: "battery capacity remaining"
+    id: bms${bms_id}_capacity_remaining_ah
+    device_id: bms_${bms_id}
     unit_of_measurement: 'Ah'
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 0
-    id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} battery capacity remaining"
     filters:
       - or:
         - throttle: 10s
@@ -363,9 +397,9 @@ sensor:
 
   # Charging cycles
   - platform: template
-    name: "${name} ${bms_name} charging cycles"
+    # name: "charging cycles"
     id: "bms${bms_id}_charging_cycles_raw"
-    internal: true
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
     filters:
@@ -375,9 +409,9 @@ sensor:
 
   # Charging cycle capacity - Calculated from charging cycles and battery capacity
   - platform: template
-    name: "${name} ${bms_name} charging cycle capacity"
+    # name: "charging cycle capacity"
     id: "bms${bms_id}_cycle_capacity_raw"
-    internal: true
+    device_id: bms_${bms_id}
     update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: 'measurement'
@@ -392,8 +426,9 @@ sensor:
   
   # Max. charge current
   - platform: template
-    name: "${name} ${bms_name} max charge current"
+    name: "max charge current"
     id: "bms${bms_id}_max_charge_current"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'A'
     device_class: 'current'
     state_class: 'measurement'
@@ -401,8 +436,9 @@ sensor:
 
   # Max. discharge current
   - platform: template
-    name: "${name} ${bms_name} max discharge current"
+    name: "max discharge current"
     id: "bms${bms_id}_max_discharge_current"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'A'
     device_class: 'current'
     state_class: 'measurement'
@@ -410,8 +446,9 @@ sensor:
 
   # Max. cell voltage
   - platform: template
-    name: "${name} ${bms_name} max cell voltage"
+    name: "max cell voltage"
     id: "bms${bms_id}_max_cell_voltage"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -422,13 +459,15 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
     id: bms${bms_id}_max_voltage_cell
-    name: "${name} ${bms_name} cell voltage max cell number"
+    device_id: bms_${bms_id}
+    name: "cell voltage max cell number"
     lambda: return 0;
 
   # Min. cell voltage
   - platform: template
-    name: "${name} ${bms_name} min cell voltage"
+    name: "min cell voltage"
     id: "bms${bms_id}_min_cell_voltage"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'V'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -442,13 +481,15 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
     id: bms${bms_id}_min_voltage_cell
-    name: "${name} ${bms_name} cell voltage min cell number"
+    device_id: bms_${bms_id}
+    name: "cell voltage min cell number"
     lambda: return 0;
 
   # Min. temperature
   - platform: template
-    name: "${name} ${bms_name} temp min"
+    name: "temp min"
     id: "bms${bms_id}_min_temperature"
+    device_id: bms_${bms_id}
     unit_of_measurement: '°C'
     device_class: 'temperature'
     state_class: 'measurement'
@@ -457,7 +498,8 @@ sensor:
   # Min. temperature sensor (fixed)
   - platform: template
     id: bms${bms_id}_min_temperature_sensor
-    name: "${name} ${bms_name} min temperature sensor"
+    device_id: bms_${bms_id}
+    name: "min temperature sensor"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
@@ -466,8 +508,9 @@ sensor:
 
   # Max. temperature
   - platform: template
-    name: "${name} ${bms_name} temp max"
+    name: "temp max"
     id: "bms${bms_id}_max_temperature"
+    device_id: bms_${bms_id}
     unit_of_measurement: '°C'
     device_class: 'temperature'
     state_class: 'measurement'
@@ -476,7 +519,8 @@ sensor:
   # Max. temperature sensor (fixed)
   - platform: template
     id: bms${bms_id}_max_temperature_sensor
-    name: "${name} ${bms_name} max temperature sensor"
+    device_id: bms_${bms_id}
+    name: "max temperature sensor"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
@@ -490,7 +534,8 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 2
     id: bms${bms_id}_cell_ovp
-    name: "${name} ${bms_name} cell overvoltage protection"
+    device_id: bms_${bms_id}
+    name: "cell overvoltage protection"
     lambda: |-
       return 3.7;
 
@@ -501,7 +546,8 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 2
     id: bms${bms_id}_cell_uvp
-    name: "${name} ${bms_name} cell undervoltage protection"
+    device_id: bms_${bms_id}
+    name: "cell undervoltage protection"
     lambda: |-
       return 2.8;
 
@@ -511,71 +557,82 @@ sensor:
     device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
-    id: bms${bms_id}_balance_trigger_voltage
-    name: "${name} ${bms_name} balance trigger voltage"
+    id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
+    # name: "balance trigger voltage"
     lambda: |-
       return 0.03;
 
   # Misc. information
   - platform: template
-    name: "${name} ${bms_name} counts of charge over voltage "
+    name: "counts of charge over voltage "
     id: "bms${bms_id}_charge_over_voltage_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of discharge under voltage"
+    name: "counts of discharge under voltage"
     id: "bms${bms_id}_discharge_under_voltage_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of short circuit"
+    name: "counts of short circuit"
     id: "bms${bms_id}_short_circuit_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of mos over temp"
+    name: "counts of mos over temp"
     id: "bms${bms_id}_mos_over_temp_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of charge over current"
+    name: "counts of charge over current"
     id: "bms${bms_id}_charge_over_current_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of discharge under current"
+    name: "counts of discharge under current"
     id: "bms${bms_id}_discharge_over_current_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of charge over temp"
+    name: "counts of charge over temp"
     id: "bms${bms_id}_charge_over_temp_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} counts of discharge over temp"
+    name: "counts of discharge over temp"
     id: "bms${bms_id}_discharge_over_temp_count"
+    device_id: bms_${bms_id}
     state_class: 'measurement'
     accuracy_decimals: 0
 
   - platform: template
-    name: "${name} ${bms_name} Battery SoH"
+    name: "Battery SoH"
     id: "bms${bms_id}_battery_soh"
+    device_id: bms_${bms_id}
     unit_of_measurement: '%'
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 1
 
   - platform: template
-    name: "${name} ${bms_name} imbalance"
+    name: "imbalance"
     id: "bms${bms_id}_imbalance"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'mV'
     device_class: 'voltage'
     state_class: 'measurement'
@@ -584,24 +641,27 @@ sensor:
       return ((id(bms${bms_id}_max_cell_voltage).state - id(bms${bms_id}_min_cell_voltage).state)) * 1000;
 
   - platform: template
-    name: "${name} ${bms_name} MosMax"
+    name: "MosMax"
     id: "bms${bms_id}_mosmax"
+    device_id: bms_${bms_id}
     unit_of_measurement: '°C'
     device_class: 'temperature'
     state_class: 'measurement'
     accuracy_decimals: 1
 
   - platform: template
-    name: "${name} ${bms_name} HeatMem"
+    name: "HeatMem"
     id: "bms${bms_id}_heatmem"
+    device_id: bms_${bms_id}
     unit_of_measurement: '°C'
     device_class: 'temperature'
     state_class: 'measurement'
     accuracy_decimals: 1
 
   - platform: template
-    name: "${name} ${bms_name} charged"
+    name: "charged"
     id: "bms${bms_id}_charged"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'kWh'
     device_class: 'energy'
     state_class: 'total_increasing'
@@ -610,8 +670,9 @@ sensor:
       - throttle: 1s
 
   - platform: template
-    name: "${name} ${bms_name} discharged"
+    name: "discharged"
     id: "bms${bms_id}_discharged"
+    device_id: bms_${bms_id}
     unit_of_measurement: 'kWh'
     device_class: 'energy'
     state_class: 'total_increasing'
@@ -621,13 +682,15 @@ sensor:
 
   - platform: template
     id: "bms${bms_id}_operation_mode_internal"
+    device_id: bms_${bms_id}
     filters:
       - throttle: 30s
 
 text_sensor:
   - platform: template
-    name: "${name} ${bms_name} operation mode"
+    name: "operation mode"
     id: "bms${bms_id}_operation_mode"
+    device_id: bms_${bms_id}
     lambda: |-
       switch ((int)id(bms${bms_id}_operation_mode_internal).state) {
         default: return std::string("unknown");
@@ -637,6 +700,7 @@ text_sensor:
       }
 
   - platform: template
-    name: "${name} ${bms_name} fault level"
+    name: "fault level"
     id: "bms${bms_id}_fault_level"
+    device_id: bms_${bms_id}
 

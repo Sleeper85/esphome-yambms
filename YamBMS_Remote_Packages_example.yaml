@@ -1,5 +1,5 @@
-# Updated : 2025.08.12
-# Version : 1.5.8
+# Updated : 2026.01.14
+# Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -36,6 +36,8 @@
 
 logger:
   level: INFO # VERBOSE / DEBUG / INFO / WARN
+  # baud_rate: 115200 # Send logs to the `hardware_uart` USB output (this consumes a UART interface)
+  # hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
 
 ota:
   - platform: esphome
@@ -60,8 +62,8 @@ api:
 # +--------------------------------------+
 substitutions:
   # Name
-  friendly_name : 'YamBMS' # Prefix added in front of the `entity display name`, also used to classify them.
-  hostname: 'yambms' # Name of your ESPHome node registered on the IP network (DNS name, must be unique) and prefix added in front of the `entity id`.
+  friendly_name : 'YamBMS' # Prefix added in front of the `entity name`, also used to classify them.
+  hostname: 'yambms' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
   name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
   # +--------------------------------------+
   # | YamBMS Settings                      |
@@ -96,17 +98,48 @@ substitutions:
   # Max. discharge current : corresponds to the maximum discharge current which may be requested by YamBMS.
   # The current requested will be proportional to the BMS count without ever exceeding this value.
   yambms_max_requested_discharge_current: '300' # in Ampere
+  # +-------------------------------------------------------------------------
+  # | Temperature-based current limitation
+  # | Can be disabled via the switch "Temperature-based current limitation"
+  # | This factor is applied to the battery capacity (Ah), not the current 
+  # | maximum charge/discharge current. For example : 280Ah x 0.5 = 140A
+  # +-------------------------------------------------------------------------
+  # Temperature °C -> Charge Rate (0.0C to 1.0C)
+  yambms_charging_rate_table: |
+    {
+      { -0.1, 0.00 },
+      {  0.0, 0.05 },
+      {  5.0, 0.12 },
+      { 10.0, 0.30 },
+      { 20.0, 0.50 },
+      { 25.0, 0.50 },
+      { 45.0, 0.50 },
+      { 50.0, 0.50 },
+      { 55.0, 0.50 },
+      { 60.0, 0.00 }
+    }
+ # Temperature °C -> Discharge Rate (0.0C to 1.0C)
+  yambms_discharging_rate_table: |
+    {
+      {-30.0, 0.00 },
+      {-20.0, 0.50 },
+      {-10.0, 0.50 },
+      { -5.0, 0.50 },
+      {  0.0, 0.50 },
+      {  5.0, 0.50 },
+      { 45.0, 0.50 },
+      { 50.0, 0.50 },
+      { 55.0, 0.50 },
+      { 60.0, 0.00 }
+    }
   # +--------------------------------------+
   # | Shunt Settings                       |
   # +--------------------------------------+
   shunt_update_interval: '3s'  # frequency at which Shunt data is refreshed
-  shunt_combine_interval: '1s' # frequency at which Shunt data is combined in YamBMS
   # +--------------------------------------+
   # | BMS Settings                         |
   # +--------------------------------------+
   bms_update_interval: '3s'    # frequency at which BMS data is refreshed, going below '3s' can cause problems
-  bms_combine_interval: '1s'   # frequency at which BMS data is combined in YamBMS
-  bms_cutoff_timer: '50s'      # time during which the end of charge conditions must be respected (cut-off + cells not equalizing)
 
 
 
@@ -126,21 +159,25 @@ packages:
   board:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: 'packages/board/board_ESP32_Generic.yaml'
-      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
+      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
       # - path: 'packages/board/board_ESP32_EVB.yaml'
+      # - path: 'packages/board/board_ESP32_iBMS_CAN_RS485_V3.3.yaml'
       # - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
       # - path: 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
       # - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+      # - path: 'packages/board/board_ESP32-C3_FlipC3.yaml'
       # - path: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
       # - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
       # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
-      # - path: 'packages/board/board_ESP32-S3_Touch-LCD-4.3.yaml'
-      # - path: 'packages/board/board_ESP32-S3_Touch-LCD-7.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-ETH.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-RS485-CAN.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml'
+      # - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-7.yaml'
       # - path: 'packages/board/board_ESP32-S3_XIAO.yaml'
       # - path: 'packages/board/board_ESP32-S3_YBoard.yaml'
 
@@ -166,7 +203,7 @@ packages:
   board_options:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       # UART 1 (uart_id: uart_esp_1)
       - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
@@ -174,6 +211,12 @@ packages:
       # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
       # UART 3 (uart_id: uart_esp_3)
       # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
+
+      # UART flow control
+      # - path: 'packages/board/board_options_itf_uart_flow_control.yaml'
+      #   vars:
+      #     uart_id: 'uart_esp_1'
+      #     uart_flow_control_pin: ${talk_pin}
 
       # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
       - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
@@ -204,13 +247,13 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> BMS and Shunt
+  # | >>> BMS / Balancer / Shunt
   # +------------------------------------------------------------------------------+
 
   # You don't have to import a shunt but you must import at least one BMS.
   # You can mix different BMS models, the only condition is that the `bms_id` are numbered in order starting from 1 !
 
-  # >>> Copy your BMS and Shunt packages here
+  # >>> Copy your BMS / Balancer / Shunt packages here
   # >>> You can find examples at this address :
   # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
@@ -223,7 +266,7 @@ packages:
   yambms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: 'packages/yambms/yambms.yaml'
 
@@ -236,7 +279,7 @@ packages:
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: 'packages/yambms/yambms_canbus.yaml' # yambms_canbus_web_server.yaml
         vars:
@@ -257,7 +300,7 @@ packages:
   # rs485_pylon:
   #   url: https://github.com/Sleeper85/esphome-yambms
   #   ref: main
-  #   refresh: 0s
+  #   refresh: 60min
   #   files:
   #     - path: 'packages/yambms/yambms_rs485_pylon.yaml' # yambms_rs485_pylon_web_server.yaml
   #       vars:
@@ -276,7 +319,7 @@ packages:
   debug:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       - path: packages/base/device_debug_ESP32.yaml
       # - path: packages/base/device_debug_ESP32_PSRAM.yaml

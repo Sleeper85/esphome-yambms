@@ -1,5 +1,5 @@
-# Updated : 2024.11.11
-# Version : 1.1.1
+# Updated : 2025.11.15
+# Version : 1.1.2
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,6 +20,9 @@
 substitutions:
   bms_model: "Seplos V1 V2"
   bms_protocol: "RS485"
+  # Modbus
+  seplos_modbus_id: modbus_seplos_v2
+  seplos_modbus_rx_timeout: '150ms'
 
 # +--------------------------------------+
 # | Component settings                   |

@@ -1,5 +1,5 @@
 # Updated : 2025.09.12
-# Version : 1.1.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,7 +19,7 @@
 
 substitutions:
   board_chip: "ESP32-S3" # N16R8
-  board_name: "ESP32-S3-ETH"
+  board_name: "WS-ETH"
   # Interfaces GPIOs
   # uart_esp_1
   tx_pin_1: '17'

@@ -1,10 +1,44 @@
-# YamBMS - Changelog
+# YamBMS changelog
 
 [![Badge License: GPLv3](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Badge Version](https://img.shields.io/github/v/release/Sleeper85/esphome-yambms?include_prereleases&color=yellow&logo=DocuSign&logoColor=white)](https://github.com/Sleeper85/esphome-yambms/releases/latest)
 ![GitHub stars](https://img.shields.io/github/stars/Sleeper85/esphome-yambms)
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
+
+* YamBMS 1.6.0 :
+  * New dashboards `1.6.0`
+  * Added `iBMS V3.3` board
+  * Updated `JK-PB` readme with **V19** warning and SoC 100% reset solution 1 and 2
+  * Added board option `UART flow control` allows you to activate a `talk_pin` for the UART of your choice (e.g. WS-RS485-CAN)
+  * Added AtomS3 GPIOs for `Atomic RS485 base` (uart_esp_3)
+  * Disabled the `reboot_timeout` after 15 minutes in case of WiFi unavailability
+  * New `Hardware highlighted` documentation (LilyGo / Waveshare / M5Stack)
+  * New readme for **LilyGo T-Connect, WS RS485-CAN and M5Stack AtomS3** boards
+  * Improved documentation.
+  * Fixed [issue 83](https://github.com/Sleeper85/esphome-yambms/issues/83) Add esphome-pace-bms
+  * Fixed [issue 94](https://github.com/Sleeper85/esphome-yambms/issues/94) Multi-BMS Seplos V3 don't work
+  * Fixed [issue 96](https://github.com/Sleeper85/esphome-yambms/issues/96) Improve the SoC returned at the end of discharge
+  * Fixed [issue 100](https://github.com/Sleeper85/esphome-yambms/issues/100) Improve the BMS Seplos V1 V2 examples
+  * Fixed [issue 102](https://github.com/Sleeper85/esphome-yambms/issues/102) Improve Remaining Capacity when using a shunt
+  * Added [issue 106](https://github.com/Sleeper85/esphome-yambms/issues/106) [FEATURE REQUEST] Temperature-based current limiting
+  * Fixed [issue 108](https://github.com/Sleeper85/esphome-yambms/issues/108) [WARNING] esphome::select::Select::state` is deprecated
+  * Fixed [issue 122](https://github.com/Sleeper85/esphome-yambms/issues/122) Adjust `bms_name` in all example YAML to something unique
+  * Fixed [issue 128](https://github.com/Sleeper85/esphome-yambms/issues/128) Align the names of the shunt entities
+  * Fixed [issue 142](https://github.com/Sleeper85/esphome-yambms/issues/142) Maximum capacity needs to be increased for `JK_RS485` BMS
+  * Merged [PR 76](https://github.com/Sleeper85/esphome-yambms/pull/76) Add `Auto EOC` function
+  * Merged [PR 82](https://github.com/Sleeper85/esphome-yambms/pull/82) Add support for external balancer
+  * Merged [PR 85](https://github.com/Sleeper85/esphome-yambms/pull/85) Adding `EG4 LLV2` BMS
+  * Merged [PR 97](https://github.com/Sleeper85/esphome-yambms/pull/97) Add `Basen controller` version with talk/flow control pin
+  * Merged [PR 99](https://github.com/Sleeper85/esphome-yambms/pull/99) Basen: Use new binary sensors for charging/discharging
+  * Merged [PR 112](https://github.com/Sleeper85/esphome-yambms/pull/112) Adding `FLIP_C3` board
+  * Merged [PR 117](https://github.com/Sleeper85/esphome-yambms/pull/117) Round requested charge/discharge current to nearest integer
+  * Change [PR 119](https://github.com/Sleeper85/esphome-yambms/pull/119) Updated `Power` gauge (-10kW to 10kW)
+  * Merged [PR 133](https://github.com/Sleeper85/esphome-yambms/pull/133) Add `Studer XTM-4000` to supported inverters
+  * Merged [PR 142](https://github.com/Sleeper85/esphome-yambms/pull/142) Sub device support
+  * Merged [PR 143](https://github.com/Sleeper85/esphome-yambms/pull/143) Improved `Cut-Off charging` logic equation and documentation
+  * Merged [PR 147](https://github.com/Sleeper85/esphome-yambms/pull/147) Improved `CCL`, `DCL` and `Temp-based` current control
+  * Merged [PR 155](https://github.com/Sleeper85/esphome-yambms/pull/155) Update temperature sensor filters to reduce noise
 
 * YamBMS 1.5.8 :
   * New Dashboards `1.5.8` compatible with `CANBUS` and `RS485` inverter communication protocol
@@ -23,6 +57,7 @@
   * Merged [PR 77](https://github.com/Sleeper85/esphome-yambms/pull/77) `PYLON RS485` prevent stale data on BMS disconnect
   * Merged [PR 80](https://github.com/Sleeper85/esphome-yambms/pull/80) BMS Modbus client: Return 0 when not online
   * Merged [PR 81](https://github.com/Sleeper85/esphome-yambms/pull/81) Fix balance trigger voltage for Basen and Deye
+
 * YamBMS 1.5.7 :
   * Adapted the default `min/max` values ​​for the `Float` slider
   * Merged [PR 53](https://github.com/Sleeper85/esphome-yambms/pull/53) Add feature `Auto Float Voltage`
@@ -33,6 +68,7 @@
   * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/70) Dashboards compatible with `HA 2025.7`
   * Merged [PR 70](https://github.com/Sleeper85/esphome-yambms/pull/71) Dashboard `max/min` cell voltage in color using macro
   * Removed all special characters in entities name + dashboards correction
+
 * YamBMS 1.5.6 :
   * Fixed [issue 58](https://github.com/Sleeper85/esphome-yambms/issues/58) Compilation problem with `esphome 2025.5.0`
   * Fixed [issue 55](https://github.com/Sleeper85/esphome-yambms/issues/55) New CPU frequency option
@@ -46,6 +82,7 @@
   * New `board_ESP32-S3_Touch-LCD-7.yaml` board
   * New `board_ESP32-S3_YBoard_DJK.yaml` board
   * New `board_RP2040_RPi_Pico.yaml` board
+
 * YamBMS 1.5.5 :
   * New `main.yaml` with LP (local packages) and RP (remote packages) versions
   * New `board.yaml` with modular UART/CAN interfaces
@@ -53,11 +90,13 @@
   * SoC calculation is now based on remaining capacity for more accuracy (BMS only) [issues #39](https://github.com/Sleeper85/esphome-yambms/issues/39)
   * SoH calculation is moved to BMS level (for those who do not provide this information)
   * Improvement of the Victron SmartShunt doc [issues #38](https://github.com/Sleeper85/esphome-yambms/issues/38)
+
 * YamBMS 1.5.4 :
   * New low SoC corrected at each BMS level (the corrected SoC is the one transmitted to YamBMS)
   * New BMS dashboard
   * New end of charge logic at each BMS level, the charge switch turns off when the cells are equalized (disabled by default)
   * Fixed `errors_bitamsk` for JK-PB RS485, test OK with YamBMS (forked component)
+
 * YamBMS 1.5.3 :
   * Broadcasting JK-PB settings to all BMS set to OFF by default
   * Reorganizing the `board` folder and YAMLs (device_base.yaml moved to board.yaml)
@@ -72,6 +111,7 @@
   * Added [PR #7547](https://github.com/esphome/esphome/pull/7547) regarding publishing entities via the API
   * Removed `captive_portal` because it increases the `loop time` too much
   * `PSRAM` will no longer be enabled by default as this has a bad impact on `BLE BMS`
+
 * YamBMS 1.5.2 :
   * Added shunt `Online Status` binary_sensor
   * Shunt combine condition based on the new binary_sensor `Online Status`
@@ -81,6 +121,7 @@
   * Simplification (fewer options) when importing `BMS / Shunt` YAMLs
   * New `multi-node` solution using `RS485 modbus` to communicate information to YamBMS
   * New board `espBerry` with `2-CH-CAN HAT`
+
 * YamBMS 1.5.1 :
   * The conditions for `combining` BMS and the `charging` and `discharging` instructions no longer have any relation with the `errors_bitmask` sensor, the new system relies on the three **binary_sensor** `online status`, `charging allowed` and `discharging allowed` being linked to the status of alarms and switches.
   * The BMS combination procedure has been completely rewritten.
@@ -96,17 +137,31 @@
   * The `UVPR` and `OVPR` sensors are no longer used and replaced by `UVP` and `OVP` to ensure operation with all BMS.
   * **@txubelaxu** fixed a bug in the `JK-PB RS485` component that could cause a false battery voltage value to be sent, [see this issue](https://github.com/Sleeper85/esphome-yambms/issues/10).
   * Improved documentation, added a `HowTo` to create its main YAML, warning about galvanic isolation.
+
 * CANBUS 2.3.7 : If there is no response from the inverter, the time before a new communication test has been reduced from `120s` to `60s`, added Victron `0x372` nbr. of modules `blocking charge/discharge`.
+
 * YamBMS 1.4.5 : Changed the way to configure WiFi/Ethernet network, added `ESP32-C3 ETH01-EVO` ethernet board, reduction of the number of YAML bms files, UART `rx_buffer_size` is set to `512` by default for JK-B and JK-PB, new JK-BMS BLE sensors (last commits of @syssi) and new BLE `standard` version
+
 * CANBUS 2.3.6 : Sending CAN frames stops immediately if there are no combined BMS
+
 * YamBMS 1.4.4 : Multi-shunt support, Simplified and new YamBMS option `battery chemistry`, slider `min/max` values ​​are automatically configured based on the battery chemistry and cell count, added `YamBMS Fallback Hotspot`, added YamBMS `Update service`, added PVbrain2 and Atom Matrix board, added PSRAM settings YAML (not enabled by default), new MIN/MAX temperature sensor, added DC current icon, fixed dual sensor `Cell UVPR (MAX)` bug, Improved `combine` code, Breaking change : Atom S3 `GPIOs 1 and 2` reversed
+
 * CANBUS 2.3.5 : New MIN/MAX temperature / sensor ID, Improved Victron protocol (online/offline battery modules, installed/available battery capacity)
+
 * CANBUS 2.3.4 : Fixed bug of canbus link validation without inverter connected
+
 * YamBMS 1.4.3 : Added Victron and Junctek KH-F `Shunt` support and `Requested Force Charge` function based on `SoC start/stop`, new `Total Daily Energy` sensors
+
 * CANBUS 2.3.3 : Added `Automatic` BMS name selection and `Requested Force Charge` Bit 3/4/5 (PYLON 0x35C)
+
 * CANBUS 2.3.2 : Added `LuxPower` protocol with updated `can_id` 0x355, 0x356, 0x359 and 0x35C
+
 * CANBUS 2.3.1 : Improved the procedure for sending canbus frames with reduced loop time, rewritten of the canbus link validation code and added `Inverter Heartbeat Monitoring` function
+
 * YamBMS 1.4.2 : Added new `Auto CVL Boost V.` and `Rebulk SoC` functions, new debug.yaml for ESP32 and ESP32-S3, improved code and comments
+
 * YamBMS 1.4.1 : Rewriting of the alarm system, bug fixes and improvement of the charging logic (new status `Cut-Off`), icon allocation for each sensor, UART and CANBUS `!extend ${vars}`, New sensor `YamBMS Delta Cell V.`, Improved `Battery SOC` logic
+
 * YamBMS 1.3.2 : New var `yambms_cell_count`, the BMS charge or discharge switches can be activated separately without causing the decombination of the BMS, new `minimal` version of the BMS YAML in order to reduce the loop time
+
 * YamBMS 1.3.1 : First multi-BMS version named `YamBMS`

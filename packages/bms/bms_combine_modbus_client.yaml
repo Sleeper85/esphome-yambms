@@ -1,5 +1,5 @@
-# Updated : 2025.08.07
-# Version : 1.1.8
+# Updated : 2025.12.22
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,8 @@ substitutions:
   bms_protocol: "Modbus"
 
 packages:
+  sub_device: !include bms_base_sub_device.yaml
+  bms_balancer: !include bms_base_balancer.yaml
   bms_combine: !include bms_combine.yaml
 
 # +--------------------------------------+
@@ -47,13 +49,13 @@ modbus_controller:
             id(bms${bms_id}_online_status).publish_state(false);
             id(bms${bms_id}_charging_allowed).publish_state(false);
             id(bms${bms_id}_discharging_allowed).publish_state(false);
-            id(bms${bms_id}_equalizing).publish_state(false);
+            id(bms${bms_id}_bms_equalizing).publish_state(false);
             id(bms${bms_id}_total_voltage).publish_state(0);
             id(bms${bms_id}_current).publish_state(0);
             id(bms${bms_id}_power).publish_state(0);
             id(bms${bms_id}_battery_soc).publish_state(0);
             id(bms${bms_id}_battery_capacity).publish_state(0);
-            id(bms${bms_id}_capacity_remaining_ah).publish_state(0);
+            id(bms${bms_id}_battery_capacity_remaining).publish_state(0);
             id(bms${bms_id}_charging_cycles).publish_state(0);
             id(bms${bms_id}_max_charge_current).publish_state(0);
             id(bms${bms_id}_max_discharge_current).publish_state(0);
@@ -67,7 +69,7 @@ modbus_controller:
             id(bms${bms_id}_max_temperature_sensor).publish_state(0);
             id(bms${bms_id}_cell_ovp).publish_state(0);
             id(bms${bms_id}_cell_uvp).publish_state(0);
-            id(bms${bms_id}_balance_trigger_voltage).publish_state(0);
+            id(bms${bms_id}_bms_balance_trigger_voltage).publish_state(0);
             id(bms${bms_id}_yambms_errors_bitmask).publish_state(0);
             id(bms${bms_id}_charging_power).publish_state(0);
             id(bms${bms_id}_discharging_power).publish_state(0);
@@ -82,14 +84,16 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_online_status
-    name: "${name} ${bms_name} Online Status"
+    device_id: bms_${bms_id}
+    name: "Online status"
     register_type: read
     address: 1
   # charging_allowed
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_charging_allowed
-    name: "${name} ${bms_name} Charging allowed"
+    device_id: bms_${bms_id}
+    name: "Charging allowed"
     register_type: read
     address: 2
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
@@ -97,14 +101,18 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_discharging_allowed
-    name: "${name} ${bms_name} Discharging allowed"
+    device_id: bms_${bms_id}
+    name: "Discharging allowed"
     register_type: read
     address: 3
+    lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # equalizing
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_equalizing
-    name: "${name} ${bms_name} Equalizing state"
+    id: bms${bms_id}_bms_equalizing
+    device_id: bms_${bms_id}
+    name: "balancing"
+    internal: true
     register_type: read
     address: 4
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
@@ -114,7 +122,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_total_voltage
-    name: "${name} ${bms_name} Total Voltage"
+    device_id: bms_${bms_id}
+    name: "Total Voltage"
     register_type: read
     address: 5
     value_type: U_DWORD
@@ -131,7 +140,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_current
-    name: "${name} ${bms_name} Current"
+    device_id: bms_${bms_id}
+    name: "Current"
     register_type: read
     address: 7
     value_type: S_DWORD
@@ -148,7 +158,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_power
-    name: "${name} ${bms_name} Power"
+    device_id: bms_${bms_id}
+    name: "Power"
     register_type: read
     address: 9
     value_type: S_DWORD
@@ -165,7 +176,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_battery_soc
-    name: "${name} ${bms_name} Battery SoC"
+    device_id: bms_${bms_id}
+    name: "Battery SoC"
     register_type: read
     address: 11
     value_type: U_WORD
@@ -182,7 +194,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_battery_capacity
-    name: "${name} ${bms_name} Battery Capacity"
+    device_id: bms_${bms_id}
+    name: "Battery Capacity"
     register_type: read
     address: 12
     value_type: U_WORD
@@ -195,11 +208,12 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-  # battery_capacity_ah
+  # battery_capacity_remaining
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_capacity_remaining_ah
-    name: "${name} ${bms_name} Capacity Remaining"
+    id: bms${bms_id}_battery_capacity_remaining
+    device_id: bms_${bms_id}
+    name: "Battery Capacity Remaining"
     register_type: read
     address: 13
     value_type: U_WORD
@@ -216,7 +230,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_charging_cycles
-    name: "${name} ${bms_name} charging cycles"
+    device_id: bms_${bms_id}
+    name: "charging cycles"
     register_type: read
     address: 14
     value_type: U_WORD
@@ -232,7 +247,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_max_charge_current
-    name: "${name} ${bms_name} Max Charge Current"
+    device_id: bms_${bms_id}
+    name: "Max Charge Current"
     register_type: read
     address: 15
     value_type: U_WORD
@@ -249,7 +265,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_max_discharge_current
-    name: "${name} ${bms_name} Max Discharge Current"
+    device_id: bms_${bms_id}
+    name: "Max Discharge Current"
     register_type: read
     address: 16
     value_type: U_WORD
@@ -266,7 +283,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_max_cell_voltage
-    name: "${name} ${bms_name} Max Cell Voltage"
+    device_id: bms_${bms_id}
+    name: "Max Cell Voltage"
     register_type: read
     address: 17
     value_type: U_WORD
@@ -283,7 +301,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_max_voltage_cell
-    name: "${name} ${bms_name} Max Voltage Cell"
+    device_id: bms_${bms_id}
+    name: "Max Voltage Cell"
     register_type: read
     address: 18
     value_type: U_WORD
@@ -299,7 +318,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_min_cell_voltage
-    name: "${name} ${bms_name} Min Cell Voltage"
+    device_id: bms_${bms_id}
+    name: "Min Cell Voltage"
     register_type: read
     address: 19
     value_type: U_WORD
@@ -316,7 +336,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_min_voltage_cell
-    name: "${name} ${bms_name} Min Voltage Cell"
+    device_id: bms_${bms_id}
+    name: "Min Voltage Cell"
     register_type: read
     address: 20
     value_type: U_WORD
@@ -332,7 +353,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_min_temperature
-    name: "${name} ${bms_name} Min temperature"
+    device_id: bms_${bms_id}
+    name: "Min temperature"
     register_type: read
     address: 21
     value_type: S_WORD
@@ -349,7 +371,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_min_temperature_sensor
-    name: "${name} ${bms_name} Min temperature sensor"
+    device_id: bms_${bms_id}
+    name: "Min temperature sensor"
     register_type: read
     address: 22
     value_type: U_WORD
@@ -365,7 +388,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_max_temperature
-    name: "${name} ${bms_name} Max temperature"
+    device_id: bms_${bms_id}
+    name: "Max temperature"
     register_type: read
     address: 23
     value_type: S_WORD
@@ -382,7 +406,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_max_temperature_sensor
-    name: "${name} ${bms_name} Max temperature sensor"
+    device_id: bms_${bms_id}
+    name: "Max temperature sensor"
     register_type: read
     address: 24
     value_type: U_WORD
@@ -398,7 +423,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_cell_ovp
-    name: "${name} ${bms_name} Cell OVP"
+    device_id: bms_${bms_id}
+    name: "Cell OVP"
     register_type: read
     address: 25
     value_type: U_WORD
@@ -415,7 +441,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_cell_uvp
-    name: "${name} ${bms_name} Cell UVP"
+    device_id: bms_${bms_id}
+    name: "Cell UVP"
     register_type: read
     address: 26
     value_type: U_WORD
@@ -431,8 +458,10 @@ sensor:
   # balance_trigger_voltage
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
-    id: bms${bms_id}_balance_trigger_voltage
-    name: "${name} ${bms_name} Balance Trigger Voltage"
+    id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
+    name: "balance trigger voltage"
+    internal: true
     register_type: read
     address: 27
     value_type: U_WORD
@@ -449,7 +478,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_yambms_errors_bitmask
-    name: "${name} ${bms_name} YamBMS Errors Bitmask"
+    device_id: bms_${bms_id}
+    name: "YamBMS Errors Bitmask"
     register_type: read
     address: 28
     value_type: U_WORD
@@ -465,7 +495,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_charging_power
-    name: "${name} ${bms_name} Charging Power"
+    device_id: bms_${bms_id}
+    name: "Charging Power"
     register_type: read
     address: 29
     value_type: U_DWORD
@@ -482,7 +513,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_discharging_power
-    name: "${name} ${bms_name} Discharging Power"
+    device_id: bms_${bms_id}
+    name: "Discharging Power"
     register_type: read
     address: 31
     value_type: U_DWORD
@@ -499,7 +531,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller${bms_id}
     id: bms${bms_id}_battery_soh
-    name: "${name} ${bms_name} Battery SoH"
+    device_id: bms_${bms_id}
+    name: "Battery SoH"
     register_type: read
     address: 33
     value_type: U_WORD

@@ -1,0 +1,103 @@
+# Updated : 2026.01.14
+# Version : 1.6.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+######################## YamBMS Local Packages Version #########################
+
+# You need to copy the `packages` folder into the same folder as this YAML in order to compile it.
+# Don't forget to configure your WiFi credentials in the secrets.yaml
+
+################################################################################
+
+logger:
+  level: INFO # VERBOSE / DEBUG / INFO / WARN
+  # baud_rate: 115200 # Send logs to the `hardware_uart` USB output (this consumes a UART interface)
+  # hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
+
+# +--------------------------------------+
+# | Global Settings                      |
+# +--------------------------------------+
+substitutions:
+  # Name
+  friendly_name : 'YamBMS' # Prefix added in front of the `entity name`, also used to classify them.
+  hostname: 'yambms' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
+  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
+  # +--------------------------------------+
+  # | Shunt Settings                       |
+  # +--------------------------------------+
+  shunt_update_interval: '5s'  # frequency at which Shunt data is refreshed
+
+
+
+# +--------------------------------------+
+# | Packages                             |
+# +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_LP_YAML.md
+
+packages:
+  rpi_pico:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 60min
+    files:
+      # board
+      - path: packages/board/board_RP2040_RPi_Pico.yaml
+      # uart
+      - path: packages/board/board_options_itf_uart_1.yaml
+      - path: packages/board/board_options_itf_uart_2.yaml
+      - path: packages/board/board_options_itf_uart_3.yaml
+      - path: packages/board/board_options_itf_uart_4.yaml
+      - path: packages/board/board_options_itf_uart_5.yaml
+      - path: packages/board/board_options_itf_uart_6.yaml
+      # modbus
+      - path: packages/board/board_options_itf_modbus.yaml
+        vars:
+          modbus_role: 'server' # client / server
+          modbus_uart_id: 'uart_1' # RS485 board
+          modbus_baud_rate: '19200' # 9600 / 19200 / 11520
+      # shunt1
+      - path: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml
+        vars:
+          shunt_id: '1'
+          shunt_name: 'Shunt 1'
+          shunt_uart_id: 'uart_2'
+      # shunt2
+      - path: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml
+        vars:
+          shunt_id: '2'
+          shunt_name: 'Shunt 2'
+          shunt_uart_id: 'uart_3'
+      # shunt3
+      - path: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml
+        vars:
+          shunt_id: '3'
+          shunt_name: 'Shunt 3'
+          shunt_uart_id: 'uart_4'
+      # shunt4
+      - path: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml
+        vars:
+          shunt_id: '4'
+          shunt_name: 'Shunt 4'
+          shunt_uart_id: 'uart_5'
+      # shunt5
+      - path: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml
+        vars:
+          shunt_id: '5'
+          shunt_name: 'Shunt 5'
+          shunt_uart_id: 'uart_6'

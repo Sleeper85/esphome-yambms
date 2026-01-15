@@ -1,0 +1,42 @@
+# Updated : 2026.01.15
+# Version : 1.1.4
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+external_components:
+  - source: github://pr#12614
+    components: [uart, modbus, modbus_controller, modbus_server]
+    refresh: 1h
+
+# The settings below can be changed via `vars` when importing the package
+# or by declaring new `substitutions` in the main YAML.
+substitutions:
+  # UART
+  modbus_baud_rate: '19200' # 9600 / 19200 / 115200
+  # Modbus
+  modbus_id: 'modbus_1'
+  # Modbus Controller
+  modbus_update_interval: '5s' # frequency with which BMS/Shunt modbus servers are queried
+
+uart:
+  - id: !extend ${modbus_uart_id}
+    baud_rate: ${modbus_baud_rate}
+
+modbus:
+  - uart_id: ${modbus_uart_id}
+    id: ${modbus_id}
+    role: ${modbus_role}

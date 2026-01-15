@@ -1,5 +1,5 @@
-# Updated : 2025.04.01
-# Version : 1.1.2
+# Updated : 2025.11.25
+# Version : 1.1.3
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  bms_model: "JK"
-  bms_protocol: "BLE-Modbus"
+  bms_model: "JK BLE"
+  bms_protocol: "Multi-node"
 
 packages:
   bms_sensors: !include bms_sensors_JK_BLE_standard.yaml
