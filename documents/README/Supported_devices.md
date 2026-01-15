@@ -34,7 +34,7 @@
 
 **Note: other Balancer brands already integrated with ESPhome can be added easily.**
 
-## Supported ESP32
+## Supported MCU
 
 This project works with various `ESP32` variants and also with the `Raspberry Pi Pico (RP2040)`.
 Note that merging data from multiple BMS, balancers and shunts is resource-intensive, so I highly recommend a board based on the `ESP32-S3` with `PSRAM`.
@@ -119,6 +119,6 @@ The following are confirmed and known to work:
 | Victron | Multiplus 24/1200/25-16  | Working | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) | CAN-bus BMS LV (500 kbit/s) | JK-B (1) | BLE | Atom S3 Lite | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | Plugged into Cerbo Can port (must use supplied Victron terminator in the other port) |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@goldserve](https://diysolarforum.com/members/goldserve.52541/) | PYLON | JK-B | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | no | Stable with Victron Smartshunt, MQTT, BLE, Neopixel LED, Display also working. |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
-| SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | SRNE | HESP48120U200-H  | Working | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) | UZE | JK-PB | RS485 | Atom S3 Lite | Automtic | PYLON V2 | [Atomic CAN Base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | Yes | Most of the YamBMS PYLON based protocols show same results on inverter. Inverter itself does not work when it is set to PYLON protocol, but UZE works. Incorrect temp reported on inverter |
 | Studer | XTM-4000 | Working | [@kolins-cz](https://github.com/kolins-cz) | Pylontech | JK-B | UART | ESP32-S3_XIAO | PYLON  | PYLON V2 | XL1051T | --- | no | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1) |
+| SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

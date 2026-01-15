@@ -6,18 +6,13 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
-## Shunt and BMS combination
-
-![Image](../../images/YamBMS_Combine_switch.png "YamBMS_Combine_switch")
-
-The various counters above allow you to see what state your system is in.
-
 ### Shunt/BMS combine status
 
 ![Image](../../images/YamBMS_Combine_Status.png "YamBMS_Combine_Status")
 
-* **Combine Availability** : This status indicates whether the `BMS` or `Shunt` meets the conditions to be combined.
-* **Can be combined** : This status indicates whether the `BMS` or `Shunt` is currently combined.
+**Combined / Can be combined** : This status indicates whether the `BMS` or `Shunt` is currently combined.
+
+In this example there are **3x BMS** and **1x BMS** is not combined (it is offline or is not sending correct data).
 
 ### Shunt
 
@@ -52,7 +47,7 @@ The `binary_sensor` does not only represent the state of the `charge/discharge` 
 
 The `errors_bitmask` should not be a condition to combine a BMS anymore, let the BMS decide if the `charge/discharge` is allowed (its alarm system takes care of that).
 
-The `errors_bitmask` continues to be analyzed to send `warnings/alarms` on the CAN bus.
+The `errors_bitmask` continues to be analyzed to send `warnings/alarms` to the inverter.
 
 The behavior of the `Charging Instruction` and `Discharging Instruction` sensors responsible for the instructions sent to the inverter will also be adapted. Alarm analysis will no longer be checked. If at least one BMS allows charging, charging can continue, if at least one BMS allows discharging, discharging can continue. This will also be based on the `binary_sensor` related to the state of `switchs/alarms` of the BMS.
 

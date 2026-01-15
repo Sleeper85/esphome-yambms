@@ -18,43 +18,40 @@
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your `BMS`.
 > If you use `YamBMS`, the internal charging logic of the `JK-PB BMS` will not be used.
-> Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Schematic_and_setup_instructions.md).
+> Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Hardware_and_schematic_instructions.md).
 
-| ESPHome application to monitor BMS and communicate with inverters<br>supporting CAN bus protocol compatible with Pylontech, GoodWe, SMA,<br>Victron or Luxpower (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
-| :--- | --- |
-| **Note: Pylontech uses 15S/48V and many others uses 16S/51.2V !**<br><br>Other battery profiles that utilise the **`PYLON`** protocol with different cell counts<br>may also work, e.g. Alpha Ess Smile, BYD Battery-Box LV Flex Lite.<br>Select the correct battery profile in the inverter to match your battery pack !<br>The **`ESP32`** communicates with the BMS using the **`BLE / UART / RS485`**<br>protocol and then sends the CAN bus frames to the inverter via the<br>[CAN bus transceiver](documents/README/Supported_devices.md#supported-can-bus-transceiver). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="images/BMC_QR.png" alt="Buy Me A Coffee" style="height: 217px !important;width: 217px !important;" ></a> |
+| ESPHome application to `combine` information coming from<br>your `BMS / Balancer / Shunt` and adds a smart layer before<br>transmitting instructions to your inverter on `RS485 or CAN bus`<br>using the protocols `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
+| --- | --- |
+| **Note: Pylontech uses 15S/48V and many others uses 16S/51.2V !**<br><br>Other battery profiles that utilise the **`PYLON`** protocol with different cell counts<br>may also work, e.g. Alpha Ess Smile, BYD Battery-Box LV Flex Lite.<br>Select the correct battery profile in the inverter to match your battery pack !<br><br>**DISCLAIMER:** Working with battery systems involves electrical hazards.<br>Please read the complete documentation before installation and use<br>this project at your own risk. | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="images/BMC_QR.png" alt="Buy Me A Coffee" style="height: 217px !important;width: 217px !important;" ></a> |
 
-**Sends over CAN bus to inverter:**
+**Sends over CAN / RS485 bus to your inverter :**
   - Battery Voltage
   - Battery Current (+charge, -discharge)
   - [State of Charge (SoC)](documents/README/YamBMS_behavior.md#state-of-charge) **`SoC 100% will be sent to your inverter only when the battery is fully charged`**
   - State of Health (SoH)
-  - Max cell V. and ID
-  - Min cell V. and ID
-  - BMS temperature
-  - Charging voltage
-  - Charging max amps
-  - Discharge min voltage
-  - Discharge max amps
+  - Requested Charge Voltage
+  - Requested Charge Current
+  - Requested Discharge Voltage
+  - Requested Discharge Current
+  - Min Cell V. and Cell ID
+  - Max Cell V. and Cell ID
+  - Min temperature and sensor ID
+  - Max temperature and sensor ID
   - Battery name
-  - Alarms: Cell over/under voltage, Charge/discharge over current, High/low Temp, BMS fault
-  
-**Note:** this code support `multi-BMS` and `multi-shunt` connection per inverter with a `single ESP32` and should work with inverters that support the CAN bus protocol `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4). I'm only testing it with my `Deye SUN-6K-SG03-LP1-EU` inverter.
+  - Alarms & Warnings
 
-**This project is still in development and testing...<br>**
-
-[Dedicated topic on DIY Solar Forum](https://diysolarforum.com/threads/yambms-jk-bms-can-with-new-cut-off-charging-logic-open-source.79325/)
+Come and discuss it on the [DIY Solar Forum dedicated topic](https://diysolarforum.com/threads/yambms-jk-bms-can-with-new-cut-off-charging-logic-open-source.79325/).
 
 ## Contents
 
 1) [Supported devices](documents/README/Supported_devices.md)
-2) [YamBMS behavior](documents/README/YamBMS_behavior.md)
-3) [YamBMS functions](documents/README/YamBMS_functions.md)
-4) [Charging logic](documents/README/Charging_logic.md)
-5) [CAN bus protocol](documents/README/CANBUS_protocol.md)
-6) [Hardware and schematic instructions](documents/README/Hardware_and_schematic_instructions.md)
-7) [Installation procedure](documents/README/Installation_procedure.md)
-8) [Troubleshooting](documents/README/Troubleshooting.md)
+2) [Hardware and schematic instructions](documents/README/Hardware_and_schematic_instructions.md)
+3) [YamBMS behavior](documents/README/YamBMS_behavior.md)
+4) [YamBMS functions](documents/README/YamBMS_functions.md)
+5) [YamBMS charging logic](documents/README/Charging_logic.md)
+6) [Installation procedure](documents/README/Installation_procedure.md)
+7) [Troubleshooting](documents/README/Troubleshooting.md)
+8) [Changelog](documents/README/Changelog.md)
 
 ## YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -144,7 +141,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 ## Data collection
 
 > [!NOTE]
-> For your information, in November 2025 there were `140` YamBMS users.
+> For your information, in January 2026 there were `160` YamBMS users.
 
 If the ESP32 has an internet connection, the following data is sent to [this script](http://script.opentel.be/yambms.post.php)
 for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have access to this information for the production of statistics, the support and the update service.
@@ -162,7 +159,8 @@ for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have 
 
 ## References
 
-* Thanks to [@syssi](https://github.com/syssi/esphome-jk-bms) for help and making many BMS components (JK, JBD, Seplos, Pace, etc.)
-* Thanks to [@txubelaxu](https://github.com/txubelaxu/esphome-jk-bms) for help and making the `JK-PB RS485` component.
+* Thanks to [@syssi](https://github.com/syssi/) for help and making many BMS components (JK, JBD, Seplos, Pace, etc.)
+* Thanks to [@txubelaxu](https://github.com/txubelaxu/) for help and making the `JK_RS485` component.
+* Thanks to [@shvm](https://github.com/shvmm), [@MrPabloUK](https://github.com/MrPabloUK) and [@GHswitt](https://github.com/GHswitt) for their multiple contributions.
 * Thanks to [@uksa007](https://www.patreon.com/Uksa007Codedevelopment) for making the first CANBUS code.
 * Thanks to all the [contributors](https://github.com/Sleeper85/esphome-yambms/graphs/contributors).
