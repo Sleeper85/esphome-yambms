@@ -11,12 +11,6 @@
 > Using **DIP switch addresses 1 to 15** does not reliably guarantee that the **UART2 (RS485-2)** port protocol will be automatically configured to **001 - JK BMS RS485 Modbus V1.0**, which allows **YamBMS** to access BMS informations.
 > YamBMS users have confirmed that it is possible to resolve this issue by performing an [Erase History Data](BMS_JK-PB.md#erase-history-data) from the JK app on a smartphone.
 
-
-> The alternative solution is to use the **UART1 (RS485-1)** port configured with the **001 - JK BMS RS485 Modbus V1.0** protocol from the JK application.
-> Downgrading to **V19.10** does not guarantee to correct this problem, [please read this information before downgrading](BMS_JK-PB.md#downgrading-to-1910).
-
-
-
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your BMS.

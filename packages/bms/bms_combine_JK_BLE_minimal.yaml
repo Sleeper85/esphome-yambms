@@ -1,5 +1,5 @@
-# Updated : 2025.07.07
-# Version : 1.2.9
+# Updated : 2025.12.22
+# Version : 1.3.3
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,7 +26,7 @@ packages:
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_BLE.yaml
-  bms_battery_soh: !include bms_battery_soh.yaml
+  bms_battery_soh: !include bms_base_battery_soh.yaml
 
 ota:
   on_begin:
@@ -76,35 +76,43 @@ binary_sensor:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     balancing:
-      id: bms${bms_id}_equalizing
-      name: "${name} ${bms_name} balancing"
+      id: bms${bms_id}_bms_equalizing
+      device_id: bms_${bms_id}
+      # name: "balancing"
     charging:
       id: bms${bms_id}_charging_allowed
-      name: "${name} ${bms_name} charging"
+      device_id: bms_${bms_id}
+      name: "charging"
     discharging:
       id: bms${bms_id}_discharging_allowed
-      name: "${name} ${bms_name} discharging"
+      device_id: bms_${bms_id}
+      name: "discharging"
     online_status:
       id: bms${bms_id}_online_status
-      name: "${name} ${bms_name} online status"
+      device_id: bms_${bms_id}
+      name: "online status"
 
 switch:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     charging:
       id: bms${bms_id}_charge_switch
-      name: "${name} ${bms_name} Charge switch"
+      device_id: bms_${bms_id}
+      name: "Charge switch"
     discharging:
       id: bms${bms_id}_discharge_switch
-      name: "${name} ${bms_name} Discharge switch"
+      device_id: bms_${bms_id}
+      name: "Discharge switch"
     balancer:
       id: bms${bms_id}_balance_switch
-      name: "${name} ${bms_name} Balance switch"
+      device_id: bms_${bms_id}
+      name: "Balance switch"
     # +--------------------------------------+
   - platform: ble_client
     ble_client_id: ble_client${bms_id}
     id: bms${bms_id}_enable_bluetooth_connection
-    name: "${name} ${bms_name} Enable Bluetooth connection"
+    device_id: bms_${bms_id}
+    name: "Enable Bluetooth connection"
     # +--------------------------------------+
 
 sensor:
@@ -112,77 +120,98 @@ sensor:
     jk_bms_ble_id: jk_bms_ble${bms_id}
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
-      name: "${name} ${bms_name} min cell voltage"
+      device_id: bms_${bms_id}
+      name: "min cell voltage"
     max_cell_voltage:
       id: bms${bms_id}_max_cell_voltage
-      name: "${name} ${bms_name} max cell voltage"
+      device_id: bms_${bms_id}
+      name: "max cell voltage"
     min_voltage_cell:
       id: bms${bms_id}_min_voltage_cell
-      name: "${name} ${bms_name} min voltage cell"
+      device_id: bms_${bms_id}
+      name: "min voltage cell"
     max_voltage_cell:
       id: bms${bms_id}_max_voltage_cell
-      name: "${name} ${bms_name} max voltage cell"
+      device_id: bms_${bms_id}
+      name: "max voltage cell"
     delta_cell_voltage:
       id: bms${bms_id}_delta_cell_voltage
-      name: "${name} ${bms_name} delta cell voltage"
+      device_id: bms_${bms_id}
+      name: "delta cell voltage"
     average_cell_voltage:
       id: bms${bms_id}_average_cell_voltage
-      name: "${name} ${bms_name} average cell voltage"
+      device_id: bms_${bms_id}
+      name: "average cell voltage"
     total_voltage:
       id: bms${bms_id}_total_voltage
-      name: "${name} ${bms_name} total voltage"
+      device_id: bms_${bms_id}
+      name: "total voltage"
     current:
       id: bms${bms_id}_current
-      name: "${name} ${bms_name} current"
+      device_id: bms_${bms_id}
+      name: "current"
     power:
       id: bms${bms_id}_power
-      name: "${name} ${bms_name} power"
+      device_id: bms_${bms_id}
+      name: "power"
     charging_power:
       id: bms${bms_id}_charging_power
-      name: "${name} ${bms_name} charging power"
+      device_id: bms_${bms_id}
+      name: "charging power"
     discharging_power:
       id: bms${bms_id}_discharging_power
-      name: "${name} ${bms_name} discharging power"
+      device_id: bms_${bms_id}
+      name: "discharging power"
     power_tube_temperature:
       id: bms${bms_id}_power_tube_temperature
-      name: "${name} ${bms_name} power tube temperature"
+      device_id: bms_${bms_id}
+      name: "power tube temperature"
     temperature_sensor_1:
       id: bms${bms_id}_temperature_sensor_1
-      name: "${name} ${bms_name} temperature sensor 1"
+      device_id: bms_${bms_id}
+      name: "temperature sensor 1"
     temperature_sensor_2:
       id: bms${bms_id}_temperature_sensor_2
-      name: "${name} ${bms_name} temperature sensor 2"
+      device_id: bms_${bms_id}
+      name: "temperature sensor 2"
     state_of_charge:
       id: bms${bms_id}_state_of_charge
-      name: "${name} ${bms_name} state of charge"
+      device_id: bms_${bms_id}
+      # name: "state of charge"
     capacity_remaining:
       id: bms${bms_id}_capacity_remaining_ah
-      name: "${name} ${bms_name} capacity remaining"
+      device_id: bms_${bms_id}
+      # name: "capacity remaining"
     total_battery_capacity_setting:
       id: bms${bms_id}_battery_capacity
-      name: "${name} ${bms_name} total battery capacity setting"
+      device_id: bms_${bms_id}
+      name: "total battery capacity setting"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
-      internal: true
-      name: "${name} ${bms_name} charging cycles"
+      device_id: bms_${bms_id}
+      # name: "charging cycles"
     total_charging_cycle_capacity:
       id: bms${bms_id}_cycle_capacity_raw
-      internal: true
-      name: "${name} ${bms_name} total charging cycle capacity"
+      device_id: bms_${bms_id}
+      # name: "total charging cycle capacity"
     balancing_current:
-      name: "${name} ${bms_name} balancing current"
+      device_id: bms_${bms_id}
+      name: "balancing current"
     errors_bitmask:
       id: bms${bms_id}_errors_bitmask
-      name: "${name} ${bms_name} errors bitmask"
+      device_id: bms_${bms_id}
+      name: "errors bitmask"
 
 text_sensor:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     errors:
-      name: "${name} ${bms_name} errors"
+      name: "errors"
+      device_id: bms_${bms_id}
       entity_category: diagnostic
     total_runtime_formatted:
-      name: "${name} ${bms_name} total runtime formatted"
+      name: "total runtime formatted"
+      device_id: bms_${bms_id}
       entity_category: diagnostic
 
 number:
@@ -190,40 +219,52 @@ number:
     jk_bms_ble_id: jk_bms_ble${bms_id}
     cell_count:
       id: bms${bms_id}_cell_count
-      name: "${name} ${bms_name} cell count"
+      device_id: bms_${bms_id}
+      name: "cell count"
     total_battery_capacity:
-      name: "${name} ${bms_name} total battery capacity"
+      device_id: bms_${bms_id}
+      name: "total battery capacity"
     cell_voltage_overvoltage_protection:
       id: bms${bms_id}_cell_ovp
-      name: "${name} ${bms_name} cell voltage overvoltage protection"
+      device_id: bms_${bms_id}
+      name: "cell voltage overvoltage protection"
     cell_voltage_overvoltage_recovery:
       id: bms${bms_id}_cell_ovpr
-      name: "${name} ${bms_name} cell voltage overvoltage recovery"
+      device_id: bms_${bms_id}
+      name: "cell voltage overvoltage recovery"
     cell_voltage_undervoltage_protection:
       id: bms${bms_id}_cell_uvp
-      name: "${name} ${bms_name} cell voltage undervoltage protection"
+      device_id: bms_${bms_id}
+      name: "cell voltage undervoltage protection"
     cell_voltage_undervoltage_recovery:
       id: bms${bms_id}_cell_uvpr
-      name: "${name} ${bms_name} cell voltage undervoltage recovery"
+      device_id: bms_${bms_id}
+      name: "cell voltage undervoltage recovery"
     max_charge_current:
       id: bms${bms_id}_max_charge_current
-      name: "${name} ${bms_name} max charge current"
+      device_id: bms_${bms_id}
+      name: "max charge current"
     max_discharge_current:
       id: bms${bms_id}_max_discharge_current
-      name: "${name} ${bms_name} max discharge current"
+      device_id: bms_${bms_id}
+      name: "max discharge current"
     balance_starting_voltage:
       id: bms${bms_id}_balance_starting_voltage
-      name: "${name} ${bms_name} balance starting voltage"
+      device_id: bms_${bms_id}
+      name: "balance starting voltage"
     balance_trigger_voltage:
-      id: bms${bms_id}_balance_trigger_voltage
-      name: "${name} ${bms_name} balance trigger voltage"
+      id: bms${bms_id}_bms_balance_trigger_voltage
+      device_id: bms_${bms_id}
+      # name: "balance trigger voltage"
 
 button:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     retrieve_settings:
-      name: "${name} ${bms_name} retrieve settings"
+      name: "retrieve settings"
+      device_id: bms_${bms_id}
       entity_category: config
     retrieve_device_info:
-      name: "${name} ${bms_name} retrieve device info"
+      name: "retrieve device info"
+      device_id: bms_${bms_id}
       entity_category: config

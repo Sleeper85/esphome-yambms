@@ -1,5 +1,5 @@
-# Updated : 2025.08.02
-# Version : 1.1.3
+# Updated : 2025.12.22
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
+  sub_device: !include shunt_base_sub_device.yaml
   shunt_combine: !include shunt_combine.yaml
 
 # +--------------------------------------+
@@ -50,7 +51,8 @@ binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_online_status
-    name: "${name} ${shunt_name} Online Status"
+    device_id: shunt_${shunt_id}
+    name: "Online status"
     register_type: read
     address: 1
 
@@ -59,7 +61,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_voltage
-    name: "${name} ${shunt_name} Voltage"
+    device_id: shunt_${shunt_id}
+    name: "Voltage"
     register_type: read
     address: 2
     value_type: U_DWORD
@@ -75,7 +78,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_current
-    name: "${name} ${shunt_name} Current"
+    device_id: shunt_${shunt_id}
+    name: "Current"
     register_type: read
     address: 4
     value_type: S_DWORD
@@ -91,7 +95,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_power
-    name: "${name} ${shunt_name} Power"
+    device_id: shunt_${shunt_id}
+    name: "Power"
     register_type: read
     address: 6
     value_type: S_DWORD
@@ -107,7 +112,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_soc
-    name: "${name} ${shunt_name} State of Charge"
+    device_id: shunt_${shunt_id}
+    name: "State of Charge"
     register_type: read
     address: 8
     value_type: U_WORD
@@ -123,7 +129,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_charging_power
-    name: "${name} ${shunt_name} Charging Power"
+    device_id: shunt_${shunt_id}
+    name: "Charging Power"
     register_type: read
     address: 9
     value_type: U_DWORD
@@ -139,7 +146,8 @@ sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller20${shunt_id}
     id: shunt${shunt_id}_discharging_power
-    name: "${name} ${shunt_name} Discharging Power"
+    device_id: shunt_${shunt_id}
+    name: "Discharging Power"
     register_type: read
     address: 11
     value_type: U_DWORD

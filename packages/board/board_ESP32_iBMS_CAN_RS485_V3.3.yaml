@@ -1,0 +1,102 @@
+# Updated : 2026.01.14
+# Version : 1.1.2
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# CAN1 and CAN2 RJ45 are on the same CAN bus
+# If SW1 is ON, there is a 120 Ohm resistor between CANH and CANL
+# VP230 CAN L PIN 6 => RJ45 PIN 5 (T-568B white/blue)
+# VP230 CAN H PIN 7 => RJ45 PIN 4 (T-568B blue)
+# VP230 D TXD PIN 1 => ESP32 PIN 33 = GPIO 21
+# VP230 R RXD PIN 4 => ESP32 PIN 36 = GPIO 22
+# VP230 RS    PIN 8 => 10kΩ pull down to GND = slope control mode
+
+# BMS RS485 RJ45
+# There is a resistance of 120 Ohm between A and B
+# MAX13487E RO PIN 1 => ESP32 PIN 27 = GPIO 16 (via R17)
+# MAX13487E DI PIN 4 => ESP32 PIN 28 = GPIO 17
+# MAX13487E A+ PIN 6 => RJ45 PIN 7 (T-568B white/brown)
+# MAX13487E B- PIN 7 => RJ45 PIN 8 (T-568B brown)
+
+# RELAY OUT 01 => ESP32 PIN 13 = GPIO 14
+# RELAY OUT 02 => ESP32 PIN 12 = GPIO 27
+
+# JK-BMS JST (GND-G17-G16-VBAT)
+
+substitutions:
+  board_chip: "ESP32"
+  board_name: "iBMS"
+  # Interfaces GPIOs
+  # uart_esp_1               BMS RS485 RJ45 (MAX13487E)
+  tx_pin_1: '17'
+  rx_pin_1: '16'
+  # uart_esp_2               RELAY OUT
+  tx_pin_2: '14'
+  rx_pin_2: '27'
+  # uart_esp_3               NOT AVAILABLE
+  tx_pin_3: '26'
+  rx_pin_3: '25'
+  # canbus_esp32_can         CAN1 and CAN2 RJ45 (VP230)
+  tx_pin_4: '21'
+  rx_pin_4: '22'
+  # canbus_mcp2515           NOT AVAILABLE
+  spi_mosi_pin: '13'
+  spi_miso_pin: '12'
+  spi_clk_pin: '14'
+  mcp2515_cs_pin: '15'
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+
+esp32:
+  board: esp32dev
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  reboot_timeout: 0s
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+
+# +--------------------------------------+
+# | Inverter Heartbeat Light             |
+# +--------------------------------------+
+
+light:
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    output: esp_led
+    id: esp_light
+
+output:
+  # ESP LED
+  - platform: gpio
+    pin: 2
+    id: esp_led
+    inverted: true

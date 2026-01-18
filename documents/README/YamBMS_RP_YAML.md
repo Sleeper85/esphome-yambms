@@ -129,12 +129,6 @@ So just one of the packages below :
       - path: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
 ```
 
-### ESP32-S3 LilyGo T-Connect
-
-```YAML
-      - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
-```
-
 ### Atom S3 Lite
 
 ```YAML
@@ -158,6 +152,44 @@ In this case you need to specify the `yambms` and `canbus` IDs to display the in
           display_auto_next_page_interval: '5s'
           display_rotation: '0' # 0/90/180/270 rotation angle in degrees
 ```
+
+### ESP32-C3 DevKitM-1
+
+```YAML
+      - path: 'packages/board_ESP32-C3_DevKitM-1.yaml'
+```
+
+### ESP32-C3 ETH01-EVO
+
+This board has an `Ethernet` port and can be powered from `POE` (optional).
+
+```YAML
+      - path: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+```
+
+### ESP32 LilyGo T-CAN485
+
+```YAML
+      - path: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
+```
+> [!NOTE]
+> The device has an integrated 120 Ohm termination resistor. If used as a node in the middle, this resistor must be removed. ![Image](../../images/MCU_ESP32_LilyGo-T-CAN485_resistors.jpg)
+
+### ESP32-S3 LilyGo T-Connect
+
+```YAML
+      - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+```
+> [!NOTE]
+> The device has an integrated 120 Ohm termination resistor. If used as a node in the middle, this resistor must be removed.
+
+### ESP32-S3 LilyGo T-Connect Pro
+
+```YAML
+      - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
+```
+> [!NOTE]
+> The device has an integrated 120 Ohm termination resistor. If used as a node in the middle, this resistor must be removed.
 
 ## YamBMS [single-node](../../examples/single-node/) example
 
@@ -184,6 +216,13 @@ In this case you need to specify the `yambms` and `canbus` IDs to display the in
           bms_name: 'BMS 2'
           # other settings
           # ...
+
+      # Balancer 1
+      - path: 'packages/balancer/balancer_sensors_JK_NEEY_BLE.yaml'
+        vars:
+          bms_id: '1' # must match the BMS ID
+          balancer_name: 'Balancer 1'
+          balancer_ble_mac_address: 11:22:33:44:55:66
 ```
 
 ## YamBMS [multi-node](../../examples/multi-node/) RS485 modbus example
@@ -243,6 +282,12 @@ In this case you need to specify the `yambms` and `canbus` IDs to display the in
           bms_name: 'JK-BMS 1'
           # other settings
           # ..
+      # Balancer 1
+      - path: 'packages/balancer/balancer_sensors_JK_NEEY_BLE.yaml'
+        vars:
+          bms_id: '1' # must match the BMS ID
+          balancer_name: 'Balancer 1'
+          balancer_ble_mac_address: 11:22:33:44:55:66
 ```
 
 ### ESP32 modbus server `node3`
@@ -297,6 +342,12 @@ As soon as you import a `Shunt` and it can be combined ([see condition](YamBMS_b
 
 You can find `Shunt` import `RP` examples in the [examples/single-node](../../examples/single-node/) folder.
 
+## Balancer
+
+> [!IMPORTANT]
+> You must number your `Balancer` with the same number as the `BMS` it is connected to.
+
+As soon as the balancer is available/online the values ​​`equalizing` and `balance trigger voltage` of the balancers(s) will take precedence over the BMS values.
 
 ## YamBMS
 

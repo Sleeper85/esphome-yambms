@@ -1,5 +1,5 @@
-# Updated : 2025.06.10
-# Version : 1.1.2
+# Updated : 2026.01.13
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,15 +21,15 @@
   # MIN temperature
   - platform: template
     id: bms${bms_id}_min_temperature
-    name: "${name} ${bms_name} min temperature"
+    device_id: bms_${bms_id}
+    name: "min temperature"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
     device_class: temperature
     filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
+      - throttle: 10s
+      - delta: 0.2
     lambda: |-
             // MIN temperature
             // MIN temperature_sensor
@@ -56,7 +56,8 @@
   # MIN temperature sensor
   - platform: template
     id: bms${bms_id}_min_temperature_sensor
-    name: "${name} ${bms_name} min temperature sensor"
+    device_id: bms_${bms_id}
+    name: "min temperature sensor"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
@@ -68,15 +69,15 @@
   # MAX temperature
   - platform: template
     id: bms${bms_id}_max_temperature
-    name: "${name} ${bms_name} max temperature"
+    device_id: bms_${bms_id}
+    name: "max temperature"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 1
     unit_of_measurement: °C
     device_class: temperature
     filters:
-      - or:
-        - throttle: 10s
-        - delta: 0.1
+      - throttle: 10s
+      - delta: 0.2
     lambda: |-
             // MAX temperature
             // MAX temperature_sensor
@@ -103,7 +104,8 @@
   # MAX temperature sensor
   - platform: template
     id: bms${bms_id}_max_temperature_sensor
-    name: "${name} ${bms_name} max temperature sensor"
+    device_id: bms_${bms_id}
+    name: "max temperature sensor"
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric

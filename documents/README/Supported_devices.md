@@ -11,6 +11,7 @@
 * `JK` BMS (BLE / UART / RS485)
 * `JBD` BMS (BLE / UART)
 * `Seplos V1 V2 V3` BMS (RS485)
+* `PACE` BMS (RS485)
 * `BASEN` BMS (RS485)
 * `DEYE` BMS (CAN)
 
@@ -24,23 +25,29 @@
 
 **Note: other Shunt brands already integrated with ESPhome can be added easily.**
 
-## Supported ESP32
+## Supported balancers
 
-**Recommended: AtomS3 or ESP32-S3**
+* `GW-24S4EB: NEEY/Heltec 4A Smart Active Balancer)` (BLE)
+* `GW-24S4EB: NEEY 4A Smart Active Balancer 4th generation)` (BLE)
+* `EK-24S15EB: (NEEY 15A Smart Active Balancer)` (BLE)
+* `EK-24S10EB: (NEEY 10A Smart Active Balancer)` (BLE)
 
-* [M5Stack AtomS3 dedicated documentation](Supported_devices_M5Stack_AtomS3.md)
-* [PVbrain2 with ESP32-S3](https://github.com/SeByDocKy/pvbrain2) (up to 11 BMS monitored with `UART`)
-* [Build your own PCB with ESP32 or ESP32-S3](Supported_devices_Build_your_own_PCB.md)
+**Note: other Balancer brands already integrated with ESPhome can be added easily.**
 
-| [AtomS3 Lite](https://docs.m5stack.com/en/core/AtomS3%20Lite) | [AtomS3](https://docs.m5stack.com/en/core/AtomS3) | [AtomS3R (8MB PSRAM)](https://docs.m5stack.com/en/core/AtomS3R) |
+## Supported MCU
+
+This project works with various `ESP32` variants and also with the `Raspberry Pi Pico (RP2040)`.
+Note that merging data from multiple BMS, balancers and shunts is resource-intensive, so I highly recommend a board based on the `ESP32-S3` with `PSRAM`.
+
+| [AtomS3 Lite](Board_M5Stack_AtomS3.md) | [AtomS3](Board_M5Stack_AtomS3.md) | [AtomS3R (8MB PSRAM)](Board_M5Stack_AtomS3.md) |
 | --- | --- | --- |
 | <img src="../../images/MCU_AtomS3_Lite.png" width="300"> | <img src="../../images/MCU_AtomS3.png" width="300"> | <img src="../../images/MCU_AtomS3R.png" width="300"> |
 
-| [LilyGo T-CAN485 (ESP32)](https://github.com/Xinyuan-LilyGO/T-CAN485) | [LilyGo T-Connect (ESP32-S3)](https://github.com/Xinyuan-LilyGO/T-Connect) | [Waveshare ESP32-S3-RS485-CAN](https://www.waveshare.com/esp32-s3-rs485-can.htm) |
+| [LilyGo T-CAN485 (ESP32)](https://github.com/Xinyuan-LilyGO/T-CAN485) | [LilyGo T-Connect (ESP32-S3)](Board_LilyGo_T-Connect.md) | [Waveshare ESP32-S3-RS485-CAN](Board_Waveshare_ESP32-S3-RS485-CAN.md) |
 | --- | --- | --- |
-| <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_WS-RS485-CAN.png" width="300"> |
+| <img src="../../images/MCU_ESP32_LilyGo-T-CAN485.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_LilyGo-T-Connect_1.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3_WS-RS485-CAN_1.png" width="300"> |
 
-| [ESP32 DevKit-V1](https://a.aliexpress.com/_EG12CJ2) | [ESP32-S3 DevKitC-1](https://a.aliexpress.com/_EzFdrw3) | [ESP32-C3 ETH01-EVO](https://a.aliexpress.com/_Ey29fog) |
+| [ESP32 DevKit-V1](Board_Build_your_own_PCB.md) | [ESP32-S3 DevKitC-1](Board_Build_your_own_PCB.md) | [ESP32-C3 ETH01-EVO](https://a.aliexpress.com/_Ey29fog) |
 | --- | --- | --- |
 | <img src="../../images/MCU_ESP32-DevKit-V1.jpg" width="300"> | <img src="../../images/MCU_ESP32-S3-DevKitC-1.png" width="300"> | <img src="../../images/MCU_ESP32-C3_ETH01-EVO.png" width="300"> |
 
@@ -73,7 +80,7 @@ Inverters supporting CAN PYLON/Goodwe/SMA/Victron Low Voltage protocol should wo
 
 The following are confirmed and known to work:
 
-| Brand | Model | Satus | Reported by | Inverter bat. mode | BMS | BMS protocol | ESP32 board | CAN name | CAN protocol | CAN transceiver | RS485 board | Multi-BMS | Remarks |
+| Brand | Model | Status | Reported by | Inverter bat. mode | BMS | BMS protocol | ESP32 board | CAN name | CAN protocol | CAN transceiver | RS485 board | Multi-BMS | Remarks |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Deye | SUN-3.6K-SG03LP1-EU | Working | [@Der_Hannes](https://diysolarforum.com/members/der_hannes.16949/) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | SN65HVD230 **3.3V** | --- | no | --- |
 | Deye | SUN-5K-SG03LP1-EU | Working | [@vdiex](https://github.com/vdiex) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | no | --- |
@@ -112,5 +119,6 @@ The following are confirmed and known to work:
 | Victron | Multiplus 24/1200/25-16  | Working | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) | CAN-bus BMS LV (500 kbit/s) | JK-B (1) | BLE | Atom S3 Lite | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | Plugged into Cerbo Can port (must use supplied Victron terminator in the other port) |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@goldserve](https://diysolarforum.com/members/goldserve.52541/) | PYLON | JK-B | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | no | Stable with Victron Smartshunt, MQTT, BLE, Neopixel LED, Display also working. |
 | MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
-| SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | SRNE | HESP48120U200-H  | Working | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) | UZE | JK-PB | RS485 | Atom S3 Lite | Automtic | PYLON V2 | [Atomic CAN Base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | Yes | Most of the YamBMS PYLON based protocols show same results on inverter. Inverter itself does not work when it is set to PYLON protocol, but UZE works. Incorrect temp reported on inverter |
+| Studer | XTM-4000 | Working | [@kolins-cz](https://github.com/kolins-cz) | Pylontech | JK-B | UART | ESP32-S3_XIAO | PYLON  | PYLON V2 | XL1051T | --- | no | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1) |
+| SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

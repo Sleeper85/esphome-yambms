@@ -1,0 +1,565 @@
+# Updated : 2025.12.23
+# Version : 1.1.4
+# GitHub  : https://github.com/syssi/esphome-seplos-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  bms_base: !include bms_base.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+
+substitutions:
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+binary_sensor:
+  # Required sensors cannot be retrieved from BMS
+  # online_status
+  - platform: template
+    id: bms${bms_id}_online_status
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} Online status
+    lambda: |-
+      if (id(bms${bms_id}_total_voltage).state > 0)
+        return true;
+      else
+        return false;
+  # equalizing
+  - platform: template
+    id: bms${bms_id}_bms_equalizing
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} balancing
+    internal: true
+    lambda: return false;
+  # bms_switch_charging
+  - platform: template
+    id: bms${bms_id}_charging_allowed
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} charging
+    lambda: return true;
+  # bms_switch_discharging
+  - platform: template
+    id: bms${bms_id}_discharging_allowed
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} discharging
+    lambda: return true;
+
+sensor:
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_total_voltage
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} pack_voltage
+    unit_of_measurement: V
+    accuracy_decimals: 2
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_current
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} current
+    unit_of_measurement: A
+    accuracy_decimals: 2
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_capacity_remaining_ah
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} remaining_capacity
+    internal: true
+    unit_of_measurement: Ah
+    accuracy_decimals: 2
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_battery_capacity
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} total_capacity
+    unit_of_measurement: Ah
+    accuracy_decimals: 2
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} total_discharge_capacity
+    unit_of_measurement: Ah
+    accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_state_of_charge
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} soc
+    internal: true
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_battery_soh
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} soh
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_charging_cycles_raw
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cycle_count
+    internal: true
+    unit_of_measurement: cycles
+    accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_average_cell_voltage
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} average_cell_voltage
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} average_cell_temp
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_max_cell_voltage
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} max_cell_voltage
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_min_cell_voltage
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} min_cell_voltage
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+        - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} max_cell_temp
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} min_cell_temp
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_max_discharge_current
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} maxdiscurt
+    unit_of_measurement: A
+    accuracy_decimals: 2
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_max_charge_current
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} maxchgcurt
+    unit_of_measurement: A
+    accuracy_decimals: 2
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_1
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_2
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_3
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_4
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_5
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_6
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_7
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_8
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_9
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_10
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_11
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_12
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_13
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_14
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_15
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_16
+    unit_of_measurement: V
+    accuracy_decimals: 3
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_temperature_sensor_1
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_temp_1
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_temperature_sensor_2
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_temp_2
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_temperature_sensor_3
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_temp_3
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    id: bms${bms_id}_temperature_sensor_4
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_temp_4
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} case_temp
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} power_temp
+    unit_of_measurement: °C
+    accuracy_decimals: 1
+    filters:
+      - throttle: ${bms_update_interval}
+
+  # Required sensors cannot be retrieved from BMS
+
+  # Power
+  - platform: template
+    id: bms${bms_id}_power
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} Power
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
+
+  # Charging Power
+  - platform: template
+    name: ${bms_prefix} Charging Power
+    id: bms${bms_id}_charging_power
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_power).state > 0)
+        return id(bms${bms_id}_power).state;
+      else return 0;
+
+  # Discharging Power
+  - platform: template
+    name: ${bms_prefix} Discharging Power
+    id: bms${bms_id}_discharging_power
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(bms${bms_id}_power).state <= 0)
+        return (id(bms${bms_id}_power).state * -1); // Must be positive energy
+      else return 0;
+
+  # Charging cycle capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} charging cycle capacity
+    internal: true
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+  
+  # errors_bitmask (internal)
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
+
+  # min_voltage_cell (internal)
+  - platform: template
+    id: bms${bms_id}_min_voltage_cell
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 1;
+
+  # max_voltage_cell (internal)
+  - platform: template
+    id: bms${bms_id}_max_voltage_cell
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 2;
+
+  # cell_ovp
+  - platform: template
+    id: bms${bms_id}_cell_ovp
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell ovp
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_ovp};
+
+  # cell_uvp
+  - platform: template
+    id: bms${bms_id}_cell_uvp
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell uvp
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_uvp};
+
+  # balance_trigger_voltage
+  - platform: template
+    id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} balance trigger voltage
+    internal: true
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_balance_trigger_voltage};
+
+text_sensor:
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} system_status
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} active_balancing_cells
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_temperature_alarms
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} cell_voltage_alarms
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} FET_status
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} active_alarms
+  - platform: seplos_parser
+    seplos_parser_id: ${seplos_parser_id}
+    device_id: bms_${bms_id}
+    name: ${bms_prefix} active_protections

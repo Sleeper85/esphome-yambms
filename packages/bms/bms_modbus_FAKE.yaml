@@ -1,5 +1,5 @@
-# Updated : 2024.12.23
-# Version : 1.1.1
+# Updated : 2025.11.25
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  bms_model: "Fake BMS"
-  bms_protocol: "DEMO-Modbus"
+  bms_model: "YamBMS Demo"
+  bms_protocol: "Multi-node"
 
 packages:
   bms_sensors: !include bms_sensors_FAKE.yaml
