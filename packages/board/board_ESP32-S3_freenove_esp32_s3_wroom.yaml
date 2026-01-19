@@ -63,9 +63,6 @@ esp32:
 esphome:
   platformio_options:
     board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
-    board_build.flash_size: 8MB
-    board_upload.flash_size: 8MB
-
 
 wifi:
   id: my_network
