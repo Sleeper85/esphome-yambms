@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.5
+# Updated : 2026.01.19
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -74,11 +74,14 @@ modbus_controller:
 # +--------------------------------------+
 
 binary_sensor:
-  # online_status
+  # online_status - checks if BMS is responding with valid data
   - platform: template
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
     name: "online status"
+    lambda: |-
+      // Consider online if we have valid total_voltage reading (> 0V indicates communication)
+      return id(bms${bms_id}_total_voltage).has_state() && id(bms${bms_id}_total_voltage).state > 0;
 
   #  11  Status/Fault flag                     2 byte   R  uint16  Hex See ^3
   #      Bit 8: Status: Charging operation
@@ -1035,11 +1038,13 @@ number:
     address: 65
     register_type: holding
     value_type: U_WORD
+    lambda: "return x * 0.001f;"
+    write_lambda: "return x * 1000.0f;"
     min_value: 0.0
-    max_value: 65535.0
-    step: 1
+    max_value: 65.535
+    step: 0.001
     mode: box
-    unit_of_measurement: "mV"
+    unit_of_measurement: "V"
 
   #  66  Cell OV release protection            2 byte  RW  uint16  mV
   - platform: modbus_controller
@@ -1160,11 +1165,13 @@ number:
     address: 73
     register_type: holding
     value_type: U_WORD
+    lambda: "return x * 0.001f;"
+    write_lambda: "return x * 1000.0f;"
     min_value: 0.0
-    max_value: 65535.0
-    step: 1
+    max_value: 65.535
+    step: 0.001
     mode: box
-    unit_of_measurement: "mV"
+    unit_of_measurement: "V"
 
   #  74  Cell UV release protection            2 byte  RW  uint16  mV
   - platform: modbus_controller
@@ -1693,11 +1700,13 @@ number:
     address: 105
     register_type: holding
     value_type: U_WORD
+    lambda: "return x * 0.001f;"
+    write_lambda: "return x * 1000.0f;"
     min_value: 0.0
-    max_value: 65535.0
-    step: 1
+    max_value: 65.535
+    step: 0.001
     mode: box
-    unit_of_measurement: "mV"
+    unit_of_measurement: "V"
 
   # 106  Balance start delta voltage           2 byte  RW  uint16  mV
   - platform: modbus_controller
