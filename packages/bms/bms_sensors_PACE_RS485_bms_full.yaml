@@ -1038,7 +1038,8 @@ number:
     address: 65
     register_type: holding
     value_type: U_WORD
-    multiply: 0.001
+    lambda: "return x * 0.001f;"
+    write_lambda: "return x * 1000.0f;"
     min_value: 0.0
     max_value: 65.535
     step: 0.001
@@ -1164,7 +1165,8 @@ number:
     address: 73
     register_type: holding
     value_type: U_WORD
-    multiply: 0.001
+    lambda: "return x * 0.001f;"
+    write_lambda: "return x * 1000.0f;"
     min_value: 0.0
     max_value: 65.535
     step: 0.001
@@ -1698,7 +1700,8 @@ number:
     address: 105
     register_type: holding
     value_type: U_WORD
-    multiply: 0.001
+    lambda: "return x * 0.001f;"
+    write_lambda: "return x * 1000.0f;"
     min_value: 0.0
     max_value: 65.535
     step: 0.001
