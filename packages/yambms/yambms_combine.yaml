@@ -1,5 +1,5 @@
-# Updated : 2026.01.13
-# Version : 1.6.1
+# Updated : 2026.01.21
+# Version : 1.6.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -352,6 +352,15 @@ interval:
             // BMS blocking_discharge_counter
             id(${yambms_id}_bms_blocking_discharge).publish_state(id(${yambms_id}_var_bms_blocking_discharge_counter));
 
+            // BMS count
+            id(${yambms_id}_bms_count).publish_state(id(${yambms_id}_var_bms_counter));
+            // BMS combined count
+            id(${yambms_id}_bms_combined).publish_state(id(${yambms_id}_var_to_combine_bms_counter));
+            // Shunt count
+            id(${yambms_id}_shunt_count).publish_state(id(${yambms_id}_var_shunt_counter));
+            // Shunt combined count
+            id(${yambms_id}_shunt_combined).publish_state(id(${yambms_id}_var_to_combine_shunt_counter));
+
             // Global vars reset
             id(${yambms_id}_var_errors_bitmask) = 0;
             id(${yambms_id}_var_errors_bitmask_counter) = 0;
@@ -566,8 +575,8 @@ sensor:
     name: ${name} ${yambms_name} Battery SoH
     update_interval: ${yambms_update_interval}
     unit_of_measurement: "%"
-    device_class: battery
     state_class: measurement
+    icon: mdi:battery-heart-variant
     accuracy_decimals: 0
     filters:
       - or:
@@ -777,7 +786,6 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(${yambms_id}_var_bms_counter);
 
   # BMS combined
   - platform: template
@@ -791,7 +799,6 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(${yambms_id}_var_to_combine_bms_counter);
 
   # BMS blocking charge
   - platform: template
@@ -831,7 +838,6 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(${yambms_id}_var_shunt_counter);
 
   # Shunt combined
   - platform: template
@@ -845,4 +851,3 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(${yambms_id}_var_to_combine_shunt_counter);
