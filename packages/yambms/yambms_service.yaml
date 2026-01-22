@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.2.1
+# Updated : 2026.01.22
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -59,9 +59,9 @@ interval:
             on_response:
               then:
               - lambda: |-
-                  // ESP_LOGI("yambms", "HTTP GET : %s", body.c_str());
                   json::parse_json(body, [](JsonObject root) -> bool {
-                    id(${yambms_id}_last_version).publish_state(root["version"]);
+                    // Explicitly cast to std::string to resolve ambiguity
+                    id(${yambms_id}_last_version).publish_state(root["version"].as<std::string>());
                     return true;
                   });
 
