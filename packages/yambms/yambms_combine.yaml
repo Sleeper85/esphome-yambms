@@ -251,6 +251,29 @@ interval:
               // MEAN charging_cycles
               charging_cycles = (id(${yambms_id}_var_total_charging_cycles) / id(${yambms_id}_var_to_combine_bms_counter));
             }
+            else
+            {
+              // Debug (disabled): combine with no BMS.
+              // ESP_LOGW("yambms", "combine: no BMS to combine (to_combine=0). bms_total_v=%.3f shunt_use=%d shunt_total_v=%.3f shunt_to_combine=%d",
+              //          id(${yambms_id}_var_bms_total_voltage),
+              //          id(${yambms_id}_var_shunt_use),
+              //          id(${yambms_id}_var_shunt_total_voltage),
+              //          id(${yambms_id}_var_to_combine_shunt_counter));
+            }
+
+            if ((total_voltage <= 0) || isnan(total_voltage))
+            {
+              // Debug (disabled): combine total_voltage anomaly.
+              // ESP_LOGW("yambms", "combine: total_voltage=%.3f (bms_total_v=%.3f to_combine=%d shunt_use=%d shunt_total_v=%.3f shunt_to_combine=%d current_bms=%.3f current_shunt=%.3f)",
+              //          total_voltage,
+              //          id(${yambms_id}_var_bms_total_voltage),
+              //          id(${yambms_id}_var_to_combine_bms_counter),
+              //          id(${yambms_id}_var_shunt_use),
+              //          id(${yambms_id}_var_shunt_total_voltage),
+              //          id(${yambms_id}_var_to_combine_shunt_counter),
+              //          id(${yambms_id}_var_bms_total_current),
+              //          id(${yambms_id}_var_shunt_total_current));
+            }
 
             // Publishing sensors
             id(${yambms_id}_total_voltage).publish_state(total_voltage);

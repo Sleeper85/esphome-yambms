@@ -37,7 +37,7 @@ The connector is called 4 pin JST with 1.25mm pitch.
 
 ## JK-B BMS protocol
 
-Historically it was not possible to change the protocol of the `UART1 (GPS)` port and the protocol used was `4G-GPS Remote module Common protocol V4.2` with the component [esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) of [@syssi](https://github.com/syssi).
+Historically it was not possible to change the protocol of the `UART1 (GPS)` port and the protocol used was `4G-GPS Remote module Common protocol V4.2` with the component [esphome-jk-bms](https://github.com/txubelaxu/esphome-jk-bms) of [@txubelaxu](https://github.com/txubelaxu).
 
 If you cannot change the protocol of the `UART1 (GPS)` port you can only monitor one BMS per UART port of the ESP32, so a maximum of `3x BMS` without adding a UART expander.
 
@@ -141,4 +141,3 @@ You need to import this YAML into the main YAML.
 └──────────┘            └───────────┘           └────────┘           └─────────┘             └─────────┘              └──────────┘
 
 ```
-
