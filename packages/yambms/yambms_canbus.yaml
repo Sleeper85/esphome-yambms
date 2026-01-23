@@ -185,6 +185,27 @@ interval:
             lambda: |-
               if ((id(${canbus_id}_send_canbus_data) == true) && (id(${yambms_id}_bms_combined).state > 0))
               {
+                // Victron: do not send any CAN frames until required data is ready
+                if (id(${canbus_id}_protocol).active_index() == 4)
+                {
+                  if ((id(${yambms_id}_total_voltage).state <= 0) ||
+                      (!id(${yambms_id}_battery_soc).has_state()) ||
+                      (!id(${yambms_id}_battery_capacity_remaining).has_state()) ||
+                      (!id(${yambms_id}_requested_charge_voltage).has_state()) ||
+                      (!id(${yambms_id}_requested_discharge_voltage).has_state()) ||
+                      (!id(${yambms_id}_requested_charge_current).has_state()) ||
+                      (!id(${yambms_id}_requested_discharge_current).has_state()) ||
+                      (id(${yambms_id}_battery_soc).state <= 0) ||
+                      (id(${yambms_id}_battery_capacity_remaining).state <= 0) ||
+                      (id(${yambms_id}_requested_charge_voltage).state <= 0) ||
+                      (id(${yambms_id}_requested_discharge_voltage).state <= 0) ||
+                      (id(${yambms_id}_requested_charge_current).state <= 0) ||
+                      (id(${yambms_id}_requested_discharge_current).state <= 0))
+                  {
+                    return false;
+                  }
+                }
+
                 int index = id(${canbus_id}_can_frame_index);
 
                 // PYLON 1.2 / LuxPower CAN frames
@@ -307,7 +328,22 @@ interval:
 
             - if: # 0x351 - BMS instruction : Charge Volts, Charge Amps, Discharge Amps, Min voltage
                 condition:
-                  lambda: return id(${canbus_id}_can_frame) == 2;
+                  lambda: |-
+                    if (id(${canbus_id}_protocol).active_index() == 4)
+                    {
+                      return (id(${canbus_id}_can_frame) == 2) &&
+                             (id(${yambms_id}_bms_combined).state > 0) &&
+                             (id(${yambms_id}_total_voltage).state > 0) &&
+                             (id(${yambms_id}_requested_charge_voltage).has_state()) &&
+                             (id(${yambms_id}_requested_discharge_voltage).has_state()) &&
+                             (id(${yambms_id}_requested_charge_current).has_state()) &&
+                             (id(${yambms_id}_requested_discharge_current).has_state()) &&
+                             (id(${yambms_id}_requested_charge_voltage).state > 0) &&
+                             (id(${yambms_id}_requested_discharge_voltage).state > 0) &&
+                             (id(${yambms_id}_requested_charge_current).state > 0) &&
+                             (id(${yambms_id}_requested_discharge_current).state > 0);
+                    }
+                    return id(${canbus_id}_can_frame) == 2;
                 then:
                   - canbus.send:
                       canbus_id: ${canbus_node_id}
@@ -332,9 +368,45 @@ interval:
                         ESP_LOGI("canbus", "send can_id: 0x351 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
+            - if:
+                condition:
+                  lambda: |-
+                    return (id(${canbus_id}_protocol).active_index() == 4) &&
+                           (id(${canbus_id}_can_frame) == 2) &&
+                           ((id(${yambms_id}_bms_combined).state <= 0) ||
+                            (id(${yambms_id}_total_voltage).state <= 0) ||
+                            (!id(${yambms_id}_requested_charge_voltage).has_state()) ||
+                            (!id(${yambms_id}_requested_discharge_voltage).has_state()) ||
+                            (!id(${yambms_id}_requested_charge_current).has_state()) ||
+                            (!id(${yambms_id}_requested_discharge_current).has_state()) ||
+                            (id(${yambms_id}_requested_charge_voltage).state <= 0) ||
+                            (id(${yambms_id}_requested_discharge_voltage).state <= 0) ||
+                            (id(${yambms_id}_requested_charge_current).state <= 0) ||
+                            (id(${yambms_id}_requested_discharge_current).state <= 0));
+                then:
+                  - lambda: |-
+                      // Debug (disabled): skip reason for 0x351.
+                      // ESP_LOGW("canbus", "skip can_id: 0x351 (V=%.3f bms_combined=%.1f cvl=%.1f ccl=%.1f dcl=%.1f dvl=%.1f)",
+                      //          id(${yambms_id}_total_voltage).state,
+                      //          id(${yambms_id}_bms_combined).state,
+                      //          id(${yambms_id}_requested_charge_voltage).state,
+                      //          id(${yambms_id}_requested_charge_current).state,
+                      //          id(${yambms_id}_requested_discharge_current).state,
+                      //          id(${yambms_id}_requested_discharge_voltage).state);
+
             - if: # 0x355 - Actual State of Charge (SOC), State of Health (SOH), Remaining total capacity
                 condition:
-                  lambda: return id(${canbus_id}_can_frame) == 3;
+                  lambda: |-
+                    if (id(${canbus_id}_protocol).active_index() == 4)
+                    {
+                      return (id(${canbus_id}_can_frame) == 3) &&
+                             (id(${yambms_id}_bms_combined).state > 0) &&
+                             (id(${yambms_id}_battery_soc).has_state()) &&
+                             (id(${yambms_id}_battery_capacity_remaining).has_state()) &&
+                             (id(${yambms_id}_battery_soc).state > 0) &&
+                             (id(${yambms_id}_battery_capacity_remaining).state > 0);
+                    }
+                    return id(${canbus_id}_can_frame) == 3;
                 then:
                   - canbus.send:
                       canbus_id: ${canbus_node_id}
@@ -372,6 +444,26 @@ interval:
                         ESP_LOGI("canbus", "send can_id: 0x355 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
+            - if:
+                condition:
+                  lambda: |-
+                    return (id(${canbus_id}_protocol).active_index() == 4) &&
+                           (id(${canbus_id}_can_frame) == 3) &&
+                           ((id(${yambms_id}_bms_combined).state <= 0) ||
+                            (!id(${yambms_id}_battery_soc).has_state()) ||
+                            (!id(${yambms_id}_battery_capacity_remaining).has_state()) ||
+                            (id(${yambms_id}_battery_soc).state <= 0) ||
+                            (id(${yambms_id}_battery_capacity_remaining).state <= 0));
+                then:
+                  - lambda: |-
+                      // Debug (disabled): skip reason for 0x355.
+                      // ESP_LOGW("canbus", "skip can_id: 0x355 (soc=%.2f has_soc=%d cap_rem=%.2f has_cap=%d bms_combined=%.1f)",
+                      //          id(${yambms_id}_battery_soc).state,
+                      //          id(${yambms_id}_battery_soc).has_state(),
+                      //          id(${yambms_id}_battery_capacity_remaining).state,
+                      //          id(${yambms_id}_battery_capacity_remaining).has_state(),
+                      //          id(${yambms_id}_bms_combined).state);
+
             - if: # 0x356 - Actual Voltage / Current / Temperature / Cycles (Deye 0x305 ACK)
                 condition:
                   lambda: return id(${canbus_id}_can_frame) == 4;
@@ -387,14 +479,33 @@ interval:
 
                         uint8_t can_mesg[8];
 
-                        can_mesg[0] = uint16_t(id(${yambms_id}_total_voltage).state * 100) & 0xff;
-                        can_mesg[1] = uint16_t(id(${yambms_id}_total_voltage).state * 100) >> 8 & 0xff;
-                        can_mesg[2] = int16_t(id(${yambms_id}_current).state * 10) & 0xff;
-                        can_mesg[3] = int16_t(id(${yambms_id}_current).state * 10) >> 8 & 0xff;
-                        can_mesg[4] = int16_t(((id(${yambms_id}_min_temperature).state + id(${yambms_id}_max_temperature).state) / 2) * 10) & 0xff;
-                        can_mesg[5] = int16_t(((id(${yambms_id}_min_temperature).state + id(${yambms_id}_max_temperature).state) / 2) * 10) >> 8 & 0xff;
-                        can_mesg[6] = uint16_t(id(${yambms_id}_charging_cycles).state) & 0xff;
-                        can_mesg[7] = uint16_t(id(${yambms_id}_charging_cycles).state) >> 8 & 0xff;
+                        const float total_voltage = id(${yambms_id}_total_voltage).state;
+                        const float current = id(${yambms_id}_current).state;
+                        const float min_temp = id(${yambms_id}_min_temperature).state;
+                        const float max_temp = id(${yambms_id}_max_temperature).state;
+                        const float cycles = id(${yambms_id}_charging_cycles).state;
+                        const int bms_combined = id(${yambms_id}_bms_combined).state;
+                        const int to_combine = id(${yambms_id}_var_to_combine_bms_counter);
+                        const float var_bms_total_v = id(${yambms_id}_var_bms_total_voltage);
+                        const bool shunt_use = id(${yambms_id}_var_shunt_use);
+                        const float var_shunt_total_v = id(${yambms_id}_var_shunt_total_voltage);
+                        const int to_combine_shunt = id(${yambms_id}_var_to_combine_shunt_counter);
+
+                        // Debug (disabled): 0x356 pre-send details when values are invalid.
+                        // if ((total_voltage <= 0) || (bms_combined <= 0) || isnan(total_voltage))
+                        // {
+                        //   ESP_LOGW("canbus", "0x356 pre-send: V=%.3f I=%.3f T[min=%.2f max=%.2f] cycles=%.0f bms_combined=%d to_combine=%d bms_total_v=%.3f shunt_use=%d shunt_total_v=%.3f shunt_to_combine=%d",
+                        //            total_voltage, current, min_temp, max_temp, cycles, bms_combined, to_combine, var_bms_total_v, shunt_use, var_shunt_total_v, to_combine_shunt);
+                        // }
+
+                        can_mesg[0] = uint16_t(total_voltage * 100) & 0xff;
+                        can_mesg[1] = uint16_t(total_voltage * 100) >> 8 & 0xff;
+                        can_mesg[2] = int16_t(current * 10) & 0xff;
+                        can_mesg[3] = int16_t(current * 10) >> 8 & 0xff;
+                        can_mesg[4] = int16_t(((min_temp + max_temp) / 2) * 10) & 0xff;
+                        can_mesg[5] = int16_t(((min_temp + max_temp) / 2) * 10) >> 8 & 0xff;
+                        can_mesg[6] = uint16_t(cycles) & 0xff;
+                        can_mesg[7] = uint16_t(cycles) >> 8 & 0xff;
 
                         // LuxPower
                         // Byte [04:05] : Max cell temperature     (0.1 °C)

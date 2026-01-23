@@ -1,6 +1,6 @@
 # Updated : 2025.12.22
 # Version : 1.3.3
-# GitHub  : https://github.com/syssi/esphome-jk-bms
+# GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -28,7 +28,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://syssi/esphome-jk-bms@main
+  - source: github://txubelaxu/esphome-jk-bms@main
     refresh: 0s
 
 jk_modbus:

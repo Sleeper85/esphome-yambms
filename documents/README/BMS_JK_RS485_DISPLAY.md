@@ -12,7 +12,7 @@
 
 ## External component
 
-[esphome-jk-bms](https://github.com/syssi/esphome-jk-bms) by [@syssi](https://github.com/syssi)
+[esphome-jk-bms](https://github.com/txubelaxu/esphome-jk-bms) by [@txubelaxu](https://github.com/txubelaxu)
 
 ## Schematic and setup instructions
 
