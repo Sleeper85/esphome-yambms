@@ -37,3 +37,4 @@ canbus:
     cs_pin: ${mcp2515_cs_pin}
     can_id: ${mcp2515_canbus_id}
     bit_rate: ${mcp2515_canbus_bitrate}
+    clock: ${canbus_clock}               #8MHZ was default, but most of boards has 16MHZ crystal
