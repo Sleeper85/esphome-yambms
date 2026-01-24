@@ -39,7 +39,7 @@ ota:
 # +--------------------------------------+
 
 external_components:
-  - source: github://txubelaxu/esphome-jk-bms@main
+  - source: github://syssi/esphome-jk-bms@main
     refresh: 0s
 
 esp32_ble_tracker:

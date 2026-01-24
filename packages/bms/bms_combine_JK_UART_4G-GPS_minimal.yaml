@@ -33,7 +33,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://txubelaxu/esphome-jk-bms@main
+  - source: github://syssi/esphome-jk-bms@main
     refresh: 0s
 
 jk_modbus:
