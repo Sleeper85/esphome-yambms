@@ -1,5 +1,5 @@
-# Updated : 2025.09.12
-# Version : 1.1.4
+# Updated : 2026.01.24
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,7 @@
 substitutions:
   mcp2515_canbus_id: '2'
   mcp2515_canbus_bitrate: '500kbps'
+  canbus_clock: '8MHz'
 
 spi:
   - id: mcp2515_spi
@@ -37,3 +38,4 @@ canbus:
     cs_pin: ${mcp2515_cs_pin}
     can_id: ${mcp2515_canbus_id}
     bit_rate: ${mcp2515_canbus_bitrate}
+    clock: ${canbus_clock} # Default MCP2515 clock is 8MHz; many boards use 16MHz.
