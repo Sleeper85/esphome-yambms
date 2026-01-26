@@ -144,7 +144,7 @@ The behavior is dictated by the following tables defined in the main YAML. These
     {
       {-30.0, 0.00 },
       {-20.0, 0.50 },
-      {-10.0, 0.30 },
+      {-10.0, 0.50 },
       { -5.0, 0.50 },
       {  0.0, 0.50 },
       {  5.0, 0.50 },
