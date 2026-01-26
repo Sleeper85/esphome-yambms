@@ -30,6 +30,15 @@ As soon as you import a `Shunt` and it can be combined (see condition) the value
 > [!NOTE]
 > If all BMS are `uncombined` the shunt data will no longer be published.
 
+If one shunt is used for multiple batteries, it is possible to provide the BMS IDs the shunt code with the variable `bms_ids`, example: `bms_ids: '{1, 2, 3}'`.
+When the BMS IDs are provided to the shunt and one or more of the BMS are offline, the shunt `Combine` switch will be turned `OFF`.
+This is helpful when one BMS/battery shuts down for a longer time. The `SoC` of the shunt will then not be correct anymore and this avoids that the batteries are
+discharged further then wanted.
+
+> [!NOTE]
+> You need to manually enable the `Combine` switch again if it was disabled automatically.
+> If you do not want that behaviour, do not provide `bms_ids` to the shunt.
+
 ### BMS
 
 Combine condition :

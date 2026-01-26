@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.6.0
+# Updated : 2026.01.24
+# Version : 1.6.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -1096,5 +1096,7 @@ views:
                 name: Shunt 1 Combine enabled
               - entity: binary_sensor.shunt_1_can_be_combined
                 name: Shunt 1 Can be combined
+              - entity: sensor.shunt_1_state
+                name: Shunt 1 State
         title: Shunt 1
         column_span: 1
