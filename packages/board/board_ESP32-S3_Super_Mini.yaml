@@ -1,0 +1,86 @@
+# Updated : 2026.01.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://www.espboards.dev/esp32/esp32-s3-super-mini/
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "Super Mini"
+  # Interfaces GPIOs
+  # uart_esp_1
+  tx_pin_1: '1'
+  rx_pin_1: '2'
+  # uart_esp_2
+  tx_pin_2: '3'
+  rx_pin_2: '4'
+  # uart_esp_3
+  tx_pin_3: '5'
+  rx_pin_3: '6'
+  # canbus_esp32_can
+  tx_pin_4: '5'
+  rx_pin_4: '6'
+  # canbus_mcp2515
+  mcp2515_cs_pin: '10'
+  spi_mosi_pin: '11'
+  spi_clk_pin: '12'
+  spi_miso_pin: '13'
+  # talk_pin
+  talk_pin: '8' # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  board_rgb_led: !include board_options_rgb_led_status.yaml
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 4MB # ajust according to your ESP32-S3 version
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  reboot_timeout: 0s
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+  hardware_uart: USB_SERIAL_JTAG
+
+light:
+  # https://esphome.io/components/light/esp32_rmt_led_strip
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: esp32_rmt_led_strip
+    id: esp_light
+    # name: ${name} ESP32 Light
+    rgb_order: GRB
+    pin: 48
+    num_leds: 1
+    # rmt_channel: 0
+    chipset: ws2812
+    entity_category: config
+    default_transition_length: 0ms
