@@ -1,5 +1,5 @@
-# Updated : 2025.08.13
-# Version : 1.1.2
+# Updated : 2026.01.29
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -36,6 +36,8 @@ substitutions:
   # canbus_esp32_can
   tx_pin_4: '14' # to CAN transceiver CTX
   rx_pin_4: '15' # to CAN transceiver CRX
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml

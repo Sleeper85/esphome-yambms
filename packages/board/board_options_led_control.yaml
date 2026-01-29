@@ -1,0 +1,134 @@
+# Updated : 2026.01.29
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # Placeholder id if no status sensor is provided
+  status_sensor: "nullptr"
+  # Placeholder light id if no led is provided
+  light_id: "nullptr"
+
+interval:
+  - interval: 50ms
+    then:
+      - lambda: |-
+          // ============================================================
+          // Status LED: 4 states, color + counted flashes
+          //
+          // state 0 = critical, red,     quad flash
+          // state 1 = warning,  yellow,  triple flash
+          // state 2 = info,     blue,    double flash
+          // state 3 = healthy,  green,   single flash
+          //
+          // Timing (aligned to 50ms interval):
+          // - ON_MS   = 150ms
+          // - SLOT_MS = 300ms  (150ms ON + 150ms OFF)
+          // - CYCLE   = 2000ms (includes a pause after the last pulse)
+          //
+          // Interval: 50ms
+          // ============================================================
+
+          // If no light was specified then exit
+          esphome::light::LightState *light = ${light_id};
+          if (light == nullptr) return;
+
+          // If no status sensor was specified then exit
+          esphome::sensor::Sensor *status_sensor = ${status_sensor};
+          if (status_sensor == nullptr || !status_sensor->has_state()) return;
+
+          // Cache last output so only push changes at edges / state changes
+          static int  last_state = -999;   // -1 means "invalid/off"
+          static bool last_on = false;
+
+          // Restart flash cycle when the state changes (more readable)
+          static uint32_t base_ms = 0;
+
+          auto turn_off_once = [&]() {
+            if (last_state != -1 || last_on != false) {
+              auto call = light->make_call();
+              call.set_transition_length(0);
+              call.set_state(false);
+              call.perform();
+              last_state = -1;
+              last_on = false;
+            }
+          };
+
+          // No sensor state -> invalid/off
+          if (status_sensor == nullptr || !status_sensor->has_state()) {
+            turn_off_once();
+            return;
+          }
+
+          // Input is an integer (0..3 expected)
+          const int state = static_cast<int>(status_sensor->state);
+
+          // Invalid -> off (on transition)
+          if (state < 0 || state > 3) {
+            turn_off_once();
+            return;
+          }
+
+          // If state changed, restart cycle at t=0
+          if (state != last_state) {
+            base_ms = millis();
+          }
+
+          // --- flash timing constants (multiples of 50ms) ---
+          constexpr uint32_t CYCLE_MS = 2000;
+          constexpr uint32_t SLOT_MS  = 300;   // ON + gap
+          constexpr uint32_t ON_MS    = 150;
+
+          const uint32_t t = (millis() - base_ms) % CYCLE_MS;
+
+          // Pulse counts per state: 0->4, 1->3, 2->2, 3->1
+          constexpr uint8_t PULSES[4] = {4, 3, 2, 1};
+          const uint8_t pulses = PULSES[state];
+
+          const uint32_t slot_index = t / SLOT_MS;
+          const uint32_t slot_pos   = t - (slot_index * SLOT_MS);
+
+          const bool desired_on =
+              (slot_index < pulses) &&
+              (slot_pos < ON_MS);
+
+          // If nothing changes, do nothing
+          if (state == last_state && desired_on == last_on) return;
+
+          auto call = light->make_call();
+          call.set_transition_length(0);
+
+          // RGB mapping (set only when state changes)
+          const bool is_rgb = ${board_has_rgb};
+          if (is_rgb && state != last_state) {
+            call.set_brightness(0.5f);
+
+            switch (state) {
+              case 0: call.set_rgb(1.0f, 0.0f, 0.0f);  break; // Red
+              case 1: call.set_rgb(1.0f, 1.0f, 0.0f);  break; // Yellow
+              case 2: call.set_rgb(0.0f, 0.0f, 1.0f);  break; // Blue
+              case 3: call.set_rgb(0.0f, 1.0f, 0.0f);  break; // Green
+            }
+          }
+
+          // Apply flash (RGB + mono)
+          call.set_state(desired_on);
+          call.perform();
+
+          last_state = state;
+          last_on = desired_on;

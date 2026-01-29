@@ -81,16 +81,16 @@ SoC behavior:
 2) Else if `the battery is fully charged` real SoC is sent
 3) Else SoC `98%` is sent
 
-## RGB LED status
+## LED status
 
-This only applies to boards with an `RGB LED`.
+This only applies to boards with a led, both RGB or mono colour.
 
-| Color | Status |
-| --- | --- |
-| $${\color{red}Red}$$ | HA or MQTT KO + CANBUS KO |
-| $${\color{green}Green}$$ | HA or MQTT OK + CANBUS KO |
-| $${\color{blue}Flashing-Blue}$$ | HA or MQTT KO + CANBUS OK |
-| $${\color{cyan}Flashing-Cyan}$$ | HA or MQTT OK + CANBUS OK |
+| Level | Color | Flash | Status |
+| --- | --- | --- | --- |
+Critical | $${\color{red}Red}$$ | Quad flash | HA or MQTT KO + CANBUS KO
+Warning | $${\color{yellow}Yellow}$$ | Triple flash | HA or MQTT OK + CANBUS KO
+Info | $${\color{blue}Blue}$$ | Double flash | HA or MQTT KO + CANBUS OK
+Healthy | $${\color{green}Green}$$ | Single flash | HA or MQTT OK + CANBUS OK
 
 ## CAN bus link
 

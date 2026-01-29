@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.3.1
+# Updated : 2026.01.29
+# Version : 1.3.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -40,6 +40,8 @@ substitutions:
   mcp2515_cs_pin: '15'
   # talk_pin
   talk_pin: '4' # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "false"
 
 
 packages:

@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.6.0
+# Updated : 2026.01.29
+# Version : 1.6.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -350,7 +350,7 @@ packages:
           canbus_id: 'canbus1'
           canbus_name: 'CANBUS 1'
           canbus_node_id: 'canbus_inverter_1'
-          canbus_light_id: 'esp_light'
+          light_id: 'esp_light' # led used to show status. Default = esp_light, comment out or set to 'none' to disable
           # The CANBUS link will be considered down if no response from the inverter (0x305 frame) for 5s
           # The Deye inverter sends the ACK 0x305 only when it receives the 0x356 frame.
           canbus_link_timer: '5s'
@@ -373,6 +373,7 @@ packages:
   #         rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
   #         rs485_uart_baud_rate: '9600'
   #         rs485_update_timeout: '5s'
+  #         light_id: 'esp_light' # led used to show status. Default = esp_light, comment out or set to 'none' to disable
 
 
 

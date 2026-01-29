@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.3
+# Updated : 2026.01.29
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -33,6 +33,8 @@ substitutions:
   # canbus_esp32_can
   tx_pin_4: '17'
   rx_pin_4: '18'
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "true"
 
 packages:
   device_base: !include ../base/device_base.yaml

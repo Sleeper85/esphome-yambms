@@ -206,6 +206,16 @@ The T-Connect includes an onboard APA102 LED driver for controlling RGB light st
 
 This allows direct control of addressable RGB LED strips without additional hardware.
 
+The YamBMS board configuration allows control of each addressable led (numbered 1 through 4, top to bottom).
+
+| Led | ID | Description |
+| --- | --- | --- |
+All | esp_light | All 4 leds treated as a single led
+Led 1 | led_1 | The top led on the board
+Led 2 | led_2 | The second from top led on the board
+Led 3 | led_3 | The second from bottom led on the board
+Led 4 | led_4 | The bottom led on the board
+
 ### QWIIC Expansion Interface
 
 The T-Connect features a **QWIIC interface** for easy connection to the QWIIC ecosystem of I2C sensors and modules, enabling simple plug-and-play expansion without soldering.
