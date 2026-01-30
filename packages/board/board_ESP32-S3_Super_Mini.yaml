@@ -1,5 +1,5 @@
-# Updated : 2026.01.28
-# Version : 1.1.1
+# Updated : 2026.01.29
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,6 +42,8 @@ substitutions:
   spi_miso_pin: '13'
   # talk_pin
   talk_pin: '8' # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "true"
 
 packages:
   device_base: !include ../base/device_base.yaml

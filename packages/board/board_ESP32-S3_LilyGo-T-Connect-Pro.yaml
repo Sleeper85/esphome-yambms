@@ -32,6 +32,8 @@ substitutions:
   # canbus_esp32_can: CAN
   tx_pin_4: '6'
   rx_pin_4: '7'
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml

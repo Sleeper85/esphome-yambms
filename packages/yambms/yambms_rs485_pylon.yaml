@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+packages:
+  canbus_led_manager: !include
+    file: ../board/board_options_led_control.yaml
+    vars:
+      status_sensor: "${rs485_id}_status_int" # Sensor used to determine led behaviour
+
 esphome:
   devices:
     - id: rs485_${rs485_id}
@@ -105,6 +111,19 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:update
     entity_category: diagnostic
+  # Used to determine led behaviour
+  - platform: template
+    id: ${rs485_id}_status_int
+    internal: true
+    accuracy_decimals: 0
+    lambda: |-
+      const bool esp_ok = id(esp32_online_status).state;
+      const bool rs485_ok = id(${rs485_id}_status).state;
+
+      if (esp_ok && rs485_ok) return 3;
+      if (!esp_ok && rs485_ok) return 2;
+      if (esp_ok && !rs485_ok) return 1;
+      return 0;
 
 binary_sensor:
   # --- Passive Proxy Alarm/Protection Sensors ---

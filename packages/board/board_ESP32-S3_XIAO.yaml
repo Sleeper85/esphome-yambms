@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.6
+# Updated : 2026.01.29
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,6 +38,8 @@ substitutions:
   spi_miso_pin: '4'
   spi_clk_pin: '5'
   mcp2515_cs_pin: '6'
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml

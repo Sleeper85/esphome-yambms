@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+packages:
+  canbus_led_manager: !include
+    file: ../board/board_options_led_control.yaml
+    vars:
+      status_sensor: "${canbus_id}_status_int" # Sensor used to determine led behaviour
+
 esphome:
   devices:
     - id: canbus_${canbus_id}
@@ -26,23 +32,23 @@ globals:
   - id: ${canbus_id}_send_canbus_data
     type: bool
     restore_value: no
-    initial_value: 'false'
+    initial_value: "false"
   - id: ${canbus_id}_auto_bms_name
     type: int
     restore_value: no
-    initial_value: '0'
+    initial_value: "0"
   - id: ${canbus_id}_can_frame
     type: int
     restore_value: no
-    initial_value: '0'
+    initial_value: "0"
   - id: ${canbus_id}_can_frame_index
     type: int
     restore_value: no
-    initial_value: '-1'
+    initial_value: "-1"
   - id: ${canbus_id}_inverter_ack_ms_previous
     type: uint32_t
     restore_value: no
-    initial_value: '0'
+    initial_value: "0"
 
 select:
   - platform: template
@@ -111,6 +117,20 @@ sensor:
     icon: mdi:update
     entity_category: diagnostic
 
+  # Used to determine led behaviour
+  - platform: template
+    id: ${canbus_id}_status_int
+    internal: true
+    accuracy_decimals: 0
+    lambda: |-
+      const bool esp_ok = id(esp32_online_status).state;
+      const bool can_ok = id(${canbus_id}_status).state;
+
+      if (esp_ok && can_ok) return 3;
+      if (!esp_ok && can_ok) return 2;
+      if (esp_ok && !can_ok) return 1;
+      return 0;
+
 binary_sensor:
   - platform: template
     id: ${canbus_id}_status
@@ -139,27 +159,27 @@ canbus:
   # 0x305 - Inverter ACK - SMA/LG/Pylon/Goodwe reply
   - id: !extend ${canbus_node_id}
     on_frame:
-    - can_id: 0x305
-      then:
-        - light.toggle:
-            id: ${canbus_light_id}
-        - lambda: |-
-            id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
+      - can_id: 0x305
+        then:
+          # - light.toggle:
+          #     id: ${canbus_light_id}
+          - lambda: |-
+              id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
 
-            if (id(${canbus_id}_status).state == false) {
-              id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
-              id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
-              id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
-            }
+              if (id(${canbus_id}_status).state == false) {
+                id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
+                id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
+                id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
+              }
 
-            // Inverter ACK interval
-            if (id(${canbus_id}_switch_inverter_heartbeat_monitoring).state) {
-              uint32_t inverter_ack_ms_current = millis();
-              uint32_t inverter_ack_interval_ms = (inverter_ack_ms_current - id(${canbus_id}_inverter_ack_ms_previous));
-              id(${canbus_id}_inverter_ack_ms_previous) = inverter_ack_ms_current;
-              id(${canbus_id}_inverter_heartbeat).publish_state(inverter_ack_interval_ms);
-              ESP_LOGI("canbus", "received can_id: 0x305 ack_interval %d ms", inverter_ack_interval_ms);
-            }
+              // Inverter ACK interval
+              if (id(${canbus_id}_switch_inverter_heartbeat_monitoring).state) {
+                uint32_t inverter_ack_ms_current = millis();
+                uint32_t inverter_ack_interval_ms = (inverter_ack_ms_current - id(${canbus_id}_inverter_ack_ms_previous));
+                id(${canbus_id}_inverter_ack_ms_previous) = inverter_ack_ms_current;
+                id(${canbus_id}_inverter_heartbeat).publish_state(inverter_ack_interval_ms);
+                ESP_LOGI("canbus", "received can_id: 0x305 ack_interval %d ms", inverter_ack_interval_ms);
+              }
 
 interval:
   - interval: 24h
