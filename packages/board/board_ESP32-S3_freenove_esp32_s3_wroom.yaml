@@ -1,4 +1,4 @@
-# Updated : 2026.01.24
+# Updated : 2026.01.30
 # Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -34,16 +34,14 @@ substitutions:
   tx_pin_4: '38'
   rx_pin_4: '39'
   # canbus_mcp2515
-  # talk_pin
-  talk_pin: '8' # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
-
-  # canbus_mcp2515 (contiguous pins in board order: CS, SCK, MOSI, MISO)
-  # Adjust to the default SPI GPIOs if your wiring follows that order.
   mcp2515_cs_pin: '9'   # CS
   spi_clk_pin: '10'     # SCK
   spi_mosi_pin: '11'    # MOSI
   spi_miso_pin: '12'    # MISO
-
+  # talk_pin
+  talk_pin: '8' # ESP32: 4, ESP32-S3: 8, ESP32-C3: 10
+  # Requirement: RGB flag to show functionality is available
+  board_has_rgb: "true"
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -52,7 +50,7 @@ packages:
 
 esp32:
   board: esp32-s3-devkitc-1
-  flash_size: 8MB # ajust according to your ESP32-S3 version
+  flash_size: 8MB # adjust according to your ESP32-S3 version
   cpu_frequency: 240MHz
   framework:
     type: esp-idf
