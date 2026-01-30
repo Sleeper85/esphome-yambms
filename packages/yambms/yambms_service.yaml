@@ -1,5 +1,5 @@
-# Updated : 2026.01.22
-# Version : 1.2.2
+# Updated : 2026.01.30
+# Version : 1.2.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -50,7 +50,7 @@ interval:
       if:
         condition:
           and:
-            - lambda : return id(${yambms_id}_service) == true;
+            - lambda : return id(${yambms_id}_var_service) == true;
             - lambda : return id(my_network).is_connected();
         then:
         - http_request.get:
@@ -77,7 +77,7 @@ interval:
               root["bms_model"] = "${bms_model}";
               root["bms_protocol"] = "${bms_protocol}";
               root["bms_count"] = id(${yambms_id}_var_bms_counter);
-              root["canbus_name"] = id(${yambms_id}_inverter_bms_name);
-              root["canbus_protocol"] = id(${yambms_id}_inverter_protocol);
+              root["canbus_name"] = id(${yambms_id}_var_inverter_bms_name);
+              root["canbus_protocol"] = id(${yambms_id}_var_inverter_protocol);
               root["uptime"] = id(esp32_uptime).state;
               root["date_time_now"] = id(esp32_date_time_now).state;

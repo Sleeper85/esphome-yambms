@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 2.4.7
+# Updated : 2026.01.30
+# Version : 2.4.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -166,14 +166,14 @@ interval:
     then:
       - lambda: |-
           // Save CANBUS options
-          id(${yambms_id}_inverter_bms_name) = id(${canbus_id}_bms_name).current_option();
-          id(${yambms_id}_inverter_protocol) = id(${canbus_id}_protocol).current_option();
+          id(${yambms_id}_var_inverter_bms_name) = id(${canbus_id}_bms_name).current_option();
+          id(${yambms_id}_var_inverter_protocol) = id(${canbus_id}_protocol).current_option();
 
-  - interval: 60s
+  - interval: 30s
     then:
       - lambda: |-
           // Test inverter 0x305 ACK
-          if (id(${canbus_id}_send_canbus_data) == false) {
+          if (id(${canbus_id}_send_canbus_data) == false && id(${yambms_id}_var_initialized) == true) {
             id(${canbus_id}_send_canbus_data) = true;                      // Sending CANBUS frames allowed
             id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
           }
@@ -183,7 +183,9 @@ interval:
       - if:
           condition:
             lambda: |-
-              if ((id(${canbus_id}_send_canbus_data) == true) && (id(${yambms_id}_bms_combined).state > 0))
+              if ((id(${canbus_id}_send_canbus_data) == true) &&
+                  (id(${yambms_id}_var_initialized) == true) &&
+                  (id(${yambms_id}_bms_combined).state > 0))
               {
                 int index = id(${canbus_id}_can_frame_index);
 

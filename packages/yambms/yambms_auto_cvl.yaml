@@ -1,5 +1,5 @@
-# Updated : 2025.12.30
-# Version : 2.4.5
+# Updated : 2026.01.30
+# Version : 2.4.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -103,7 +103,7 @@ sensor:
 
       // Check feature enabled
       if (!id(${yambms_id}_switch_auto_cvl).state){
-        id(${yambms_id}_auto_cvl) = 0.0;
+        id(${yambms_id}_var_auto_cvl) = 0.0;
         return id(${yambms_id}_bulk_voltage).state;
       } else {
         // PI Algorithm
@@ -134,6 +134,6 @@ sensor:
         else {
           prev_integral = integral;
         }
-        id(${yambms_id}_auto_cvl) = CVL - CVL_orig;
+        id(${yambms_id}_var_auto_cvl) = CVL - CVL_orig;
         return CVL - CVL_orig;
       }

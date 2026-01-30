@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.5
+# Updated : 2026.01.30
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -31,16 +31,16 @@ interval:
   - interval: ${bms_combine_interval}
     then:
       - lambda: |-
-          id(${yambms_id}_bms_charging_logic) = true;
+          id(${yambms_id}_var_bms_charging_logic) = true;
 
           // Charge switch `Turn ON` conditions (Charge switch OFF and ReBulk V.)
-          if (!id(bms${bms_id}_charge_switch).state && (id(${yambms_id}_charge_status) == "EOC" || id(${yambms_id}_charge_status) == "Float"))
+          if (!id(bms${bms_id}_charge_switch).state && (id(${yambms_id}_var_charge_status) == "EOC" || id(${yambms_id}_var_charge_status) == "Float"))
           {
             id(bms${bms_id}_charge_switch).turn_on();
             ESP_LOGD("main", "BMS ${bms_id} charge_switch Turn ON");
           }
           // Charge switch `Turn OFF` conditions
-          else if (id(${yambms_id}_charge_status) == "Cut-Off")
+          else if (id(${yambms_id}_var_charge_status) == "Cut-Off")
           {
             // The cells are equalizing
             if (id(bms${bms_id}_equalizing).state)
