@@ -1,5 +1,5 @@
-# Updated : 2025.11.23
-# Version : 1.1.3
+# Updated : 2026.01.30
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -31,11 +31,11 @@ switch:
     entity_category: config
     turn_on_action:
       - globals.set:
-          id: ${yambms_id}_force_float
+          id: ${yambms_id}_var_force_float
           value: 'true'
     turn_off_action:
       - globals.set:
-          id: ${yambms_id}_force_float
+          id: ${yambms_id}_var_force_float
           value: 'false'
   # Update service switch
   - platform: template
@@ -45,11 +45,11 @@ switch:
     entity_category: config
     turn_on_action:
       - globals.set:
-          id: ${yambms_id}_service
+          id: ${yambms_id}_var_service
           value: 'true'
     turn_off_action:
       - globals.set:
-          id: ${yambms_id}_service
+          id: ${yambms_id}_var_service
           value: 'false'
 
 interval:

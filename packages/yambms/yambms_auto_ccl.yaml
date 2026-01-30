@@ -1,5 +1,5 @@
-# Updated : 2025.12.30
-# Version : 1.2.7
+# Updated : 2026.01.30
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -101,5 +101,5 @@ sensor:
         // Variables
         double auto_ccl = round((min(id(auto_ccl_moving_average).state, x) * 10) / 10);
 
-        id(${yambms_id}_auto_ccl) = auto_ccl;
+        id(${yambms_id}_var_auto_ccl) = auto_ccl;
         return auto_ccl;

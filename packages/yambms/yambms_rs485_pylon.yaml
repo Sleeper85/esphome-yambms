@@ -1,4 +1,4 @@
-# Updated : 2026.01.29
+# Updated : 2026.01.30
 # Version : 1.3.4
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
@@ -187,8 +187,8 @@ interval:
     then:
       - lambda: |-
           // Save RS485 options
-          id(${yambms_id}_inverter_bms_name) = "RS485";
-          id(${yambms_id}_inverter_protocol) = id(${rs485_id}_protocol).current_option();
+          id(${yambms_id}_var_inverter_bms_name) = "RS485";
+          id(${yambms_id}_var_inverter_protocol) = id(${rs485_id}_protocol).current_option();
 
   - interval: 100ms
     then:
@@ -200,9 +200,10 @@ interval:
                 // Mirror RS485 status into inverter_com_status
                 if (id(${rs485_id}_status).has_state()) id(inverter_com_status).publish_state(id(${rs485_id}_status).state);
 
-                // --- Check BMS ONLINE/OFFLINE Status ---  
-                if (id(${yambms_id}_bms_combined).has_state() && id(${yambms_id}_bms_combined).state > 0) {
-                // --- STATE 1: BMS is ONLINE ---
+                // --- Check YamBMS initialized + BMS ONLINE/OFFLINE status ---  
+                if ((id(${yambms_id}_var_initialized) == true) && (id(${yambms_id}_bms_combined).state > 0))
+                {
+                  // --- STATE 1: BMS is ONLINE ---
                   // Sensor Values
                   if (id(${yambms_id}_battery_soc).has_state()) id(${rs485_id}_proxy_soc).publish_state(id(${yambms_id}_battery_soc).state);
                   if (id(${yambms_id}_total_voltage).has_state()) id(${rs485_id}_proxy_voltage).publish_state(id(${yambms_id}_total_voltage).state);

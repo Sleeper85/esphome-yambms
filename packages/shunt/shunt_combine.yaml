@@ -1,5 +1,5 @@
-# Updated : 2026.01.24
-# Version : 1.6.0
+# Updated : 2026.01.30
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -84,6 +84,9 @@ interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
+          // +-----------------------------------------------+
+          // | STEP 1 - Shunt combiner                       |
+          // +-----------------------------------------------+
           // Shunt number to combine ?
           if (id(${yambms_id}_var_to_combine_shunt_number) == ${shunt_id})
           {
