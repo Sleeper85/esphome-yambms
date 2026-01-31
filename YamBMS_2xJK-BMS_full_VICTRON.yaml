@@ -177,7 +177,7 @@ interval:
           auto log_victron = [&](const char *label, bool prev, bool now) {
             const char *from = prev ? "ONLINE" : "OFFLINE";
             const char *to = now ? "ONLINE" : "OFFLINE";
-            ESP_LOGI("victron", "### VIC-READY ### %s %s -> %s | V=%.2fV SOC=%.1f%% CAP=%.1fAh CVL=%.2f DVL=%.2f CCL=%.1f DCL=%.1f",
+            ESP_LOGI("victron", "### VIC-READY ### %s %s -> %s | YamBMS params: V=%.2fV SOC=%.1f%% CAP=%.1fAh CVL=%.2f DVL=%.2f CCL=%.1f DCL=%.1f",
                      label, from, to,
                      id(yambms1_total_voltage).state,
                      id(yambms1_battery_soc).state,
@@ -210,7 +210,7 @@ packages:
     refresh: 1min
     files:
       #- path: 'packages/board/board_ESP32_Generic.yaml'
-      - path: 'packages/board/board_ESP32-S3_freenove_esp32_s3_wroom.yaml'
+      - path: 'packages/board/board_ESP32-S3_Freenove.yaml'
 
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
       # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
