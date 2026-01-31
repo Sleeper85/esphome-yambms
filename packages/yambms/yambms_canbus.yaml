@@ -155,10 +155,10 @@ script:
   - id: ${canbus_id}_script_startup_block
     mode: restart
     then:
-      - delay: 1min
+      - delay: 30s
       - lambda: |-
           id(${canbus_id}_startup_blocked) = false;
-          ESP_LOGI("canbus", "startup_blocked cleared after 1min");
+          ESP_LOGI("canbus", "startup_blocked cleared after 30s");
 
   - id: ${canbus_id}_script_canbus_link_timer
     mode: restart
