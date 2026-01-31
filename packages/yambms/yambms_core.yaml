@@ -1,4 +1,4 @@
-# Updated : 2026.01.30
+# Updated : 2026.01.31
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -1458,9 +1458,8 @@ sensor:
     state_class: measurement
     accuracy_decimals: 1
     filters:
-      - or:
-        - throttle_average: 15s
-        - delta: 0.2
+      - throttle_average: 10s
+      - delta: 0.2
 
   # MAX temperature
   - platform: template
@@ -1472,9 +1471,8 @@ sensor:
     state_class: measurement
     accuracy_decimals: 1
     filters:
-      - or:
-        - throttle_average: 15s
-        - delta: 0.2
+      - throttle_average: 10s
+      - delta: 0.2
 
   # MIN temperature sensor
   - platform: template

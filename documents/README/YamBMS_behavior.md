@@ -94,11 +94,14 @@ Healthy | $${\color{green}Green}$$ | Single flash | HA or MQTT OK + CANBUS OK
 
 ## CAN bus link
 
-For the CAN bus link to be established with your inverter, the two conditions below must be met:
-1) At least one BMS is in service (the number of combined BMS must be `> 0`)
-2) Your inverter sends an `ACK 0x305` every `1s` (the link will be faulty if no ACK is received for 5s)
+For the CAN bus link to be established with your inverter, the three conditions below must be met:
+1) At least `one` BMS is `combined`
+2) The YamBMS status must be `initialized`
+3) Your inverter sends an `ACK 0x305` every `1s` (the link will be faulty if no ACK is received for 5s)
 
-If these conditions are not met, the application waits `60s` before trying to connect again.
+If these conditions are not met, the application waits `30s` before trying to connect again.
+
+During boot or when switching from `0 to 1` combined BMS, the CAN bus link is established after `30s`.
 
 ### Extra infos
 

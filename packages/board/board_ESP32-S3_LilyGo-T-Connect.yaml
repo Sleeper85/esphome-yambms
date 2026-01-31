@@ -46,7 +46,6 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  #board_rgb_led: !include board_options_rgb_led_status.yaml
 
 esp32:
   board: esp32-s3-devkitc-1
