@@ -960,6 +960,20 @@ interval:
                      id(${yambms_id}_charging_allowed).state ? "yes" : "no",
                      id(${yambms_id}_discharging_allowed).state ? "yes" : "no");
 
+            ESP_LOGI("yambms_core03",
+                     "cells: %.0f, bulk: %.2f, float: %.2f, rebulk: %.2f, cell_ovp: %.3f, cell_uvp: %.3f, eq: %s, eoc: %s, bms_comb: %.0f, shunt: %s, inv_off_v: %.2f",
+                     id(${yambms_id}_cell_count).state,
+                     id(${yambms_id}_bulk_voltage).state,
+                     id(${yambms_id}_float_voltage).state,
+                     id(${yambms_id}_rebulk_voltage).state,
+                     id(${yambms_id}_cell_ovp).state,
+                     id(${yambms_id}_cell_uvp).state,
+                     id(${yambms_id}_equalizing).state ? "yes" : "no",
+                     id(${yambms_id}_var_eoc) ? "yes" : "no",
+                     id(${yambms_id}_bms_combined).state,
+                     id(${yambms_id}_var_shunt_use) ? "yes" : "no",
+                     id(${yambms_id}_inverter_offset_v).state);
+
             // +-----------------------------------------------+
             // | End Of STEP 3 : YamBMS initialized ?          |
             // | The datas can be communicated to the inverter |
