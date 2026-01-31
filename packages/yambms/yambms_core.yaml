@@ -925,7 +925,7 @@ interval:
             }
 
             ESP_LOGI("yambms_core",
-                     "SoC: %.0f, battery_capacity: %.0f, battery_capacity_remaining: %.0f, total_voltage: %.2f, bms_count: %.0f, charge_status: %s, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f",
+                     "SoC: %.0f, BATcap: %.0f, BATcaprem: %.0f, VCC: %.2f, bms_count: %.0f, STATUS: %s, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f, t_min: %.1f, t_max: %.1f",
                      id(${yambms_id}_battery_soc).state,
                      id(${yambms_id}_battery_capacity).state,
                      id(${yambms_id}_battery_capacity_remaining).state,
@@ -935,7 +935,9 @@ interval:
                      id(${yambms_id}_requested_charge_voltage).state,
                      id(${yambms_id}_requested_discharge_voltage).state,
                      id(${yambms_id}_requested_charge_current).state,
-                     id(${yambms_id}_requested_discharge_current).state);
+                     id(${yambms_id}_requested_discharge_current).state,
+                     id(${yambms_id}_min_temperature).state,
+                     id(${yambms_id}_max_temperature).state);
 
             // +-----------------------------------------------+
             // | End Of STEP 3 : YamBMS initialized ?          |
