@@ -930,62 +930,46 @@ interval:
               ESP_LOGI("yambms_core", "BMS2 temp min/max: %.1f/%.1f", id(bms2_min_temperature).state, id(bms2_max_temperature).state);
 
             ESP_LOGI("yambms_core01",
-                     "SoC: %.0f, BATcap: %.0f, BATcaprem: %.0f, VCC: %.2f, bms_count: %.0f, STATUS: %s, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f, t_min: %.1f, t_max: %.1f, INIT: %s",
+                     "VCC: %.2f, I: %.1f, SOC: %.0f, SOH: %.0f, CAP: %.0f, CAPrem: %.0f, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f, cycles: %.0f",
+                     id(${yambms_id}_total_voltage).state,
+                     id(${yambms_id}_current).state,
                      id(${yambms_id}_battery_soc).state,
+                     id(${yambms_id}_battery_soh).state,
                      id(${yambms_id}_battery_capacity).state,
                      id(${yambms_id}_battery_capacity_remaining).state,
-                     id(${yambms_id}_total_voltage).state,
-                     id(${yambms_id}_bms_count).state,
-                     id(${yambms_id}_var_charge_status).c_str(),
                      id(${yambms_id}_requested_charge_voltage).state,
                      id(${yambms_id}_requested_discharge_voltage).state,
                      id(${yambms_id}_requested_charge_current).state,
                      id(${yambms_id}_requested_discharge_current).state,
-                     id(${yambms_id}_min_temperature).state,
-                     id(${yambms_id}_max_temperature).state,
-                     id(${yambms_id}_var_initialized) ? "yes" : "no");
+                     id(${yambms_id}_charging_cycles).state);
 
             ESP_LOGI("yambms_core02",
-                     "VCC: %.2f, Vmin: %.3f, Vmax: %.3f, Vdelta: %.3f, DVL: %.2f, cell_uvp: %.3f, I: %.1f, P: %d, Pchg: %d, Pdis: %d, chg_ok: %s, dchg_ok: %s",
-                     id(${yambms_id}_total_voltage).state,
+                     "Vmin: %.3f, Vmax: %.3f, Vmin_id: %.0f, Vmax_id: %.0f, Tmin: %.1f, Tmax: %.1f, Tmin_id: %.0f, Tmax_id: %.0f",
                      id(${yambms_id}_min_cell_voltage).state,
                      id(${yambms_id}_max_cell_voltage).state,
-                     id(${yambms_id}_delta_cell_voltage).state,
-                     id(${yambms_id}_requested_discharge_voltage).state,
-                     id(${yambms_id}_cell_uvp).state,
-                     id(${yambms_id}_current).state,
-                     (int) id(${yambms_id}_power).state,
-                     (int) id(${yambms_id}_battery_charging_power).state,
-                     (int) id(${yambms_id}_battery_discharging_power).state,
-                     id(${yambms_id}_charging_allowed).state ? "yes" : "no",
-                     id(${yambms_id}_discharging_allowed).state ? "yes" : "no");
+                     id(${yambms_id}_min_voltage_cell).state,
+                     id(${yambms_id}_max_voltage_cell).state,
+                     id(${yambms_id}_min_temperature).state,
+                     id(${yambms_id}_max_temperature).state,
+                     id(${yambms_id}_min_temperature_sensor).state,
+                     id(${yambms_id}_max_temperature_sensor).state);
 
             ESP_LOGI("yambms_core03",
-                     "cells: %.0f, bulk: %.2f, float: %.2f, rebulk: %.2f, cell_ovp: %.3f, cell_uvp: %.3f, eq: %s, eoc: %s, bms_comb: %.0f, shunt: %s, inv_off_v: %.2f",
-                     id(${yambms_id}_cell_count).state,
-                     id(${yambms_id}_bulk_voltage).state,
-                     id(${yambms_id}_float_voltage).state,
-                     id(${yambms_id}_rebulk_voltage).state,
-                     id(${yambms_id}_cell_ovp).state,
-                     id(${yambms_id}_cell_uvp).state,
-                     id(${yambms_id}_equalizing).state ? "yes" : "no",
-                     id(${yambms_id}_var_eoc) ? "yes" : "no",
+                     "bmstotal: %.0f, bms_comb: %.0f, bms_off: %.0f, blk_chg: %.0f, blk_dchg: %.0f, err_alarm: %.0f, err_warn: %.0f, inst_cap: %.0f",
+                     id(${yambms_id}_bms_count).state,
                      id(${yambms_id}_bms_combined).state,
-                     id(${yambms_id}_var_shunt_use) ? "yes" : "no",
-                     id(${yambms_id}_inverter_offset_v).state);
+                     (id(${yambms_id}_bms_count).state - id(${yambms_id}_bms_combined).state),
+                     id(${yambms_id}_bms_blocking_charge).state,
+                     id(${yambms_id}_bms_blocking_discharge).state,
+                     id(${yambms_id}_errors_bitmask_alarm).state,
+                     id(${yambms_id}_errors_bitmask_warning).state,
+                     id(${yambms_id}_installed_battery_capacity).state);
 
             ESP_LOGI("yambms_core04",
-                     "max_chg: %.0f, max_dchg: %.0f, auto_ccl: %.1f, auto_dcl: %.1f, auto_eoc: %.1f, auto_tccl: %.1f, auto_tdcl: %.1f, force_bulk: %s, force_float: %s, force_chg_req: %s",
-                     id(${yambms_id}_max_charge_current).state,
-                     id(${yambms_id}_max_discharge_current).state,
-                     id(${yambms_id}_var_auto_ccl),
-                     id(${yambms_id}_var_auto_dcl),
-                     id(${yambms_id}_var_auto_eoc),
-                     id(${yambms_id}_var_auto_temperature_ccl),
-                     id(${yambms_id}_var_auto_temperature_dcl),
-                     id(${yambms_id}_var_force_bulk) ? "yes" : "no",
-                     id(${yambms_id}_var_force_float) ? "yes" : "no",
-                     id(${yambms_id}_requested_force_charge).state ? "yes" : "no");
+                     "force_charge: %s, chg_inst: %s, dchg_inst: %s",
+                     id(${yambms_id}_requested_force_charge).state ? "yes" : "no",
+                     id(${yambms_id}_charging_instruction).state.c_str(),
+                     id(${yambms_id}_discharging_instruction).state ? "yes" : "no");
 
             // +-----------------------------------------------+
             // | End Of STEP 3 : YamBMS initialized ?          |
