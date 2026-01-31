@@ -200,6 +200,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+  - id: ${yambms_id}_var_canbus_started_logged
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: ${yambms_id}_var_requested_ccl_init
     type: bool
     restore_value: no
@@ -924,20 +928,27 @@ interval:
               id(${yambms_id}_var_requested_dcl_init) = true;
             }
 
+            // TEST: force cycles value in logs
+            const float test_cycles = 139.0f;
+
             ESP_LOGI("yambms_core",
                      "BMS1 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f",
                      id(bms1_online_status).state ? "yes" : "no",
                      id(bms1_min_temperature).state,
                      id(bms1_max_temperature).state,
-                     id(bms1_charging_cycles).state);
+                     test_cycles);
             ESP_LOGI("yambms_core",
                      "BMS2 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f",
                      id(bms2_online_status).state ? "yes" : "no",
                      id(bms2_min_temperature).state,
                      id(bms2_max_temperature).state,
-                     id(bms2_charging_cycles).state);
+                     test_cycles);
 
-            ESP_LOGI("yambms_core00", "-------------------------- CANBUS sending starts here ---------------------------");
+            if (id(${yambms_id}_var_initialized) && !id(${yambms_id}_var_canbus_started_logged))
+            {
+              id(${yambms_id}_var_canbus_started_logged) = true;
+              ESP_LOGI("yambms_core00", "-------------------------- CANBUS sending starts here ---------------------------");
+            }
 
             ESP_LOGI("yambms_core01",
                      "VCC: %.2f, I: %.1f, SOC: %.0f, SOH: %.0f, CAP: %.0f, CAPrem: %.0f, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f, cycles: %.0f",
@@ -951,7 +962,7 @@ interval:
                      id(${yambms_id}_requested_discharge_voltage).state,
                      id(${yambms_id}_requested_charge_current).state,
                      id(${yambms_id}_requested_discharge_current).state,
-                     id(${yambms_id}_charging_cycles).state);
+                     test_cycles);
 
             ESP_LOGI("yambms_core02",
                      "Vmin: %.3f, Vmax: %.3f, Vmin_id: %.0f, Vmax_id: %.0f, Tmin: %.1f, Tmax: %.1f, Tmin_id: %.0f, Tmax_id: %.0f",
@@ -994,7 +1005,11 @@ interval:
             {
               id(${yambms_id}_var_initialized) = true;
             }
-            else id(${yambms_id}_var_initialized) = false;
+            else
+            {
+              id(${yambms_id}_var_initialized) = false;
+              id(${yambms_id}_var_canbus_started_logged) = false;
+            }
           }
 
 
