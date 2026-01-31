@@ -928,21 +928,22 @@ interval:
               id(${yambms_id}_var_requested_dcl_init) = true;
             }
 
-            // TEST: force cycles value in logs
-            const float test_cycles = 139.0f;
-
             ESP_LOGI("yambms_core",
-                     "BMS1 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f",
+                     "BMS1 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
                      id(bms1_online_status).state ? "yes" : "no",
                      id(bms1_min_temperature).state,
                      id(bms1_max_temperature).state,
-                     test_cycles);
+                     id(bms1_charging_cycles).state,
+                     id(bms1_max_charge_current).state,
+                     id(bms1_max_discharge_current).state);
             ESP_LOGI("yambms_core",
-                     "BMS2 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f",
+                     "BMS2 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
                      id(bms2_online_status).state ? "yes" : "no",
                      id(bms2_min_temperature).state,
                      id(bms2_max_temperature).state,
-                     test_cycles);
+                     id(bms2_charging_cycles).state,
+                     id(bms2_max_charge_current).state,
+                     id(bms2_max_discharge_current).state);
 
             if (id(${yambms_id}_var_initialized) && !id(${yambms_id}_var_canbus_started_logged))
             {
@@ -962,7 +963,7 @@ interval:
                      id(${yambms_id}_requested_discharge_voltage).state,
                      id(${yambms_id}_requested_charge_current).state,
                      id(${yambms_id}_requested_discharge_current).state,
-                     test_cycles);
+                     id(${yambms_id}_charging_cycles).state);
 
             ESP_LOGI("yambms_core02",
                      "Vmin: %.3f, Vmax: %.3f, Vmin_id: %.0f, Vmax_id: %.0f, Tmin: %.1f, Tmax: %.1f, Tmin_id: %.0f, Tmax_id: %.0f",
