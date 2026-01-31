@@ -920,6 +920,19 @@ interval:
               id(${yambms_id}_var_discharge_current_step)++;
               id(${yambms_id}_var_requested_dcl_init) = true;
             }
+-----
+            ESP_LOGD("yambms_core",
+                     "SoC: %.0f, battery_capacity: %.0f, battery_capacity_remaining: %.0f, total_voltage: %.2f, bms_count: %.0f, charge_status: %s, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f",
+                     id(${yambms_id}_battery_soc).state,
+                     id(${yambms_id}_battery_capacity).state,
+                     id(${yambms_id}_battery_capacity_remaining).state,
+                     id(${yambms_id}_total_voltage).state,
+                     id(${yambms_id}_bms_count).state,
+                     id(${yambms_id}_var_charge_status).c_str(),
+                     id(${yambms_id}_requested_charge_voltage).state,
+                     id(${yambms_id}_requested_discharge_voltage).state,
+                     id(${yambms_id}_requested_charge_current).state,
+                     id(${yambms_id}_requested_discharge_current).state);
 
             // +-----------------------------------------------+
             // | End Of STEP 3 : YamBMS initialized ?          |
