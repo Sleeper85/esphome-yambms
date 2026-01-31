@@ -167,9 +167,13 @@ canbus:
               id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
 
               if (id(${canbus_id}_status).state == false) {
-                id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
-                id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
-                id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
+                if (id(${yambms_id}_var_initialized) == true) {
+                  id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
+                  id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
+                  id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
+                } else {
+                  id(${canbus_id}_send_canbus_data) = false;                   // Do not send until initialized
+                }
               }
 
               // Inverter ACK interval
