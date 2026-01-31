@@ -929,16 +929,20 @@ interval:
             }
 
             ESP_LOGI("yambms_core",
-                     "BMS1 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
+                     "BMS1 online: %s, chg_ok: %s, dchg_ok: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
                      id(bms1_online_status).state ? "yes" : "no",
+                     id(bms1_charging_allowed).state ? "yes" : "no",
+                     id(bms1_discharging_allowed).state ? "yes" : "no",
                      id(bms1_min_temperature).state,
                      id(bms1_max_temperature).state,
                      id(bms1_charging_cycles).state,
                      id(bms1_max_charge_current).state,
                      id(bms1_max_discharge_current).state);
             ESP_LOGI("yambms_core",
-                     "BMS2 online: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
+                     "BMS2 online: %s, chg_ok: %s, dchg_ok: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
                      id(bms2_online_status).state ? "yes" : "no",
+                     id(bms2_charging_allowed).state ? "yes" : "no",
+                     id(bms2_discharging_allowed).state ? "yes" : "no",
                      id(bms2_min_temperature).state,
                      id(bms2_max_temperature).state,
                      id(bms2_charging_cycles).state,
