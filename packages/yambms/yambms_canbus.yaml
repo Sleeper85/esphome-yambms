@@ -33,6 +33,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: "false"
+  - id: ${canbus_id}_startup_blocked
+    type: bool
+    restore_value: no
+    initial_value: "true"
   - id: ${canbus_id}_auto_bms_name
     type: int
     restore_value: no
@@ -168,9 +172,13 @@ canbus:
 
               if (id(${canbus_id}_status).state == false) {
                 if (id(${yambms_id}_var_initialized) == true) {
-                  id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
-                  id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
-                  id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
+                  if (id(${canbus_id}_startup_blocked) == false) {
+                    id(${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
+                    id(${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
+                    id(inverter_com_status).publish_state(true);                 // Set Inverter com. status to ON
+                  } else {
+                    id(${canbus_id}_send_canbus_data) = false;
+                  }
                 } else {
                   id(${canbus_id}_send_canbus_data) = false;                   // Do not send until initialized
                 }
@@ -186,6 +194,11 @@ canbus:
               }
 
 interval:
+  - interval: 1min
+    then:
+      - lambda: |-
+          id(${canbus_id}_startup_blocked) = false;
+
   - interval: 24h
     then:
       - lambda: |-
@@ -197,7 +210,9 @@ interval:
     then:
       - lambda: |-
           // Test inverter 0x305 ACK
-          if (id(${canbus_id}_send_canbus_data) == false && id(${yambms_id}_var_initialized) == true) {
+          if (id(${canbus_id}_send_canbus_data) == false &&
+              id(${yambms_id}_var_initialized) == true &&
+              id(${canbus_id}_startup_blocked) == false) {
             id(${canbus_id}_send_canbus_data) = true;                      // Sending CANBUS frames allowed
             id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
           }
