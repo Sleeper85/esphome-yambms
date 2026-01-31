@@ -72,9 +72,9 @@ interval:
               return;
             }
 
-            // Define raw inputs
-            float raw_min = id(${yambms_id}_min_temperature).state;
-            float raw_max = id(${yambms_id}_max_temperature).state;
+            // Define raw inputs (TEST override)
+            float raw_min = 21.7f;
+            float raw_max = 23.8f;
             float batt_capacity = id(${yambms_id}_battery_capacity).state;
 
             // Exit if critical data is missing
@@ -147,9 +147,9 @@ interval:
               return;
             }
 
-            // Define raw inputs
-            float raw_min = id(${yambms_id}_min_temperature).state;
-            float raw_max = id(${yambms_id}_max_temperature).state;
+            // Define raw inputs (TEST override)
+            float raw_min = 21.7f;
+            float raw_max = 23.8f;
             float batt_capacity = id(${yambms_id}_battery_capacity).state;
 
             // Exit if critical data is missing
