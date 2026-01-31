@@ -974,6 +974,19 @@ interval:
                      id(${yambms_id}_var_shunt_use) ? "yes" : "no",
                      id(${yambms_id}_inverter_offset_v).state);
 
+            ESP_LOGI("yambms_core04",
+                     "max_chg: %.0f, max_dchg: %.0f, auto_ccl: %.1f, auto_dcl: %.1f, auto_eoc: %.1f, auto_tccl: %.1f, auto_tdcl: %.1f, force_bulk: %s, force_float: %s, force_chg_req: %s",
+                     id(${yambms_id}_max_charge_current).state,
+                     id(${yambms_id}_max_discharge_current).state,
+                     id(${yambms_id}_var_auto_ccl),
+                     id(${yambms_id}_var_auto_dcl),
+                     id(${yambms_id}_var_auto_eoc),
+                     id(${yambms_id}_var_auto_temperature_ccl),
+                     id(${yambms_id}_var_auto_temperature_dcl),
+                     id(${yambms_id}_var_force_bulk) ? "yes" : "no",
+                     id(${yambms_id}_var_force_float) ? "yes" : "no",
+                     id(${yambms_id}_requested_force_charge).state ? "yes" : "no");
+
             // +-----------------------------------------------+
             // | End Of STEP 3 : YamBMS initialized ?          |
             // | The datas can be communicated to the inverter |
