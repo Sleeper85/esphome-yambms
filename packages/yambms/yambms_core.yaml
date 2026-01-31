@@ -928,6 +928,28 @@ interval:
               id(${yambms_id}_var_requested_dcl_init) = true;
             }
 
+            ESP_LOGI("yambms_core05",
+                     "CCL: step=%d target=%d instr=%s max_chg=%.0f auto_ccl=%.1f auto_eoc=%.1f auto_tccl=%.1f req_ccl=%.0f init=%s | DCL: step=%d target=%d dchg_inst=%s V=%.2f<=DVL=%.2f? max_dchg=%.0f auto_dcl=%.1f auto_tdcl=%.1f req_dcl=%.0f init=%s",
+                     id(${yambms_id}_var_charge_current_step),
+                     id(${yambms_id}_var_auto_ccl_functions_count) + 1,
+                     charging_instruction.c_str(),
+                     id(${yambms_id}_max_charge_current).state,
+                     id(${yambms_id}_var_auto_ccl),
+                     id(${yambms_id}_var_auto_eoc),
+                     id(${yambms_id}_var_auto_temperature_ccl),
+                     id(${yambms_id}_requested_charge_current).state,
+                     id(${yambms_id}_var_requested_ccl_init) ? "yes" : "no",
+                     id(${yambms_id}_var_discharge_current_step),
+                     id(${yambms_id}_var_auto_dcl_functions_count) + 1,
+                     discharging_instruction ? "yes" : "no",
+                     id(${yambms_id}_total_voltage).state,
+                     id(${yambms_id}_requested_discharge_voltage).state,
+                     id(${yambms_id}_max_discharge_current).state,
+                     id(${yambms_id}_var_auto_dcl),
+                     id(${yambms_id}_var_auto_temperature_dcl),
+                     id(${yambms_id}_requested_discharge_current).state,
+                     id(${yambms_id}_var_requested_dcl_init) ? "yes" : "no");
+
             ESP_LOGI("yambms_core",
                      "BMS1 online: %s, chg_ok: %s, dchg_ok: %s, temp min/max: %.1f/%.1f, cycles: %.0f, Imax_chg: %.0f, Imax_dchg: %.0f",
                      id(bms1_online_status).state ? "yes" : "no",
