@@ -1,0 +1,3 @@
+# Local secrets and generated ESPHome data
+/secrets.yaml
+/.esphome/
