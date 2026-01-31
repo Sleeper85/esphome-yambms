@@ -925,9 +925,9 @@ interval:
             }
 
             if (id(bms1_min_temperature).has_state() && id(bms1_max_temperature).has_state())
-              ESP_LOGI("yambms_core", "BMS1 temp min/max: %.1f/%.1f", id(bms1_min_temperature).state, id(bms1_max_temperature).state);
+              ESP_LOGI("yambms_core", "BMS1 temp min/max: %.1f/%.1f, cycles: %.0f", id(bms1_min_temperature).state, id(bms1_max_temperature).state, id(bms1_charging_cycles).state);
             if (id(bms2_min_temperature).has_state() && id(bms2_max_temperature).has_state())
-              ESP_LOGI("yambms_core", "BMS2 temp min/max: %.1f/%.1f", id(bms2_min_temperature).state, id(bms2_max_temperature).state);
+              ESP_LOGI("yambms_core", "BMS2 temp min/max: %.1f/%.1f, cycles: %.0f", id(bms2_min_temperature).state, id(bms2_max_temperature).state, id(bms2_charging_cycles).state);
 
             ESP_LOGI("yambms_core01",
                      "VCC: %.2f, I: %.1f, SOC: %.0f, SOH: %.0f, CAP: %.0f, CAPrem: %.0f, CVL: %.2f, DVL: %.2f, CCL: %.0f, DCL: %.0f, cycles: %.0f",
