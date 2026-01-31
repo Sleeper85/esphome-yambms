@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.3
+# Updated : 2026.01.31
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,8 +32,6 @@ substitutions:
   # canbus_esp32_can: CAN
   tx_pin_4: '6'
   rx_pin_4: '7'
-  # Requirement: RGB flag to show functionality is available
-  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -120,13 +118,6 @@ output:
   - platform: ledc
     pin: 46
     id: backlight_pwm
-    
-# ESP32 board without LED
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
 
 # Define a monochromatic, dimmable light for the backlight
 light:
@@ -135,12 +126,6 @@ light:
     name: "Display Backlight"
     id: back_light
     restore_mode: RESTORE_DEFAULT_ON
-
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
 
 # Relay: IO8
 switch:

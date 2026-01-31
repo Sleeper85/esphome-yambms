@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 2.4.8
+# Updated : 2026.01.31
+# Version : 2.4.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,12 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
-
-packages:
-  canbus_led_manager: !include
-    file: ../board/board_options_led_control.yaml
-    vars:
-      status_sensor: "${canbus_id}_status_int" # Sensor used to determine led behaviour
 
 esphome:
   devices:
@@ -117,20 +111,6 @@ sensor:
     icon: mdi:update
     entity_category: diagnostic
 
-  # Used to determine led behaviour
-  - platform: template
-    id: ${canbus_id}_status_int
-    internal: true
-    accuracy_decimals: 0
-    lambda: |-
-      const bool esp_ok = id(esp32_online_status).state;
-      const bool can_ok = id(${canbus_id}_status).state;
-
-      if (esp_ok && can_ok) return 3;
-      if (!esp_ok && can_ok) return 2;
-      if (esp_ok && !can_ok) return 1;
-      return 0;
-
 binary_sensor:
   - platform: template
     id: ${canbus_id}_status
@@ -161,8 +141,6 @@ canbus:
     on_frame:
       - can_id: 0x305
         then:
-          # - light.toggle:
-          #     id: ${canbus_light_id}
           - lambda: |-
               id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
 

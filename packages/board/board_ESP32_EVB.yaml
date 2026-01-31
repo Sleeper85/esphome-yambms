@@ -1,5 +1,5 @@
-# Updated : 2026.01.29
-# Version : 1.1.5
+# Updated : 2026.01.31
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,8 +32,6 @@ substitutions:
   # canbus_esp32_can
   tx_pin_4: '5'
   rx_pin_4: '35'
-  # Requirement: RGB flag to show functionality is available
-  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -61,23 +59,3 @@ ethernet:
 
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
-
-# +--------------------------------------+
-# | Inverter Heartbeat Light             |
-# +--------------------------------------+
-
-light:
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
-
-output:
-  # ESP32 board without LED
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
-      #- lambda: C++ code; # action to be performed at each inverter heartbeat
