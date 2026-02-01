@@ -210,9 +210,9 @@ packages:
   # +------------------------------------------------------------------------------+
 
   board:
-    #url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
+    #url: https://github.com/Sleeper85/esphome-yambms
+    ref: dev_last
     refresh: 1min
     files:
       #- path: 'packages/board/board_ESP32_Generic.yaml'
@@ -257,9 +257,9 @@ packages:
   # +------------------------------------------------------------------------------+
 
   board_options:
-    #url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
+    #url: https://github.com/Sleeper85/esphome-yambms
+    ref: dev_last
     refresh: 1min
     files:
       # UART 1 (uart_id: uart_esp_1)
@@ -315,9 +315,9 @@ packages:
   # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
   bms:
-    #url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
+    #url: https://github.com/Sleeper85/esphome-yambms
+    ref: dev_last
     refresh: 1min
     files:
       # RS485 Sniffer with talk_pin (WS-RS485-CAN and other RS485 boards with a flow_control_pin)
@@ -439,9 +439,9 @@ packages:
 
   debug:
     #url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
-    #url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    url: file:///home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-yambms
+    #url: https://github.com/Sleeper85/esphome-yambms
+    ref: dev_last
     refresh: 1min
     files:
       - path: packages/base/device_debug_ESP32.yaml
