@@ -197,9 +197,7 @@ interval:
     then:
       - lambda: |-
           // Test inverter 0x305 ACK
-          if (id(${canbus_id}_send_canbus_data) == false &&
-              id(${yambms_id}_var_initialized) == true &&
-              id(${canbus_id}_startup_blocked) == false) {
+          if (id(${canbus_id}_send_canbus_data) == false && id(${yambms_id}_var_initialized) == true) {
             id(${canbus_id}_send_canbus_data) = true;                      // Sending CANBUS frames allowed
             id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
             ESP_LOGD("yambms_debug", "CAN bus starting...");
