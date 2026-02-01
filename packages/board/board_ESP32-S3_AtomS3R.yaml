@@ -1,5 +1,5 @@
-# Updated : 2026.01.29
-# Version : 1.3.4
+# Updated : 2026.01.31
+# Version : 1.3.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -44,8 +44,6 @@ substitutions:
   mcp2515_cs_pin: '39'
   # talk_pin
   talk_pin: '8'
-  # Requirement: RGB flag to show functionality is available
-  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -91,17 +89,6 @@ logger:
   hardware_uart: USB_SERIAL_JTAG
 
 # +--------------------------------------+
-# | Inverter Heartbeat Light             |
-# +--------------------------------------+
-
-light:
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
-
-# +--------------------------------------+
 # | Atom S3R related configuration       |
 # +--------------------------------------+
 
@@ -133,13 +120,6 @@ output:
   - platform: lp5562
     id: white
     channel: 3
-  # Inverter Heartbeat Output (ESP32 board without LED)
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
-      #- lambda: C++ code; # action to be performed at each inverter heartbeat
 
 binary_sensor:
   # Atom S3R Button

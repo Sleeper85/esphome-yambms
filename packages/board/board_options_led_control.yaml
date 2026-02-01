@@ -1,5 +1,5 @@
-# Updated : 2026.01.29
-# Version : 1.0.0
+# Updated : 2026.01.31
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,38 +18,52 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  # Placeholder id if no status sensor is provided
-  status_sensor: "nullptr"
-  # Placeholder light id if no led is provided
-  light_id: "nullptr"
+  # Placeholder light_id if no led is provided
+  light_id: "esp_light"
+
+globals:
+  - id: var_led_state
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 interval:
+  - interval: 5s
+    then:
+      - lambda: |-
+          // Set LED state
+          auto& led_state = id(var_led_state);
+          const bool esp_ok = id(esp32_online_status).state;
+          const bool com_ok = id(inverter_com_status).state;
+          // 0 : critical | 1 : esp_ok only | 2 : com_ok only | 3 : all OK 
+          led_state = (esp_ok ? 1 : 0) + (com_ok ? 2 : 0);
+          ESP_LOGD("board", "LED state : %d", led_state);
+          
   - interval: 50ms
     then:
       - lambda: |-
-          // ============================================================
-          // Status LED: 4 states, color + counted flashes
-          //
-          // state 0 = critical, red,     quad flash
-          // state 1 = warning,  yellow,  triple flash
-          // state 2 = info,     blue,    double flash
-          // state 3 = healthy,  green,   single flash
-          //
-          // Timing (aligned to 50ms interval):
-          // - ON_MS   = 150ms
-          // - SLOT_MS = 300ms  (150ms ON + 150ms OFF)
-          // - CYCLE   = 2000ms (includes a pause after the last pulse)
-          //
-          // Interval: 50ms
-          // ============================================================
+          // +============================================================
+          // | Status LED: 4 states, color + counted flashes
+          // |
+          // | state 0 = critical, red,     quad flash
+          // | state 1 = warning,  yellow,  triple flash
+          // | state 2 = info,     blue,    double flash
+          // | state 3 = healthy,  green,   single flash
+          // |
+          // | Timing (aligned to 50ms interval):
+          // | - ON_MS   = 150ms
+          // | - SLOT_MS = 300ms  (150ms ON + 150ms OFF)
+          // | - CYCLE   = 2000ms (includes a pause after the last pulse)
+          // |
+          // | Interval: 50ms
+          // +============================================================
+
+          // LED state
+          const auto state = id(var_led_state);
 
           // If no light was specified then exit
           esphome::light::LightState *light = ${light_id};
           if (light == nullptr) return;
-
-          // If no status sensor was specified then exit
-          esphome::sensor::Sensor *status_sensor = ${status_sensor};
-          if (status_sensor == nullptr || !status_sensor->has_state()) return;
 
           // Cache last output so only push changes at edges / state changes
           static int  last_state = -999;   // -1 means "invalid/off"
@@ -69,15 +83,7 @@ interval:
             }
           };
 
-          // No sensor state -> invalid/off
-          if (status_sensor == nullptr || !status_sensor->has_state()) {
-            turn_off_once();
-            return;
-          }
-
           // Input is an integer (0..3 expected)
-          const int state = static_cast<int>(status_sensor->state);
-
           // Invalid -> off (on transition)
           if (state < 0 || state > 3) {
             turn_off_once();

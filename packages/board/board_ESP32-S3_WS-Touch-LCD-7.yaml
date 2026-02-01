@@ -1,5 +1,5 @@
-# Updated : 2026.01.29
-# Version : 1.1.6
+# Updated : 2026.01.31
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -40,8 +40,6 @@ substitutions:
   spi_clk_pin: '12'
   spi_miso_pin: '13'
   cs_pin: '4' # ch422g_hub
-  # Requirement: RGB flag to show functionality is available
-  board_has_rgb: "false"
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -82,29 +80,10 @@ logger:
   hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
 
 # +--------------------------------------+
-# | Inverter Heartbeat Light             |
-# +--------------------------------------+
-
-light:
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
-
-# +--------------------------------------+
 # | S3 Touch-LCD-7 related configuration |
 # +--------------------------------------+
 
 output:
-  # ESP32 board without LED
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
-      #- lambda: C++ code; # action to be performed at each inverter heartbeat
-
   # Enable CAN TJA1051 chip
   - platform: gpio
     id: USB_SEL
