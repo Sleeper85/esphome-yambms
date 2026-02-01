@@ -42,7 +42,7 @@ external_components:
   #     path: ../esphome-components/components
   - source:
       type: local
-      path: ../esphome-rs485-bms/components
+      path: ../esphome-jk-bms/components
       components: [ jk_rs485_sniffer , jk_rs485_bms ]  
 
 jk_rs485_sniffer:
