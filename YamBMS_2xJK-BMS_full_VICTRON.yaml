@@ -47,7 +47,7 @@ wifi:
 
 logger:
   baud_rate: 115200
-  level: INFO # VERBOSE / DEBUG / INFO / WARN
+  level: DEBUG #INFO # VERBOSE / DEBUG / INFO / WARN
 
 ota:
   - platform: esphome
