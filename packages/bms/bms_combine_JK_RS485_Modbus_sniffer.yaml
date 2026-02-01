@@ -43,7 +43,7 @@ external_components:
   - source:
       type: local
       path: /home/iban/Dokumentuak_p8b1208a/github/txubelaxu/20260122/esphome-jk-bms/components
-      components: [ jk_rs485_sniffer , jk_rs485_bms ]  
+      
 
 jk_rs485_sniffer:
   - id: ${sniffer_id}
