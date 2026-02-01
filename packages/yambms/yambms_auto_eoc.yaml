@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 1.1.4
+# Updated : 2026.02.02
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -27,6 +27,13 @@ substitutions:
   # This is to prevent the charge current from fluctuating too much.
   required_charge_current_filter_delay: '3'
 
+esphome:
+  on_boot:
+    priority: -100.0
+    then:
+      - lambda: |-
+          id(${yambms_id}_var_auto_ccl_functions_count)++;
+          
 switch:
   - platform: template
     name: ${name} ${yambms_name} Automatic EOC Current
@@ -131,14 +138,172 @@ text_sensor:
     icon: mdi:information-outline
     entity_category: diagnostic
 
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      # +------------------------------------------+
+      # | Auto EOC Charge Current Limit            |
+      # +------------------------------------------+
+      - lambda: |-
+          // Check if we are in the correct step
+          int cc_step = id(${yambms_id}_var_charge_current_step);
+          if ((cc_step < 1) || (cc_step >= (id(${yambms_id}_var_auto_ccl_functions_count) + 1))) {
+            return;
+          }
+
+          ESP_LOGD("yambms_debug", "Entering Auto EOC...");
+
+          // Check if enabled
+          if (!id(${yambms_id}_switch_auto_eoc).state || 
+              !id(${yambms_id}_battery_capacity).has_state() ||
+              !id(${yambms_id}_battery_capacity_remaining).has_state() ||
+              !id(${yambms_id}_max_charge_current).has_state()) {
+            // Auto EOC Charging disabled
+            id(${yambms_id}_var_auto_eoc) = 0;
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_status).publish_state("Stop: Disabled");
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Check if Float is active
+          if (id(${yambms_id}_charging_instruction).state == "Float") {
+            id(${yambms_id}_var_auto_eoc) = 0;
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_status).publish_state("Stop: Float");
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Update in 60s intervals only
+          static uint32_t last_execution_ms = 0;
+          uint32_t current_ms = millis();
+
+          if ((current_ms - last_execution_ms) < 60000) {
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          last_execution_ms = current_ms;
+
+          // Check if current time is valid
+          const auto current_time = id(my_time).now();
+          if (!current_time.is_valid()) {
+            ESP_LOGW("yambms_auto_eoc", "Time not valid");
+            id(${yambms_id}_var_auto_eoc) = 0;
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_status).publish_state("Stop: Time not valid");
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Get target time
+          const int target_hour = id(${yambms_id}_auto_eoc_target_hour).state;
+          const int target_minute = id(${yambms_id}_auto_eoc_target_min).state;
+
+          // Create target timestamp
+          auto target_time = current_time;
+          target_time.hour = target_hour;
+          target_time.minute = target_minute;
+          target_time.recalc_timestamp_local();
+
+          // Calculate hours left until target time
+          const float hours_left = (target_time.timestamp - current_time.timestamp) / 3600.0;
+
+          if (hours_left <= 0) {
+            id(${yambms_id}_var_auto_eoc) = 0;
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_status).publish_state("Stop: Target time passed");
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Check if we stop increasing the charge current
+          bool stop_increasing = false;
+          if (id(${yambms_id}_battery_soc).has_state() && (id(${yambms_id}_battery_soc).state >= id(${yambms_id}_auto_eoc_stop_soc).state)) {
+            ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, SoC is above threshold");
+            stop_increasing = true;
+          } else if (hours_left <= id(${yambms_id}_auto_eoc_stop_hours).state) {
+            ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, hours left is below threshold");
+            stop_increasing = true;
+          }
+
+          // Get battery capacity
+          auto battery_capacity = id(${yambms_id}_battery_capacity).state;
+
+          // Apply negative capacity modifier
+          battery_capacity += (battery_capacity * (id(${yambms_id}_auto_eoc_modifier).state / 100.0));
+        
+          // Calculate missing capacity
+          auto capacity_required = battery_capacity - id(${yambms_id}_battery_capacity_remaining).state;
+          if (capacity_required < 0) {
+            capacity_required = 0;
+          }
+
+          // Get active charge current, this will be our maximum charge current
+          float auto_limit = std::min({
+                  id(${yambms_id}_var_auto_ccl), 
+                  id(${yambms_id}_var_auto_temperature_ccl)
+                });
+
+          float charge_current = round(id(${yambms_id}_max_charge_current).state + auto_limit);
+
+          // Calculate required charge current
+          float required_charge_current = capacity_required / hours_left;
+
+          // Apply charge current correction factor
+          const float correction_factor = (id(${yambms_id}_auto_eoc_correction).state / 100.0) + 1.0;
+          required_charge_current *= correction_factor;
+
+          // If the required charge current higher than the maximum charge current, return 0 to indicate
+          // that there is no solution
+          float return_value = 0;
+          if (required_charge_current >= charge_current) {
+            required_charge_current = 0;
+            id(${yambms_id}_auto_eoc_status).publish_state("Stop: Current above limit");
+          } else {
+            // The value is valid, return it
+            return_value = required_charge_current;
+
+            // Check if filtered charging current is available
+            if (id(${yambms_id}_auto_eoc_charging_current_filtered).has_state()) {
+              const float filtered_charge_current = id(${yambms_id}_auto_eoc_charging_current_filtered).state;
+
+              // Check if current is increasing and we should stop
+              if (stop_increasing && (required_charge_current > filtered_charge_current)) {
+                // Return previous filtered charge current
+                return_value = filtered_charge_current;
+                id(${yambms_id}_auto_eoc_status).publish_state("Run: Current increase stopped");
+              } else {
+                // Update status to running
+                id(${yambms_id}_auto_eoc_status).publish_state("Run");
+              }
+
+              // Use filtered charge current for calculations
+              required_charge_current = filtered_charge_current;
+            }
+          }
+
+          // Limit required charge current to maximum charge current
+          if (required_charge_current && (required_charge_current < charge_current)) {
+            // Calculate negative difference to charge current
+            id(${yambms_id}_var_auto_eoc) = round(required_charge_current - charge_current);
+          } else {
+            id(${yambms_id}_var_auto_eoc) = 0;
+          }
+
+          id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(return_value);
+
+          id(${yambms_id}_var_charge_current_step)++;
+
+
 sensor:
   # +--------------------------------------+
   # | Auto EOC Charging                    |
   # +--------------------------------------+
     # Filter charging current to smooth out fluctuations
     # The value will be updated every 3 minutes
-  - platform: copy
-    source_id: ${yambms_id}_auto_eoc_charging_current
+  - platform: template
     name: ${name} ${yambms_name} Auto EOC Current
     id: "${yambms_id}_auto_eoc_charging_current_filtered"
     unit_of_measurement: A
@@ -150,132 +315,3 @@ sensor:
           send_first_at: 1
       - round: 0
 
-  - platform: template
-    name: ${name} ${yambms_name} Auto EOC Required Current
-    id: ${yambms_id}_auto_eoc_charging_current
-    update_interval: 60s
-    unit_of_measurement: A
-    device_class: current
-    internal: true
-    filters:    
-      - round: 0
-    lambda: |-
-      // Check if enabled
-      if (!id(${yambms_id}_switch_auto_eoc).state || 
-          !id(${yambms_id}_battery_capacity).has_state() ||
-          !id(${yambms_id}_battery_capacity_remaining).has_state() ||
-          !id(${yambms_id}_max_charge_current).has_state()) {
-        // Auto EOC Charging disabled
-        //ESP_LOGI("auto_eoc", "Auto EOC Charging is disabled or battery capacity is not available");
-        id(${yambms_id}_var_auto_eoc) = 0;
-        id(${yambms_id}_auto_eoc_status).publish_state("Stop: Disabled");
-        return 0;
-      }
-
-      // Check if Float is active
-      if (id(${yambms_id}_charging_instruction).state == "Float") {
-        id(${yambms_id}_var_auto_eoc) = 0;
-        id(${yambms_id}_auto_eoc_status).publish_state("Stop: Float");
-        return 0;
-      }
-
-      // Check if current time is valid
-      const auto current_time = id(my_time).now();
-      if (!current_time.is_valid()) {
-        ESP_LOGW("auto_eoc", "Time not valid");
-        id(${yambms_id}_var_auto_eoc) = 0;
-        id(${yambms_id}_auto_eoc_status).publish_state("Stop: Time not valid");
-        return 0;
-      }
-
-      // Get target time
-      const int target_hour = id(${yambms_id}_auto_eoc_target_hour).state;
-      const int target_minute = id(${yambms_id}_auto_eoc_target_min).state;
-
-      // Create target timestamp
-      auto target_time = current_time;
-      target_time.hour = target_hour;
-      target_time.minute = target_minute;
-      target_time.recalc_timestamp_local();
-
-      // Calculate hours left until target time
-      const float hours_left = (target_time.timestamp - current_time.timestamp) / 3600.0;
-
-      if (hours_left <= 0) {
-        //ESP_LOGI("auto_eoc", "Target time has already passed");
-        id(${yambms_id}_var_auto_eoc) = 0;
-        id(${yambms_id}_auto_eoc_status).publish_state("Stop: Target time passed");
-        return 0;
-      }
-
-      // Check if we stop increasing the charge current
-      bool stop_increasing = false;
-      if (id(${yambms_id}_battery_soc).has_state() && (id(${yambms_id}_battery_soc).state >= id(${yambms_id}_auto_eoc_stop_soc).state)) {
-        ESP_LOGI("auto_eoc", "Stopping charge current increase, SoC is above threshold");
-        stop_increasing = true;
-      } else if (hours_left <= id(${yambms_id}_auto_eoc_stop_hours).state) {
-        ESP_LOGI("auto_eoc", "Stopping charge current increase, hours left is below threshold");
-        stop_increasing = true;
-      }
-
-      // Get battery capacity
-      auto battery_capacity = id(${yambms_id}_battery_capacity).state;
-
-      // Apply negative capacity modifier
-      battery_capacity += (battery_capacity * (id(${yambms_id}_auto_eoc_modifier).state / 100.0));
-     
-      // Calculate missing capacity
-      auto capacity_required = battery_capacity - id(${yambms_id}_battery_capacity_remaining).state;
-      if (capacity_required < 0) {
-        capacity_required = 0;
-      }
-
-      // Get active charge current, this will be our maximum charge current
-      float charge_current = id(${yambms_id}_max_charge_current).state + id(${yambms_id}_var_auto_ccl);
-
-      // Calculate required charge current
-      float required_charge_current = capacity_required / hours_left;
-
-      // Apply charge current correction factor
-      const float correction_factor = (id(${yambms_id}_auto_eoc_correction).state / 100.0) + 1.0;
-      required_charge_current *= correction_factor;
-
-      // If the required charge current higher than the maximum charge current, return 0 to indicate
-      // that there is no solution
-      float return_value = 0;
-      if (required_charge_current >= charge_current) {
-        //ESP_LOGI("auto_eoc", "Required charge current is higher than maximum charge current");
-        required_charge_current = 0;
-        id(${yambms_id}_auto_eoc_status).publish_state("Stop: Current above limit");
-      } else {
-        // The value is valid, return it
-        return_value = required_charge_current;
-
-        // Check if filtered charging current is available
-        if (id(${yambms_id}_auto_eoc_charging_current_filtered).has_state()) {
-          const float filtered_charge_current = id(${yambms_id}_auto_eoc_charging_current_filtered).state;
-
-          // Check if current is increasing and we should stop
-          if (stop_increasing && (required_charge_current > filtered_charge_current)) {
-            // Return previous filtered charge current
-            return_value = filtered_charge_current;
-            id(${yambms_id}_auto_eoc_status).publish_state("Run: Current increase stopped");
-          } else {
-            // Update status to running
-            id(${yambms_id}_auto_eoc_status).publish_state("Run");
-          }
-
-          // Use filtered charge current for calculations
-          required_charge_current = filtered_charge_current;
-        }
-      }
-
-      // Limit required charge current to maximum charge current
-      if (required_charge_current && (required_charge_current < charge_current)) {
-        // Calculate negative difference to charge current
-        id(${yambms_id}_var_auto_eoc) = round(required_charge_current - charge_current);
-      } else {
-        id(${yambms_id}_var_auto_eoc) = 0;
-      }
-
-      return return_value;
