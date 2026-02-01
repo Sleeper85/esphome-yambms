@@ -1,5 +1,5 @@
-# Updated : 2026.01.31
-# Version : 2.4.9
+# Updated : 2026.02.01
+# Version : 2.5.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -171,9 +171,11 @@ interval:
     then:
       - lambda: |-
           // Test inverter 0x305 ACK
-          if (id(${canbus_id}_send_canbus_data) == false && id(${yambms_id}_var_initialized) == true) {
+          if (id(${canbus_id}_send_canbus_data) == false && id(${yambms_id}_var_initialized) == true)
+          {
             id(${canbus_id}_send_canbus_data) = true;                      // Sending CANBUS frames allowed
             id(${canbus_id}_script_canbus_link_timer).execute();           // Restart CANBUS link timer
+            ESP_LOGD("yambms_debug", "CAN bus starting...");
           }
 
   - interval: 100ms

@@ -1,4 +1,4 @@
-# Updated : 2026.01.30
+# Updated : 2026.02.01
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -38,7 +38,20 @@ binary_sensor:
     name: "Can be combined"
     id: bms${bms_id}_can_be_combined
     device_id: bms_${bms_id}
-    lambda: return (id(bms${bms_id}_online_status).state && id(bms${bms_id}_battery_capacity).state > 0);
+    lambda: |-
+      if ((id(bms${bms_id}_online_status).has_state()) &&
+          (id(bms${bms_id}_online_status).state) &&
+          (id(bms${bms_id}_charging_allowed).has_state()) &&
+          (id(bms${bms_id}_discharging_allowed).has_state()) &&
+          (id(bms${bms_id}_total_voltage).has_state()) &&
+          (id(bms${bms_id}_current).has_state()) &&
+          (id(bms${bms_id}_max_charge_current).state > 0) &&
+          (id(bms${bms_id}_max_discharge_current).state > 0) &&
+          (id(bms${bms_id}_battery_capacity).state > 0))
+      {
+        return true;
+      }
+      else return false;
 
 interval:
   - interval: ${yambms_update_interval}
