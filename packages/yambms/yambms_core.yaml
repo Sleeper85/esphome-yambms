@@ -473,6 +473,8 @@ interval:
             int cc_step = id(${yambms_id}_var_charge_current_step);
             if (cc_step == 0 || cc_step == id(${yambms_id}_var_auto_ccl_functions_count) + 2)
             {
+              ESP_LOGD("yambms_debug", "Entering Max charge current...");
+
               float max_charge_current = 0.0;
 
               if (id(${yambms_id}_var_to_combine_bms_counter) > 0)
@@ -485,12 +487,11 @@ interval:
                 else
                   max_charge_current = max_charge_current_bms;
 
-                id(${yambms_id}_var_charge_current_step) = 1;
-
                 ESP_LOGD("yambms_debug", "Max charge current YamBMS : %f A", max_charge_current_yambms);
                 ESP_LOGD("yambms_debug", "Max charge current BMS : %f A", max_charge_current_bms);
               }
               id(${yambms_id}_max_charge_current).publish_state(round(max_charge_current));
+              id(${yambms_id}_var_charge_current_step) = 1;
               ESP_LOGD("yambms_debug", "Max charge current : %f A", max_charge_current);
 
             }
@@ -501,6 +502,8 @@ interval:
             int dc_step = id(${yambms_id}_var_discharge_current_step);
             if (dc_step == 0 || dc_step == id(${yambms_id}_var_auto_dcl_functions_count) + 2)
             {
+              ESP_LOGD("yambms_debug", "Entering Max discharge current...");
+
               float max_discharge_current = 0.0;
 
               if (id(${yambms_id}_var_to_combine_bms_counter) > 0)
@@ -513,12 +516,11 @@ interval:
                 else
                   max_discharge_current = max_discharge_current_bms;
 
-                id(${yambms_id}_var_discharge_current_step) = 1;
-
                 ESP_LOGD("yambms_debug", "Max discharge current YamBMS : %f A", max_discharge_current_yambms);
                 ESP_LOGD("yambms_debug", "Max discharge current BMS : %f A", max_discharge_current_bms);
               }
               id(${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
+              id(${yambms_id}_var_discharge_current_step) = 1;
               ESP_LOGD("yambms_debug", "Max discharge current : %f A", max_discharge_current);
             }
 
@@ -886,6 +888,8 @@ interval:
             int cc_step = id(${yambms_id}_var_charge_current_step);
             if (cc_step == id(${yambms_id}_var_auto_ccl_functions_count) + 1)
             {
+              ESP_LOGD("yambms_debug", "Entering Requested CCL...");
+
               // Charging Not Allowed
               int requested_charge_current = 0;
               // Charging Allowed
@@ -912,6 +916,7 @@ interval:
             int dc_step = id(${yambms_id}_var_discharge_current_step);
             if (dc_step == id(${yambms_id}_var_auto_dcl_functions_count) + 1)
             {
+              ESP_LOGD("yambms_debug", "Entering Requested DCL...");
               // Discharging Not Allowed
               int requested_discharge_current = 0;
               // Discharging Allowed

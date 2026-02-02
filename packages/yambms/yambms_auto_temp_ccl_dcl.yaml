@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 1.1.2
+# Updated : 2026.02.02
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -53,12 +53,14 @@ interval:
   - interval: ${yambms_update_interval}
     then:
       # +------------------------------------------+
-      # | Auto Charge Current Temperature Limit    |
+      # | Auto Temperature CCL                     |
       # +------------------------------------------+
       - lambda: |-
           int cc_step = id(${yambms_id}_var_charge_current_step);
           if (cc_step >= 1 && cc_step < id(${yambms_id}_var_auto_ccl_functions_count) + 1)
           {
+            ESP_LOGD("yambms_debug", "Entering Auto Temp. CCL...");
+
             // Configuration
             auto& rate_table   = id(charging_table);
             float max_current  = id(${yambms_id}_max_charge_current).state;
@@ -128,12 +130,14 @@ interval:
           }
 
       # +------------------------------------------+
-      # | Auto Discharge Current Temperature Limit |
+      # | Auto Temperature DCL                     |
       # +------------------------------------------+
       - lambda: |-
           int dc_step = id(${yambms_id}_var_discharge_current_step);
           if (dc_step >= 1 && dc_step < id(${yambms_id}_var_auto_dcl_functions_count) + 1)
           {
+            ESP_LOGD("yambms_debug", "Entering Auto Temp. DCL...");
+
             // Configuration
             auto& rate_table   = id(discharging_table);
             float max_current  = id(${yambms_id}_max_discharge_current).state;
