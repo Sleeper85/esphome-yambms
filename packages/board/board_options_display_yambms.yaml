@@ -70,32 +70,32 @@ font:
 # +--------------------------------------+
 
 image:
-  - file: "../../images/battery_level_1.png"
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_1.png
     id: battery_1
     type: rgb565
     byte_order: little_endian
     transparency: alpha_channel
-  - file: "../../images/battery_level_2.png"
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_2.png
     id: battery_2
     type: rgb565
     byte_order: little_endian
     transparency: alpha_channel
-  - file: "../../images/battery_level_3.png"
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_3.png
     id: battery_3
     type: rgb565
     byte_order: little_endian
     transparency: alpha_channel
-  - file: "../../images/battery_level_4.png"
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_4.png
     id: battery_4
     type: rgb565
     byte_order: little_endian
     transparency: alpha_channel
-  - file: "../../images/battery_level_5.png"
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_5.png
     id: battery_5
     type: rgb565
     byte_order: little_endian
     transparency: alpha_channel
-  - file: "../../images/background.png"
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/background.png
     id: bg_image
     type: rgb565
     byte_order: little_endian
