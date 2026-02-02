@@ -423,6 +423,8 @@ font:
 # +--------------------------------------+
 # | LVGL                                 |
 # +--------------------------------------+
+# Basic LVGL setup - include board_options_display_yambms.yaml for full YamBMS display
+# This basic config is overridden when the display package is included
 
 lvgl:
   on_idle:
@@ -443,3 +445,4 @@ lvgl:
         - label:
             align: CENTER
             text: 'YamBMS is running...'
+            text_font: roboto_25
