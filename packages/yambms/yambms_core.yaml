@@ -1,4 +1,4 @@
-# Updated : 2026.02.01
+# Updated : 2026.02.02
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -480,6 +480,8 @@ interval:
             int cc_step = id(${yambms_id}_var_charge_current_step);
             if (cc_step == 0 || cc_step == id(${yambms_id}_var_auto_ccl_functions_count) + 2)
             {
+              ESP_LOGD("yambms_debug", "Entering Max charge current...");
+
               float max_charge_current = 0.0;
 
               if (id(${yambms_id}_var_to_combine_bms_counter) > 0)
@@ -492,12 +494,11 @@ interval:
                 else
                   max_charge_current = max_charge_current_bms;
 
-                id(${yambms_id}_var_charge_current_step) = 1;
-
                 ESP_LOGD("yambms_debug", "Max charge current YamBMS : %f A", max_charge_current_yambms);
                 ESP_LOGD("yambms_debug", "Max charge current BMS : %f A", max_charge_current_bms);
               }
               id(${yambms_id}_max_charge_current).publish_state(round(max_charge_current));
+              id(${yambms_id}_var_charge_current_step) = 1;
               ESP_LOGD("yambms_debug", "Max charge current : %f A", max_charge_current);
 
             }
@@ -508,6 +509,8 @@ interval:
             int dc_step = id(${yambms_id}_var_discharge_current_step);
             if (dc_step == 0 || dc_step == id(${yambms_id}_var_auto_dcl_functions_count) + 2)
             {
+              ESP_LOGD("yambms_debug", "Entering Max discharge current...");
+
               float max_discharge_current = 0.0;
 
               if (id(${yambms_id}_var_to_combine_bms_counter) > 0)
@@ -520,12 +523,11 @@ interval:
                 else
                   max_discharge_current = max_discharge_current_bms;
 
-                id(${yambms_id}_var_discharge_current_step) = 1;
-
                 ESP_LOGD("yambms_debug", "Max discharge current YamBMS : %f A", max_discharge_current_yambms);
                 ESP_LOGD("yambms_debug", "Max discharge current BMS : %f A", max_discharge_current_bms);
               }
               id(${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
+              id(${yambms_id}_var_discharge_current_step) = 1;
               ESP_LOGD("yambms_debug", "Max discharge current : %f A", max_discharge_current);
             }
 
@@ -696,7 +698,7 @@ interval:
             // +-----------------------------------------------+
             // | Charging allowed (BMS and YamBMS)             |
             // +-----------------------------------------------+
-            else if (id(${yambms_id}_charging_allowed).state)
+            else if ((id(${yambms_id}_charging_allowed).has_state()) && (id(${yambms_id}_charging_allowed).state))
             {
               // Variables
               float cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
@@ -817,7 +819,7 @@ interval:
               }
             }
             // Charging not allowed (BMS or YamBMS)
-            else if (id(${yambms_id}_var_bms_charging_logic) == false)
+            else if ((id(${yambms_id}_var_charge_status) != "Init") && (id(${yambms_id}_var_bms_charging_logic) == false))
             {
               id(${yambms_id}_var_charge_status) = "Wait";
             }
@@ -893,6 +895,8 @@ interval:
             int cc_step = id(${yambms_id}_var_charge_current_step);
             if (cc_step == id(${yambms_id}_var_auto_ccl_functions_count) + 1)
             {
+              ESP_LOGD("yambms_debug", "Entering Requested CCL...");
+
               // Charging Not Allowed
               int requested_charge_current = 0;
               // Charging Allowed
@@ -909,8 +913,8 @@ interval:
               }
               // Publish the sensor
               id(${yambms_id}_requested_charge_current).publish_state(requested_charge_current);
+              if (requested_charge_current > 0) id(${yambms_id}_var_requested_ccl_init) = true;
               id(${yambms_id}_var_charge_current_step)++;
-              id(${yambms_id}_var_requested_ccl_init) = true;
             }
 
             // +-----------------------------------------------+
@@ -919,6 +923,7 @@ interval:
             int dc_step = id(${yambms_id}_var_discharge_current_step);
             if (dc_step == id(${yambms_id}_var_auto_dcl_functions_count) + 1)
             {
+              ESP_LOGD("yambms_debug", "Entering Requested DCL...");
               // Discharging Not Allowed
               int requested_discharge_current = 0;
               // Discharging Allowed
@@ -934,8 +939,8 @@ interval:
               }
               // Publish the sensor
               id(${yambms_id}_requested_discharge_current).publish_state(requested_discharge_current);
+              if (requested_discharge_current > 0) id(${yambms_id}_var_requested_dcl_init) = true;
               id(${yambms_id}_var_discharge_current_step)++;
-              id(${yambms_id}_var_requested_dcl_init) = true;
             }
 
             ESP_LOGI("yambms_core05",
@@ -1035,20 +1040,17 @@ interval:
             // +-----------------------------------------------+
             if ((id(${yambms_id}_bms_combined).state > 0) &&
                 (id(${yambms_id}_var_charge_status) != "Init") &&
-                (id(${yambms_id}_min_temperature).has_state()) &&
-                (id(${yambms_id}_max_temperature).has_state()) &&
-                (id(${yambms_id}_requested_charge_voltage).has_state()) &&
-                (id(${yambms_id}_requested_discharge_voltage).has_state()) &&
+                (id(${yambms_id}_total_voltage).state > 0) &&
+                (id(${yambms_id}_min_temperature).state < 100) &&
+                (id(${yambms_id}_max_temperature).state > -100) &&
+                (id(${yambms_id}_requested_charge_voltage).state > 0) &&
+                (id(${yambms_id}_requested_discharge_voltage).state > 0) &&
                 (id(${yambms_id}_var_requested_ccl_init) == true) &&
                 (id(${yambms_id}_var_requested_dcl_init) == true))
             {
               id(${yambms_id}_var_initialized) = true;
             }
-            else
-            {
-              id(${yambms_id}_var_initialized) = false;
-              id(${yambms_id}_var_canbus_started_logged) = false;
-            }
+            else id(${yambms_id}_var_initialized) = false; // Communication with the inverter stops.
           }
 
           // +-----------------------------------------------+
@@ -1059,8 +1061,8 @@ interval:
           if (id(${yambms_id}_total_voltage).has_state()) ESP_LOGD("yambms_debug", "Battery Voltage : %f V", id(${yambms_id}_total_voltage).state);
           if (id(${yambms_id}_current).has_state()) ESP_LOGD("yambms_debug", "Battery Current : %f A", id(${yambms_id}_current).state);
           if (id(${yambms_id}_power).has_state()) ESP_LOGD("yambms_debug", "Battery Power : %f W", id(${yambms_id}_power).state);
-          if (id(${yambms_id}_battery_soc).has_state()) ESP_LOGD("yambms_debug", "Battery SOC : %f %", id(${yambms_id}_battery_soc).state);
-          if (id(${yambms_id}_battery_soh).has_state()) ESP_LOGD("yambms_debug", "Battery SOH : %f %", id(${yambms_id}_battery_soh).state);
+          if (id(${yambms_id}_battery_soc).has_state()) ESP_LOGD("yambms_debug", "Battery SOC : %f %%", id(${yambms_id}_battery_soc).state);
+          if (id(${yambms_id}_battery_soh).has_state()) ESP_LOGD("yambms_debug", "Battery SOH : %f %%", id(${yambms_id}_battery_soh).state);
           if (id(${yambms_id}_min_temperature).has_state()) ESP_LOGD("yambms_debug", "Min temp. : %f °C", id(${yambms_id}_min_temperature).state);
           if (id(${yambms_id}_max_temperature).has_state()) ESP_LOGD("yambms_debug", "Max temp. : %f °C", id(${yambms_id}_max_temperature).state);
           ESP_LOGD("yambms_debug", "Charge Status : %s", id(${yambms_id}_var_charge_status).c_str());
@@ -1072,10 +1074,12 @@ interval:
             else ESP_LOGD("yambms_debug", "Discharging instruction  : false");
           }
           if (id(${yambms_id}_requested_charge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested CVL : %f V", id(${yambms_id}_requested_charge_voltage).state);
-          if (id(${yambms_id}_requested_charge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested DVL : %f V", id(${yambms_id}_requested_discharge_voltage).state);
-          if (id(${yambms_id}_var_requested_ccl_init) == true) ESP_LOGD("yambms_debug", "Requested CCL : %f A", id(${yambms_id}_requested_charge_current).state);
-          if (id(${yambms_id}_var_requested_dcl_init) == true) ESP_LOGD("yambms_debug", "Requested DCL : %f A", id(${yambms_id}_requested_discharge_current).state);
-
+          if (id(${yambms_id}_requested_discharge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested DVL : %f V", id(${yambms_id}_requested_discharge_voltage).state);
+          if (id(${yambms_id}_requested_charge_current).has_state()) ESP_LOGD("yambms_debug", "Requested CCL : %f A", id(${yambms_id}_requested_charge_current).state);
+          if (id(${yambms_id}_requested_discharge_current).has_state()) ESP_LOGD("yambms_debug", "Requested DCL : %f A", id(${yambms_id}_requested_discharge_current).state);
+          if (id(${yambms_id}_ccl_derating_reason).has_state()) ESP_LOGD("yambms_debug", "CCL derating reason : %s", id(${yambms_id}_ccl_derating_reason).state.c_str());
+          if (id(${yambms_id}_dcl_derating_reason).has_state()) ESP_LOGD("yambms_debug", "DCL derating reason : %s", id(${yambms_id}_dcl_derating_reason).state.c_str());
+          
           // if (id().has_state()) ESP_LOGD("yambms_debug", "Text : %f V", id().state);
 
 
