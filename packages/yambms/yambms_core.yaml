@@ -963,8 +963,8 @@ interval:
           if (id(${yambms_id}_total_voltage).has_state()) ESP_LOGD("yambms_debug", "Battery Voltage : %f V", id(${yambms_id}_total_voltage).state);
           if (id(${yambms_id}_current).has_state()) ESP_LOGD("yambms_debug", "Battery Current : %f A", id(${yambms_id}_current).state);
           if (id(${yambms_id}_power).has_state()) ESP_LOGD("yambms_debug", "Battery Power : %f W", id(${yambms_id}_power).state);
-          if (id(${yambms_id}_battery_soc).has_state()) ESP_LOGD("yambms_debug", "Battery SOC : %f %", id(${yambms_id}_battery_soc).state);
-          if (id(${yambms_id}_battery_soh).has_state()) ESP_LOGD("yambms_debug", "Battery SOH : %f %", id(${yambms_id}_battery_soh).state);
+          if (id(${yambms_id}_battery_soc).has_state()) ESP_LOGD("yambms_debug", "Battery SOC : %f %%", id(${yambms_id}_battery_soc).state);
+          if (id(${yambms_id}_battery_soh).has_state()) ESP_LOGD("yambms_debug", "Battery SOH : %f %%", id(${yambms_id}_battery_soh).state);
           if (id(${yambms_id}_min_temperature).has_state()) ESP_LOGD("yambms_debug", "Min temp. : %f °C", id(${yambms_id}_min_temperature).state);
           if (id(${yambms_id}_max_temperature).has_state()) ESP_LOGD("yambms_debug", "Max temp. : %f °C", id(${yambms_id}_max_temperature).state);
           ESP_LOGD("yambms_debug", "Charge Status : %s", id(${yambms_id}_var_charge_status).c_str());
