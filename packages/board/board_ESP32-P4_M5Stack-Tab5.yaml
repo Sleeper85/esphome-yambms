@@ -423,26 +423,5 @@ font:
 # +--------------------------------------+
 # | LVGL                                 |
 # +--------------------------------------+
-# Basic LVGL setup - include board_options_display_yambms.yaml for full YamBMS display
-# This basic config is overridden when the display package is included
-
-lvgl:
-  on_idle:
-    timeout: !lambda "return (id(display_timeout).state * 1000);"
-    then:
-      - light.turn_off: backlight
-      - lvgl.pause:
-  byte_order: little_endian
-  color_depth: 16
-  buffer_size: 100%
-  displays:
-    - my_display
-  touchscreens:
-    - my_touchscreen
-  pages:
-    - id: main_page
-      widgets:
-        - label:
-            align: CENTER
-            text: 'YamBMS is running...'
-            text_font: roboto_25
+# Note: LVGL configuration is provided by board_options_display_yambms.yaml
+# Do not add lvgl: section here - it will cause duplicate display IDs
