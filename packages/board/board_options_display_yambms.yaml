@@ -26,6 +26,7 @@
 # Required: A board with LVGL display already configured
 # Required substitutions:
 #   yambms_id: The YamBMS ID to monitor
+#   canbus_id: The CANBUS ID for status indicator (e.g., 'canbus1')
 
 # +--------------------------------------+
 # | Additional Fonts                     |
@@ -229,8 +230,12 @@ interval:
           }
           
           // Update inverter CAN status
-          // TODO: Add canbus_id substitution to enable CAN status indicator
-          // The CAN indicator will stay static until configured
+          bool can_status = id(${canbus_id}_status).state;
+          if (can_status) {
+            lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0x13BF13), 0);
+          } else {
+            lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0xBF1327), 0);
+          }
 
   - interval: 10s
     then:

@@ -340,7 +340,7 @@ touchscreen:
     update_interval: never
     transform:
       swap_xy: true
-      mirror_x: true
+      mirror_y: true
     reset_pin:
       pi4ioe5v6408: pi4ioe1
       number: 5
@@ -364,7 +364,7 @@ touchscreen:
 display:
   - platform: mipi_dsi
     id: my_display
-    rotation: 270
+    rotation: 90
     dimensions:
       height: 1280
       width: 720
