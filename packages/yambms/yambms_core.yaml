@@ -1,4 +1,4 @@
-# Updated : 2026.02.01
+# Updated : 2026.02.02
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -689,7 +689,7 @@ interval:
             // +-----------------------------------------------+
             // | Charging allowed (BMS and YamBMS)             |
             // +-----------------------------------------------+
-            else if (id(${yambms_id}_charging_allowed).state)
+            else if ((id(${yambms_id}_charging_allowed).has_state()) && (id(${yambms_id}_charging_allowed).state))
             {
               // Variables
               float cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
@@ -810,7 +810,7 @@ interval:
               }
             }
             // Charging not allowed (BMS or YamBMS)
-            else if (id(${yambms_id}_var_bms_charging_logic) == false)
+            else if ((id(${yambms_id}_var_charge_status) != "Init") && (id(${yambms_id}_var_bms_charging_logic) == false))
             {
               id(${yambms_id}_var_charge_status) = "Wait";
             }
@@ -937,10 +937,11 @@ interval:
             // +-----------------------------------------------+
             if ((id(${yambms_id}_bms_combined).state > 0) &&
                 (id(${yambms_id}_var_charge_status) != "Init") &&
-                (id(${yambms_id}_min_temperature).has_state()) &&
-                (id(${yambms_id}_max_temperature).has_state()) &&
-                (id(${yambms_id}_requested_charge_voltage).has_state()) &&
-                (id(${yambms_id}_requested_discharge_voltage).has_state()) &&
+                (id(${yambms_id}_total_voltage).state > 0) &&
+                (id(${yambms_id}_min_temperature).state < 100) &&
+                (id(${yambms_id}_max_temperature).state > -100) &&
+                (id(${yambms_id}_requested_charge_voltage).state > 0) &&
+                (id(${yambms_id}_requested_discharge_voltage).state > 0) &&
                 (id(${yambms_id}_var_requested_ccl_init) == true) &&
                 (id(${yambms_id}_var_requested_dcl_init) == true))
             {
