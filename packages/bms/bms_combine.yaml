@@ -1,4 +1,4 @@
-# Updated : 2026.02.01
+# Updated : 2026.02.02
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -39,15 +39,34 @@ binary_sensor:
     id: bms${bms_id}_can_be_combined
     device_id: bms_${bms_id}
     lambda: |-
-      if ((id(bms${bms_id}_online_status).has_state()) &&
-          (id(bms${bms_id}_online_status).state) &&
-          (id(bms${bms_id}_charging_allowed).has_state()) &&
-          (id(bms${bms_id}_discharging_allowed).has_state()) &&
-          (id(bms${bms_id}_total_voltage).has_state()) &&
+      // Ensure that the sensors have a correct value and not NAN
+      if ((id(bms${bms_id}_online_status).has_state()) &&           // binary_sensor
+          (id(bms${bms_id}_online_status).state) &&                 // binary_sensor
+          (id(bms${bms_id}_charging_allowed).has_state()) &&        // binary_sensor
+          (id(bms${bms_id}_discharging_allowed).has_state()) &&     // binary_sensor
+          (id(bms${bms_id}_equalizing).has_state()) &&              // binary_sensor
+          (id(bms${bms_id}_total_voltage).state > 0) &&
           (id(bms${bms_id}_current).has_state()) &&
+          (id(bms${bms_id}_power).has_state()) &&
+          (id(bms${bms_id}_battery_soc).has_state()) &&
+          (id(bms${bms_id}_battery_soh).has_state()) &&
+          (id(bms${bms_id}_battery_capacity).state > 0) &&
+          (id(bms${bms_id}_battery_capacity_remaining).has_state()) &&
+          (id(bms${bms_id}_charging_cycles).has_state()) &&
           (id(bms${bms_id}_max_charge_current).state > 0) &&
           (id(bms${bms_id}_max_discharge_current).state > 0) &&
-          (id(bms${bms_id}_battery_capacity).state > 0))
+          (id(bms${bms_id}_min_cell_voltage).has_state()) &&
+          (id(bms${bms_id}_max_cell_voltage).has_state()) &&
+          (id(bms${bms_id}_min_voltage_cell).has_state()) &&
+          (id(bms${bms_id}_max_voltage_cell).has_state()) &&
+          (id(bms${bms_id}_min_temperature).has_state()) &&
+          (id(bms${bms_id}_max_temperature).has_state()) &&
+          (id(bms${bms_id}_min_temperature_sensor).has_state()) &&
+          (id(bms${bms_id}_max_temperature_sensor).has_state()) &&
+          (id(bms${bms_id}_cell_ovp).has_state()) &&
+          (id(bms${bms_id}_cell_uvp).has_state()) &&
+          (id(bms${bms_id}_balance_trigger_voltage).has_state()) &&
+          (id(bms${bms_id}_yambms_errors_bitmask).has_state()))
       {
         return true;
       }
@@ -66,11 +85,6 @@ interval:
             // The BMS can be combined ?
             if (id(bms${bms_id}_can_be_combined).state)
             {
-              // Store in bitmask
-              id(${yambms_id}_var_bms_online_bitmask) |= (1 << (${bms_id} - 1));
-              // Remember that we've seen this BMS online
-              id(${yambms_id}_var_bms_seen_online_bitmask) |= id(${yambms_id}_var_bms_online_bitmask);
-
               // +-----------------------------------------------+
               // | Combine once only                             |
               // +-----------------------------------------------+
@@ -97,6 +111,11 @@ interval:
               // +-----------------------------------------------+
               // | Combine continuously                          |
               // +-----------------------------------------------+
+
+              // Online bitmask
+              id(${yambms_id}_var_bms_online_bitmask) |= (1 << (${bms_id} - 1));
+              // Remember that we've seen this BMS online
+              id(${yambms_id}_var_bms_seen_online_bitmask) |= id(${yambms_id}_var_bms_online_bitmask);
 
               // YamBMS Errors Bitmask (16bit)
               if (id(bms${bms_id}_yambms_errors_bitmask).state > 0)
