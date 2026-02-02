@@ -174,7 +174,7 @@ interval:
           }
           
           // Update capacity
-          float capacity_remaining = id(${yambms_id}_capacity_remaining).state;
+          float capacity_remaining = id(${yambms_id}_battery_capacity_remaining).state;
           float battery_capacity = id(${yambms_id}_battery_capacity).state;
           if (!isnan(capacity_remaining) && !isnan(battery_capacity)) {
             char buf[32];
@@ -209,7 +209,7 @@ interval:
           lv_label_set_text(id(charging_status_text), charging_status.c_str());
           
           // Update charging allowed
-          bool charging_allowed = id(${yambms_id}_bms_charging_allowed).state;
+          bool charging_allowed = id(${yambms_id}_charging_allowed).state;
           if (charging_allowed) {
             lv_label_set_text(id(charging_allowed_text), "Allowed");
             lv_obj_set_style_text_color(id(charging_allowed_text), lv_color_hex(0x13BF13), 0);
@@ -219,7 +219,7 @@ interval:
           }
           
           // Update discharging allowed
-          bool discharging_allowed = id(${yambms_id}_bms_discharging_allowed).state;
+          bool discharging_allowed = id(${yambms_id}_discharging_allowed).state;
           if (discharging_allowed) {
             lv_label_set_text(id(discharging_allowed_text), "Allowed");
             lv_obj_set_style_text_color(id(discharging_allowed_text), lv_color_hex(0x13BF13), 0);
@@ -228,13 +228,9 @@ interval:
             lv_obj_set_style_text_color(id(discharging_allowed_text), lv_color_hex(0xBF1327), 0);
           }
           
-          // Update inverter CAN status
-          bool can_status = id(${yambms_id}_charging).state;
-          if (can_status) {
-            lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0x13BF13), 0);
-          } else {
-            lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0xBF1327), 0);
-          }
+          // Update inverter CAN status (requires canbus_id substitution)
+          // bool can_status = id(${canbus_id}_status).state;
+          // For now, CAN indicator stays static - configure canbus_id to enable
 
   - interval: 10s
     then:
