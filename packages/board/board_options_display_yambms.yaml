@@ -191,8 +191,8 @@ interval:
             lv_label_set_text(id(combined_bms_text), buf);
           }
           
-          // Update BMS alarming count
-          float alarming = id(${yambms_id}_bms_in_alarm).state;
+          // Update BMS blocking count (BMSes that are blocking charge)
+          float alarming = id(${yambms_id}_bms_blocking_charge).state;
           if (!isnan(alarming)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.0f", alarming);
@@ -228,9 +228,9 @@ interval:
             lv_obj_set_style_text_color(id(discharging_allowed_text), lv_color_hex(0xBF1327), 0);
           }
           
-          // Update inverter CAN status (requires canbus_id substitution)
-          // bool can_status = id(${canbus_id}_status).state;
-          // For now, CAN indicator stays static - configure canbus_id to enable
+          // Update inverter CAN status
+          // TODO: Add canbus_id substitution to enable CAN status indicator
+          // The CAN indicator will stay static until configured
 
   - interval: 10s
     then:
