@@ -132,12 +132,11 @@ To connect an RS485 device to any of the configured RS485 ports:
 | GND | DG : Data/Device Ground (optional but recommended) |
 
 **Wiring Steps:**
-1. Ensure the port is configured for RS485 mode using the onboard jumpers
-2. Identify the A and B wires from your RS485 device (often labeled as D+/D- or A/B)
-3. Connect the **A wire (D+)** to the **L pin** of the RS485 port
-4. Connect the **B wire (D-)** to the **H pin** of the RS485 port
-5. **Connect the ground wire** to the **DG pin** for common reference (highly recommended)
-6. If using **shielded cable**, connect the shield to the **SG pin** (recommended for noisy environments)
+1. Identify the A and B wires from your RS485 device (often labeled as D+/D- or A/B)
+2. Connect the **A wire (D+)** to the **L pin** of the RS485 port
+3. Connect the **B wire (D-)** to the **H pin** of the RS485 port
+4. **Connect the ground wire** to the **DG pin** for common reference (highly recommended)
+5. If using **shielded cable**, connect the shield to the **SG pin** (recommended for noisy environments)
 
 **Ground Connection Best Practices:**
 - **Always connect DG (Data Ground)** to provide a common reference between devices
@@ -169,12 +168,11 @@ To connect a CAN bus device to the CAN port:
 | GND | DG : Data/Device Ground (optional but recommended) |
 
 **Wiring Steps:**
-1. Ensure the port is configured for CAN mode using the onboard jumpers
-2. Identify the CAN H and CAN L wires from your CAN device
-3. Connect the **CAN H wire** to the **H pin** of the CAN port
-4. Connect the **CAN L wire** to the **L pin** of the CAN port
-5. **Connect the ground wire** to the **DG pin** for common reference (optional but recommended)
-6. If using **shielded cable**, connect the shield to the **SG pin** (recommended for noisy environments)
+1. Identify the CAN H and CAN L wires from your CAN device
+2. Connect the **CAN H wire** to the **H pin** of the CAN port
+3. Connect the **CAN L wire** to the **L pin** of the CAN port
+4. **Connect the ground wire** to the **DG pin** for common reference (optional but recommended)
+5. If using **shielded cable**, connect the shield to the **SG pin** (recommended for noisy environments)
 
 **Ground Connection Best Practices:**
 - **Always connect DG (Data Ground)** to provide a common reference between devices
