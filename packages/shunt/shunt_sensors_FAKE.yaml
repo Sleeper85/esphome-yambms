@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.6
+# Updated : 2026.02.01
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,6 +32,11 @@ binary_sensor:
         return true;
       else
         return false;
+    on_state:
+      then:
+        - lambda: |-
+            // Pass the current state to the update function
+            id(global_update_fault)(${CAT_SHUNT}, ${shunt_id}, !x);
 
 sensor:
   # total_voltage

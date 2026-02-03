@@ -1,5 +1,5 @@
-# Updated : 2025.12.23
-# Version : 1.1.2
+# Updated : 2026.02.03
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -36,15 +36,18 @@ packages:
     vars:
       bms_id: '1' # BMS id and modbus address
       bms_name: 'PACE-BMS 1'
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
   
   bms2: !include
     file: packages/bms/bms_combine_PACE_RS485_bms_full.yaml
     vars:
       bms_id: '2' # BMS id and modbus address
       bms_name: 'PACE-BMS 2'
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
 
   bms3: !include
     file: packages/bms/bms_combine_PACE_RS485_bms_full.yaml
     vars:
       bms_id: '3' # BMS id and modbus address
       bms_name: 'PACE-BMS 3'
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable

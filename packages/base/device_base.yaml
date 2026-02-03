@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.2.3
+# Updated : 2026.02.01
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,6 +20,21 @@
 packages:
   device_base_esphome: !include device_base_esphome.yaml
   sub_device: !include device_base_sub_device.yaml
+  fault_registry: !include device_base_fault_registry.yaml
+
+substitutions:
+  # The ID of the LED on your board used for this component
+  board_status_led_id: "esp_light"
+  # ID for this component instance for fault registry
+  board_fault_device_id: "1"
+
+esphome:
+  on_boot:
+    - priority: 600.0
+      then:
+        - lambda: |-
+            // Register System
+            id(global_register_led)(${CAT_SYSTEM}, ${board_fault_device_id}, id(${board_status_led_id}));
 
 time:
   # https://esphome.io/components/time/homeassistant
@@ -48,6 +63,12 @@ binary_sensor:
     id: esp32_online_status
     device_id: ${board_id}
     entity_category: diagnostic
+    on_state:
+      then:
+        - lambda: |-
+            // Pass the current state to the update function
+            id(global_update_fault)(${CAT_SYSTEM}, ${board_fault_device_id}, !x);
+
   # Inverter communication status (CANBUS / RS485)
   - platform: template
     name: Inverter communication status

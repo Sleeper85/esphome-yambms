@@ -81,16 +81,100 @@ SoC behavior:
 2) Else if `the battery is fully charged` real SoC is sent
 3) Else SoC `98%` is sent
 
-## LED status
 
-This only applies to boards with a led, both RGB or mono colour.
+## LED Status & Diagnostic Codes
 
-| Level | Color | Flash | Status |
-| --- | --- | --- | --- |
-Critical | $${\color{red}Red}$$ | Quad flash | HA or MQTT KO + CANBUS KO
-Warning | $${\color{yellow}Yellow}$$ | Triple flash | HA or MQTT OK + CANBUS KO
-Info | $${\color{blue}Blue}$$ | Double flash | HA or MQTT KO + CANBUS OK
-Healthy | $${\color{green}Green}$$ | Single flash | HA or MQTT OK + CANBUS OK
+The system uses Synchronized Diagnostic Blink Codes. 
+This allows the device to communicate specific fault categories visually without requiring a network connection.
+
+###  1. System Healthy
+If no faults are present, the LED indicates the system is alive.
+
+*   **Pattern:** 🟢 Green Pulse (1s) $\rightarrow$ ⚫ OFF (1s).
+*   **Meaning:** All linked components operational.
+*   **Cycle Time:** ~2.0 Seconds.
+
+### 2. Component Fault
+When a fault occurs, the cycle changes to a strict 3-part message structure.
+
+| Phase | Color | Duration | Description |
+| :--- | :--- | :--- | :--- |
+| **1. Header** | 🔵 **Blue** | 1.0s | **"Attention."** Marks the start of a error report cycle. |
+| **2. Gap** | ⚫ **OFF** | 0.5s | **"Wait."** A short pause to prepare for counting. |
+| **3. Code** | 🔴 **Red** | Variable | **"Data."** A set count of short Red blinks. |
+
+#### Reading the Blink Code
+The number of Red blinks corresponds to the Fault Category (see table below).
+To make counting easier, long codes are broken into groups of 4:
+*   **5 Pips:** `* * * *` ... `*`
+*   **9 Pips:** `* * * *` ... `* * * *` ... `*`
+
+#### Category Reference Table
+
+| Blinks | Category | Description |
+| :--: | :--- | :--- |
+| **1** | **API / MQTT** | API or MQTT communication failure. |
+| **2** | **BMS** | Battery Management System communication failure. |
+| **3** | **INV CAN** | Inverter CAN-BUS communication failure. |
+| **4** | **INV RS485** | Inverter Modbus/RS485 communication failure. |
+| **5** | **SHUNT** | Shunt communication failure. |
+| **6** | **BALANCER** | Balancer communication failure. |
+| **7** | **NETWORK** | No wifi or ethernet connection. |
+| **8-16** | **AUX 1-9** | Reserved for future expansion. |
+
+### Advanced Behaviors
+
+#### Spotlight Mode
+When a fault is active anywhere in the system:
+1.  Fault LEDs: Display the Red error code.
+2.  Healthy LEDs: Turn OFF during the "Code" phase
+This reduces visual noise, highlighting exactly which components requires attention.
+
+#### Multi-Fault Rotation
+If a single LED monitors multiple components (e.g., a LED monitoring both the BMS and the Shunt) and both fail simultaneously:
+*   **Cycle 1:** Displays BMS Code (2 Pips).
+*   **Cycle 2:** Displays Shunt Code (5 Pips).
+*   **Repeat:** The LED rotates through active faults one by one.
+
+#### Monochromatic LEDs
+For boards without RGB LEDs:
+*   **Header:** Solid on.
+*   **Code:** Blinking.
+*   **Gap/Healthy:** off.
+
+#### Multi-LED Boards
+For boards with multiple LEDs, it's possible to assign a specific led to a specific component.
+For example, led_1 for BMS 1, led_2 for canbus. See the section below for more details.
+
+### Configuration & LED Assignment
+
+The system links specific hardware LEDs to software components using Substitutions in your YAML package configuration.
+
+Each component package (BMS, canbus, etc.) includes a specific variable to define which LED should report its status.
+
+#### Example Configuration
+In your main YAML file, under `packages`, you assign the Light ID to the `*_status_led_id` variable.
+In most cases, the default values can be used but some boards such as the [LilyGo T-Connect](documents/README/Board_LilyGo_T-Connect.md) have multi-LED functionality.
+
+```yaml
+packages:
+  bms:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 60min
+    files:
+      - path: 'packages/bms/bms_combine_JK_RS485_Modbus_bms_standard.yaml'
+        vars:
+          # Unique ID for this specific instance
+          bms_id: '1' # must be a number
+          bms_name: 'JK-BMS 1'
+          bms_address: '0x01' # BMS 1 DIP switch
+          
+          # 1. LINKING THE LED
+          # Set this to the ID of the light component defined in your ESPHome config.
+          # Example: 'esp_light', 'led_1', etc. The board config will show further details
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+```
 
 ## CAN bus link
 

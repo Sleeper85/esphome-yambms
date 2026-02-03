@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.2.3
+# Updated : 2026.02.01
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,6 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  # The ID of the LED on your board used for this component
+  network_status_led_id: "esp_light"
+  # ID for this component instance for fault registry
+  network_device_id: "1"
+
+esphome:
+  on_boot:
+    - priority: 600.0
+      then:
+        - lambda: |-
+            // Register System
+            id(global_register_led)(${CAT_NETWORK}, ${network_device_id}, id(${network_status_led_id}));
+
 text_sensor:
   # https://esphome.io/components/text_sensor/ethernet_info.html
   - platform: ethernet_info
@@ -32,3 +46,13 @@ text_sensor:
       name: MAC address
       id: esp32_mac_address
       device_id: ${board_id}
+
+interval:
+  - interval: 5s
+    then:
+      - lambda: |-
+          // network::is_connected() can be used for wifi or ethernet.
+          // It returns true if Ethernet or WiFi has a valid Link + IP.
+          bool x = network::is_connected();
+
+          id(global_update_fault)(${CAT_NETWORK}, ${network_device_id}, !x);

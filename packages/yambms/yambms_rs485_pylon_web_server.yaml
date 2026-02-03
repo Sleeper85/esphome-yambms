@@ -22,12 +22,12 @@ packages:
 
 select:
   # YamBMS - Inverter Communication Protocol
-  - id: !extend ${rs485_id}_protocol
+  - id: !extend ${ext_rs485_id}_protocol
     web_server:
       sorting_group_id: yambms_inverter_communication_protocol
 
 binary_sensor:
   # YamBMS - Inverter Communication Protocol
-  - id: !extend ${rs485_id}_status
+  - id: !extend ${ext_rs485_id}_status
     web_server:
       sorting_group_id: yambms_inverter_communication_protocol

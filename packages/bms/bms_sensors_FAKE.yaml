@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.2.3
+# Updated : 2026.02.03
+# Version : 1.2.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,6 +21,7 @@ packages:
   balancer: !include bms_base_balancer.yaml
   bms_battery_soc: !include bms_base_battery_soc.yaml
   sub_device: !include bms_base_sub_device.yaml
+  led_assign: !include bms_base_led_assign.yaml
   # bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
 
 number:
@@ -130,6 +131,11 @@ binary_sensor:
     device_id: bms_${bms_id}
     name: "online status"
     lambda: return id(bms${bms_id}_online_status_switch).state;
+    on_state:
+      then:
+        - lambda: |-
+            // Pass the current state to the update function
+            id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
   # charging_allowed
   - platform: template
     id: bms${bms_id}_charging_allowed

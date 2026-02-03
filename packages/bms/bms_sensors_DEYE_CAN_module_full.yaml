@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.8
+# Updated : 2026.02.01
+# Version : 1.1.9
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,7 +28,7 @@ packages:
 # +-----------------------------------------------+
 
 canbus:
-  - id: !extend ${canbus_id}
+  - id: !extend ${ext_canbus_id}
     on_frame:
     - can_id: 0x11${deye_module_id}
       then:
@@ -156,6 +156,11 @@ binary_sensor:
         return true;
       else
         return false;
+    on_state:
+      then:
+        - lambda: |-
+            // Pass the current state to the update function
+            id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
 
   # Equalizing
   - platform: template

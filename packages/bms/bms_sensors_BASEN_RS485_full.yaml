@@ -1,5 +1,5 @@
-# Updated : 2026.01.27
-# Version : 1.1.10
+# Updated : 2026.02.01
+# Version : 1.1.11
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,6 +42,11 @@ binary_sensor:
       id: bms${bms_id}_online_status
       device_id: bms_${bms_id}
       name: "status online"
+      on_state:
+        then:
+          - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
     alarm:
       id: bms${bms_id}_alarm
       device_id: bms_${bms_id}

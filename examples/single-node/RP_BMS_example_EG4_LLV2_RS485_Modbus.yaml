@@ -1,5 +1,5 @@
-# Updated : 2025.12.23
-# Version : 1.1.2
+# Updated : 2026.02.03
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,15 +42,18 @@ packages:
           bms_name: 'EG4-BMS 1'
           ## BMS address must start at 2 with EG4 LLV2, ID 1 is a special case and has different output.
           bms_address: 2 # BMS 1 modbus address
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 2
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
           bms_id: '2' # must be a number
           bms_name: 'EG4-BMS 2'
           bms_address: 3 # BMS 2 modbus address
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 3
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
           bms_id: '2' # must be a number
           bms_name: 'EG4-BMS 3'
           bms_address: 4 # BMS 3 modbus address
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable

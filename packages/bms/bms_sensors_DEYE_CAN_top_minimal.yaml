@@ -30,7 +30,7 @@ globals:
 # +-----------------------------------------------+
 
 canbus:
-  - id: !extend ${canbus_id}
+  - id: !extend ${ext_canbus_id}
     on_frame:
     - can_id: 0x351
       then:
@@ -46,7 +46,7 @@ canbus:
 
             if (!id(deye${deye_id}_send_flag)) {
               std::vector<uint8_t> data{0x01};
-              id(${canbus_id})->send_data(0x18A2FF80, true, data);
+              id(${ext_canbus_id})->send_data(0x18A2FF80, true, data);
               id(deye${deye_id}_send_flag) = true;
             }
 

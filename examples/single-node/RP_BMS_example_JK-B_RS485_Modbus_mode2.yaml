@@ -1,5 +1,5 @@
-# Updated : 2025.12.23
-# Version : 1.1.3
+# Updated : 2026.02.03
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -50,45 +50,53 @@ packages:
           bms_id: '1' # must be a number
           bms_name: 'JK-BMS 1'
           bms_address: '0x01' # BMS 1 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 2
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '2' # must be a number
           bms_name: 'JK-BMS 2'
           bms_address: '0x02' # BMS 2 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 3
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '3' # must be a number
           bms_name: 'JK-BMS 3'
           bms_address: '0x03' # BMS 3 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 4
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '4' # must be a number
           bms_name: 'JK-BMS 4'
           bms_address: '0x04' # BMS 4 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 5
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '5' # must be a number
           bms_name: 'JK-BMS 5'
           bms_address: '0x05' # BMS 5 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 6
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '6' # must be a number
           bms_name: 'JK-BMS 6'
           bms_address: '0x06' # BMS 6 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 7
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '7' # must be a number
           bms_name: 'JK-BMS 7'
           bms_address: '0x07' # BMS 7 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 8
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_JK-B_standard.yaml'
         vars:
           bms_id: '8' # must be a number
           bms_name: 'JK-BMS 8'
           bms_address: '0x08' # BMS 8 ( JK app `Device Addr.` setting )
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable

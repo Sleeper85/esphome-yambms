@@ -1,5 +1,5 @@
-# Updated : 2025.07.27
-# Version : 1.1.1
+# Updated : 2026.02.03
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -34,6 +34,7 @@ packages:
       # Maximum cell charging cycles is used to calculate the battey SoH.
       # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
       bms_cell_max_cycles: '6000.0'
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
 
   bms2: !include
     file: packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml
@@ -44,3 +45,4 @@ packages:
       # Maximum cell charging cycles is used to calculate the battey SoH.
       # MB31=8000.0, LF280K v3=8000.0, LF280K v2=6000.0, LF280=3000.0 (decimal is required)
       bms_cell_max_cycles: '6000.0'
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable

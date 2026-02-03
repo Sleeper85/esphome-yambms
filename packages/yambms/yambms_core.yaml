@@ -302,45 +302,46 @@ globals:
 # Execute once
 esphome:
   on_boot:
-    then:
-      - lambda: |-
-          //
-          // Source : https://batteryuniversity.com/article/bu-216-summary-table-of-lithium-based-batteries
-          //
-          if (${yambms_battery_chemistry} == 1) // LFP
-          {
-            // LFP
-            id(${yambms_id}_var_cell_nominal_v) = 3.20;
-            id(${yambms_id}_var_cell_min_charge_v) = 3.37; // Fully charged at rest
-            id(${yambms_id}_var_cell_max_charge_v) = 3.65;
-            id(${yambms_id}_var_cell_max_discharge_v) = 3.00; // Not used
-          }
-          else if (${yambms_battery_chemistry} == 2) // Li-ion
-          {
-            // Li-ion
-            id(${yambms_id}_var_cell_nominal_v) = 3.60;
-            id(${yambms_id}_var_cell_min_charge_v) = 3.90;
-            id(${yambms_id}_var_cell_max_charge_v) = 4.20;
-            id(${yambms_id}_var_cell_max_discharge_v) = 3.20; // Not used
-          }
-          else if (${yambms_battery_chemistry} == 3) // LTO
-          {
-            // LTO
-            id(${yambms_id}_var_cell_nominal_v) = 2.40;
-            id(${yambms_id}_var_cell_min_charge_v) = 2.55; // Fully charged at rest
-            id(${yambms_id}_var_cell_max_charge_v) = 2.85;
-            id(${yambms_id}_var_cell_max_discharge_v) = 2.00; // Not used
-          }
-          int cell_count = ${yambms_cell_count};
-          // Bulk V.
-          id(${yambms_id}_bulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_var_cell_min_charge_v) * 10) / 10);
-          id(${yambms_id}_bulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_var_cell_max_charge_v) * 10) / 10);
-          // Float V.
-          id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_var_cell_min_charge_v) - 0.15) * 10) / 10);
-          id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_var_cell_min_charge_v) + 0.05) * 10) / 10);
-          // Rebulk V.
-          id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_var_cell_nominal_v) * 10) / 10);
-          id(${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_var_cell_min_charge_v) * 10) / 10);
+    - priority: 600
+      then:
+        - lambda: |-
+            //
+            // Source : https://batteryuniversity.com/article/bu-216-summary-table-of-lithium-based-batteries
+            //
+            if (${yambms_battery_chemistry} == 1) // LFP
+            {
+              // LFP
+              id(${yambms_id}_var_cell_nominal_v) = 3.20;
+              id(${yambms_id}_var_cell_min_charge_v) = 3.37; // Fully charged at rest
+              id(${yambms_id}_var_cell_max_charge_v) = 3.65;
+              id(${yambms_id}_var_cell_max_discharge_v) = 3.00; // Not used
+            }
+            else if (${yambms_battery_chemistry} == 2) // Li-ion
+            {
+              // Li-ion
+              id(${yambms_id}_var_cell_nominal_v) = 3.60;
+              id(${yambms_id}_var_cell_min_charge_v) = 3.90;
+              id(${yambms_id}_var_cell_max_charge_v) = 4.20;
+              id(${yambms_id}_var_cell_max_discharge_v) = 3.20; // Not used
+            }
+            else if (${yambms_battery_chemistry} == 3) // LTO
+            {
+              // LTO
+              id(${yambms_id}_var_cell_nominal_v) = 2.40;
+              id(${yambms_id}_var_cell_min_charge_v) = 2.55; // Fully charged at rest
+              id(${yambms_id}_var_cell_max_charge_v) = 2.85;
+              id(${yambms_id}_var_cell_max_discharge_v) = 2.00; // Not used
+            }
+            int cell_count = ${yambms_cell_count};
+            // Bulk V.
+            id(${yambms_id}_bulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_var_cell_min_charge_v) * 10) / 10);
+            id(${yambms_id}_bulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_var_cell_max_charge_v) * 10) / 10);
+            // Float V.
+            id(${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(${yambms_id}_var_cell_min_charge_v) - 0.15) * 10) / 10);
+            id(${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(${yambms_id}_var_cell_min_charge_v) + 0.05) * 10) / 10);
+            // Rebulk V.
+            id(${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(${yambms_id}_var_cell_nominal_v) * 10) / 10);
+            id(${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(${yambms_id}_var_cell_min_charge_v) * 10) / 10);
 
 # YamBMS core lambda
 interval:

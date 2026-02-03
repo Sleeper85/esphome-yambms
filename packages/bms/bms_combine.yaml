@@ -28,9 +28,10 @@ globals:
 # Combine once without conditions
 esphome:
   on_boot:
-    then:
-      # Shunt counter (total)
-      - lambda: id(${yambms_id}_var_bms_counter) += 1;
+    - priority: 600
+      then:
+        # Shunt counter (total)
+        - lambda: id(${yambms_id}_var_bms_counter) += 1;
 
 binary_sensor:
   # Indicates whether the BMS can be combined

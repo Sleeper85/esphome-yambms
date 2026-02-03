@@ -1,5 +1,5 @@
-# Updated : 2025.07.27
-# Version : 1.1.1
+# Updated : 2026.02.03
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,9 +42,11 @@ packages:
           bms_id: '1' # must be a number
           bms_name: 'BASEN-BMS 1'
           bms_address: '0x01'
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # Basen module 2
       - path: 'packages/bms/bms_combine_BASEN_RS485_full.yaml'
         vars:
           bms_id: '2' # must be a number
           bms_name: 'BASEN-BMS 2'
           bms_address: '0x02'
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable

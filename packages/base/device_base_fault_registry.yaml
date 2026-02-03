@@ -1,0 +1,186 @@
+# Updated : 2026.02.01
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # --- CATEGORY DICTIONARY ---
+  # Use these human-readable names in component yaml substitutions, up to 16 categories
+  CAT_SYSTEM:      "0"
+  CAT_BMS:         "1"
+  CAT_INV_CAN_BUS: "2"
+  CAT_INV_RS485:   "3"
+  CAT_SHUNT:       "4"
+  CAT_BALANCER:    "5"
+  CAT_NETWORK:     "6"
+  CAT_AUX_1:       "7"
+
+  enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
+
+globals:
+
+  # Tracks True/False fault status for every component instance
+  # Structure: [Component Category (0-15)] -> [Specific Instance ID (0-N)]
+  - id: global_instance_faults
+    type: std::vector<std::vector<bool>>
+    initial_value: std::vector<std::vector<bool>>(16) 
+    restore_value: false
+
+  # Component Fault Bitmask: A 16-bit summary of the component instance health.
+  # If Bit 4 is "1", it means "At least one instance in Category 4 is failing."
+  - id: global_system_fault_mask
+    type: uint16_t
+    initial_value: '0'
+    restore_value: false
+
+  # -------------------------------------------------------
+  # Global Function: Update Fault Sensor
+  # -------------------------------------------------------
+  - id: global_update_health_sensor
+    type: "std::function<void()>"
+    initial_value: |-
+      []() {
+        std::string json = "[";
+        for (int cat = 0; cat < 16; cat++) {
+          auto &faults = id(global_instance_faults)[cat];
+          if (cat > 0) json += ","; 
+          json += "[";
+          for (size_t i = 0; i < faults.size(); i++) {
+            if (i > 0) json += ","; 
+            json += (faults[i] ? "1" : "0");
+          }
+          json += "]";
+        }
+        json += "]";
+        id(sys_fault_data).publish_state(json);
+      }
+
+# ---------------------------------------------------------
+  # Global Function: Update Fault Status
+  # ---------------------------------------------------------
+  - id: global_update_fault
+    type: std::function<void(int, int, bool)>
+    initial_value: |-
+      [](int category, int instance, bool is_failing) {
+        int computer_instance = instance - 1;
+
+        // Checks
+        if (category < 0 || category >= 16 || computer_instance < 0) return;
+
+        auto &faults = id(global_instance_faults)[category];
+        
+        // Auto-Resize Vector if needed
+        if (computer_instance >= faults.size()) {
+           faults.resize(computer_instance + 1, false);
+        }
+
+        // Update only if state changed
+        if (faults[computer_instance] != is_failing) {
+           
+           // Update the specific instance in the list
+           faults[computer_instance] = is_failing;
+           
+           // Trigger the sensor update
+           id(global_update_health_sensor)();
+           
+           // Update the Master Mask ---
+           // Re-scan this category to see if it is now Clean or Faulted
+           bool cat_has_fault = false;
+           for(bool f : faults) {
+              if(f) { 
+                cat_has_fault = true; 
+                break; 
+              }
+           }
+
+           // Update the specific bit in the global mask
+           if(cat_has_fault) {
+               id(global_system_fault_mask) |= (1 << category); // Set Bit to 1
+           } else {
+               id(global_system_fault_mask) &= ~(1 << category); // Clear Bit to 0
+           }
+        } 
+      }
+
+interval:        
+  # System Health Report in logs, enabled via enable_health_logging substitution
+  - interval: 60s
+    then:
+      - lambda: |-
+          // If the substitution is false, stop
+          if (!${enable_health_logging}) return;
+
+          ESP_LOGI("health_rpt", "┌──────────────────────────────┐");
+          ESP_LOGI("health_rpt", "│     SYSTEM HEALTH REPORT     │");
+          ESP_LOGI("health_rpt", "└──────────────────────────────┘");
+
+          // Log Master Bitmask
+          uint16_t mask = id(global_system_fault_mask);
+          ESP_LOGI("health_rpt", "Global Fault Mask: %d (Binary: " BYTE_TO_BINARY_PATTERN " " BYTE_TO_BINARY_PATTERN ")", 
+                   mask, BYTE_TO_BINARY(mask>>8), BYTE_TO_BINARY(mask));
+
+          // Iterate through all 16 Categories
+          bool system_clean = true;
+          
+          for (int cat = 0; cat < 16; cat++) {
+            auto &faults = id(global_instance_faults)[cat];
+            if (faults.empty()) continue;
+
+            std::string cat_name;
+            switch(cat) {
+                case 0: cat_name = "SYSTEM     "; break;
+                case 1: cat_name = "BMS        "; break;
+                case 2: cat_name = "CAN->INV   "; break;
+                case 3: cat_name = "RS485->INV "; break;
+                case 4: cat_name = "SHUNT      "; break;
+                case 5: cat_name = "BALANCER   "; break;
+                case 6: cat_name = "NETWORK    "; break;
+                case 7: cat_name = "AUX 1      "; break;
+                default: cat_name = "CAT_" + to_string(cat) + "     "; break;
+            }
+
+            std::string status_line = "";
+            bool cat_has_fault = false;
+
+            for (size_t i = 0; i < faults.size(); i++) {
+                if (faults[i]) {
+                    status_line += "[FAIL] ";
+                    cat_has_fault = true;
+                    system_clean = false;
+                } else {
+                    status_line += "[ OK ] ";
+                }
+            }
+
+            if (cat_has_fault) {
+                ESP_LOGW("health_rpt", ">> %s: %s", cat_name.c_str(), status_line.c_str());
+            } else {
+                ESP_LOGI("health_rpt", "   %s: %s", cat_name.c_str(), status_line.c_str());
+            }
+          }
+
+          if (system_clean) {
+             ESP_LOGI("health_rpt", ">> ALL SYSTEMS NORMAL");
+          }
+          ESP_LOGI("health_rpt", "--------------------------------");
+
+text_sensor:
+  # JSON sensor representing system fault data, use with markdown card in Home Assistant
+  - platform: template
+    name: "System Fault Data"
+    id: sys_fault_data
+    entity_category: diagnostic

@@ -19,9 +19,10 @@
 
 esphome:
   on_boot:
-    then:
-    - lambda: id(${yambms_id}_running_version).publish_state("${yambms_version}");
-    - lambda: id(${yambms_id}_last_version).publish_state("${yambms_version}");
+    - priority: 600
+      then:
+      - lambda: id(${yambms_id}_running_version).publish_state("${yambms_version}");
+      - lambda: id(${yambms_id}_last_version).publish_state("${yambms_version}");
 
 text_sensor:
   # +--------------------------------------+

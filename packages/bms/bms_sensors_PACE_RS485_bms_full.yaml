@@ -1,5 +1,5 @@
-# Updated : 2026.01.19
-# Version : 1.1.6
+# Updated : 2026.02.01
+# Version : 1.1.7
 # GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -82,6 +82,11 @@ binary_sensor:
     lambda: |-
       // Consider online if we have valid total_voltage reading (> 0V indicates communication)
       return id(bms${bms_id}_total_voltage).has_state() && id(bms${bms_id}_total_voltage).state > 0;
+      on_state:
+        then:
+          - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
 
   #  11  Status/Fault flag                     2 byte   R  uint16  Hex See ^3
   #      Bit 8: Status: Charging operation

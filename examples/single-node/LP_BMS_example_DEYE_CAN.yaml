@@ -1,5 +1,5 @@
-# Updated : 2025.07.27
-# Version : 1.1.1
+# Updated : 2026.02.03
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -45,6 +45,7 @@ packages:
       bms_name: 'DEYE-BMS 1'
       deye_id: '1'
       deye_module_id: '0' # Modules are numbered with 0-9
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
 
   # Deye module 2
   bms2: !include
@@ -57,3 +58,4 @@ packages:
       bms_id: '2' # must be a number
       bms_name: 'DEYE-BMS 2'
       deye_module_id: '1' # Modules are numbered with 0-9
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
