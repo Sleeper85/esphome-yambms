@@ -1,5 +1,5 @@
-# Updated : 2026.01.31
-# Version : 1.1.7
+# Updated : 2026.02.03
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,6 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # https://wiki.lilygo.cc/get_started/en/High_speed/T-Connect/T-Connect.html
+
+# GPIOs header : pins that can be used without risk
+# 1, 2, 11, 12, 13, 14, 21, 38, 48
 
 substitutions:
   board_chip: "ESP32-S3"
