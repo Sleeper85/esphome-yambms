@@ -389,7 +389,7 @@ interval:
             int power = 0;
             int battery_charging_power = 0;
             int battery_discharging_power = 0;
-            int soc = 0;
+            float soc = NAN;
             int soh = 0;
             int charging_cycles = 0;
 
@@ -431,7 +431,7 @@ interval:
                 soc = round(id(${yambms_id}_var_total_battery_capacity_remaining) / id(${yambms_id}_var_total_battery_capacity) * 100);
 
               // SOC manipulation
-              if (id(${yambms_id}_var_to_combine_bms_counter) == 0) soc = 0;      // no BMS combined => sending 0%
+              if (id(${yambms_id}_var_to_combine_bms_counter) == 0) soc = NAN;      // no BMS combined => report N/A
               else if ((soc > 98) && (id(${yambms_id}_var_eoc) == false)) soc = 98;   // Useful for some inverters stopping charging when SoC reaches 100%
 
               // MEAN Battery SOH
