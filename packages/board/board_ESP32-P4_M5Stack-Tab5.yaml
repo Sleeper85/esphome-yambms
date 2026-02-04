@@ -160,17 +160,6 @@ i2c:
     frequency: 400kHz
 
 # +--------------------------------------+
-# | SPI Bus                              |
-# +--------------------------------------+
-
-spi:
-  id: spi_bus
-  clk_pin: ${spi_clk_pin}
-  mosi_pin: ${spi_mosi_pin}
-  miso_pin: ${spi_miso_pin}
-  interface: spi3
-
-# +--------------------------------------+
 # | ESP LDO for display                  |
 # +--------------------------------------+
 
