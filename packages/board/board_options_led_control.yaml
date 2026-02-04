@@ -33,24 +33,20 @@ globals:
   # Global Function: Update LED assignment
   # ---------------------------------------------------------
   - id: global_register_led
-    type: std::function<void(int, int, light::LightState*)>
+    type: std::function<void(int, int, esphome::light::LightState*)>
     initial_value: |-
-      [](int category, int instance, light::LightState* led) {
-
-        if (led == &id(virtual_status_light)) {
-            led = nullptr; 
-        }
-
+      [](int category, int instance, esphome::light::LightState* led) {
         int computer_instance = instance - 1;
         if (category < 0 || category >= 16 || computer_instance < 0) return;
-
         auto &leds = id(global_led_registry)[category];
-        auto &faults = id(global_instance_faults)[category];
 
-        if (leds.size() <= computer_instance) {
-          leds.resize(computer_instance + 1, nullptr);
-          faults.resize(computer_instance + 1, false);
+        // Resize if needed
+        if (computer_instance >= leds.size()) {
+          // Fill new empty slots with nullptr
+          leds.resize(computer_instance + 1, nullptr); 
         }
+
+        // Store the pointer
         leds[computer_instance] = led;
       }
 
@@ -119,8 +115,9 @@ interval:
               int max_active_category = -1;
               for (int cat = 0; cat < 16; cat++) {
                   auto &faults = id(global_instance_faults)[cat];
-                  for (bool f : faults) {
-                      if (f) {
+                  // Only state 1 is a fault
+                  for (uint8_t f : faults) {
+                      if (f == 1) { 
                           if (cat > max_active_category) max_active_category = cat;
                           break; // Found a fault in this category, move to next
                       }
@@ -162,6 +159,7 @@ interval:
              auto &leds_in_cat = id(global_led_registry)[cat];
              for (size_t inst = 0; inst < leds_in_cat.size(); inst++) {
                  auto *led = leds_in_cat[inst];
+                 // SAFETY CHECK: Ignore nullptr slots created by vector resizing
                  if (led != nullptr) assignments[led].push_back({cat, (int)inst});
              }
           }
@@ -181,8 +179,10 @@ interval:
                   int cat = pair.first;
                   int inst = pair.second;
                   auto &cat_faults = id(global_instance_faults)[cat];
-                  // Check if this specific instance index is flagged as true
-                  if (inst < cat_faults.size() && cat_faults[inst]) {
+                  
+                  // TRI-STATE UPDATE: Check if index exists AND value is explicitly '1' (Fail)
+                  // '0' (OK) and '2' (Ghost) are ignored.
+                  if (inst < cat_faults.size() && cat_faults[inst] == 1) {
                       active_fault_categories.push_back(cat);
                   }
               }
@@ -322,7 +322,6 @@ interval:
                 case 4: cat_name = "SHUNT      "; break;
                 case 5: cat_name = "BALANCER   "; break;
                 case 6: cat_name = "NETWORK    "; break;
-                case 7: cat_name = "AUX 1      "; break;
                 default: cat_name = "CAT_" + to_string(cat) + "     "; break;
             }
 
@@ -330,11 +329,19 @@ interval:
             std::string status_line = "";
             
             for (size_t i = 0; i < leds.size(); i++) {
-                // Check if the pointer is valid
-                if (leds[i] != nullptr) {
+                // Check for unregistered component instances
+                // These are slots created only to resize the vector
+                if (leds[i] == nullptr) {
+                    status_line += "[ -- ] ";
+                } 
+                // Determine if a placeholder LED is assigned
+                else if (leds[i] == id(virtual_status_light)) {
+                    status_line += "[NONE] ";
+                } 
+                // Physical LED assigned
+                // These are active hardware lights responding to faults
+                else {
                     status_line += "[LINK] ";
-                } else {
-                    status_line += "[NULL] ";
                 }
             }
 
