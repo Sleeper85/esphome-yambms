@@ -27,7 +27,6 @@ substitutions:
   CAT_SHUNT:       "4"
   CAT_BALANCER:    "5"
   CAT_NETWORK:     "6"
-  CAT_AUX_1:       "7"
 
   enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
 
@@ -35,9 +34,10 @@ globals:
 
   # Tracks True/False fault status for every component instance
   # Structure: [Component Category (0-15)] -> [Specific Instance ID (0-N)]
+  # 0 = Healthy, 1 = Fault, 2 = Unregistered
   - id: global_instance_faults
-    type: std::vector<std::vector<bool>>
-    initial_value: std::vector<std::vector<bool>>(16) 
+    type: std::vector<std::vector<uint8_t>>
+    initial_value: std::vector<std::vector<uint8_t>>(16)
     restore_value: false
 
   # Component Fault Bitmask: A 16-bit summary of the component instance health.
@@ -57,11 +57,12 @@ globals:
         std::string json = "[";
         for (int cat = 0; cat < 16; cat++) {
           auto &faults = id(global_instance_faults)[cat];
-          if (cat > 0) json += ","; 
+          if (cat > 0) json += ",";
           json += "[";
           for (size_t i = 0; i < faults.size(); i++) {
-            if (i > 0) json += ","; 
-            json += (faults[i] ? "1" : "0");
+            if (i > 0) json += ",";
+            // 0 = Healthy, 1= Fault, 2 = Unregistered
+            json += to_string(faults[i]);
           }
           json += "]";
         }
@@ -78,50 +79,49 @@ globals:
       [](int category, int instance, bool is_failing) {
         int computer_instance = instance - 1;
 
-        // Checks
         if (category < 0 || category >= 16 || computer_instance < 0) return;
 
         auto &faults = id(global_instance_faults)[category];
-        
-        // Auto-Resize Vector if needed
+
+        // Resize with default value '2' (Unregistered).
         if (computer_instance >= faults.size()) {
-           faults.resize(computer_instance + 1, false);
+          faults.resize(computer_instance + 1, 2); 
         }
 
-        // Update only if state changed
-        if (faults[computer_instance] != is_failing) {
-           
-           // Update the specific instance in the list
-           faults[computer_instance] = is_failing;
-           
-           // Trigger the sensor update
-           id(global_update_health_sensor)();
-           
-           // Update the Master Mask ---
-           // Re-scan this category to see if it is now Clean or Faulted
-           bool cat_has_fault = false;
-           for(bool f : faults) {
-              if(f) { 
-                cat_has_fault = true; 
-                break; 
-              }
-           }
+        // Convert input boolean to integer
+        // Input false (Healthy) -> 0
+        // Input true (Fault)    -> 1
+        uint8_t new_state = is_failing ? 1 : 0;
 
-           // Update the specific bit in the global mask
-           if(cat_has_fault) {
-               id(global_system_fault_mask) |= (1 << category); // Set Bit to 1
-           } else {
-               id(global_system_fault_mask) &= ~(1 << category); // Clear Bit to 0
-           }
-        } 
+        // Update only if state changed
+        if (faults[computer_instance] != new_state) {
+          
+          faults[computer_instance] = new_state;
+          id(global_update_health_sensor)();
+
+          // Update Master Mask
+          // State 2 (unregistered) is ignored
+          bool cat_has_fault = false;
+          for(uint8_t f : faults) {
+            if(f == 1) { 
+              cat_has_fault = true;
+              break;
+            }
+          }
+
+          if(cat_has_fault) {
+            id(global_system_fault_mask) |= (1 << category);
+          } else {
+            id(global_system_fault_mask) &= ~(1 << category);
+          }
+        }
       }
 
-interval:        
-  # System Health Report in logs, enabled via enable_health_logging substitution
+interval:
   - interval: 60s
     then:
       - lambda: |-
-          // If the substitution is false, stop
+          // Check if logging is enabled
           if (!${enable_health_logging}) return;
 
           ESP_LOGI("health_rpt", "┌──────────────────────────────┐");
@@ -130,51 +130,70 @@ interval:
 
           // Log Master Bitmask
           uint16_t mask = id(global_system_fault_mask);
-          ESP_LOGI("health_rpt", "Global Fault Mask: %d (Binary: " BYTE_TO_BINARY_PATTERN " " BYTE_TO_BINARY_PATTERN ")", 
-                   mask, BYTE_TO_BINARY(mask>>8), BYTE_TO_BINARY(mask));
+          std::string binary_mask = std::bitset<16>(mask).to_string();
+          ESP_LOGI("health_rpt", "Global Fault Mask: %d (Binary: %s)", mask, binary_mask.c_str());
+
+          bool system_clean = true;
 
           // Iterate through all 16 Categories
-          bool system_clean = true;
-          
           for (int cat = 0; cat < 16; cat++) {
             auto &faults = id(global_instance_faults)[cat];
             if (faults.empty()) continue;
 
+            // Define Category Names
             std::string cat_name;
             switch(cat) {
-                case 0: cat_name = "API / MQTT "; break;
-                case 1: cat_name = "BMS        "; break;
-                case 2: cat_name = "CAN->INV   "; break;
-                case 3: cat_name = "RS485->INV "; break;
-                case 4: cat_name = "SHUNT      "; break;
-                case 5: cat_name = "BALANCER   "; break;
-                case 6: cat_name = "NETWORK    "; break;
-                case 7: cat_name = "AUX 1      "; break;
-                default: cat_name = "CAT_" + to_string(cat) + "     "; break;
+              case 0: cat_name = "API / MQTT "; break;
+              case 1: cat_name = "BMS        "; break;
+              case 2: cat_name = "CAN->INV   "; break;
+              case 3: cat_name = "RS485->INV "; break;
+              case 4: cat_name = "SHUNT      "; break;
+              case 5: cat_name = "BALANCER   "; break;
+              case 6: cat_name = "NETWORK    "; break;
+              default: cat_name = "CAT_" + to_string(cat) + "     "; break;
             }
 
             std::string status_line = "";
             bool cat_has_fault = false;
+            bool cat_has_real_devices = false; 
 
+            // Determine status
             for (size_t i = 0; i < faults.size(); i++) {
-                if (faults[i]) {
-                    status_line += "[FAIL] ";
-                    cat_has_fault = true;
-                    system_clean = false;
-                } else {
-                    status_line += "[ OK ] ";
-                }
+              uint8_t state = faults[i];
+
+              if (state == 0) {
+                // Healthy
+                status_line += "[ OK ] ";
+                cat_has_real_devices = true;
+              } 
+              else if (state == 1) {
+                // Fault
+                status_line += "[FAIL] ";
+                cat_has_fault = true;
+                cat_has_real_devices = true;
+                system_clean = false;
+              } 
+              else {
+                // Unregistered devices
+                status_line += "[ -- ] "; 
+              }
             }
 
-            if (cat_has_fault) {
+            // Log the component if instances exist
+            if (cat_has_real_devices) {
+              if (cat_has_fault) {
+                // Set to WARN if fault
                 ESP_LOGW("health_rpt", ">> %s: %s", cat_name.c_str(), status_line.c_str());
-            } else {
+              } else {
+                // Set to INFO if healthy
                 ESP_LOGI("health_rpt", "   %s: %s", cat_name.c_str(), status_line.c_str());
+              }
             }
           }
 
+          // Footer
           if (system_clean) {
-             ESP_LOGI("health_rpt", ">> ALL SYSTEMS NORMAL");
+            ESP_LOGI("health_rpt", ">> ALL SYSTEMS NORMAL");
           }
           ESP_LOGI("health_rpt", "--------------------------------");
 
