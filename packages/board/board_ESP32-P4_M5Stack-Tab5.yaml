@@ -207,6 +207,7 @@ switch:
     pin:
       pi4ioe5v6408: pi4ioe1
       number: 2
+    restore_mode: ALWAYS_ON
     entity_category: config
   - platform: gpio
     id: usb_5v_power
