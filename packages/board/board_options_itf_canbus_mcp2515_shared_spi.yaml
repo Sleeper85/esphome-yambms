@@ -20,6 +20,7 @@
 # The settings below can be changed via `vars` when importing the package
 # or by declaring new `substitutions` in the main YAML.
 # This version uses a shared SPI bus that's already defined in the board config.
+# NOTE: For ESP32-P4, ensure the shared SPI bus has 'interface: spi3' configured
 substitutions:
   mcp2515_canbus_id: '2'
   mcp2515_canbus_bitrate: '500kbps'
