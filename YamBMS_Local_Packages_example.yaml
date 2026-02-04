@@ -163,6 +163,7 @@ packages:
   # This list is incomplete, other board.yaml are available in the board folder
 
   device_board: !include 
+  
     file: 'packages/board/board_ESP32_Generic.yaml'
   # file: 'packages/board/board_ESP32_Atom-Lite.yaml'
   # file: 'packages/board/board_ESP32_DevKit-V1.yaml'
@@ -173,9 +174,12 @@ packages:
   # file: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
   # file: 'packages/board/board_ESP32-C3_FlipC3.yaml'
   # file: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
+  # file: 'packages/board/board_ESP32-S3_AtomS3.yaml'
+  # file: 'packages/board/board_ESP32-S3_AtomS3R.yaml'
   # file: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
   # file: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
   # file: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+  # file: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
   # file: 'packages/board/board_ESP32-S3_WS-ETH.yaml'
   # file: 'packages/board/board_ESP32-S3_WS-RS485-CAN.yaml'
   # file: 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml'
@@ -187,26 +191,18 @@ packages:
   #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
   #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
 
-  # device_board: !include
-  #   file: 'packages/board/board_ESP32-S3_AtomS3.yaml' # 'packages/board/board_ESP32-S3_AtomS3R.yaml'
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Display
+  # | >>> Uncomment the display that corresponds to your board
+  # | >>> Importing the display also activates PSRAM
+  # +------------------------------------------------------------------------------+
+
+  # - path: 'packages/board/board_options_display_128x128.yaml' # AtomS3 / AtomS3R display
+  # - path: 'packages/board/board_options_display_480x222.yaml' # LilyGo T-Connect Pro display
+      
   #   vars:
   #     display_auto_next_page_interval: '5s'
-  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
-  #     server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-  #     network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-
-  # # LilyGo T-Connect Pro - Board
-  # device_board: !include
-  #   file: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
-  #   vars:
-  #     server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-  #     network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-  # # LilyGo T-Connect Pro - Display - Importing the display also activates PSRAM
-  # device_dispay: !include
-  #   file: 'packages/board/board_options_display_480x222.yaml'
-  #   vars:
-  #     display_auto_next_page_interval: '5s'
-
+  #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees  
 
 
   # +------------------------------------------------------------------------------+
