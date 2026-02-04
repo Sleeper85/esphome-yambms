@@ -37,10 +37,14 @@
 # +--------------------------------------+
 # | DIN BASE (M132) Configuration        |
 # +--------------------------------------+
-# The DIN BASE provides Port.B for native TWAI CAN (requires CAN transceiver unit):
-# - Port.B: PB_IN=G17, PB_OUT=G52
+# +--------------------------------------+
+# | DIN BASE (M132) Configuration        |
+# +--------------------------------------+
+# The DIN BASE provides Port.A and Port.B for native TWAI CAN (requires CAN transceiver unit):
+# - Port.A: PA_IN=G53, PA_OUT=G54 (M5-Bus pins 2,3)
+# - Port.B: PB_IN=G17, PB_OUT=G52 (M5-Bus pins 4,10)
 # Include board_options_itf_canbus_esp32_can.yaml for native CAN
-# Recommended: Use M5Stack CAN Unit (U085) or similar transceiver on Port.B
+# Recommended: Use M5Stack CAN Unit (U085) or similar transceiver on Port.A or Port.B
 #
 
 substitutions:
@@ -58,10 +62,10 @@ substitutions:
   # CS: M5-Bus pin 21 (G2), INT: M5-Bus pin 23 (G47)
   mcp2515_cs_pin: '2'
   mcp2515_int_pin: '47'
-  # canbus_esp32_can (DIN BASE Port.B via native TWAI - requires external CAN transceiver unit)
-  # Port.B: PB_IN=G17 (M5-Bus pin 4), PB_OUT=G52 (M5-Bus pin 10)
-  tx_pin_4: '52'
-  rx_pin_4: '17'
+  # canbus_esp32_can (DIN BASE Port.A via native TWAI - requires external CAN transceiver unit)
+  # Port.A: PA_IN=G53 (M5-Bus pin 2), PA_OUT=G54 (M5-Bus pin 3)
+  tx_pin_4: '54'
+  rx_pin_4: '53'
   # uart_esp_1 (RS485 via COMMU Module - M5-Bus pins 15,16)
   # PC_RX=G7, PC_TX=G6
   tx_pin_1: '6'
