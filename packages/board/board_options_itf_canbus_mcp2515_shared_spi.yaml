@@ -31,6 +31,5 @@ canbus:
     spi_id: ${spi_bus_id}
     id: ${canbus_node_id}
     cs_pin: ${mcp2515_cs_pin}
-    int_pin: ${mcp2515_int_pin}
     can_id: ${mcp2515_canbus_id}
     bit_rate: ${mcp2515_canbus_bitrate}
