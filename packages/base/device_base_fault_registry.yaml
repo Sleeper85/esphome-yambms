@@ -142,7 +142,7 @@ interval:
 
             std::string cat_name;
             switch(cat) {
-                case 0: cat_name = "SYSTEM     "; break;
+                case 0: cat_name = "API / MQTT "; break;
                 case 1: cat_name = "BMS        "; break;
                 case 2: cat_name = "CAN->INV   "; break;
                 case 3: cat_name = "RS485->INV "; break;
