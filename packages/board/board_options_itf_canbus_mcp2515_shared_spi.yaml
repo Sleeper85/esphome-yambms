@@ -1,0 +1,36 @@
+# Updated : 2026.02.04
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# The settings below can be changed via `vars` when importing the package
+# or by declaring new `substitutions` in the main YAML.
+# This version uses a shared SPI bus that's already defined in the board config.
+substitutions:
+  mcp2515_canbus_id: '2'
+  mcp2515_canbus_bitrate: '500kbps'
+  # Default to spi_bus - can be overridden via vars
+  spi_bus_id: 'spi_bus'
+
+canbus:
+  - platform: mcp2515
+    spi_id: ${spi_bus_id}
+    id: ${canbus_node_id}
+    cs_pin: ${mcp2515_cs_pin}
+    int_pin: ${mcp2515_int_pin}
+    can_id: ${mcp2515_canbus_id}
+    bit_rate: ${mcp2515_canbus_bitrate}
