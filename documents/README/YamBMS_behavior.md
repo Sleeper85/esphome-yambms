@@ -115,8 +115,8 @@ To make counting easier, long codes are broken into groups of 4:
 | :--: | :--- | :--- |
 | **1** | **API / MQTT** | API or MQTT communication failure. |
 | **2** | **BMS** | Battery Management System communication failure. |
-| **3** | **INV CAN** | Inverter CAN-BUS communication failure. |
-| **4** | **INV RS485** | Inverter Modbus/RS485 communication failure. |
+| **3** | **INV CAN** | Inverter CAN bus communication failure. |
+| **4** | **INV RS485** | Inverter RS485 bus communication failure. |
 | **5** | **SHUNT** | Shunt communication failure. |
 | **6** | **BALANCER** | Balancer communication failure. |
 | **7** | **NETWORK** | No wifi or ethernet connection. |
@@ -199,10 +199,10 @@ This `5s` delay can be modified in the configuration when importing the canbus p
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml
     vars:
-      canbus_id: 'canbus1'
+      canbus_id: '1' # Must be a number
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_node1'
-      canbus_light_id: 'esp_light'
+      canbus_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
       canbus_link_timer: '5s'
 ```

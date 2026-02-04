@@ -1,5 +1,5 @@
-# Updated : 2025.08.11
-# Version : 1.1.1
+# Updated : 2026.02.04
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,15 +22,15 @@ packages:
 
 select:
   # YamBMS - Inverter Communication Protocol
-  - id: !extend ${ext_canbus_id}_bms_name
+  - id: !extend ${canbus_id}_bms_name
     web_server:
       sorting_group_id: yambms_inverter_communication_protocol
-  - id: !extend ${ext_canbus_id}_protocol
+  - id: !extend ${canbus_id}_protocol
     web_server:
       sorting_group_id: yambms_inverter_communication_protocol
 
 binary_sensor:
   # YamBMS - Inverter Communication Protocol
-  - id: !extend ${ext_canbus_id}_status
+  - id: !extend ${canbus_id}_status
     web_server:
       sorting_group_id: yambms_inverter_communication_protocol

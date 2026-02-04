@@ -1,4 +1,4 @@
-# Updated : 2026.02.01
+# Updated : 2026.02.04
 # Version : 1.1.5
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
@@ -43,16 +43,16 @@ binary_sensor:
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
     name: "Online status"
-    lambda: |-
-      if (id(shunt${shunt_id}_voltage).state > 0)
-        return true;
-      else
-        return false;
     on_state:
       then:
         - lambda: |-
             // Pass the current state to the update function
             id(global_update_fault)(${CAT_SHUNT}, ${shunt_id}, !x);
+    lambda: |-
+      if (id(shunt${shunt_id}_voltage).state > 0)
+        return true;
+      else
+        return false;
 
 sensor:
   - platform: victron

@@ -1,5 +1,5 @@
-# Updated : 2026.02.03
-# Version : 1.6.2
+# Updated : 2026.02.04
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -192,9 +192,14 @@ packages:
       #   vars:
       #     display_auto_next_page_interval: '5s'
       #     display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+      #     server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+      #     network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
 
       # # LilyGo T-Connect Pro - Board
       # - path: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
+      #   vars:
+      #     server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+      #     network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
       # # LilyGo T-Connect Pro - Display - Importing the display also activates PSRAM
       # - path: 'packages/board/board_options_display_480x222.yaml'
       #   vars:
@@ -312,7 +317,7 @@ packages:
 
   canbus:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: dev
+    ref: main
     refresh: 0s
     files:
       - path: 'packages/yambms/yambms_canbus.yaml' # yambms_canbus_web_server.yaml
