@@ -38,7 +38,7 @@ esphome:
             id(rs485${rs485_id}_status).publish_state(false);
 
   devices:
-    - id: rs485_rs485${rs485_id}
+    - id: rs485${rs485_id}
       name: "${rs485_name}"
 
 external_components:
@@ -53,7 +53,7 @@ select:
   - platform: template
     name: "YamBMS protocol"
     id: rs485${rs485_id}_protocol
-    device_id: rs485_rs485${rs485_id}
+    device_id: rs485${rs485_id}
     options:
       - "Pylontech"
       - "Disabled"
@@ -66,7 +66,7 @@ switch:
   - platform: template
     name: "Inverter Heartbeat Monitoring"
     id: rs485${rs485_id}_switch_inverter_heartbeat_monitoring
-    device_id: rs485_rs485${rs485_id}
+    device_id: rs485${rs485_id}
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: diagnostic
@@ -117,7 +117,7 @@ sensor:
   # --- Inverter Heartbeat ---
   - platform: template
     id: rs485${rs485_id}_inverter_heartbeat
-    device_id: rs485_rs485${rs485_id}
+    device_id: rs485${rs485_id}
     name: "Inverter Heartbeat"
     unit_of_measurement: ms
     device_class: duration
@@ -178,7 +178,7 @@ binary_sensor:
   # --- RS485 Status ---
   - platform: template
     id: rs485${rs485_id}_status
-    device_id: rs485_rs485${rs485_id}
+    device_id: rs485${rs485_id}
     name: "Status"
     entity_category: diagnostic
     on_state:

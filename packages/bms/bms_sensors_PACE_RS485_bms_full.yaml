@@ -88,7 +88,6 @@ binary_sensor:
       // Consider online if we have valid total_voltage reading (> 0V indicates communication)
       return id(bms${bms_id}_total_voltage).has_state() && id(bms${bms_id}_total_voltage).state > 0;
 
-
   #  11  Status/Fault flag                     2 byte   R  uint16  Hex See ^3
   #      Bit 8: Status: Charging operation
   - platform: modbus_controller

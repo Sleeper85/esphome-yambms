@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+packages:
+  balancer_base: !include balancer_base.yaml
+
 substitutions:
   balancer_model: "JK NEEY"
   balancer_protocol: "BLE"
-
-packages:
-  sub_device: !include balancer_base_sub_device.yaml
-  fault_updater: !include balancer_base_led_assign.yaml
 
 ota:
   on_begin:
