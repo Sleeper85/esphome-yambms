@@ -1,5 +1,5 @@
-# Updated : 2026.02.03
-# Version : 1.1.3
+# Updated : 2026.02.05
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,7 +29,7 @@
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
       shunt_uart_id: 'uart_esp_1'
-      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+      shunt_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # Optional: BMS IDs connected to this shunt
       # If provided, the shunt will only be used when all listed BMS are online
       # If not provided, the shunt will be used independently of the BMS online status
@@ -41,7 +41,7 @@
       shunt_id: '1' # must be a number
       shunt_name: 'Shunt 1'
       shunt_uart_id: 'uart_esp_1'
-      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+      shunt_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # Optional: BMS IDs connected to this shunt
       # If provided, the shunt will only be used when all listed BMS are online
       # If not provided, the shunt will be used independently of the BMS online status
@@ -54,7 +54,7 @@
       shunt_name: 'Shunt 1'
       shunt_mac_address: '60:A4:23:91:8F:55' # Your MAC address
       shunt_encryption_key: '0df4d0395b7d1a876c0c33ecb9e70dcd' # Your encryption key
-      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+      shunt_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # Optional: BMS IDs connected to this shunt
       # If provided, the shunt will only be used when all listed BMS are online
       # If not provided, the shunt will be used independently of the BMS online status
