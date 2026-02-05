@@ -1,5 +1,5 @@
-# Updated : 2025.01.16
-# Version : 1.2.6
+# Updated : 2026.02.05
+# Version : 1.2.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -79,6 +79,7 @@ interval:
 display:
   # Atom S3 display see https://esphome.io/components/display/ili9xxx.html
   - id: !extend my_display
+    rotation: ${display_rotation}
     pages:
       - id: page1
         lambda: |-

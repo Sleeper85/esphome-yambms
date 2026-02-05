@@ -1,5 +1,5 @@
-# Updated : 2025.07.28
-# Version : 1.1.2
+# Updated : 2026.02.05
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -82,6 +82,7 @@ interval:
 display:
   # T-Connect-Pro display see https://esphome.io/components/display/ili9xxx.html
   - id: !extend my_display
+    rotation: ${display_rotation}
     pages:
       - id: page1
         lambda: |-
