@@ -282,7 +282,7 @@ packages:
           bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
           bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
           bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
-      # BMS 2 (uncomment if you have a second battery)
+      # BMS 2
       - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
         vars:
           bms_id: '2' # must be a number
