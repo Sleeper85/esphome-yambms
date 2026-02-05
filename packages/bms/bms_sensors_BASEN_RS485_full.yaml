@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.12
+# Updated : 2026.02.16
+# Version : 1.1.13
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -619,6 +619,11 @@ number:
       name: "Heating off temperature"
 
 switch:
+  - platform: basen_bms
+    basen_bms_id: basen_bms_id${bms_id}
+    enable:
+      device_id: bms_${bms_id}
+      name: "Enable communication"
   - platform: basen_bms
     basen_bms_id: basen_bms_id${bms_id}
     heating:
