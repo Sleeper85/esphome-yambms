@@ -230,7 +230,7 @@ interval:
           }
           
           // Update inverter CAN status
-          bool can_status = id(${canbus_id}_status).state;
+          bool can_status = id(canbus_${canbus_id}_status).state;
           if (can_status) {
             lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0x13BF13), 0);
           } else {
