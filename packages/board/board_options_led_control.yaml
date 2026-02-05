@@ -1,5 +1,5 @@
-# Updated : 2026.01.31
-# Version : 1.1.2
+# Updated : 2026.02.03
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,124 +17,426 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+
 substitutions:
-  # Placeholder light_id if no led is provided
-  light_id: "esp_light"
+  enable_led_logging: 'false'
+  global_status_led: "esp_light"
 
 globals:
-  - id: var_led_state
-    type: int
-    restore_value: no
-    initial_value: '0'
+  # 2D grid of physical LED pointers
+  # Structure: [Component Category (0-15)] -> [Specific Instance ID (0-N)]
+  - id: global_led_registry
+    type: std::vector<std::vector<esphome::light::LightState*>>
+    initial_value: 'std::vector<std::vector<esphome::light::LightState*>>(16)'
+
+  # Set true when a component registers (or re-registers) an LED.
+  - id: global_led_registry_updated
+    type: bool
+    restore_value: false
+    initial_value: 'true'
+
+  # ---------------------------------------------------------
+  # Global Function: Update LED assignment
+  # ---------------------------------------------------------
+  - id: global_register_led
+    type: std::function<void(int, int, esphome::light::LightState*)>
+    initial_value: |-
+      [](int category, int instance, esphome::light::LightState* led) {
+        int computer_instance = instance - 1;
+        if (category < 0 || category >= 16 || computer_instance < 0) return;
+        auto &leds = id(global_led_registry)[category];
+
+        // Mark cached LED assignments updated (rebuilt by the 50ms LED loop)
+        id(global_led_registry_updated) = true;
+        // Resize if needed
+        if (computer_instance >= leds.size()) {
+          // Fill new empty slots with nullptr
+          leds.resize(computer_instance + 1, nullptr); 
+        }
+
+        // Store the pointer
+        leds[computer_instance] = led;
+      }
+
+
+output:
+  - platform: template
+    id: virtual_output
+    type: binary
+    write_action: []
+
+# Fake light to act as a placeholder for LED control logic
+light:
+  - platform: binary
+    id: virtual_status_light
+    output: virtual_output
+
 
 interval:
-  - interval: 5s
-    then:
-      - lambda: |-
-          // Set LED state
-          auto& led_state = id(var_led_state);
-          const bool esp_ok = id(esp32_online_status).state;
-          const bool com_ok = id(inverter_com_status).state;
-          // 0 : critical | 1 : esp_ok only | 2 : com_ok only | 3 : all OK 
-          led_state = (esp_ok ? 1 : 0) + (com_ok ? 2 : 0);
-          ESP_LOGD("board", "LED state : %d", led_state);
-          
   - interval: 50ms
     then:
       - lambda: |-
-          // +============================================================
-          // | Status LED: 4 states, color + counted flashes
-          // |
-          // | state 0 = critical, red,     quad flash
-          // | state 1 = warning,  yellow,  triple flash
-          // | state 2 = info,     blue,    double flash
-          // | state 3 = healthy,  green,   single flash
-          // |
-          // | Timing (aligned to 50ms interval):
-          // | - ON_MS   = 150ms
-          // | - SLOT_MS = 300ms  (150ms ON + 150ms OFF)
-          // | - CYCLE   = 2000ms (includes a pause after the last pulse)
-          // |
-          // | Interval: 50ms
-          // +============================================================
+          // -----------------------------------------------------------------------
+          // CONFIGURATION CONSTANTS
+          // -----------------------------------------------------------------------
+          // Define the timing characteristics of the annunciator signal.
+          const uint32_t HEADER_MS = 1000;        // Duration of the initial Blue/Green sync pulse
+          const uint32_t PRE_BLINK_GAP_MS = 500;  // Silence between Header and first Red Blink
+          const uint32_t BLINK_DURATION_MS = 300; // Total time per blink (150ms ON / 150ms OFF)
+          const uint32_t GROUP_GAP_MS = 500;      // Extended pause inserted after every 4th blink
+          const uint32_t END_PADDING_MS = 1000;   // Minimum silence at end of cycle before restart
 
-          // LED state
-          const auto state = id(var_led_state);
+          // -----------------------------------------------------------------------
+          // STATE MANAGEMENT
+          // -----------------------------------------------------------------------
+          // Tracks the current fault index for LEDs with multiple assigned faults
+          
+          struct LedStateContext {
+            size_t fault_index; // Index in the local list of active faults
+            int last_cycle_id;  // Used to detect when a new global cycle begins
 
-          // If no light was specified then exit
-          esphome::light::LightState *light = ${light_id};
-          if (light == nullptr) return;
-
-          // Cache last output so only push changes at edges / state changes
-          static int  last_state = -999;   // -1 means "invalid/off"
-          static bool last_on = false;
-
-          // Restart flash cycle when the state changes (more readable)
-          static uint32_t base_ms = 0;
-
-          auto turn_off_once = [&]() {
-            if (last_state != -1 || last_on != false) {
-              auto call = light->make_call();
-              call.set_transition_length(0);
-              call.set_state(false);
-              call.perform();
-              last_state = -1;
-              last_on = false;
-            }
+            // Render cache
+            bool last_valid;
+            bool last_state;
+            float last_r;
+            float last_g;
+            float last_b;
+            float last_bri;
           };
 
-          // Input is an integer (0..3 expected)
-          // Invalid -> off (on transition)
-          if (state < 0 || state > 3) {
-            turn_off_once();
-            return;
+          // Persistent storage for LED states
+          static std::map<esphome::light::LightState*, LedStateContext> states;
+
+          // Cached LED assignments (rebuilt only when global_led_registry_updated is set)
+          static std::map<esphome::light::LightState*, std::vector<std::pair<int, int>>> assignments;
+
+          // Global timing variables
+          static uint32_t cycle_start_ms = 0;
+          static uint32_t current_cycle_duration = 2000; // Default to 2s (Healthy state)
+          static int global_cycle_count = 0;             // Increments every full loop
+
+          // -----------------------------------------------------------------------
+          // REGISTRY MAPPING (PERFORMANCE OPTIMIZATION)
+          // -----------------------------------------------------------------------
+          // Invert the Category->LED registry to build a list of assignments per LED.
+          //
+          // Build only when global_register_led() marks the registry updated.
+          if (id(global_led_registry_updated)) {
+            assignments.clear();
+
+            for (int cat = 0; cat < 16; cat++) {
+              auto &leds_in_cat = id(global_led_registry)[cat];
+              for (size_t inst = 0; inst < leds_in_cat.size(); inst++) {
+                auto *led = leds_in_cat[inst];
+                // Ignore nullptr slots created by vector resizing
+                if (led != nullptr) assignments[led].push_back({cat, (int)inst});
+              }
+            }
+
+            id(global_led_registry_updated) = false;
           }
 
-          // If state changed, restart cycle at t=0
-          if (state != last_state) {
-            base_ms = millis();
-          }
+          // -----------------------------------------------------------------------
+          // DYNAMIC TIMING CALCULATION
+          // -----------------------------------------------------------------------
+          // The cycle duration is adaptive. It expands to fit the longest active
+          // fault code in the system, preventing long waits for short codes.
 
-          // --- flash timing constants (multiples of 50ms) ---
-          constexpr uint32_t CYCLE_MS = 2000;
-          constexpr uint32_t SLOT_MS  = 300;   // ON + gap
-          constexpr uint32_t ON_MS    = 150;
+          uint32_t now = millis();
+          int32_t time_into_cycle = now - cycle_start_ms;
 
-          const uint32_t t = (millis() - base_ms) % CYCLE_MS;
+          // Check if the current cycle has completed
+          if (time_into_cycle >= current_cycle_duration || time_into_cycle < 0) {
+            // Start new cycle
+            cycle_start_ms = now;
+            time_into_cycle = 0;
+            global_cycle_count++;
 
-          // Pulse counts per state: 0->4, 1->3, 2->2, 3->1
-          constexpr uint8_t PULSES[4] = {4, 3, 2, 1};
-          const uint8_t pulses = PULSES[state];
+            // Scan global registry to find the highest active Category ID
+            int max_active_category = -1;
+            for (int cat = 0; cat < 16; cat++) {
+              auto &faults = id(global_instance_faults)[cat];
+              // Only state 1 is a fault
+              for (uint8_t f : faults) {
+                if (f == 1) {
+                  if (cat > max_active_category) max_active_category = cat;
+                  break; // Found a fault in this category, move to next
+                }
+              }
+            }
 
-          const uint32_t slot_index = t / SLOT_MS;
-          const uint32_t slot_pos   = t - (slot_index * SLOT_MS);
+            // Calculate required duration for the next cycle
+            if (max_active_category == -1) {
+              // System Healthy: Default to 2s (1s ON, 1s OFF)
+              current_cycle_duration = 2000;
+            } else {
+              // System Faulted: Calculate exact time needed for the longest code
+              int blinks = max_active_category + 1;
 
-          const bool desired_on =
-              (slot_index < pulses) &&
-              (slot_pos < ON_MS);
+              // Calculate total time for blinks
+              uint32_t total_blink_time = blinks * BLINK_DURATION_MS;
 
-          // If nothing changes, do nothing
-          if (state == last_state && desired_on == last_on) return;
+              // Calculate total time for group gaps (1 gap after every 4 blinks)
+              // Integer division ensures gap is only added for full groups of 4
+              int gaps = (blinks - 1) / 4;
+              uint32_t total_gap_time = gaps * GROUP_GAP_MS;
 
-          auto call = light->make_call();
-          call.set_transition_length(0);
+              current_cycle_duration = HEADER_MS + PRE_BLINK_GAP_MS + total_blink_time + total_gap_time + END_PADDING_MS;
 
-          // RGB mapping (set only when state changes)
-          const bool is_rgb = ${board_has_rgb};
-          if (is_rgb && state != last_state) {
-            call.set_brightness(0.5f);
-
-            switch (state) {
-              case 0: call.set_rgb(1.0f, 0.0f, 0.0f);  break; // Red
-              case 1: call.set_rgb(1.0f, 1.0f, 0.0f);  break; // Yellow
-              case 2: call.set_rgb(0.0f, 0.0f, 1.0f);  break; // Blue
-              case 3: call.set_rgb(0.0f, 1.0f, 0.0f);  break; // Green
+              // Enforce minimum 2s to allow the Green/Blue header to finish properly
+              if (current_cycle_duration < 2000) current_cycle_duration = 2000;
             }
           }
 
-          // Apply flash (RGB + mono)
-          call.set_state(desired_on);
-          call.perform();
+          // -----------------------------------------------------------------------
+          // RENDER
+          // -----------------------------------------------------------------------
+          // The Health pulse is only active during the Header phase.
+          // This ensures the rest of the cycle is dark, making blinks easier to count.
+          bool is_header_phase = (time_into_cycle < HEADER_MS);
 
-          last_state = state;
-          last_on = desired_on;
+          for (auto const &kv : assignments) {
+            auto *led = kv.first;
+            auto const &assigned_list = kv.second;
+
+            // Filter assigned items to find how many active faults exist
+            int active_fault_count = 0;
+            for (auto &pair : assigned_list) {
+              int cat = pair.first;
+              int inst = pair.second;
+              auto &cat_faults = id(global_instance_faults)[cat];
+
+              // Check if index exists AND value is explicitly '1' (Fail)
+              // '0' (OK) and '2' (Ghost) are ignored.
+              if (inst < (int)cat_faults.size() && cat_faults[inst] == 1) {
+                active_fault_count++;
+              }
+            }
+
+            LedStateContext &ctx = states[led];
+
+            // Defaults to off
+            bool target_state = false;
+            float target_r = 0.0f;
+            float target_g = 0.0f;
+            float target_b = 0.0f;
+            float target_bri = 0.5f;
+
+            // UNASSIGNED LED
+            // Force off to prevent floating states
+            if (assigned_list.empty()) {
+              // Optimization: only call into the light stack if need to change something
+              if (!ctx.last_valid || ctx.last_state) {
+                auto call = led->make_call();
+                call.set_state(false);
+                call.perform();
+                ctx.last_valid = true;
+                ctx.last_state = false;
+                ctx.last_r = 0.0f;
+                ctx.last_g = 0.0f;
+                ctx.last_b = 0.0f;
+                ctx.last_bri = target_bri;
+              }
+              continue;
+            }
+
+            // HEALTHY LED
+            // No active faults found in assigned categories
+            if (active_fault_count == 0) {
+              ctx.fault_index = 0; // Reset index for future faults
+
+              if (is_header_phase) {
+                // Pulse green during the global sync header
+                target_state = true;
+                target_g = 1.0f;
+              } else {
+                // Otherwise off
+                target_state = false;
+              }
+            }
+
+            // FAULT LED
+            else {
+              // If this LED has multiple faults, switch to the next one
+              // only when the global cycle restarts.
+              if (ctx.last_cycle_id != global_cycle_count) {
+                ctx.last_cycle_id = global_cycle_count;
+                ctx.fault_index++;
+                // Wrap around based on number of active faults
+                if (ctx.fault_index >= (size_t)active_fault_count) ctx.fault_index = 0;
+              }
+
+              // Resolve which fault category to display for this cycle
+              size_t desired_idx = ctx.fault_index;
+              int current_cat = -1;
+              int seen = 0;
+
+              for (auto &pair : assigned_list) {
+                int cat = pair.first;
+                int inst = pair.second;
+                auto &cat_faults = id(global_instance_faults)[cat];
+                if (inst < (int)cat_faults.size() && cat_faults[inst] == 1) {
+                  if ((size_t)seen == desired_idx) {
+                    current_cat = cat;
+                    break;
+                  }
+                  seen++;
+                }
+              }
+
+              // If faults disappeared mid-loop
+              if (current_cat >= 0) {
+                int blinks_needed = current_cat + 1; // Cat 0 = 1 blink
+
+                // --- RENDERING PHASES ---
+
+                // Blue Header
+                if (time_into_cycle < HEADER_MS) {
+                  target_state = true;
+                  target_b = 1.0f;
+                }
+
+                // Gap before blinks start
+                else {
+                  uint32_t start_blinks = HEADER_MS + PRE_BLINK_GAP_MS;
+                  if (time_into_cycle < start_blinks) {
+                    target_state = false;
+                  }
+
+                  // Blink code
+                  else {
+                    uint32_t t_blinks = time_into_cycle - start_blinks;
+
+                    // Calculate Time Block logic for grouping (4 blinks + 1 gap)
+                    // Block Duration = (4 * 300ms) + 500ms = 1700ms
+                    const uint32_t BLOCK_DURATION = (4 * BLINK_DURATION_MS) + GROUP_GAP_MS;
+
+                    int block_idx = t_blinks / BLOCK_DURATION;
+                    uint32_t t_within_block = t_blinks % BLOCK_DURATION;
+
+                    // Calculate how many blinks were displayed in previous full blocks
+                    int blinks_rendered_previously = block_idx * 4;
+
+                    // Check if in the blink code part of the block or the gap part
+                    if (t_within_block < (4 * BLINK_DURATION_MS)) {
+                      // Inside the blinking window
+                      int blink_in_block = t_within_block / BLINK_DURATION_MS; // 0..3
+                      int actual_blink_number = blinks_rendered_previously + blink_in_block + 1; // 1-based index
+
+                      if (actual_blink_number <= blinks_needed) {
+                        // Within the count for this fault code.
+                        if ((t_within_block % BLINK_DURATION_MS) < (BLINK_DURATION_MS / 2)) {
+                          // LED on
+                          target_state = true;
+                          target_r = 1.0f;
+                        } else {
+                          // LED off
+                          target_state = false;
+                        }
+                      } else {
+                        // Count exceeded, stay off
+                        target_state = false;
+                      }
+                    } else {
+                      // We are in the blink group gap
+                      target_state = false;
+                    }
+                  }
+                }
+              }
+            }
+
+            // -----------------------------------------------------------------------
+            // RENDER CACHE
+            // -----------------------------------------------------------------------
+            bool need_update = !ctx.last_valid || (ctx.last_state != target_state);
+            if (!need_update && target_state) {
+              // Only compare when on
+              if (ctx.last_bri != target_bri) need_update = true;
+              if (${board_has_rgb}) {
+                if (ctx.last_r != target_r || ctx.last_g != target_g || ctx.last_b != target_b) need_update = true;
+              }
+            }
+
+            if (!need_update) continue;
+
+            auto call = led->make_call();
+            call.set_state(target_state);
+            if (target_state) {
+              call.set_brightness(target_bri);
+              if (${board_has_rgb}) call.set_rgb(target_r, target_g, target_b);
+            }
+            call.perform();
+
+            // Update cache
+            ctx.last_valid = true;
+            ctx.last_state = target_state;
+            ctx.last_r = target_r;
+            ctx.last_g = target_g;
+            ctx.last_b = target_b;
+            ctx.last_bri = target_bri;
+          }
+
+
+
+  # LED Assignment Report in logs, enabled via enable_led_logging substitution
+  - interval: 60s
+    then:
+      - lambda: |-
+          // If the substitution is false, stop
+          if (!${enable_led_logging}) return;
+
+          ESP_LOGI("led_rpt", "┌──────────────────────────────┐");
+          ESP_LOGI("led_rpt", "│    LED REGISTRY ASSIGNMENT   │");
+          ESP_LOGI("led_rpt", "└──────────────────────────────┘");
+
+          bool registry_empty = true;
+
+          for (int cat = 0; cat < 16; cat++) {
+            // Access the LED Registry
+            auto &leds = id(global_led_registry)[cat];
+            
+            // Skip empty categories
+            if (leds.empty()) continue;
+            registry_empty = false;
+
+            // Translate ID to Name
+            std::string cat_name;
+            switch(cat) {
+                case 0: cat_name = "API / MQTT "; break;
+                case 1: cat_name = "BMS        "; break;
+                case 2: cat_name = "CAN->INV   "; break;
+                case 3: cat_name = "RS485->INV "; break;
+                case 4: cat_name = "SHUNT      "; break;
+                case 5: cat_name = "BALANCER   "; break;
+                case 6: cat_name = "NETWORK    "; break;
+                default: cat_name = "CAT_" + to_string(cat) + "     "; break;
+            }
+
+            // Build the status string for this category's LEDs
+            std::string status_line = "";
+            
+            for (size_t i = 0; i < leds.size(); i++) {
+                // Check for unregistered component instances
+                // These are slots created only to resize the vector
+                if (leds[i] == nullptr) {
+                    status_line += "[ -- ] ";
+                } 
+                // Determine if a placeholder LED is assigned
+                else if (leds[i] == id(virtual_status_light)) {
+                    status_line += "[NONE] ";
+                } 
+                // Physical LED assigned
+                // These are active hardware lights responding to faults
+                else {
+                    status_line += "[LINK] ";
+                }
+            }
+
+            ESP_LOGI("led_rpt", "   %s: %s", cat_name.c_str(), status_line.c_str());
+          }
+
+          if (registry_empty) {
+             ESP_LOGW("led_rpt", ">> WARNING: NO LEDS REGISTERED");
+          }
+          ESP_LOGI("led_rpt", "--------------------------------");

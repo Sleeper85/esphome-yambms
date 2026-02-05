@@ -1,5 +1,5 @@
-# Updated : 2026.01.31
-# Version : 1.3.5
+# Updated : 2026.02.01
+# Version : 1.3.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -64,9 +64,10 @@ esphome:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
     board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
   on_boot:
-    then:
-      - output.turn_on:
-           id: white
+    - priority: 600
+      then:
+        - output.turn_on:
+            id: white
 
 external_components:
   # Backlight

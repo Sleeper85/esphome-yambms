@@ -1,4 +1,4 @@
-# Updated : 2026.01.30
+# Updated : 2026.02.01
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -34,9 +34,10 @@ globals:
 # Combine once without conditions
 esphome:
   on_boot:
-    then:
-      # Shunt counter (total)
-      - lambda: id(${yambms_id}_var_shunt_counter) += 1;
+    - priority: 600
+      then:
+        # Shunt counter (total)
+        - lambda: id(${yambms_id}_var_shunt_counter) += 1;
 
 switch:
   # Combine enable/disable Switch

@@ -1,5 +1,5 @@
-# Updated : 2026.02.03
-# Version : 1.2.9
+# Updated : 2026.02.04
+# Version : 1.0.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,9 +18,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  balancer: !include bms_base_balancer.yaml
-  battery_soc: !include bms_base_battery_soc.yaml
-  charging_cycles: !include bms_base_charging_cycles.yaml
-  daily_energy: !include bms_base_daily_energy.yaml
-  sub_device: !include bms_base_sub_device.yaml
-  led_assign: !include bms_base_led_assign.yaml
+  sub_device: !include balancer_base_sub_device.yaml
+  led_assign: !include balancer_base_led_assign.yaml

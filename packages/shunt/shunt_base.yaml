@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.5
+# Updated : 2026.02.03
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,6 +19,7 @@
 
 packages:
   shunt_base_minimal: !include shunt_base_minimal.yaml
+  led_assign: !include shunt_base_led_assign.yaml
 
 sensor:
   # Daily Charging Energy
