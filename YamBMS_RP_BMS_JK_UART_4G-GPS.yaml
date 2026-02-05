@@ -1,4 +1,4 @@
-# Updated : 2026.02.04
+# Updated : 2026.02.05
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -42,15 +42,14 @@ logger:
 ota:
   - platform: esphome
 
-# Please use the native `api` component instead of the `mqtt` section.
-# If you use Home Assistant, the native API is more lightweight.
-# If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
-# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
+# Uncomment:
+# API: to monitor entities via Home Assistant
+# MQTT: to monitor entities via another system
+# Neither: to monitor entities only via `web_server` or nothing
+
 api:
   reboot_timeout: 0s
 
-# If you don't want to use ESPHome's native API you can use MQTT instead.
-# In this case don't forget to remove the 'api:' section.
 # mqtt:
 #   broker: !secret mqtt_host
 #   username: !secret mqtt_username
@@ -147,6 +146,7 @@ substitutions:
   enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
 
 
+
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
@@ -154,17 +154,17 @@ substitutions:
 # PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_RP_YAML.md
 
 packages:
+  remote_packages:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: main
+    refresh: 60min
+    files:
 
   # +------------------------------------------------------------------------------+
   # | >>> UNCOMMENT YOUR BOARD
   # | >>> ONLY ONE BOARD !
   # +------------------------------------------------------------------------------+
 
-  board:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 60min
-    files:
       - path: 'packages/board/board_ESP32_Generic.yaml'
       # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
       # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
@@ -195,7 +195,6 @@ packages:
   # +------------------------------------------------------------------------------+
   # | >>> Board Display
   # | >>> Uncomment the display that corresponds to your board
-  # | >>> Importing the display also activates PSRAM
   # +------------------------------------------------------------------------------+
 
       # - path: 'packages/board/board_options_display_128x128.yaml' # AtomS3 / AtomS3R display
@@ -212,11 +211,6 @@ packages:
   # | >>> Uncomment your interfaces and options
   # +------------------------------------------------------------------------------+
 
-  board_options:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 60min
-    files:
       # UART 1 (uart_id: uart_esp_1)
       - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
       # UART 2 (uart_id: uart_esp_2)
@@ -269,11 +263,8 @@ packages:
   # >>> You can find examples at this address :
   # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
-  bms:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 60min
-    files:
+
+
       # BMS 1
       - path: 'packages/bms/bms_combine_JK_UART_4G-GPS_full.yaml'
         vars:
@@ -301,11 +292,6 @@ packages:
   # | >>> YamBMS
   # +------------------------------------------------------------------------------+
 
-  yambms:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 60min
-    files:
       - path: 'packages/yambms/yambms.yaml'
 
 
@@ -314,11 +300,6 @@ packages:
   # | >>> CAN bus to Inverter
   # +------------------------------------------------------------------------------+
 
-  canbus:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 60min
-    files:
       - path: 'packages/yambms/yambms_canbus.yaml' # yambms_canbus_web_server.yaml
         vars:
           canbus_id: '1' # Must be a number
@@ -335,11 +316,6 @@ packages:
   # | >>> RS485 bus to Inverter
   # +------------------------------------------------------------------------------+
 
-  # rs485_pylon:
-  #   url: https://github.com/Sleeper85/esphome-yambms
-  #   ref: main
-  #   refresh: 60min
-  #   files:
   #     - path: 'packages/yambms/yambms_rs485_pylon.yaml' # yambms_rs485_pylon_web_server.yaml
   #       vars:
   #         rs485_id: '1' # Must be a number
@@ -355,11 +331,6 @@ packages:
   # | >>> DEBUG ( logger level must be DEBUG )
   # +------------------------------------------------------------------------------+
 
-  debug:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 60min
-    files:
       - path: packages/base/device_debug_ESP32.yaml
       # - path: packages/base/device_debug_ESP32_PSRAM.yaml
         vars:

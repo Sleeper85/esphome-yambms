@@ -56,11 +56,12 @@ substitutions:
 # PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_LP_YAML.md
 
 packages:
-  rpi_pico:
+  remote_packages:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 60min
     files:
+
       # board
       - path: packages/board/board_RP2040_RPi_Pico.yaml
         # vars:
@@ -74,12 +75,14 @@ packages:
       - path: packages/board/board_options_itf_uart_4.yaml
       - path: packages/board/board_options_itf_uart_5.yaml
       - path: packages/board/board_options_itf_uart_6.yaml
+
       # modbus
       - path: packages/board/board_options_itf_modbus.yaml
         vars:
           modbus_role: 'server' # client / server
           modbus_uart_id: 'uart_1' # RS485 board
           modbus_baud_rate: '19200' # 9600 / 19200 / 11520
+
       # shunt1
       - path: packages/shunt/shunt_modbus_Victron_SmartShunt_UART_minimal.yaml
         vars:

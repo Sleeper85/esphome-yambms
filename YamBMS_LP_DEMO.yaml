@@ -144,17 +144,6 @@ substitutions:
   # +--------------------------------------+
   enable_led_logging: 'false'     # Set to true to see if an led is assigned to a component correctly, logged every 60 seconds
   enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
-  # +--------------------------------------+
-  # | UART expander WK2168                 |
-  # +--------------------------------------+
-  uart0_baudrate: '2400'    # uart_id : uart_${uart_hub_bus}_0          WKS           {RJ45-UART0}
-  uart1_baudrate: '38400'   # uart_id : uart_${uart_hub_bus}_1          JSY193
-  uart2_baudrate: '19200'   # uart_id : uart_${uart_hub_bus}_2          SmartShunt
-  uart3_baudrate: '9600'    # uart_id : uart_${uart_hub_bus}_3          SRNE          {RJ45-UART3}
-  uart4_baudrate: '115200'  # uart_id : uart_${uart_hub_bus}_4          JK-BMS 1
-  uart5_baudrate: '115200'  # uart_id : uart_${uart_hub_bus}_5          JK-BMS 2
-  uart6_baudrate: '115200'  # uart_id : uart_${uart_hub_bus}_6          Pylontech
-  uart7_baudrate: '9600'    # uart_id : uart_${uart_hub_bus}_7          EPEVER        {RJ45-UART7}
 
 
 
@@ -166,11 +155,52 @@ substitutions:
 
 packages:
 
+  # +------------------------------------------------------------------------------+
+  # | >>> UNCOMMENT YOUR BOARD
+  # | >>> ONLY ONE BOARD !
+  # +------------------------------------------------------------------------------+
+
+  # This list is incomplete, other board.yaml are available in the board folder
+
   board: !include
-    file: packages/board/board_ESP32-S3_DevKitC-1_PVbrain2.yaml
+    # file: 'packages/board/board_ESP32_Generic.yaml'
+    # file: 'packages/board/board_ESP32_Atom-Lite.yaml'
+    # file: 'packages/board/board_ESP32_DevKit-V1.yaml'
+    # file: 'packages/board/board_ESP32_EVB.yaml'
+    # file: 'packages/board/board_ESP32_iBMS_CAN_RS485_V3.3.yaml'
+    # file: 'packages/board/board_ESP32_LilyGo-T-CAN485.yaml'
+    # file: 'packages/board/board_ESP32-C3_DevKitM-1.yaml'
+    # file: 'packages/board/board_ESP32-C3_ETH01-EVO.yaml'
+    # file: 'packages/board/board_ESP32-C3_FlipC3.yaml'
+    # file: 'packages/board/board_ESP32-S3_AtomS3-Lite.yaml'
+    file: 'packages/board/board_ESP32-S3_AtomS3.yaml'
+    # file: 'packages/board/board_ESP32-S3_AtomS3R.yaml'
+    # file: 'packages/board/board_ESP32-S3_DevKitC-1_LED-38.yaml'
+    # file: 'packages/board/board_ESP32-S3_DevKitC-1_LED-48.yaml'
+    # file: 'packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml'
+    # file: 'packages/board/board_ESP32-S3_LilyGo-T-Connect-Pro.yaml'
+    # file: 'packages/board/board_ESP32-S3_WS-ETH.yaml'
+    # file: 'packages/board/board_ESP32-S3_WS-RS485-CAN.yaml'
+    # file: 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml'
+    # file: 'packages/board/board_ESP32-S3_WS-Touch-LCD-7.yaml'
+    # file: 'packages/board/board_ESP32-S3_XIAO.yaml'
+    # file: 'packages/board/board_ESP32-S3_YBoard.yaml'
+
     # vars:
     #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
     #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Display
+  # | >>> Uncomment the display that corresponds to your board
+  # +------------------------------------------------------------------------------+
+
+  board_display: !include
+    file: 'packages/board/board_options_display_128x128.yaml' # AtomS3 / AtomS3R display
+    # file: 'packages/board/board_options_display_480x222.yaml' # LilyGo T-Connect Pro display
+    vars:
+      display_auto_next_page_interval: '5s'
+      display_rotation: '90' # 0/90/180/270 rotation angle in degrees  
 
 
 
@@ -180,15 +210,18 @@ packages:
   # +------------------------------------------------------------------------------+
 
   # UART 1 (uart_id: uart_esp_1)
-  # uart_esp_1: !include packages/board/board_options_itf_uart_esp_1.yaml
+  uart_esp_1: !include packages/board/board_options_itf_uart_esp_1.yaml
   # UART 2 (uart_id: uart_esp_2)
   # uart_esp_2: !include packages/board/board_options_itf_uart_esp_2.yaml
   # UART 3 (uart_id: uart_esp_3)
   # uart_esp_3: !include packages/board/board_options_itf_uart_esp_3.yaml
 
-  # UART expander WK2168
-  wk2168_spi: !include packages/board/board_options_itf_wk2168_spi.yaml
-  # wk2168_i2c: !include packages/board/board_options_itf_wk2168_i2c.yaml
+  # UART flow control
+  # uart_flow_control: !include
+  #   file: packages/board/board_options_itf_uart_flow_control.yaml
+  #   vars:
+  #     uart_id: 'uart_esp_1'
+  #     uart_flow_control_pin: ${talk_pin}
 
   # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
   canbus_node_1: !include
@@ -218,12 +251,6 @@ packages:
   # Captive Portal @ 192.168.4.1
   # captive_portal: !include packages/board/board_options_captive_portal.yaml
 
-  # PVbrain2 Options
-  # bus_i2c0: !include pvbrain2/base/device_bus_i2c0.yaml # I2C bus for SX1509 and BME280/BMP280
-  # bus_spi1: !include pvbrain2/base/device_bus_spi1.yaml # SPI bus for MCP2515
-  # bus_one_wire: !include pvbrain2/base/device_bus_one_wire.yaml # One wire bus for Dallas sensor
-  # device_sx1509: !include pvbrain2/base/device_sx1509.yaml # SX1509 16 channel I/O Expander
-
 
 
   # +------------------------------------------------------------------------------+
@@ -236,6 +263,101 @@ packages:
   # >>> Copy your BMS / Balancer / Shunt packages here
   # >>> You can find examples at this address :
   # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
+
+
+
+  shunt1: !include
+    file: packages/shunt/shunt_combine_FAKE.yaml
+    vars:
+      shunt_id: '1' # must be a number
+      shunt_name: 'Shunt 1'
+      # Shunt sensors values
+      shunt_voltage: '52.81' # V
+      shunt_current: '17.5' # A
+      shunt_power: '924' # W
+      shunt_soc: '50' # %
+      shunt_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+
+  bms1: !include
+    file: packages/bms/bms_combine_FAKE.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'BMS 1'
+      # BMS sensors values
+      bms_battery_capacity: '280' # Ah
+      bms_battery_capacity_remaining: '280' # Ah
+      bms_voltage: '55.20' # V
+      bms_current: '3.5' # A
+      bms_power: '193' # W
+      bms_soc: '100' # %
+      bms_soh: '99' # %
+      bms_min_cell_voltage: '3.449' # V
+      bms_min_voltage_cell: '2' # cell number 1~16
+      bms_max_cell_voltage: '3.451' # V
+      bms_max_voltage_cell: '11' # cell number 1~16
+      bms_min_temperature: '4.1' # °C
+      bms_max_temperature: '4.3' # °C
+      bms_max_charge_current: '100' # A
+      bms_max_discharge_current: '100' # A
+      bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V                            Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V             Used by 'Auto CVL' functions
+      bms_charging_cycles: '178' # charging cycles number  Used to calculate the SoH
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+
+  bms2: !include
+    file: packages/bms/bms_combine_FAKE.yaml
+    vars:
+      bms_id: '2' # must be a number
+      bms_name: 'BMS 2'
+      # BMS sensors values
+      bms_battery_capacity: '280' # Ah
+      bms_battery_capacity_remaining: '238' # Ah
+      bms_voltage: '53.41' # V
+      bms_current: '11.3' # A
+      bms_power: '604' # W
+      bms_soc: '85' # %
+      bms_soh: '89' # %
+      bms_min_cell_voltage: '2.997' # V
+      bms_min_voltage_cell: '14' # cell number 1~16
+      bms_max_cell_voltage: '3.085' # V
+      bms_max_voltage_cell: '3' # cell number 1~16
+      bms_min_temperature: '5.1' # °C
+      bms_max_temperature: '5.3' # °C
+      bms_max_charge_current: '100' # A
+      bms_max_discharge_current: '100' # A
+      bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V                            Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V             Used by 'Auto CVL' functions
+      bms_charging_cycles: '226' # charging cycles number  Used to calculate the SoH
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+
+  bms3: !include
+    file: packages/bms/bms_combine_FAKE.yaml
+    vars:
+      bms_id: '3' # must be a number
+      bms_name: 'BMS 3'
+      # BMS sensors values
+      bms_battery_capacity: '280' # Ah
+      bms_battery_capacity_remaining: '232' # Ah
+      bms_voltage: '53.37' # V
+      bms_current: '15.7' # A
+      bms_power: '838' # W
+      bms_soc: '83' # %
+      bms_soh: '79' # %
+      bms_min_cell_voltage: '3.334' # V
+      bms_min_voltage_cell: '7' # cell number 1~16
+      bms_max_cell_voltage: '3.336' # V
+      bms_max_voltage_cell: '9' # cell number 1~16
+      bms_min_temperature: '-24.1' # °C
+      bms_max_temperature: '-24.3' # °C
+      bms_max_charge_current: '100' # A
+      bms_max_discharge_current: '100' # A
+      bms_cell_ovp: '3.650' # V                            Used by 'Auto CCL' functions
+      bms_cell_uvp: '2.800' # V                            Used by 'Auto DCL' functions and to calculate maximum discharge voltage
+      bms_balance_trigger_voltage: '0.010' # V             Used by 'Auto CVL' functions
+      bms_charging_cycles: '194' # charging cycles number  Used to calculate the SoH
+      bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
 
 
 
@@ -277,6 +399,7 @@ packages:
   #     rs485_uart_baud_rate: '9600'
   #     rs485_update_timeout: '5s'
   #     rs485_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+
 
 
   # +------------------------------------------------------------------------------+

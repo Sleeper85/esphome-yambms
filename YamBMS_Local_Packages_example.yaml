@@ -42,15 +42,14 @@ logger:
 ota:
   - platform: esphome
 
-# Please use the native `api` component instead of the `mqtt` section.
-# If you use Home Assistant, the native API is more lightweight.
-# If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
-# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
+# Uncomment:
+# API: to monitor entities via Home Assistant
+# MQTT: to monitor entities via another system
+# Neither: to monitor entities only via `web_server` or nothing
+
 api:
   reboot_timeout: 0s
 
-# If you don't want to use ESPHome's native API you can use MQTT instead.
-# In this case don't forget to remove the 'api:' section.
 # mqtt:
 #   broker: !secret mqtt_host
 #   username: !secret mqtt_username
@@ -147,6 +146,7 @@ substitutions:
   enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
 
 
+
 # +--------------------------------------+
 # | Packages                             |
 # +--------------------------------------+
@@ -193,7 +193,6 @@ packages:
   # +------------------------------------------------------------------------------+
   # | >>> Board Display
   # | >>> Uncomment the display that corresponds to your board
-  # | >>> Importing the display also activates PSRAM
   # +------------------------------------------------------------------------------+
 
   # board_display: !include
