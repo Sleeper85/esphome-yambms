@@ -1,5 +1,5 @@
-# Updated : 2025.07.28
-# Version : 1.1.1
+# Updated : 2026.02.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,53 +18,50 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  uart_hub_bus: 'spi'
-  spi_data_rate: '4Mhz'
+  uart_hub_bus: 'i2c'
+  wk2168_i2c_id: 'wk2168_i2c_bus'
 
-spi:
-  - id: spi0_bus
-    mosi_pin: 6  
-    miso_pin: 41
-    clk_pin: 40
+i2c:
+  - id: ${wk2168_i2c_id}
+    sda: ${wk2168_i2c_sda}
+    scl: ${wk2168_i2c_scl}
+    frequency: 800kHz
 
-wk2168_spi:
-  - id: uart_bridge0
-    spi_id: spi0_bus
-    cs_pin: 19
-    data_rate: ${spi_data_rate}
-    #test_mode: 1
+wk2168_i2c:
+  - address: 0x10
+    id: uart_bridge0
+    i2c_id: ${wk2168_i2c_id}
     uart:
-      - id: uart_spi_0
+      - id: uart_i2c_0
         channel: 0
         baud_rate: ${uart0_baudrate}
-        #parity: even
-      - id: uart_spi_1
+        # parity: even
+      - id: uart_i2c_1
         channel: 1
-        baud_rate: ${uart1_baudrate}
-      - id: uart_spi_2
+        baud_rate: ${uart1_baudrate}   
+      - id: uart_i2c_2
         channel: 2
         baud_rate: ${uart2_baudrate}
-        #parity: even
-      - id: uart_spi_3
+        # parity: even
+      - id: uart_i2c_3
         channel: 3
-        baud_rate: ${uart3_baudrate}       
-      
-  - id: uart_bridge1
-    spi_id: spi0_bus
-    cs_pin: 20
-    data_rate: ${spi_data_rate}
+        baud_rate: ${uart3_baudrate}
+
+  - address: 0x70
+    id: uart_bridge1
+    i2c_id: ${wk2168_i2c_id}
     uart:
-      - id: uart_spi_4
+      - id: uart_i2c_4
         channel: 0
         baud_rate: ${uart4_baudrate}
-        #parity: even
-      - id: uart_spi_5
+        # parity: even
+      - id: uart_i2c_5
         channel: 1
         baud_rate: ${uart5_baudrate}
-      - id: uart_spi_6
+      - id: uart_i2c_6
         channel: 2
         baud_rate: ${uart6_baudrate}
-        #parity: even
-      - id: uart_spi_7
+        # parity: even
+      - id: uart_i2c_7
         channel: 3
         baud_rate: ${uart7_baudrate}
