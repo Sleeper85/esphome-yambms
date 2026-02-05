@@ -50,6 +50,7 @@
 substitutions:
   board_chip: "ESP32-P4"
   board_name: "M5Stack Tab5"
+  board_has_rgb: "false"
   # Interfaces GPIOs
   # I²C bus (internal peripherals)
   i2c_sda: '31'
