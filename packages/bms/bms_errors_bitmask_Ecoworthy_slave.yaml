@@ -1,0 +1,139 @@
+# Updated : 2026.02.03
+# Version : 1.0.0
+# GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+  # +--------------------------------------+
+  # | Ecoworthy SLAVE Errors Bitmask       |
+  # +--------------------------------------+
+  # Maps Ecoworthy fault_bitmask (32-bit) and alarm_bitmask (32-bit) to
+  # YamBMS Errors Bitmask (16bit)
+  #
+  # This is identical to the master version - slave batteries expose
+  # the same fault/alarm bitmask format via Pack Status polling.
+
+  # YamBMS Error Bits:
+  # Bit 0     General alarm                                0x0001 
+  # Bit 1     Battery high voltage alarm                   0x0002
+  # Bit 2     Battery low voltage alarm                    0x0004
+  # Bit 3     Battery high temperature alarm               0x0008
+  # Bit 4     Battery low temperature alarm                0x0010
+  # Bit 5     Battery high temperature charge alarm        0x0020
+  # Bit 6     Battery low temperature charge alarm         0x0040
+  # Bit 7     Battery high discharge current alarm         0x0080
+  # Bit 8     Battery high charge current alarm            0x0100
+  # Bit 9     Contactor alarm                              0x0200
+  # Bit 10    Short circuit alarm                          0x0400
+  # Bit 11    BMS internal alarm                           0x0800
+  # Bit 12    Cell imbalance alarm                         0x1000
+  # Bit 13    Reserved                                     0x2000
+  # Bit 14    Reserved                                     0x4000
+  # Bit 15    Reserved                                     0x8000
+
+sensor:
+  - platform: template
+    id: bms${bms_id}_yambms_errors_bitmask
+    device_id: bms_${bms_id}
+    name: "YamBMS Errors Bitmask"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: |-
+      uint16_t yambms_errors = 0;
+      
+      // Get fault and alarm bitmasks
+      uint32_t fault = 0;
+      uint32_t alarm = 0;
+      
+      if (!std::isnan(id(bms${bms_id}_fault_bitmask).state)) {
+        fault = static_cast<uint32_t>(id(bms${bms_id}_fault_bitmask).state);
+      }
+      if (!std::isnan(id(bms${bms_id}_alarm_bitmask).state)) {
+        alarm = static_cast<uint32_t>(id(bms${bms_id}_alarm_bitmask).state);
+      }
+      
+      // If any fault or alarm, set general alarm (bit 0)
+      if (fault != 0 || alarm != 0) {
+        yambms_errors |= 0x0001;
+      }
+      
+      // High voltage alarm (bit 1): Cell OV (bit 0) or Pack OV (bit 2)
+      if ((fault & 0x05) || (alarm & 0x05)) {
+        yambms_errors |= 0x0002;
+      }
+      
+      // Low voltage alarm (bit 2): Cell UV (bit 1) or Pack UV (bit 3)
+      if ((fault & 0x0A) || (alarm & 0x0A)) {
+        yambms_errors |= 0x0004;
+      }
+      
+      // High temperature alarm (bit 3): Discharge HT (bit 10), MOS HT (bit 12), Ambient HT (bit 13)
+      if ((fault & 0x3400) || (alarm & 0x0C00)) {
+        yambms_errors |= 0x0008;
+      }
+      
+      // Low temperature alarm (bit 4): Discharge LT (bit 11), Ambient LT (bit 14)
+      if ((fault & 0x4800) || (alarm & 0x1000)) {
+        yambms_errors |= 0x0010;
+      }
+      
+      // High temperature charge alarm (bit 5): Charge HT (bit 8)
+      if ((fault & 0x100) || (alarm & 0x40)) {
+        yambms_errors |= 0x0020;
+      }
+      
+      // Low temperature charge alarm (bit 6): Charge LT (bit 9)
+      if ((fault & 0x200) || (alarm & 0x80)) {
+        yambms_errors |= 0x0040;
+      }
+      
+      // High discharge current alarm (bit 7): Discharge OC Slow/Fast (bits 6-7)
+      if ((fault & 0xC0) || (alarm & 0x20)) {
+        yambms_errors |= 0x0080;
+      }
+      
+      // High charge current alarm (bit 8): Charge OC Slow/Fast (bits 4-5)
+      if ((fault & 0x30) || (alarm & 0x10)) {
+        yambms_errors |= 0x0100;
+      }
+      
+      // Contactor/MOS alarm (bit 9): Charge MOS Fault (bit 21), Discharge MOS Fault (bit 22)
+      if (fault & 0x600000) {
+        yambms_errors |= 0x0200;
+      }
+      
+      // Short circuit alarm (bit 10): Short Circuit (bit 18)
+      if (fault & 0x40000) {
+        yambms_errors |= 0x0400;
+      }
+      
+      // BMS internal alarm (bit 11): AFE Comm Error (bit 23), Cell Offline (bit 19), 
+      // Temp Sensor Fail (bit 20), EEP Fault (alarm bit 16), RTC Abnormal (alarm bit 17)
+      if ((fault & 0xB80000) || (alarm & 0x30000)) {
+        yambms_errors |= 0x0800;
+      }
+      
+      // Cell imbalance alarm (bit 12): Cell V Diff (bit 15), Temp Diff (bit 16)
+      if ((fault & 0x18000) || (alarm & 0x6000)) {
+        yambms_errors |= 0x1000;
+      }
+      
+      return yambms_errors;

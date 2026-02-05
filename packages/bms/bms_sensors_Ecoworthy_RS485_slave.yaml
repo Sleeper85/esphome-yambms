@@ -1,0 +1,386 @@
+# Updated : 2026.02.03
+# Version : 1.0.0
+# GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | Ecoworthy BMS RS485 SLAVE Package    |
+# +--------------------------------------+
+# This package provides YamBMS sensors for a SLAVE battery polled
+# through a master Ecoworthy BMS component.
+#
+# The master component must be configured with battery_count >= slave_battery_number
+#
+# Required substitutions:
+#   bms_id: The YamBMS BMS ID number for this slave
+#   bms_name: Display name for this slave BMS
+#   parent_ecoworthy_bms_id: ID of the parent ecoworthy_bms component (e.g., 'ecoworthy_bms9')
+#   slave_battery_number: The slave battery number (2, 3, 4, etc.)
+#
+# Optional substitutions:
+#   bms_max_charge_current: Max charge current in A (default: 100)
+#   bms_max_discharge_current: Max discharge current in A (default: 100)
+#   bms_cell_ovp: Cell over-voltage protection in V (default: 3.650)
+#   bms_cell_uvp: Cell under-voltage protection in V (default: 2.500)
+#   bms_balance_trigger_voltage: Balance trigger voltage in V (default: 0.030)
+#
+# Note: Slave batteries only have access to Pack Status data (not config blocks).
+#       balance_trigger_voltage must be set via substitution for slaves.
+
+packages:
+  bms_base: !include bms_base.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_Ecoworthy.yaml
+  bms_errors_bitmask: !include bms_errors_bitmask_Ecoworthy_slave.yaml
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+# Note: No ecoworthy_bms component created here - we reference the parent's slave sensors
+
+binary_sensor:
+  # Slave battery binary sensors from parent component
+  - platform: ecoworthy_bms
+    ecoworthy_bms_id: ${parent_ecoworthy_bms_id}
+    batteries:
+      ${slave_battery_number}:
+        online_status:
+          id: bms${bms_id}_online_status
+          device_id: bms_${bms_id}
+          name: "online status"
+        balancing:
+          id: bms${bms_id}_bms_equalizing
+          device_id: bms_${bms_id}
+          name: "balancing"
+        charging:
+          device_id: bms_${bms_id}
+          name: "charging active"
+        discharging:
+          device_id: bms_${bms_id}
+          name: "discharging active"
+        charging_switch:
+          id: bms${bms_id}_charge_mos_internal
+          device_id: bms_${bms_id}
+          internal: true
+        discharging_switch:
+          id: bms${bms_id}_discharge_mos_internal
+          device_id: bms_${bms_id}
+          internal: true
+
+  # bms_switch_charging - YamBMS uses this to check if charging is ALLOWED (MOS on)
+  - platform: template
+    id: bms${bms_id}_charging_allowed
+    device_id: bms_${bms_id}
+    name: "charging"
+    lambda: |-
+      return id(bms${bms_id}_charge_mos_internal).state;
+
+  # bms_switch_discharging - YamBMS uses this to check if discharging is ALLOWED (MOS on)
+  - platform: template
+    id: bms${bms_id}_discharging_allowed
+    device_id: bms_${bms_id}
+    name: "discharging"
+    lambda: |-
+      return id(bms${bms_id}_discharge_mos_internal).state;
+
+sensor:
+  # Slave battery sensors from parent component
+  - platform: ecoworthy_bms
+    ecoworthy_bms_id: ${parent_ecoworthy_bms_id}
+    batteries:
+      ${slave_battery_number}:
+        total_voltage:
+          id: bms${bms_id}_total_voltage
+          device_id: bms_${bms_id}
+          name: "total voltage"
+        current:
+          id: bms${bms_id}_current
+          device_id: bms_${bms_id}
+          name: "current"
+        power:
+          id: bms${bms_id}_power
+          device_id: bms_${bms_id}
+          name: "power"
+        charging_power:
+          id: bms${bms_id}_charging_power
+          device_id: bms_${bms_id}
+          name: "charging power"
+        discharging_power:
+          id: bms${bms_id}_discharging_power
+          device_id: bms_${bms_id}
+          name: "discharging power"
+        remaining_capacity:
+          id: bms${bms_id}_capacity_remaining_ah
+          device_id: bms_${bms_id}
+          name: "remaining capacity"
+        full_capacity:
+          id: bms${bms_id}_battery_capacity
+          device_id: bms_${bms_id}
+          name: "total capacity"
+        rated_capacity:
+          device_id: bms_${bms_id}
+          name: "rated capacity"
+        state_of_charge:
+          id: bms${bms_id}_state_of_charge
+          device_id: bms_${bms_id}
+          name: "state of charge"
+        state_of_health:
+          id: bms${bms_id}_battery_soh
+          device_id: bms_${bms_id}
+          name: "state of health"
+        cycle_count:
+          id: bms${bms_id}_charging_cycles_raw
+          device_id: bms_${bms_id}
+          name: "cycle"
+        min_cell_voltage:
+          id: bms${bms_id}_min_cell_voltage
+          device_id: bms_${bms_id}
+          name: "min cell voltage"
+        max_cell_voltage:
+          id: bms${bms_id}_max_cell_voltage
+          device_id: bms_${bms_id}
+          name: "max cell voltage"
+        delta_cell_voltage:
+          id: bms${bms_id}_delta_cell_voltage
+          device_id: bms_${bms_id}
+          name: "delta cell voltage"
+        average_cell_voltage:
+          id: bms${bms_id}_cell_average_voltage
+          device_id: bms_${bms_id}
+          name: "cell average voltage"
+        min_voltage_cell:
+          id: bms${bms_id}_min_voltage_cell
+          device_id: bms_${bms_id}
+          name: "min voltage cell"
+        max_voltage_cell:
+          id: bms${bms_id}_max_voltage_cell
+          device_id: bms_${bms_id}
+          name: "max voltage cell"
+        cell_voltage_1:
+          id: bms${bms_id}_cell_voltage_1
+          device_id: bms_${bms_id}
+          name: "cell voltage 01"
+        cell_voltage_2:
+          id: bms${bms_id}_cell_voltage_2
+          device_id: bms_${bms_id}
+          name: "cell voltage 02"
+        cell_voltage_3:
+          id: bms${bms_id}_cell_voltage_3
+          device_id: bms_${bms_id}
+          name: "cell voltage 03"
+        cell_voltage_4:
+          id: bms${bms_id}_cell_voltage_4
+          device_id: bms_${bms_id}
+          name: "cell voltage 04"
+        cell_voltage_5:
+          id: bms${bms_id}_cell_voltage_5
+          device_id: bms_${bms_id}
+          name: "cell voltage 05"
+        cell_voltage_6:
+          id: bms${bms_id}_cell_voltage_6
+          device_id: bms_${bms_id}
+          name: "cell voltage 06"
+        cell_voltage_7:
+          id: bms${bms_id}_cell_voltage_7
+          device_id: bms_${bms_id}
+          name: "cell voltage 07"
+        cell_voltage_8:
+          id: bms${bms_id}_cell_voltage_8
+          device_id: bms_${bms_id}
+          name: "cell voltage 08"
+        cell_voltage_9:
+          id: bms${bms_id}_cell_voltage_9
+          device_id: bms_${bms_id}
+          name: "cell voltage 09"
+        cell_voltage_10:
+          id: bms${bms_id}_cell_voltage_10
+          device_id: bms_${bms_id}
+          name: "cell voltage 10"
+        cell_voltage_11:
+          id: bms${bms_id}_cell_voltage_11
+          device_id: bms_${bms_id}
+          name: "cell voltage 11"
+        cell_voltage_12:
+          id: bms${bms_id}_cell_voltage_12
+          device_id: bms_${bms_id}
+          name: "cell voltage 12"
+        cell_voltage_13:
+          id: bms${bms_id}_cell_voltage_13
+          device_id: bms_${bms_id}
+          name: "cell voltage 13"
+        cell_voltage_14:
+          id: bms${bms_id}_cell_voltage_14
+          device_id: bms_${bms_id}
+          name: "cell voltage 14"
+        cell_voltage_15:
+          id: bms${bms_id}_cell_voltage_15
+          device_id: bms_${bms_id}
+          name: "cell voltage 15"
+        cell_voltage_16:
+          id: bms${bms_id}_cell_voltage_16
+          device_id: bms_${bms_id}
+          name: "cell voltage 16"
+        temperature_sensor_1:
+          id: bms${bms_id}_temperature_sensor_1
+          device_id: bms_${bms_id}
+          name: "cell temperature 1"
+        temperature_sensor_2:
+          id: bms${bms_id}_temperature_sensor_2
+          device_id: bms_${bms_id}
+          name: "cell temperature 2"
+        temperature_sensor_3:
+          id: bms${bms_id}_temperature_sensor_3
+          device_id: bms_${bms_id}
+          name: "cell temperature 3"
+        temperature_sensor_4:
+          id: bms${bms_id}_temperature_sensor_4
+          device_id: bms_${bms_id}
+          name: "cell temperature 4"
+        power_tube_temperature:
+          device_id: bms_${bms_id}
+          name: "mosfet temperature"
+        ambient_temperature:
+          device_id: bms_${bms_id}
+          name: "ambient temperature"
+        min_temperature:
+          id: bms${bms_id}_min_temperature
+          device_id: bms_${bms_id}
+          name: "min temperature"
+        max_temperature:
+          id: bms${bms_id}_max_temperature
+          device_id: bms_${bms_id}
+          name: "max temperature"
+        avg_temperature:
+          device_id: bms_${bms_id}
+          name: "average temperature"
+        charge_voltage_limit:
+          device_id: bms_${bms_id}
+          name: "charge voltage limit"
+        charge_current_limit:
+          id: bms${bms_id}_max_charge_current
+          device_id: bms_${bms_id}
+          name: "max charging current"
+        discharge_voltage_limit:
+          device_id: bms_${bms_id}
+          name: "discharge voltage limit"
+        discharge_current_limit:
+          id: bms${bms_id}_max_discharge_current
+          device_id: bms_${bms_id}
+          name: "max discharge current"
+        fault_bitmask:
+          id: bms${bms_id}_fault_bitmask
+          device_id: bms_${bms_id}
+          name: "fault bitmask"
+          internal: true
+        alarm_bitmask:
+          id: bms${bms_id}_alarm_bitmask
+          device_id: bms_${bms_id}
+          name: "alarm bitmask"
+          internal: true
+        mosfet_status_bitmask:
+          id: bms${bms_id}_mosfet_bitmask
+          device_id: bms_${bms_id}
+          name: "mosfet status bitmask"
+        balancing_bitmask:
+          id: bms${bms_id}_balancing_bitmask
+          device_id: bms_${bms_id}
+          name: "balancing bitmask"
+
+  # Required sensors - balance trigger voltage (configurable via substitution)
+  - platform: template
+    id: bms${bms_id}_bms_balance_trigger_voltage
+    device_id: bms_${bms_id}
+    name: "balance trigger voltage"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: "V"
+    state_class: measurement
+    device_class: 'voltage'
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_balance_trigger_voltage};
+
+  # Cell OVP (configurable via substitution)
+  - platform: template
+    id: bms${bms_id}_cell_ovp
+    device_id: bms_${bms_id}
+    name: "cell ovp"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: "V"
+    state_class: measurement
+    device_class: 'voltage'
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_ovp};
+
+  # Cell UVP (configurable via substitution)
+  - platform: template
+    id: bms${bms_id}_cell_uvp
+    device_id: bms_${bms_id}
+    name: "cell uvp"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 3
+    unit_of_measurement: "V"
+    state_class: measurement
+    device_class: 'voltage'
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+    lambda: return ${bms_cell_uvp};
+
+  # Charging cycle capacity - Calculated from charging cycles and battery capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    device_id: bms_${bms_id}
+    name: "charging cycle capacity"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    internal: true
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+
+text_sensor:
+  # Slave battery text sensors from parent component
+  - platform: ecoworthy_bms
+    ecoworthy_bms_id: ${parent_ecoworthy_bms_id}
+    batteries:
+      ${slave_battery_number}:
+        operation_status:
+          id: bms${bms_id}_status
+          device_id: bms_${bms_id}
+          name: "status"
+        fault:
+          id: bms${bms_id}_fault_text
+          device_id: bms_${bms_id}
+          name: "fault"
+          internal: true
+        alarm:
+          id: bms${bms_id}_alarm_text
+          device_id: bms_${bms_id}
+          name: "alarm"
+          internal: true

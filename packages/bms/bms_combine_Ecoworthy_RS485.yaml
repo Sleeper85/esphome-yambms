@@ -1,0 +1,38 @@
+# Updated : 2026.02.02
+# Version : 1.0.0
+# GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | Ecoworthy BMS Combine Package        |
+# +--------------------------------------+
+# This package is for the YamBMS client (single-node setup).
+# It combines BMS data from Ecoworthy BMS via RS485 with YamBMS.
+#
+# Required substitutions:
+#   bms_id: The BMS ID number
+#   bms_name: Display name for the BMS
+#   bms_address: Modbus address of the BMS (0x01-0x0F)
+#   ecoworthy_modbus_id: The ecoworthy_modbus component ID
+
+substitutions:
+  bms_model: "Ecoworthy"
+  bms_protocol: "RS485"
+
+packages:
+  bms_combine: !include bms_combine.yaml
+  bms_sensors: !include bms_sensors_Ecoworthy_RS485_full.yaml

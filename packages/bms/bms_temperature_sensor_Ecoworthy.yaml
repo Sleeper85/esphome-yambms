@@ -1,0 +1,83 @@
+# Updated : 2026.02.02
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | Temperature Sensor Package for       |
+# | Ecoworthy BMS                        |
+# +--------------------------------------+
+# This package creates the required temperature sensor IDs for YamBMS
+# but does NOT create min/max temperature sensors since the Ecoworthy
+# component already provides them.
+
+sensor:
+  # MIN temperature sensor number
+  - platform: template
+    id: bms${bms_id}_min_temperature_sensor
+    device_id: bms_${bms_id}
+    name: "min temperature sensor"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:thermometer-chevron-down
+    filters:
+      - throttle: 10s
+      - delta: 1
+    lambda: |-
+      // Find which sensor has min temperature
+      float min_temp = id(bms${bms_id}_temperature_sensor_1).state;
+      int min_sensor = (1 + ${bms_id} * 100);
+      if (id(bms${bms_id}_temperature_sensor_2).state < min_temp) {
+        min_temp = id(bms${bms_id}_temperature_sensor_2).state;
+        min_sensor = (2 + ${bms_id} * 100);
+      }
+      if (id(bms${bms_id}_temperature_sensor_3).state < min_temp) {
+        min_temp = id(bms${bms_id}_temperature_sensor_3).state;
+        min_sensor = (3 + ${bms_id} * 100);
+      }
+      if (id(bms${bms_id}_temperature_sensor_4).state < min_temp) {
+        min_sensor = (4 + ${bms_id} * 100);
+      }
+      return min_sensor;
+
+  # MAX temperature sensor number
+  - platform: template
+    id: bms${bms_id}_max_temperature_sensor
+    device_id: bms_${bms_id}
+    name: "max temperature sensor"
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:thermometer-chevron-up
+    filters:
+      - throttle: 10s
+      - delta: 1
+    lambda: |-
+      // Find which sensor has max temperature
+      float max_temp = id(bms${bms_id}_temperature_sensor_1).state;
+      int max_sensor = (1 + ${bms_id} * 100);
+      if (id(bms${bms_id}_temperature_sensor_2).state > max_temp) {
+        max_temp = id(bms${bms_id}_temperature_sensor_2).state;
+        max_sensor = (2 + ${bms_id} * 100);
+      }
+      if (id(bms${bms_id}_temperature_sensor_3).state > max_temp) {
+        max_temp = id(bms${bms_id}_temperature_sensor_3).state;
+        max_sensor = (3 + ${bms_id} * 100);
+      }
+      if (id(bms${bms_id}_temperature_sensor_4).state > max_temp) {
+        max_sensor = (4 + ${bms_id} * 100);
+      }
+      return max_sensor;
