@@ -1,0 +1,61 @@
+# Updated : 2026.02.05
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+
+substitutions:
+  global_status_led: "esp_light"
+
+globals:
+
+  # ---------------------------------------------------------
+  # Global Function: Update LED assignment - No LED version
+  # ---------------------------------------------------------
+  - id: global_register_led
+    type: std::function<void(int, int, esphome::light::LightState*)>
+    initial_value: |-
+      [](int category, int instance, esphome::light::LightState* led) {
+        // Do nothing - This board does not have a LED
+      }
+
+
+output:
+  - platform: template
+    id: virtual_output
+    type: binary
+    write_action: []
+
+  # Fake esp_light output
+  - platform: template
+    id: esp_light_output
+    type: binary
+    write_action: []
+
+light:
+  # Fake light to act as a placeholder for LED control logic
+  - platform: binary
+    id: virtual_status_light
+    output: virtual_output
+
+  # Fake esp_light
+  - platform: binary
+    id: esp_light
+    output: esp_light_output
+
+
+

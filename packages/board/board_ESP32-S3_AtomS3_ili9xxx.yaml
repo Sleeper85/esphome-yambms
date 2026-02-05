@@ -48,6 +48,7 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
+  no_led_control: !include board_options_no_led_control.yaml
 
 esp32:
   board: m5stack-atoms3
