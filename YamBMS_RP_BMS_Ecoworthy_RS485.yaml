@@ -266,7 +266,7 @@ packages:
 
 
       # Ecoworthy Modbus - Include this ONCE per RS485 bus
-      - path: 'packages/bms/bms_Ecoworthy_modbus.yaml'
+      - path: 'packages/bms/bms_combine_Ecoworthy_RS485_modbus.yaml'
         vars:
           ecoworthy_modbus_uart_id: 'uart_esp_1'
           ecoworthy_modbus_baud_rate: '9600'
@@ -280,7 +280,7 @@ packages:
           bms_max_discharge_current: '100'         # A. Max discharge current
           bms_cell_ovp: '3.650'                    # V. Cell over-voltage protection
           bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
-          bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltag
+          bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
           bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
       # BMS 2 (uncomment if you have a second battery)
       - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
@@ -294,7 +294,6 @@ packages:
           bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
           bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
           bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
-
 
 
   # +------------------------------------------------------------------------------+

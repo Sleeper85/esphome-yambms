@@ -27,11 +27,14 @@
 #   bms_id: The BMS ID number
 #   bms_name: Display name for the BMS
 #   bms_address: Modbus address of the BMS (0x01-0x0F)
-#   ecoworthy_modbus_id: The ecoworthy_modbus component ID
+#
+# Optional substitutions (have defaults):
+#   ecoworthy_modbus_id: The ecoworthy_modbus component ID (default: modbus_ecoworthy)
 
 substitutions:
   bms_model: "Ecoworthy"
   bms_protocol: "RS485"
+  ecoworthy_modbus_id: modbus_ecoworthy
 
 packages:
   bms_combine: !include bms_combine.yaml

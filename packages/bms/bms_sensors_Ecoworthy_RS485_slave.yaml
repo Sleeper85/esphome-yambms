@@ -43,7 +43,7 @@
 
 packages:
   bms_base: !include bms_base.yaml
-  bms_temperature_sensor: !include bms_temperature_sensor_Ecoworthy.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_Ecoworthy_slave.yaml
 
 # +--------------------------------------+

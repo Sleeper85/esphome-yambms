@@ -33,7 +33,7 @@ substitutions:
   ecoworthy_modbus_baud_rate: '9600'
 
 external_components:
-  - source: github://RAR/esphome-ecoworthy-bms@main
+  - source: github://RAR/esphome-ecoworthy-bms@v0.1.0-beta
     refresh: 0s
 
 uart:
