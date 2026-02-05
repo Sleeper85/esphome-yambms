@@ -1,5 +1,5 @@
-# Updated : 2026.02.01
-# Version : 1.0.0
+# Updated : 2026.02.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -127,11 +127,6 @@ interval:
           ESP_LOGI("health_rpt", "┌──────────────────────────────┐");
           ESP_LOGI("health_rpt", "│     SYSTEM HEALTH REPORT     │");
           ESP_LOGI("health_rpt", "└──────────────────────────────┘");
-
-          // Log Master Bitmask
-          uint16_t mask = id(global_system_fault_mask);
-          std::string binary_mask = std::bitset<16>(mask).to_string();
-          ESP_LOGI("health_rpt", "Global Fault Mask: %d (Binary: %s)", mask, binary_mask.c_str());
 
           bool system_clean = true;
 
