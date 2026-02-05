@@ -1,5 +1,5 @@
-# Updated : 2025.12.09
-# Version : 1.1.5
+# Updated : 2026.02.05
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,7 +28,7 @@ script:
       - logger.log: "BMS ${bms_id} charge_switch Turn OFF"
 
 interval:
-  - interval: ${bms_combine_interval}
+  - interval: ${yambms_update_interval}
     then:
       - lambda: |-
           id(${yambms_id}_bms_charging_logic) = true;
