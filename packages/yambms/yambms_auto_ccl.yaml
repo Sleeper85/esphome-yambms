@@ -30,7 +30,11 @@ substitutions:
   # A setting above 1 will reduce current at a slow rate after the float voltage is reached, then increase as a cell approaches the BMS "cell_voltage_overvoltage_protection" value.
   # A factor below 1 will reduce current at a fast rate after the float voltage is reached, then slow as a cell approaches the BMS "cell_voltage_overvoltage_protection" value.
   charge_a_factor_curve_shape: '1.8'
-
+  # Linear charge current taper
+  # Begins tapering 2V before bulk voltage target
+  # CCL reduces linearly: full current at (target - 2V), zero at target
+  charge_taper_start_offset: '2.0'  # Voltage before target to start taper
+  
 switch:
   - platform: template
     name: ${name} ${yambms_name} Automatic Charge Current
@@ -53,25 +57,46 @@ sensor:
     internal: true
     filters:
     - lambda: |-
+
+- platform: copy
+    source_id: ${yambms_id}_max_cell_voltage
+    name: ${name} ${yambms_name} Initial Charge Current
+    id: auto_ccl_initial
+    unit_of_measurement: A
+    device_class: current
+    internal: true
+    filters:
+    - lambda: |-
         // Variables
         double max_charge_a = id(${yambms_id}_max_charge_current).state;
-        double cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
-        double cell_float_v = (id(${yambms_id}_float_voltage).state / id(${yambms_id}_cell_count).state);
-        double cell_high_v = ((id(${yambms_id}_cell_ovp).state + cell_bulk_v) / 2);
-
+        double target_voltage = id(${yambms_id}_bulk_voltage).state;
+        double current_voltage = id(${yambms_id}_total_voltage).state;
+        
         // Auto Charge Current function
         if (!id(${yambms_id}_switch_auto_ccl).state) {
           // No change to charge current required
           return 0.0;
-        } else if (id(${yambms_id}_max_cell_voltage).state > cell_high_v) {
-          // Set CCL delta to maximum as max cell voltage too high
-          return -max_charge_a;
-        } else {
-          // Set CCL delta to automatic value
-          return max(0.0,(- pow(${charge_a_factor_curve_end}, pow( max(0.0, ((x - cell_float_v) / (cell_high_v - cell_float_v))),${charge_a_factor_curve_shape}))+2) * max_charge_a)
-          - max_charge_a;
         }
-
+        
+        // Linear taper algorithm
+        double taper_start_voltage = target_voltage - 2.0;  // Start taper 2V before target
+        
+        if (current_voltage < taper_start_voltage) {
+          // Full current until 2V away from target
+          return 0.0;  // No reduction
+        }
+        
+        // Calculate proportional taper
+        double voltage_error = target_voltage - current_voltage;
+        double taper_range = 2.0;
+        
+        // CCL reduction proportional to how close we are to target
+        double ccl_multiplier = voltage_error / taper_range;
+        ccl_multiplier = max(0.0, min(1.0, ccl_multiplier));  // Clamp between 0 and 1
+        
+        // Return the delta (negative value reduces CCL)
+        return (ccl_multiplier * max_charge_a) - max_charge_a;
+        
   # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial charge current values.
   - platform: copy
     source_id: auto_ccl_initial
