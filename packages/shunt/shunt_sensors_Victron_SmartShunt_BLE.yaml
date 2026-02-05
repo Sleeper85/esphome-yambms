@@ -1,5 +1,5 @@
-# Updated : 2026.02.04
-# Version : 1.1.6
+# Updated : 2026.02.05
+# Version : 1.1.7
 # GitHub  : https://github.com/Fabian-Schmidt/esphome-victron_ble
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -68,6 +68,7 @@ binary_sensor:
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
     name: "Online Status"
+    trigger_on_initial_state: true
     on_state:
       then:
         - lambda: |-
