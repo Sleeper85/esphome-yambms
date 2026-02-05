@@ -450,3 +450,9 @@ number:
     cell_power_off_voltage:
       device_id: bms_${bms_id}
       name: "cell power off voltage"
+    charging_lowtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charging lowtemperature protection"
+    charging_lowtemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "charging lowtemperature protection recovery"
