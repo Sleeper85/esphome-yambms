@@ -1,5 +1,5 @@
-# Updated : 2026.02.02
-# Version : 1.0.0
+# Updated : 2026.02.05
+# Version : 1.0.1
 # GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -44,6 +44,7 @@ packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_Ecoworthy.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_Ecoworthy.yaml
+  led_assign: !include bms_base_led_assign.yaml
 
 # +--------------------------------------+
 # | Component settings                   |

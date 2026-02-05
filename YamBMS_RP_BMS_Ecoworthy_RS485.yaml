@@ -1,5 +1,5 @@
-# Updated : 2026.02.02
-# Version : 1.0.0
+# Updated : 2026.02.05
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,15 +42,14 @@ logger:
 ota:
   - platform: esphome
 
-# Please use the native `api` component instead of the `mqtt` section.
-# If you use Home Assistant, the native API is more lightweight.
-# If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
-# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
+# Uncomment:
+# API: to monitor entities via Home Assistant
+# MQTT: to monitor entities via another system
+# Neither: to monitor entities only via `web_server` or nothing
+
 api:
   reboot_timeout: 0s
 
-# If you don't want to use ESPHome's native API you can use MQTT instead.
-# In this case don't forget to remove the 'api:' section.
 # mqtt:
 #   broker: !secret mqtt_host
 #   username: !secret mqtt_username
@@ -148,28 +147,37 @@ substitutions:
   bms_balance_trigger_voltage: '0.030' # V. Balance trigger voltage
 
 packages:
-
-  # +------------------------------------------------------------------------------+
-  # | >>> Board
-  # +------------------------------------------------------------------------------+
-
-  # This is the board you are using for your YamBMS
-  # It's in this file that the GPIO used by YamBMS will be configured
-
-  # >>> Go to https://github.com/Sleeper85/esphome-yambms/tree/main/packages/board
-  # >>> to select the right board for you. Uncomment only ONE board.
-
-  # >>> Use your own personal board? Create your own YAML board file based on the existing ones.
-  # >>> To use your own personal YAML files, use the !include function.
-  # >>> Here is an example: board: !include packages/board/board_ESP32_DevKitC.yaml
-
-  board:
+  remote_packages:
     url: https://github.com/Sleeper85/esphome-yambms
-    ref: ecoworthy-bms # Use the ecoworthy-bms branch
+    ref: main
     refresh: 60min
     files:
-      # ESP32 DevKitC V4 and board wiring configuration.
-      - path: 'packages/board/board_ESP32_DevKitC.yaml'
+
+  # +------------------------------------------------------------------------------+
+  # | >>> UNCOMMENT YOUR BOARD
+  # | >>> ONLY ONE BOARD !
+  # +------------------------------------------------------------------------------+
+
+      - path: 'packages/board/board_ESP32_Generic.yaml'
+      # - path: 'packages/board/board_ESP32_Atom-Lite.yaml'
+      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
+
+      # - path: 'packages/board/board_ESP32_DevKit-V1.yaml'
+      # - path: 'packages/board/board_ESP32_DevKitC.yaml'
+      # More boards available in packages/board/
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Display
+  # | >>> Uncomment the display that corresponds to your board
+  # +------------------------------------------------------------------------------+
+
+      # - path: 'packages/board/board_options_display_128x128.yaml' # AtomS3 / AtomS3R display
+      # - path: 'packages/board/board_options_display_480x222.yaml' # AtomS3 ili9xxx display
+
+  # +------------------------------------------------------------------------------+
+  # | >>> MODBUS / UART / CAN bus / BLUETOOTH / Other Options
+  # | >>> Uncomment your interfaces and options
+  # +------------------------------------------------------------------------------+
 
       # +--------------------------------------+
       # | >>> UART
@@ -177,13 +185,24 @@ packages:
       # This is the UART (RS485) used for Ecoworthy BMS communication
       - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
 
+      # +--------------------------------------+
+      # | >>> CAN bus Interface
+      # +--------------------------------------+
+      # Use the internal ESP32 CAN bus controller
+      # - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
+
+      # Use the MCP2515 SPI CAN bus controller
+      # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
+
+      # +--------------------------------------+
+      # | >>> Other Options
+      # +--------------------------------------+
+
       # WiFi AP @ 192.168.4.1
       # - path: 'packages/board/board_options_wifi_ap.yaml'
 
       # Captive Portal @ 192.168.4.1
       # - path: 'packages/board/board_options_captive_portal.yaml'
-
-
 
   # +------------------------------------------------------------------------------+
   # | >>> BMS / Balancer / Shunt
@@ -191,12 +210,14 @@ packages:
 
   # You don't have to import a shunt but you must import at least one BMS.
   # You can mix different BMS models, the only condition is that the `bms_id` are numbered in order starting from 1 !
+  # >>> You can find examples at this address :
+  # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
 
-  bms:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: ecoworthy-bms # Use the ecoworthy-bms branch
-    refresh: 60min
-    files:
+
+  # >>> You can find examples at this address :
+  # >>> https://github.com/Sleeper85/esphome-yambms/tree/main/examples/single-node/
+
+
       # Ecoworthy Modbus - Include this ONCE per RS485 bus
       - path: 'packages/bms/bms_Ecoworthy_modbus.yaml'
         vars:
@@ -216,58 +237,28 @@ packages:
       #     bms_name: 'Ecoworthy-BMS 2'
       #     bms_address: '0x02' # BMS 2 modbus address
       #     ecoworthy_modbus_id: 'modbus_ecoworthy'
-      # BMS 3 (uncomment if you have a third battery)
-      # - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
-      #   vars:
-      #     bms_id: '3' # must be a number
-      #     bms_name: 'Ecoworthy-BMS 3'
-      #     bms_address: '0x03' # BMS 3 modbus address
-      #     ecoworthy_modbus_id: 'modbus_ecoworthy'
-
-
 
   # +------------------------------------------------------------------------------+
   # | >>> YamBMS
   # +------------------------------------------------------------------------------+
 
-  yambms:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: ecoworthy-bms # Use the ecoworthy-bms branch
-    refresh: 60min
-    files:
       - path: 'packages/yambms/yambms.yaml'
 
-
-
   # +------------------------------------------------------------------------------+
-  # | >>> CAN bus
+  # | >>> CAN bus Communication Protocol
   # +------------------------------------------------------------------------------+
-  # If you don't have an inverter with a CAN bus port, comment out the 'canbus' package section below.
+  # If you don't have an inverter with a CAN bus port, comment out the section below.
   # YamBMS will work as a BMS monitoring system.
   # Don't forget to configure the 'canbus_name' of your inverter below !
-
-  canbus:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: ecoworthy-bms # Use the ecoworthy-bms branch
-    refresh: 60min
-    files:
-      # +--------------------------------------+
-      # | >>> CAN bus Interface
-      # +--------------------------------------+
-      # Use the internal ESP32 CAN bus controller
-      - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
-
-      # Use the MCP2515 SPI CAN bus controller
-      # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
 
       # +--------------------------------------+
       # | >>> Inverter
       # +--------------------------------------+
       # YamBMS sends CAN messages to the inverter
-      - path: 'packages/yambms/yambms_canbus.yaml'
-        vars:
-          # canbus_name options: 'PYLON', 'GOODWE', 'SEPLOS', 'SMA', 'VICTRON', 'LUXPOWER'
-          # Please see the documentation for the CANBUS protocol used by your inverter
-          canbus_name: 'PYLON'
-          canbus_id: 'canbus1'
-          canbus_light_id: 'esp_light'
+      # - path: 'packages/yambms/yambms_canbus.yaml'
+      #   vars:
+      #     # canbus_name options: 'PYLON', 'GOODWE', 'SEPLOS', 'SMA', 'VICTRON', 'LUXPOWER'
+      #     # Please see the documentation for the CANBUS protocol used by your inverter
+      #     canbus_name: 'PYLON'
+      #     canbus_id: 'canbus1'
+      #     canbus_light_id: 'esp_light'
