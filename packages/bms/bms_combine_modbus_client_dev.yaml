@@ -1,5 +1,5 @@
-# Updated : 2026.01.15
-# Version : 1.2.6
+# Updated : 2026.02.05
+# Version : 1.2.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -85,6 +85,7 @@ binary_sensor:
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
     name: "Online Status"
+    trigger_on_initial_state: true
     register_type: read
     address: 1
   # charging_allowed

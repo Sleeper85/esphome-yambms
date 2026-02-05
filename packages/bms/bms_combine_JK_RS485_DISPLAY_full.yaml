@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.8
+# Updated : 2026.02.05
+# Version : 1.1.9
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -136,6 +136,7 @@ binary_sensor:
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
     name: "online status"
+    trigger_on_initial_state: true
     lambda: |-
       if (id(bms${bms_id}_total_voltage).state > 0)
         return true;
