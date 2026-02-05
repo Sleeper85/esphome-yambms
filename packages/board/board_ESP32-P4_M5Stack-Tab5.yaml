@@ -1,5 +1,5 @@
-# Updated : 2026.02.02
-# Version : 1.0.0
+# Updated : 2026.02.05
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -413,5 +413,5 @@ font:
 # +--------------------------------------+
 # | LVGL                                 |
 # +--------------------------------------+
-# Note: LVGL configuration is provided by board_options_display_yambms.yaml
+# Note: LVGL configuration is provided by board_options_display_Tab5_1280x720.yaml
 # Do not add lvgl: section here - it will cause duplicate display IDs

@@ -1,5 +1,5 @@
-# Updated : 2026.02.02
-# Version : 1.0.0
+# Updated : 2026.02.05
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,12 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # +--------------------------------------+
-# | YamBMS LVGL Display Package          |
+# | M5Stack Tab5 Display (1280x720)     |
 # +--------------------------------------+
-# This package adds an LVGL-based display for YamBMS monitoring.
-# It reads data directly from local YamBMS sensors.
+# LVGL display configuration for M5Stack Tab5 with YamBMS sensors.
+# This package reads data directly from local YamBMS sensors.
 #
-# Required: A board with LVGL display already configured
+# Required: M5Stack Tab5 board with MIPI DSI display
 # Required substitutions:
 #   yambms_id: The YamBMS ID to monitor
 #   canbus_id: The CANBUS ID for status indicator (e.g., 'canbus1')
