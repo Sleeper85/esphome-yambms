@@ -154,7 +154,7 @@ Each component package (BMS, canbus, etc.) includes a specific variable to defin
 
 #### Example Configuration
 In your main YAML file, under `packages`, you assign the Light ID to the `*_status_led_id` variable.
-In most cases, the default values can be used but some boards such as the [LilyGo T-Connect](documents/README/Board_LilyGo_T-Connect.md) have multi-LED functionality.
+In most cases, the default values can be used but some boards such as the [LilyGo T-Connect](Board_LilyGo_T-Connect.md) have multi-LED functionality.
 
 ```yaml
 packages:
