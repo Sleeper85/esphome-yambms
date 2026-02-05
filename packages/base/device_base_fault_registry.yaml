@@ -128,11 +128,6 @@ interval:
           ESP_LOGI("health_rpt", "│     SYSTEM HEALTH REPORT     │");
           ESP_LOGI("health_rpt", "└──────────────────────────────┘");
 
-          // Log Master Bitmask
-          uint16_t mask = id(global_system_fault_mask);
-          std::string binary_mask = std::bitset<16>(mask).to_string();
-          ESP_LOGI("health_rpt", "Global Fault Mask: %d (Binary: %s)", mask, binary_mask.c_str());
-
           bool system_clean = true;
 
           // Iterate through all 16 Categories
