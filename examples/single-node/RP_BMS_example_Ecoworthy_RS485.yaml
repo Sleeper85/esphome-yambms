@@ -1,5 +1,5 @@
 # Updated : 2026.02.05
-# Version : 1.0.0
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -28,7 +28,7 @@ packages:
   bms:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
-    refresh: 0s
+    refresh: 60min
     files:
       # Ecoworthy Modbus - Include this ONCE per RS485 bus
       - path: 'packages/bms/bms_combine_Ecoworthy_RS485_modbus.yaml'
@@ -47,15 +47,15 @@ packages:
           bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
           bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
           bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
-      # Ecoworthy BMS 2 (uncomment if you have a second battery)
-      # - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
-      #   vars:
-      #     bms_id: '2' # must be a number
-      #     bms_name: 'Ecoworthy-BMS 2'
-      #     bms_address: '0x02' # BMS 2 modbus address
-      #     bms_max_charge_current: '100'            # A. Max charge current
-      #     bms_max_discharge_current: '100'         # A. Max discharge current
-      #     bms_cell_ovp: '3.650'                    # V. Cell over-voltage protection
-      #     bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
-      #     bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
-      #     bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+      # Ecoworthy BMS 2
+      - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
+        vars:
+          bms_id: '2' # must be a number
+          bms_name: 'Ecoworthy-BMS 2'
+          bms_address: '0x02' # BMS 2 modbus address
+          bms_max_charge_current: '100'            # A. Max charge current
+          bms_max_discharge_current: '100'         # A. Max discharge current
+          bms_cell_ovp: '3.650'                    # V. Cell over-voltage protection
+          bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
+          bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
