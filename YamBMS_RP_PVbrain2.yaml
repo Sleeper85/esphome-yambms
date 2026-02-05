@@ -1,4 +1,4 @@
-# Updated : 2026.02.04
+# Updated : 2026.02.05
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -174,11 +174,9 @@ packages:
     refresh: 60min
     files:
       - path: 'packages/board/board_ESP32-S3_DevKitC-1_PVbrain2.yaml'
-
-    #   vars:
-    #     server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-    #     network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-
+        # vars:
+        #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+        #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
 
 
 
