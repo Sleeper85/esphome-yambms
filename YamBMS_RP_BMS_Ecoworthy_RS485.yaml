@@ -293,6 +293,7 @@ packages:
           bms_cell_ovp: '3.650'                    # V. Cell over-voltage protection
           bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
           bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
+          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
 
 
 
