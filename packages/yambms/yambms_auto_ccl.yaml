@@ -47,18 +47,9 @@ sensor:
   # +--------------------------------------+
   # | Auto Charge Current Limit            |
   # +--------------------------------------+
-  # First, an initial charge current delta is calculated based upon the maximum cell voltage but only if the Auto Charge Current switch is enabled.
+  # Calculate charge current reduction based on proximity to bulk voltage target.
+  # Implements linear taper: full current until 2V below target, then proportional reduction to zero at target voltage.
   - platform: copy
-    source_id: ${yambms_id}_max_cell_voltage
-    name: ${name} ${yambms_name} Initial Charge Current
-    id: auto_ccl_initial
-    unit_of_measurement: A
-    device_class: current
-    internal: true
-    filters:
-    - lambda: |-
-
-- platform: copy
     source_id: ${yambms_id}_max_cell_voltage
     name: ${name} ${yambms_name} Initial Charge Current
     id: auto_ccl_initial
