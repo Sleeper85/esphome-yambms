@@ -1,4 +1,4 @@
-# Updated : 2026.02.04
+# Updated : 2026.02.05
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -63,10 +63,9 @@ packages:
     files:
       # board
       - path: packages/board/board_RP2040_RPi_Pico.yaml
-
-    #   vars:
-    #     server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-    #     network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+        # vars:
+        #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+        #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
 
       # uart
       - path: packages/board/board_options_itf_uart_1.yaml
