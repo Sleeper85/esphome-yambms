@@ -1,4 +1,4 @@
-# Updated : 2026.02.04
+# Updated : 2026.02.05
 # Version : 1.1.3
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-packages:
-  balancer_base: !include balancer_base.yaml
-
 substitutions:
   balancer_model: "JK NEEY"
   balancer_protocol: "BLE"
+
+packages:
+  balancer_base: !include balancer_base.yaml
 
 ota:
   on_begin:
