@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.3.4
+# Updated : 2026.02.05
+# Version : 1.3.5
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -91,6 +91,7 @@ binary_sensor:
       id: bms${bms_id}_online_status
       device_id: bms_${bms_id}
       name: "online status"
+      trigger_on_initial_state: true
     # Commits 2024.01.27 : Expose heating status/current (ALL)
     heating:
       device_id: bms_${bms_id}
