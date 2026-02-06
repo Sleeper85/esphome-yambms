@@ -1,5 +1,5 @@
 # Updated : 2026.02.06
-# Version : 1.2.7
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -31,8 +31,8 @@ packages:
 # +--------------------------------------+
 
 modbus_controller:
-  - id: modbus_controller${bms_id}
-    modbus_id: ${modbus_id}
+  - id: modbus_controller_bms${bms_id}
+    modbus_id: modbus_client_${modbus_id}
     setup_priority: -10
     address: ${bms_id}
     update_interval: ${modbus_update_interval}
@@ -82,7 +82,7 @@ modbus_controller:
 binary_sensor:
   # online_status
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
     name: "Online status"
@@ -91,7 +91,7 @@ binary_sensor:
     address: 1
   # charging_allowed
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_allowed
     device_id: bms_${bms_id}
     name: "Charging allowed"
@@ -100,7 +100,7 @@ binary_sensor:
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # discharging_allowed
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_discharging_allowed
     device_id: bms_${bms_id}
     name: "Discharging allowed"
@@ -109,7 +109,7 @@ binary_sensor:
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # equalizing
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_equalizing
     device_id: bms_${bms_id}
     name: "balancing"
@@ -121,7 +121,7 @@ binary_sensor:
 sensor:
   # total_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_total_voltage
     device_id: bms_${bms_id}
     name: "Total Voltage"
@@ -143,7 +143,7 @@ sensor:
         - delta: 0.01
   # current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_current
     device_id: bms_${bms_id}
     name: "Current"
@@ -165,7 +165,7 @@ sensor:
         - delta: 0.01
   # power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_power
     device_id: bms_${bms_id}
     name: "Power"
@@ -187,7 +187,7 @@ sensor:
         - delta: 0.01
   # battery_soc
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_soc
     device_id: bms_${bms_id}
     name: "Battery SoC"
@@ -209,7 +209,7 @@ sensor:
         - delta: 1
   # battery_capacity
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_capacity
     device_id: bms_${bms_id}
     name: "Battery Capacity"
@@ -231,7 +231,7 @@ sensor:
         - delta: 1
   # battery_capacity_remaining
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_capacity_remaining
     device_id: bms_${bms_id}
     name: "Battery Capacity Remaining"
@@ -253,7 +253,7 @@ sensor:
         - delta: 1
   # charging_cycles
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_cycles
     device_id: bms_${bms_id}
     name: "charging cycles"
@@ -274,7 +274,7 @@ sensor:
         - delta: 1
   # max_charge_current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_charge_current
     device_id: bms_${bms_id}
     name: "Max Charge Current"
@@ -296,7 +296,7 @@ sensor:
         - delta: 1
   # max_discharge_current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_discharge_current
     device_id: bms_${bms_id}
     name: "Max Discharge Current"
@@ -318,7 +318,7 @@ sensor:
         - delta: 1
   # max_cell_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_cell_voltage
     device_id: bms_${bms_id}
     name: "Max Cell Voltage"
@@ -340,7 +340,7 @@ sensor:
         - delta: 0.001
   # max_voltage_cell
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_voltage_cell
     device_id: bms_${bms_id}
     name: "Max Voltage Cell"
@@ -361,7 +361,7 @@ sensor:
         - delta: 1
   # min_cell_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_cell_voltage
     device_id: bms_${bms_id}
     name: "Min Cell Voltage"
@@ -383,7 +383,7 @@ sensor:
         - delta: 0.001
   # min_voltage_cell
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_voltage_cell
     device_id: bms_${bms_id}
     name: "Min Voltage Cell"
@@ -404,7 +404,7 @@ sensor:
         - delta: 1
   # min_temperature
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_temperature
     device_id: bms_${bms_id}
     name: "Min temperature"
@@ -426,7 +426,7 @@ sensor:
         - delta: 0.1
   # min_temperature_sensor
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_temperature_sensor
     device_id: bms_${bms_id}
     name: "Min temperature sensor"
@@ -447,7 +447,7 @@ sensor:
         - delta: 1
   # max_temperature
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_temperature
     device_id: bms_${bms_id}
     name: "Max temperature"
@@ -469,7 +469,7 @@ sensor:
         - delta: 0.1
   # max_temperature_sensor
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_temperature_sensor
     device_id: bms_${bms_id}
     name: "Max temperature sensor"
@@ -490,7 +490,7 @@ sensor:
         - delta: 1
   # cell_ovp
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_cell_ovp
     device_id: bms_${bms_id}
     name: "Cell OVP"
@@ -512,7 +512,7 @@ sensor:
         - delta: 0.001
   # cell_uvp
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_cell_uvp
     device_id: bms_${bms_id}
     name: "Cell UVP"
@@ -534,7 +534,7 @@ sensor:
         - delta: 0.001
   # balance_trigger_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_balance_trigger_voltage
     device_id: bms_${bms_id}
     name: "balance trigger voltage"
@@ -557,7 +557,7 @@ sensor:
         - delta: 0.001
   # errors_bitmask (16bits)
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_yambms_errors_bitmask
     device_id: bms_${bms_id}
     name: "YamBMS Errors Bitmask"
@@ -574,7 +574,7 @@ sensor:
         - delta: 1
   # charging_power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     name: "Charging Power"
@@ -596,7 +596,7 @@ sensor:
         - delta: 0.01
   # discharging_power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     name: "Discharging Power"
@@ -618,7 +618,7 @@ sensor:
         - delta: 0.01
   # battery_soh
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_soh
     device_id: bms_${bms_id}
     name: "Battery SoH"

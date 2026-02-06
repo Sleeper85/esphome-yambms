@@ -1,5 +1,5 @@
 # Updated : 2026.02.06
-# Version : 1.1.5
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,7 +30,7 @@ packages:
 
 modbus_controller:
   - id: modbus_controller_balancer${bms_id}
-    modbus_id: ${modbus_id}
+    modbus_id: modbus_client_${modbus_id}
     setup_priority: -10
     address: 10${bms_id}
     update_interval: 20s
