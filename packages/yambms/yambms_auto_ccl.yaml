@@ -1,39 +1,18 @@
-# Updated : 2026.01.30
-# Version : 1.2.8
-# GitHub  : https://github.com/Sleeper85/esphome-yambms
-
-# YamBMS ( Yet another multi-BMS Merging Solution )
-
-# This YAML is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation, either version 3
-# of the License, or (at your option) any later version.
+#------------------------------------------------------------------------------
+# Auto CCL (haysdb)
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# Purpose:
+#   Populate ${yambms_id}_var_auto_ccl with a negative delta (A) that reduces
+#   max charge current as pack voltage approaches bulk voltage.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+# Contract with yambms_core.yaml:
+#   - This file ONLY writes: id(${yambms_id}_var_auto_ccl)
+#   - Value must be <= 0.0 (0 = no limit, negative = derate)
+#   - yambms_core combines it via min(...) and applies to max_charge_current
+#------------------------------------------------------------------------------
 
 substitutions:
-  # +--------------------------------------+
-  # | Use the settings below with caution  |
-  # +--------------------------------------+
-  # Auto charge current control will automatically reduce the charging current as a cell reaches the BMS "cell_voltage_overvoltage_protection" value.
-  # Tapering will begin once the maximum cell voltage exceeds float voltage.
-  # If unsure, leave the below settings as default, this will ensure charge current will taper correctly.
-  # Factor to control the end of the charge current curve. A setting below 2 will extend the curve, above 2 will shorten the curve.
-  charge_a_factor_curve_end: '2.0'
-  # Factor to adjust the shape of the charge current curve.
-  # A setting above 1 will reduce current at a slow rate after the float voltage is reached, then increase as a cell approaches the BMS "cell_voltage_overvoltage_protection" value.
-  # A factor below 1 will reduce current at a fast rate after the float voltage is reached, then slow as a cell approaches the BMS "cell_voltage_overvoltage_protection" value.
-  charge_a_factor_curve_shape: '1.8'
-  # Linear charge current taper
-  # Begins tapering 2V before bulk voltage target
-  # CCL reduces linearly: full current at (target - 2V), zero at target
-  # Volts below bulk where taper begins (Seplos-style early landing)
+  # Volts below bulk where taper begins
   charge_taper_start_offset: '2.0'
   # Max landing C-rate (scales with installed Ah)
   landing_c_rate: '0.30'
@@ -46,97 +25,62 @@ switch:
     optimistic: true
     entity_category: config
 
-sensor:
-  # +--------------------------------------+
-  # | Auto Charge Current Limit            |
-  # +--------------------------------------+
-  # This version of Auto CCL implements a voltage-based charge “landing” curve.
-  # As pack voltage approaches the bulk target, the requested charge current
-  # is smoothly reduced to zero, allowing the BMS to settle at its natural
-  # termination voltage without SOC, timers, or absorb logic.
-  - platform: copy
-    source_id: ${yambms_id}_max_cell_voltage   # trigger only
-    name: ${name} ${yambms_name} Auto Charge Current Delta
-    id: auto_ccl_initial
-    unit_of_measurement: A
-    device_class: current
-    internal: true
-    filters:
+interval:
+  - interval: ${yambms_update_interval}
+    then:
       - lambda: |-
-          // --- Enable switch ---
-          if (!id(${yambms_id}_switch_auto_ccl).state)
-            return 0.0;
+          // Default: no derate
+          float delta_a = 0.0f;
 
-          // --- True battery voltage from BMS ---
-          const double pack_v =
-            id(bms${yambms_id}_total_voltage).state;   // <-- TRUE BMS voltage
+          // Disabled => no derate
+          if (!id(${yambms_id}_switch_auto_ccl).state) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
 
-          // --- Target (real landing voltage) ---
-          const double bulk_v =
-            id(${yambms_id}_bulk_voltage).state;
+          // Inputs
+          const float pack_v = id(bms${yambms_id}_total_voltage).state;  // TRUE BMS pack voltage
+          const float bulk_v = id(${yambms_id}_bulk_voltage).state;
+          const float taper_v = ${charge_taper_start_offset};
 
-          // --- Taper window ---
-          const double taper_v = ${charge_taper_start_offset};
-          if (taper_v <= 0.0) return 0.0;
+          if (taper_v <= 0.0f) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
 
-          const double taper_start_v = bulk_v - taper_v;
+          const float taper_start_v = bulk_v - taper_v;
 
-          // --- Capacity-scaled reference current ---
-          const double Ah =
-            id(${yambms_id}_installed_battery_capacity).state;
-          if (Ah <= 0.0) return 0.0;
+          // Not in taper window yet
+          if (pack_v < taper_start_v) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
 
-          double I_ref = Ah * ${landing_c_rate};
+          const float Ah = id(${yambms_id}_installed_battery_capacity).state;
+          if (Ah <= 0.0f) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
 
-          // --- Safety ceilings (CLAMP ONLY) ---
-          I_ref = min(I_ref,
-                      id(${yambms_id}_max_charge_current).state);
-          I_ref = min(I_ref,
-                      id(${yambms_id}_max_requested_charge_current).state);
+          // Reference current for landing curve (A)
+          float I_ref = Ah * ${landing_c_rate};
 
-          // --- No taper yet ---
-          if (pack_v < taper_start_v)
-            return 0.0;
+          // Clamp to safety ceilings
+          I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
+          I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
 
-          // --- Linear landing ---
-          double frac = (bulk_v - pack_v) / taper_v;
-          if (frac < 0.0) frac = 0.0;
-          if (frac > 1.0) frac = 1.0;
+          // Linear landing: full current at taper_start_v, zero at bulk_v
+          float frac = (bulk_v - pack_v) / taper_v;
+          if (frac < 0.0f) frac = 0.0f;
+          if (frac > 1.0f) frac = 1.0f;
 
-          double target_I = I_ref * frac;
+          const float target_I = I_ref * frac;
 
-          // --- Convert to delta (negative reduces CCL) ---
-          return target_I - id(${yambms_id}_max_charge_current).state;
+          // Convert to delta relative to max_charge_current (negative reduces)
+          delta_a = target_I - id(${yambms_id}_max_charge_current).state;
 
-        
-  # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial charge current values.
-  - platform: copy
-    source_id: auto_ccl_initial
-    name: ${name} ${yambms_name} Moving Average Charge Current
-    id:  auto_ccl_moving_average
-    unit_of_measurement: A
-    device_class: current
-    internal: true
-    filters:
-    - exponential_moving_average:
-        alpha: 0.15
-        send_every: 1
-        send_first_at: 1
+          // Never increase current (only reduce)
+          if (delta_a > 0.0f) delta_a = 0.0f;
 
-  # Third, if the instantaneous initial charge current value is lower than the moving average, use that, otherwise use the moving average.
-  # This means that cell voltage spikes will be reacted to quickly, but reduced cell voltages will not, preventing oscillation of requested current.
-  - platform: copy
-    source_id: auto_ccl_initial
-    name: ${name} ${yambms_name} Auto Charge Current
-    id: auto_ccl
-    unit_of_measurement: A
-    device_class: current
-    accuracy_decimals: 1
-    internal: true
-    filters:
-    - lambda: |-
-        // Variables
-        double auto_ccl = round((min(id(auto_ccl_moving_average).state, x) * 10) / 10);
-
-        id(${yambms_id}_var_auto_ccl) = auto_ccl;
-        return auto_ccl;
+          // Export to core combiner
+          id(${yambms_id}_var_auto_ccl) = delta_a;
