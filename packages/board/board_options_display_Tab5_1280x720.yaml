@@ -1,0 +1,708 @@
+# Updated : 2026.02.05
+# Version : 1.7.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | M5Stack Tab5 Display (1280x720)     |
+# +--------------------------------------+
+# LVGL display configuration for M5Stack Tab5 with YamBMS sensors.
+# This package reads data directly from local YamBMS sensors.
+#
+# Required: M5Stack Tab5 board with MIPI DSI display
+# Required substitutions:
+#   yambms_id: The YamBMS ID to monitor
+#   canbus_id: The CANBUS ID for status indicator (e.g., 'canbus1')
+
+# +--------------------------------------+
+# | Additional Fonts                     |
+# +--------------------------------------+
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_15
+    size: 15    
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_30
+    size: 30
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_35
+    size: 35
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_40
+    size: 40
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_45
+    size: 45
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_65
+    size: 65
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_75
+    size: 75
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_85
+    size: 85
+    bpp: 4
+
+# +--------------------------------------+
+# | Battery Images                       |
+# +--------------------------------------+
+
+image:
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_1.png
+    id: battery_1
+    type: rgb565
+    byte_order: little_endian
+    transparency: alpha_channel
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_2.png
+    id: battery_2
+    type: rgb565
+    byte_order: little_endian
+    transparency: alpha_channel
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_3.png
+    id: battery_3
+    type: rgb565
+    byte_order: little_endian
+    transparency: alpha_channel
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_4.png
+    id: battery_4
+    type: rgb565
+    byte_order: little_endian
+    transparency: alpha_channel
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/battery_level_5.png
+    id: battery_5
+    type: rgb565
+    byte_order: little_endian
+    transparency: alpha_channel
+  - file: https://raw.githubusercontent.com/RAR/esphome-yambms/ble-client-server/images/background.png
+    id: bg_image
+    type: rgb565
+    byte_order: little_endian
+    transparency: alpha_channel
+
+# +--------------------------------------+
+# | Display Update Interval              |
+# +--------------------------------------+
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          // Update current gauge and text
+          float current = id(${yambms_id}_current).state;
+          if (!isnan(current)) {
+            lv_meter_set_indicator_value(id(current_meter), id(current_needle), (int32_t)current);
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.1f a", current);
+            lv_label_set_text(id(current_text), buf);
+            
+            // Update overall state based on current
+            if (current > 0) {
+              lv_label_set_text(id(overall_state), "Charging");
+            } else if (current < 0) {
+              lv_label_set_text(id(overall_state), "Discharging");
+            } else {
+              lv_label_set_text(id(overall_state), "Standby");
+            }
+          }
+          
+          // Update power gauge and text
+          float power = id(${yambms_id}_power).state / 1000.0f;  // Convert to kW
+          if (!isnan(power)) {
+            lv_meter_set_indicator_value(id(power_meter), id(power_needle), (int32_t)(power));
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.2f kw", power);
+            lv_label_set_text(id(power_text), buf);
+          }
+          
+          // Update voltage
+          float voltage = id(${yambms_id}_total_voltage).state;
+          if (!isnan(voltage)) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.2fv", voltage);
+            lv_label_set_text(id(voltage_text), buf);
+          }
+          
+          // Update delta cell voltage
+          float delta = id(${yambms_id}_delta_cell_voltage).state;
+          if (!isnan(delta)) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.3fv", delta);
+            lv_label_set_text(id(delta_voltage_text), buf);
+          }
+          
+          // Update SOC
+          float soc = id(${yambms_id}_battery_soc).state;
+          if (!isnan(soc)) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f%%", soc);
+            lv_label_set_text(id(soc_text), buf);
+            
+            // Update battery image based on SOC
+            if (soc > 80) {
+              lv_img_set_src(id(batt_img), id(battery_5));
+            } else if (soc > 60) {
+              lv_img_set_src(id(batt_img), id(battery_4));
+            } else if (soc > 40) {
+              lv_img_set_src(id(batt_img), id(battery_3));
+            } else if (soc > 20) {
+              lv_img_set_src(id(batt_img), id(battery_2));
+            } else {
+              lv_img_set_src(id(batt_img), id(battery_1));
+            }
+          }
+          
+          // Update capacity
+          float capacity_remaining = id(${yambms_id}_battery_capacity_remaining).state;
+          float battery_capacity = id(${yambms_id}_battery_capacity).state;
+          if (!isnan(capacity_remaining) && !isnan(battery_capacity)) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f of %.0fAh", capacity_remaining, battery_capacity);
+            lv_label_set_text(id(capacity_text), buf);
+          }
+          
+          // Update BMS combined count
+          float bms_combined = id(${yambms_id}_bms_combined).state;
+          float bms_count = id(${yambms_id}_bms_count).state;
+          if (!isnan(bms_combined) && !isnan(bms_count)) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f of %.0f", bms_combined, bms_count);
+            lv_label_set_text(id(combined_bms_text), buf);
+          }
+          
+          // Update BMS blocking count (BMSes that are blocking charge)
+          float alarming = id(${yambms_id}_bms_blocking_charge).state;
+          if (!isnan(alarming)) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "%.0f", alarming);
+            lv_label_set_text(id(bms_alarming_text), buf);
+            if (alarming > 0) {
+              lv_obj_set_style_text_color(id(bms_alarming_text), lv_color_hex(0xBF1327), 0);
+            } else {
+              lv_obj_set_style_text_color(id(bms_alarming_text), lv_color_hex(0x13BF13), 0);
+            }
+          }
+          
+          // Update charging status text
+          std::string charging_status = id(${yambms_id}_charging_status).state;
+          lv_label_set_text(id(charging_status_text), charging_status.c_str());
+          
+          // Update charging allowed
+          bool charging_allowed = id(${yambms_id}_charging_allowed).state;
+          if (charging_allowed) {
+            lv_label_set_text(id(charging_allowed_text), "Allowed");
+            lv_obj_set_style_text_color(id(charging_allowed_text), lv_color_hex(0x13BF13), 0);
+          } else {
+            lv_label_set_text(id(charging_allowed_text), "Disabled");
+            lv_obj_set_style_text_color(id(charging_allowed_text), lv_color_hex(0xBF1327), 0);
+          }
+          
+          // Update discharging allowed
+          bool discharging_allowed = id(${yambms_id}_discharging_allowed).state;
+          if (discharging_allowed) {
+            lv_label_set_text(id(discharging_allowed_text), "Allowed");
+            lv_obj_set_style_text_color(id(discharging_allowed_text), lv_color_hex(0x13BF13), 0);
+          } else {
+            lv_label_set_text(id(discharging_allowed_text), "Disabled");
+            lv_obj_set_style_text_color(id(discharging_allowed_text), lv_color_hex(0xBF1327), 0);
+          }
+          
+          // Update inverter CAN status
+          bool can_status = id(canbus${canbus_id}_status).state;
+          if (can_status) {
+            lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0x13BF13), 0);
+          } else {
+            lv_obj_set_style_text_color(id(lbl_CAN), lv_color_hex(0xBF1327), 0);
+          }
+
+  - interval: 10s
+    then:
+      - lambda: |-
+          // Update time display
+          auto now = id(rx8130_time).now();
+          if (now.is_valid()) {
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%02d:%02d", now.hour, now.minute);
+            lv_label_set_text(id(time_text), buf);
+          }
+
+# +--------------------------------------+
+# | LVGL Configuration                   |
+# +--------------------------------------+
+
+lvgl:
+  on_idle:
+    timeout: !lambda "return (id(display_timeout).state * 1000);"
+    then:
+      - light.turn_off: backlight
+      - lvgl.pause:
+
+  byte_order: little_endian
+  color_depth: 16
+  buffer_size: 100%
+  bg_image_src: bg_image
+  displays:
+    - my_display
+  touchscreens:
+    - my_touchscreen
+  style_definitions:
+    - id: footer
+      bg_color: 0x393B3B
+      bg_opa: COVER
+      border_opa: TRANSP
+      radius: 15
+      opa: 80%
+      pad_all: 0
+      pad_row: 0
+      pad_column: 0
+      text_color: 0xFFFFFF
+      text_font: montserrat_26
+      width: 60%
+      height: 50 
+    - id: header
+      bg_opa: TRANSP
+      border_opa: TRANSP
+      pad_all: 0
+      pad_row: 0
+      pad_column: 0
+      text_color: 0xFFFFFF
+      width: 100%
+      height: 50 
+    - id: data_box
+      bg_color: 0x393B3B
+      shadow_width: 5
+      border_opa: TRANSP
+      height: 100
+      width: 90%
+      radius: 15
+      pad_all: 10
+      pad_right: 20
+      pad_bottom: 5
+      pad_row: 0
+      pad_column: 0
+      text_color: 0xFFFFFF
+    - id: gauge_box
+      bg_color: 0x393B3B
+      border_opa: TRANSP
+      height: 370
+      width: 370
+      radius: 15
+      pad_all: 10
+      pad_row: 0
+      pad_column: 0
+      text_color: 0xFFFFFF
+  pages:
+    - id: main_page
+      bg_color: 0x000000
+      scrollbar_mode: "OFF"
+      widgets:
+      - obj:
+          height: 700
+          width: 500
+          align: LEFT_MID
+          border_width: 0
+          pad_all: 0
+          bg_opa: TRANSP
+          radius: 15
+          layout:
+            type: flex
+            pad_row: 10
+            flex_flow: ROW_WRAP
+            flex_align_main: center
+            flex_align_cross: start
+            flex_align_track: center
+          widgets:
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Overall State"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: overall_state
+                  text_font: roboto_45
+                  text: "Standby"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              width: 44%
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Voltage"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: voltage_text
+                  text_font: roboto_45
+                  text: "00.00v"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              width: 44%
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Delta Cell Voltage"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: delta_voltage_text
+                  text_font: roboto_45
+                  text: "0.000v"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Charging Status"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: charging_status_text
+                  text_font: roboto_45
+                  text: "Bulk"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Battery Capacity"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: capacity_text
+                  text_font: roboto_45
+                  text: "0 of 0Ah"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              width: 44%
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "BMS Combined"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: combined_bms_text
+                  text_font: roboto_45
+                  text: "0 of 0"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              width: 44%
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "BMS Alarming"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: bms_alarming_text
+                  text_font: roboto_45
+                  text: "0"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT
+      - obj:
+          height: 700
+          width: 280
+          align: CENTER
+          border_width: 0
+          bg_opa: TRANSP
+          pad_all: 4
+          y: 30
+          widgets:
+          - image:
+              align: CENTER
+              id: batt_img
+              src: battery_1
+          - label:
+              align: TOP_MID
+              id: soc_text
+              text_font: roboto_75
+              text: "0%"
+              text_color: 0xFFFFFF
+              y: 15
+
+      - obj:
+          height: 700
+          width: 500
+          align: RIGHT_MID
+          border_width: 0
+          pad_all: 0
+          bg_opa: TRANSP
+          bg_color: 0xFFFFFF
+          layout:
+            type: flex
+            pad_row: 10
+            flex_flow: ROW_WRAP
+            flex_align_main: center
+            flex_align_cross: start
+            flex_align_track: center
+          widgets:
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              width: 44%
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Discharging"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: discharging_allowed_text
+                  text_font: roboto_45
+                  text: "Disabled"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              styles: data_box
+              align: TOP_LEFT
+              width: 44%
+              widgets:
+              - label:
+                  text_font: roboto_20
+                  text: "Charging"
+                  text_color: 0x9C9C9C
+                  align: TOP_LEFT
+              - label:
+                  id: charging_allowed_text
+                  text_font: roboto_45
+                  text: "Disabled"
+                  text_color: 0xFFFFFF
+                  align: BOTTOM_RIGHT                  
+          - obj:
+              height: 210
+              width: 90%
+              border_width: 0
+              bg_color: 0x393B3B
+              pad_all: 10
+              scrollbar_mode: "OFF"
+              radius: 15
+              align: CENTER
+              widgets:
+                - meter:
+                    id: current_meter
+                    styles: gauge_box
+                    align: TOP_MID
+                    scales:
+                      - range_from: -400
+                        range_to: 400
+                        angle_range: 180
+                        ticks:
+                          count: 0
+                        indicators:
+                          - line:
+                              id: current_needle
+                              width: 5
+                              r_mod: 25
+                              value: 0
+                              color: 0xFFFFFF
+                          - arc:
+                              color: 0xFF3000
+                              r_mod: 10
+                              width: 40
+                              start_value: -400
+                              end_value: 0
+                          - arc:
+                              color: 0x00FF00
+                              r_mod: 10
+                              width: 40
+                              start_value: 0
+                              end_value: 400
+                - obj:
+                    height: 140
+                    width: 140
+                    radius: 73
+                    bg_color: 0x393B3B
+                    align: CENTER
+                    border_width: 0
+                    pad_all: 0
+                    y: 80                
+                - label:
+                    id: current_text
+                    text_font: roboto_45
+                    align: CENTER
+                    text_color: 0xFFFFFF
+                    text: "0 a"
+                    y: 70
+                - label:
+                    id: current_name
+                    text_font: roboto_20
+                    align: TOP_LEFT
+                    text_color: 0x9C9C9C
+                    text: "Current"
+                
+          - obj:
+              height: 210
+              width: 90%
+              bg_color: 0x393B3B
+              border_width: 0
+              pad_all: 10
+              scrollbar_mode: "OFF"
+              radius: 15
+              align: CENTER
+              widgets:
+                - meter:
+                    id: power_meter
+                    styles: gauge_box
+                    align: TOP_MID
+                    scales:
+                      - range_from: -24
+                        range_to: 24
+                        angle_range: 180
+                        ticks:
+                          count: 0
+                        indicators:
+                          - line:
+                              id: power_needle
+                              width: 5
+                              r_mod: 25
+                              value: 0
+                              color: 0xFFFFFF
+                          - arc:
+                              color: 0xFF3000
+                              r_mod: 10
+                              width: 40
+                              start_value: -24
+                              end_value: 0
+                          - arc:
+                              color: 0x00FF00
+                              r_mod: 10
+                              width: 40
+                              start_value: 0
+                              end_value: 24
+                - obj:
+                    height: 140
+                    width: 140
+                    radius: 73
+                    align: CENTER
+                    bg_color: 0x393B3B
+                    border_width: 0
+                    pad_all: 0
+                    y: 80                
+                - label:
+                    id: power_text
+                    text_font: roboto_45
+                    align: CENTER
+                    text_color: 0xFFFFFF
+                    text: "0.0 kw"
+                    y: 70
+                - label:
+                    id: power_name
+                    text_font: roboto_20
+                    align: TOP_LEFT
+                    text_color: 0x9C9C9C
+                    text: "Power"
+
+    - id: second_page
+
+  top_layer:
+    widgets:
+      - buttonmatrix:
+          align: bottom_mid
+          pad_all: 0
+          bg_opa: TRANSP
+          border_opa: TRANSP
+          outline_width: 0
+          id: top_layer
+          width: 60%
+          height: 50 
+          items:
+            styles: footer
+          rows:
+            - buttons:
+              - id: page_prev
+                text: "\uF053"
+                on_press:
+                  then:
+                    lvgl.page.previous:
+              - id: page_home
+                text: "\uF015"
+                on_press:
+                  then:
+                    lvgl.page.show: main_page
+              - id: page_next
+                text: "\uF054"
+                on_press:
+                  then:
+                    lvgl.page.next:      
+      - obj:
+          align: TOP_MID
+          styles: header
+          widgets:
+            - label:
+                text: "API"
+                id: lbl_hastatus
+                hidden: true
+                align: top_right
+                x: -25
+                y: 10
+                text_align: right
+                text_font: roboto_20
+                text_color: 0x13BF13
+            - label:
+                text: ""
+                id: time_text
+                align: center
+                text_font: roboto_25
+                text_color: 0xFFFFFF
+            - label:
+                id: lbl_CAN
+                x: 25
+                y: 10
+                align: top_left
+                text_font: roboto_20
+                text_align: left
+                text: "CAN"
+                text_color: 0xBF1327
+            - label:
+                id: lbl_ESP
+                x: 80
+                y: 10
+                align: top_left
+                text_align: left
+                text_font: roboto_20
+                text: "ESP"
+                text_color: 0x13BF13
