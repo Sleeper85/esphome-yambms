@@ -1,4 +1,4 @@
-# Updated : 2026.02.05
+# Updated : 2026.02.06
 # Version : 2.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -154,7 +154,7 @@ script:
       - lambda: |-
           id(canbus${canbus_id}_send_canbus_data) = false;                  // Stop sending CANBUS datas
           id(canbus${canbus_id}_status).publish_state(false);               // Set CANBUS status to OFF
-          id(inverter_com_status).publish_state(false);                   // Set Inverter com. status to OFF
+          id(inverter_com_status).publish_state(false);                     // Set Inverter com. status to OFF
 
 # +--------------------------------------+
 # | Start CAN Handling                   |
@@ -172,7 +172,7 @@ canbus:
               if (id(canbus${canbus_id}_status).state == false) {
                 id(canbus${canbus_id}_send_canbus_data) = true;                    // Sending CANBUS frames allowed
                 id(canbus${canbus_id}_status).publish_state(true);                 // Set CANBUS status to ON
-                id(inverter_com_status).publish_state(true);                     // Set Inverter com. status to ON
+                id(inverter_com_status).publish_state(true);                       // Set Inverter com. status to ON
               }
 
               // Inverter ACK interval
