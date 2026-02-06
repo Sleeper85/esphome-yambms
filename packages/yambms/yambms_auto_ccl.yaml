@@ -54,7 +54,6 @@ sensor:
   # As pack voltage approaches the bulk target, the requested charge current
   # is smoothly reduced to zero, allowing the BMS to settle at its natural
   # termination voltage without SOC, timers, or absorb logic.
-sensor:
   - platform: copy
     source_id: ${yambms_id}_max_cell_voltage   # trigger only
     name: ${name} ${yambms_name} Auto Charge Current Delta
