@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.8
+# Updated : 2026.02.06
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -72,6 +72,10 @@ sensor:
     device_class: voltage
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
@@ -89,6 +93,10 @@ sensor:
     device_class: current
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: -500
+          max_value: 500
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
@@ -106,6 +114,10 @@ sensor:
     device_class: power
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: -10000
+          max_value: 10000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
@@ -123,6 +135,10 @@ sensor:
     device_class: battery
     filters:
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
@@ -140,6 +156,10 @@ sensor:
     device_class: power
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 10000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
@@ -157,6 +177,10 @@ sensor:
     device_class: power
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 10000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
