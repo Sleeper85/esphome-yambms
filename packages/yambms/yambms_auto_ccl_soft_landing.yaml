@@ -1,0 +1,99 @@
+#------------------------------------------------------------------------------
+# Auto CCL Soft Landing
+#
+# Purpose:
+#   Enforce a soft landing at the bulk target by limiting charge current
+#   as the target voltage is approached.
+#
+# Contract with yambms_core.yaml:
+#   - This file ONLY writes: id(${yambms_id}_var_auto_ccl)
+#   - Value must be <= 0.0 (0 = no limit, negative = reduce CCL)
+#   - yambms_core combines it via min(...) and applies to max_charge_current
+#------------------------------------------------------------------------------
+
+substitutions:
+  # Volts below bulk where taper begins
+  charge_taper_start_offset: '2.0'
+  # Max landing C-rate (scales with installed Ah)
+  landing_c_rate: '0.30'
+
+switch:
+  - platform: template
+    name: ${name} ${yambms_name} Automatic Charge Current Soft Landing
+    id: ${yambms_id}_switch_auto_ccl_soft_landing
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+sensor:
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Debug Delta
+    id: ${yambms_id}_auto_ccl_debug_delta
+    unit_of_measurement: A
+    accuracy_decimals: 2
+    internal: true
+    update_interval: never
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          // Default: no derate
+          float delta_a = 0.0f;
+
+          // Disabled => no derate
+          if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
+
+          // Inputs
+          const float pack_v = id(bms${yambms_id}_total_voltage).state;  // TRUE BMS pack voltage
+          const float bulk_v = id(${yambms_id}_bulk_voltage).state;
+          const float taper_v = ${charge_taper_start_offset};
+
+          if (taper_v <= 0.0f) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
+
+          const float taper_start_v = bulk_v - taper_v;
+
+          // Not in taper window yet
+          if (pack_v < taper_start_v) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
+
+          const float Ah = id(${yambms_id}_installed_battery_capacity).state;
+          if (Ah <= 0.0f) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            return;
+          }
+
+          // Reference current for landing curve (A)
+          float I_ref = Ah * ${landing_c_rate};
+
+          // Clamp to safety ceilings
+          I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
+          I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
+
+          // Linear landing: full current at taper_start_v, zero at bulk_v
+          float frac = (bulk_v - pack_v) / taper_v;
+          if (frac < 0.0f) frac = 0.0f;
+          if (frac > 1.0f) frac = 1.0f;
+
+          const float target_I = I_ref * frac;
+
+          // Convert to delta relative to max_charge_current (negative reduces)
+          delta_a = target_I - id(${yambms_id}_max_charge_current).state;
+
+          // Never increase current (only reduce)
+          if (delta_a > 0.0f) delta_a = 0.0f;
+
+          // Export to core combiner
+          id(${yambms_id}_var_auto_ccl) = delta_a;
+
+          // Always export state
+          id(${yambms_id}_var_auto_ccl) = delta_a;
+          id(${yambms_id}_auto_ccl_debug_delta).publish_state(delta_a);
