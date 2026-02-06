@@ -1,13 +1,13 @@
 #------------------------------------------------------------------------------
-# Auto CCL (haysdb)
+# Auto CCL Soft Landing
 #
 # Purpose:
-#   Populate ${yambms_id}_var_auto_ccl with a negative delta (A) that reduces
-#   max charge current as pack voltage approaches bulk voltage.
+#   Enforce a soft landing at the bulk target by limiting charge current
+#   as the target voltage is approached.
 #
 # Contract with yambms_core.yaml:
 #   - This file ONLY writes: id(${yambms_id}_var_auto_ccl)
-#   - Value must be <= 0.0 (0 = no limit, negative = derate)
+#   - Value must be <= 0.0 (0 = no limit, negative = reduce CCL)
 #   - yambms_core combines it via min(...) and applies to max_charge_current
 #------------------------------------------------------------------------------
 
@@ -19,8 +19,8 @@ substitutions:
 
 switch:
   - platform: template
-    name: ${name} ${yambms_name} Automatic Charge Current
-    id: ${yambms_id}_switch_auto_ccl
+    name: ${name} ${yambms_name} Automatic Charge Current Soft Landing
+    id: ${yambms_id}_switch_auto_ccl_soft_landing
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
@@ -42,7 +42,7 @@ interval:
           float delta_a = 0.0f;
 
           // Disabled => no derate
-          if (!id(${yambms_id}_switch_auto_ccl).state) {
+          if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
             id(${yambms_id}_var_auto_ccl) = 0.0f;
             return;
           }
