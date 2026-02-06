@@ -74,11 +74,13 @@ interval:
     then:
       - lambda: |-
 
-          // Proof-of-life: enabled + scheduled  -- temporatily moved here
-          id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
-          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
-            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
-          );
+          const int cc_step = id(${yambms_id}_var_charge_current_step);
+          const int my_step = id(${yambms_id}_auto_ccl_soft_landing_step);
+          
+          if (cc_step != my_step) {
+            ESP_LOGW("softland", "skip: cc_step=%d my_step=%d", cc_step, my_step);
+            return;
+          }
 
           // Only run on our assigned STEP
           const int cc_step = id(${yambms_id}_var_charge_current_step);
@@ -87,7 +89,11 @@ interval:
           // OFF means OFF: do nothing, do NOT advance the pipeline
           if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) return;
           
-          // Proof-of-life: enabled + scheduled  -- should be here
+          // Proof-of-life: enabled + scheduled
+          id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
+          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
+            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
+          );
           
           // Inputs
           const float pack_v = id(${yambms_id}_total_voltage).state;   // Battery Voltage
