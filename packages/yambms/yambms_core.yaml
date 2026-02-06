@@ -1797,14 +1797,10 @@ sensor:
     lambda: return id(${yambms_id}_var_eoc_timestamp);
     on_value:
       then:
-        - text_sensor.template.publish:
-            id: ${yambms_id}_eoc_timestamp_human
-            state: !lambda |-
-                   char str[19];
-                   strftime(str, sizeof(str), " %H:%M %d %b %Y", localtime(&id(${yambms_id}_var_eoc_timestamp)));
-                   return  {str};
-
-
+        - lambda: |-
+            char str[19];
+            strftime(str, sizeof(str), " %H:%M %d %b %Y", localtime(&id(${yambms_id}_var_eoc_timestamp)));
+            id(${yambms_id}_eoc_timestamp_human).publish_state(str);
 
 text_sensor:
   # +--------------------------------------+
