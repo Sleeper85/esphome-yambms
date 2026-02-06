@@ -21,7 +21,7 @@ substitutions:
 
 switch:
   - platform: template
-    name: ${name} ${yambms_name} Automatic Charge Current Soft Landing
+    name: ${name} ${yambms_name} Auto CCL Soft Landing
     id: ${yambms_id}_switch_auto_ccl_soft_landing
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -44,6 +44,16 @@ esphome:
           id(${yambms_id}_var_auto_ccl_functions_count)++;
           id(${yambms_id}_auto_ccl_soft_landing_step) =
             id(${yambms_id}_var_auto_ccl_functions_count);
+
+sensor:
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing Delta
+    id: ${yambms_id}_auto_ccl_soft_landing_delta
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
 
 interval:
   - interval: ${yambms_update_interval}
@@ -93,6 +103,7 @@ interval:
 
           // Publish contribution for core combiner
           id(${yambms_id}_var_auto_ccl) = delta_a;
+          id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);
 
           // Advance pipeline
           id(${yambms_id}_var_charge_current_step)++;
