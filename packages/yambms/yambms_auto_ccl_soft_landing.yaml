@@ -83,7 +83,6 @@ interval:
           }
 
           // Only run on our assigned STEP
-          //  const int cc_step = id(${yambms_id}_var_charge_current_step);
           if (cc_step != id(${yambms_id}_auto_ccl_soft_landing_step)) return;
           
           // OFF means OFF: do nothing, do NOT advance the pipeline
