@@ -20,17 +20,15 @@ substitutions:
   landing_c_rate: '0.30'
 
 globals:
-  # Our assigned STEP index within the Auto CCL pipeline
-  #- id: ${yambms_id}_auto_ccl_soft_landing_step
-  #  type: int
-  #  restore_value: no
-  #  initial_value: '0'
-
-  # This just tells me it's running - can comment out after verifying
   - id: ${yambms_id}_auto_ccl_soft_landing_runs_count
     type: uint32_t
     restore_value: no
     initial_value: '0'
+
+  - id: ${yambms_id}_auto_ccl_soft_landing_registered
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
 switch:
   - platform: template
@@ -66,26 +64,34 @@ esphome:
           id(${yambms_id}_var_auto_ccl_functions_count)++;
           ESP_LOGW("softland", "on_boot ran, my_step=%d",
                    id(${yambms_id}_var_auto_ccl_functions_count));
-          
+
 interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
-          // STEP-2 gate: only run while core is executing Auto CCL functions
+          // ------------------------------------------------------------
+          // One-time registration (fallback if package on_boot doesn't merge)
+          // ------------------------------------------------------------
+          if (!id(${yambms_id}_auto_ccl_soft_landing_registered)) {
+            id(${yambms_id}_var_auto_ccl_functions_count)++;  // "I am an Auto-CCL reducer"
+            id(${yambms_id}_auto_ccl_soft_landing_registered) = true;
+            ESP_LOGW("softland", "registered: auto_ccl_functions_count=%d",
+                     id(${yambms_id}_var_auto_ccl_functions_count));
+          }
+
+          // ------------------------------------------------------------
+          // STEP-2 gate (Sleeper85 scheme)
+          // ------------------------------------------------------------
           const int cc_step = id(${yambms_id}_var_charge_current_step);
           const int nfunc   = id(${yambms_id}_var_auto_ccl_functions_count);
+
           if (cc_step < 1 || cc_step >= (nfunc + 1)) return;
 
-          // OFF => contribute nothing, but MUST pass the baton
+          // ------------------------------------------------------------
+          // Switch OFF: contribute nothing, but MUST pass the baton
+          // ------------------------------------------------------------
           if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
             id(${yambms_id}_var_auto_ccl) = 0.0f;
-            // optional visibility during testing:
-            id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
-            id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
-              (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
-            );
-            id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(0.0f);
-
             id(${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -96,16 +102,17 @@ interval:
             (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
           );
 
-          // Inputs
-          const float pack_v = id(${yambms_id}_total_voltage).state;
-          const float bulk_v = id(${yambms_id}_bulk_voltage).state;
+          // ------------------------------------------------------------
+          // Soft-landing math (overwrite var_auto_ccl for testing)
+          // ------------------------------------------------------------
+          const float pack_v  = id(${yambms_id}_total_voltage).state;
+          const float bulk_v  = id(${yambms_id}_bulk_voltage).state;
           const float taper_v = ${charge_taper_start_offset};
-          const float taper_start_v = bulk_v - taper_v;
 
-          // Default: no derate
           float delta_a = 0.0f;
 
-          // Inside landing window => compute derate
+          const float taper_start_v = bulk_v - taper_v;
+
           if (pack_v >= taper_start_v) {
             const float Ah = id(${yambms_id}_installed_battery_capacity).state;
 
@@ -123,9 +130,8 @@ interval:
             if (delta_a > 0.0f) delta_a = 0.0f;
           }
 
-          // Publish contribution for core combiner
-          id(${yambms_id}_var_auto_ccl) = delta_a;
+          id(${yambms_id}_var_auto_ccl) = delta_a;  // test mode: overwrite
           id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);
 
-          // Pass the baton (exactly once)
+          // Pass the baton exactly once
           id(${yambms_id}_var_charge_current_step)++;
