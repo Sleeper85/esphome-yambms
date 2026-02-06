@@ -1,5 +1,5 @@
 # Updated : 2026.02.06
-# Version : 1.1.5
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,7 +30,7 @@ packages:
 
 modbus_controller:
   - id: modbus_controller_balancer${bms_id}
-    modbus_id: ${modbus_id}
+    modbus_id: modbus_client_${modbus_id}
     setup_priority: -10
     address: 10${bms_id}
     update_interval: 20s
@@ -94,6 +94,10 @@ sensor:
     device_class: voltage
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
@@ -115,6 +119,10 @@ sensor:
     device_class: voltage
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
