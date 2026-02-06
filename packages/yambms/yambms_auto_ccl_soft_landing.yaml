@@ -48,7 +48,7 @@ interval:
           }
 
           // Inputs
-          const float pack_v = id(bms${yambms_id}_total_voltage).state;  // TRUE BMS pack voltage
+          const float pack_v = id(${yambms_id}_total_voltage).state;
           const float bulk_v = id(${yambms_id}_bulk_voltage).state;
           const float taper_v = ${charge_taper_start_offset};
 
