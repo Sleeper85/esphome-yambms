@@ -25,6 +25,15 @@ switch:
     optimistic: true
     entity_category: config
 
+sensor:
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Debug Delta
+    id: ${yambms_id}_auto_ccl_debug_delta
+    unit_of_measurement: A
+    accuracy_decimals: 2
+    internal: true
+    update_interval: never
+
 interval:
   - interval: ${yambms_update_interval}
     then:
@@ -84,3 +93,7 @@ interval:
 
           // Export to core combiner
           id(${yambms_id}_var_auto_ccl) = delta_a;
+
+          // Always export state
+          id(${yambms_id}_var_auto_ccl) = delta_a;
+          id(${yambms_id}_auto_ccl_debug_delta).publish_state(delta_a);
