@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 1.1.5
+# Updated : 2026.02.05
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,13 +19,15 @@
 
 # The settings below can be changed via `vars` when importing the package
 # or by declaring new `substitutions` in the main YAML.
+
 substitutions:
+  mcp2515_spi_id: 'mcp2515_spi_bus'
   mcp2515_canbus_id: '2'
   mcp2515_canbus_bitrate: '500kbps'
   mcp2515_clock: '8MHz'
 
 spi:
-  - id: mcp2515_spi
+  - id: ${mcp2515_spi_id}
     mosi_pin: ${spi_mosi_pin}
     miso_pin: ${spi_miso_pin}
     clk_pin: ${spi_clk_pin}
@@ -33,7 +35,7 @@ spi:
 
 canbus:
   - platform: mcp2515
-    spi_id: mcp2515_spi
+    spi_id: ${mcp2515_spi_id}
     id: ${canbus_node_id}
     cs_pin: ${mcp2515_cs_pin}
     can_id: ${mcp2515_canbus_id}

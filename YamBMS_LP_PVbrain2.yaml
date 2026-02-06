@@ -186,9 +186,17 @@ packages:
   # UART 3 (uart_id: uart_esp_3)
   # uart_esp_3: !include packages/board/board_options_itf_uart_esp_3.yaml
 
-  # UART expander WK2168
-  wk2168_spi: !include packages/board/board_options_itf_wk2168_spi.yaml
-  # wk2168_i2c: !include packages/board/board_options_itf_wk2168_i2c.yaml
+  # BUS
+  # spi_bus: !include packages/board/board_options_itf_bus_spi.yaml # SPI bus for MCP2515
+  # i2c_bus: !include packages/board/board_options_itf_bus_i2c.yaml # I2C bus for SX1509 and BME280/BMP280
+  # one_wire_bus: !include packages/board/board_options_itf_bus_one_wire.yaml # One wire bus for Dallas Temperature Sensor
+
+  # WK2168 UART/IO Expander
+  wk2168_spi: !include packages/board/board_options_itf_pvbrain2_wk2168_spi.yaml
+  # wk2168_i2c: !include packages/board/board_options_itf_pvbrain2_wk2168_i2c.yaml
+
+  # SX1509 16 channel I/O Expander
+  # sx1509: !include packages/board/board_options_itf_pvbrain2_sx1509.yaml
 
   # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
   canbus_node_1: !include
@@ -217,12 +225,6 @@ packages:
 
   # Captive Portal @ 192.168.4.1
   # captive_portal: !include packages/board/board_options_captive_portal.yaml
-
-  # PVbrain2 Options
-  # bus_i2c0: !include pvbrain2/base/device_bus_i2c0.yaml # I2C bus for SX1509 and BME280/BMP280
-  # bus_spi1: !include pvbrain2/base/device_bus_spi1.yaml # SPI bus for MCP2515
-  # bus_one_wire: !include pvbrain2/base/device_bus_one_wire.yaml # One wire bus for Dallas sensor
-  # device_sx1509: !include pvbrain2/base/device_sx1509.yaml # SX1509 16 channel I/O Expander
 
 
 

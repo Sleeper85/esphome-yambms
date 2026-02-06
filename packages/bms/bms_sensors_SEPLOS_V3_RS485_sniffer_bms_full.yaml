@@ -1,5 +1,5 @@
-# Updated : 2026.02.04
-# Version : 1.1.5
+# Updated : 2026.02.05
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -34,6 +34,7 @@ binary_sensor:
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
     name: ${bms_prefix} Online status
+    trigger_on_initial_state: true
     on_state:
       then:
         - lambda: |-

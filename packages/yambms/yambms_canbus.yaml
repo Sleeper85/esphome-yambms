@@ -1,5 +1,5 @@
 # Updated : 2026.02.05
-# Version : 2.5.1
+# Version : 2.5.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -136,6 +136,7 @@ binary_sensor:
     device_id: canbus_${canbus_id}
     name: "Status"
     entity_category: diagnostic
+    trigger_on_initial_state: true
     on_state:
       then:
         - lambda: |-
