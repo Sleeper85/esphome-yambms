@@ -19,6 +19,19 @@ substitutions:
   # Max landing C-rate (A = Ah * C-rate)
   landing_c_rate: '0.30'
 
+globals:
+  # Our assigned STEP index within the Auto CCL pipeline
+  - id: ${yambms_id}_auto_ccl_soft_landing_step
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  # This just tells me it's running - can comment out after verifying
+  - id: ${yambms_id}_auto_ccl_soft_landing_runs_count
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
 switch:
   - platform: template
     name: ${name} ${yambms_name} Auto CCL Soft Landing
@@ -27,12 +40,23 @@ switch:
     optimistic: true
     entity_category: config
 
-globals:
-  # Our assigned STEP index within the Auto CCL pipeline
-  - id: ${yambms_id}_auto_ccl_soft_landing_step
-    type: int
-    restore_value: no
-    initial_value: '0'
+sensor:
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing Delta
+    id: ${yambms_id}_auto_ccl_soft_landing_delta
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing Runs
+    id: ${yambms_id}_auto_ccl_soft_landing_runs
+    unit_of_measurement: runs
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
 
 esphome:
   on_boot:
@@ -44,16 +68,6 @@ esphome:
           id(${yambms_id}_var_auto_ccl_functions_count)++;
           id(${yambms_id}_auto_ccl_soft_landing_step) =
             id(${yambms_id}_var_auto_ccl_functions_count);
-
-sensor:
-  - platform: template
-    name: ${name} ${yambms_name} Auto CCL Soft Landing Delta
-    id: ${yambms_id}_auto_ccl_soft_landing_delta
-    unit_of_measurement: A
-    device_class: current
-    accuracy_decimals: 1
-    entity_category: diagnostic
-    update_interval: never
 
 interval:
   - interval: ${yambms_update_interval}
@@ -104,6 +118,12 @@ interval:
           // Publish contribution for core combiner
           id(${yambms_id}_var_auto_ccl) = delta_a;
           id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);
+
+          // Proof-of-life: this module executed its STEP
+          id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
+          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
+            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
+          );
 
           // Advance pipeline
           id(${yambms_id}_var_charge_current_step)++;
