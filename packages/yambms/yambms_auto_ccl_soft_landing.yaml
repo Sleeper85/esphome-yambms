@@ -60,7 +60,7 @@ sensor:
 
 esphome:
   on_boot:
-    priority: 600
+    priority: -100.0
     then:
       - lambda: |-
           // Claim one slot in the Auto CCL function chain.
@@ -68,7 +68,9 @@ esphome:
           id(${yambms_id}_var_auto_ccl_functions_count)++;
           id(${yambms_id}_auto_ccl_soft_landing_step) =
             id(${yambms_id}_var_auto_ccl_functions_count);
-
+          ESP_LOGW("softland", "on_boot ran, my_step=%d",
+                   id(${yambms_id}_auto_ccl_soft_landing_step));
+          
 interval:
   - interval: ${yambms_update_interval}
     then:
