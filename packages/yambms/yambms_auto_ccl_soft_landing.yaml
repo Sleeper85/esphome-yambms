@@ -64,6 +64,8 @@ esphome:
           id(${yambms_id}_var_auto_ccl_functions_count)++;
           ESP_LOGW("softland", "on_boot ran, my_step=%d",
                    id(${yambms_id}_var_auto_ccl_functions_count));
+          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
+            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count));
 
 interval:
   - interval: ${yambms_update_interval}
