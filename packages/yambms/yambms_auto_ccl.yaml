@@ -33,8 +33,11 @@ substitutions:
   # Linear charge current taper
   # Begins tapering 2V before bulk voltage target
   # CCL reduces linearly: full current at (target - 2V), zero at target
-  charge_taper_start_offset: '2.0'  # Voltage before target to start taper
-  
+  # Volts below bulk where taper begins (Seplos-style early landing)
+  charge_taper_start_offset: '2.0'
+  # Max landing C-rate (scales with installed Ah)
+  landing_c_rate: '0.30'
+
 switch:
   - platform: template
     name: ${name} ${yambms_name} Automatic Charge Current
@@ -47,46 +50,65 @@ sensor:
   # +--------------------------------------+
   # | Auto Charge Current Limit            |
   # +--------------------------------------+
-  # Calculate charge current reduction based on proximity to bulk voltage target.
-  # Implements linear taper: full current until 2V below target, then proportional reduction to zero at target voltage.
+  # This version of Auto CCL implements a voltage-based charge “landing” curve.
+  # As pack voltage approaches the bulk target, the requested charge current
+  # is smoothly reduced to zero, allowing the BMS to settle at its natural
+  # termination voltage without SOC, timers, or absorb logic.
+sensor:
   - platform: copy
-    source_id: ${yambms_id}_max_cell_voltage
-    name: ${name} ${yambms_name} Initial Charge Current
+    source_id: ${yambms_id}_max_cell_voltage   # trigger only
+    name: ${name} ${yambms_name} Auto Charge Current Delta
     id: auto_ccl_initial
     unit_of_measurement: A
     device_class: current
     internal: true
     filters:
-    - lambda: |-
-        // Variables
-        double max_charge_a = id(${yambms_id}_max_charge_current).state;
-        double target_voltage = id(${yambms_id}_bulk_voltage).state;
-        double current_voltage = id(${yambms_id}_total_voltage).state;
-        
-        // Auto Charge Current function
-        if (!id(${yambms_id}_switch_auto_ccl).state) {
-          // No change to charge current required
-          return 0.0;
-        }
-        
-        // Linear taper algorithm
-        double taper_start_voltage = target_voltage - 2.0;  // Start taper 2V before target
-        
-        if (current_voltage < taper_start_voltage) {
-          // Full current until 2V away from target
-          return 0.0;  // No reduction
-        }
-        
-        // Calculate proportional taper
-        double voltage_error = target_voltage - current_voltage;
-        double taper_range = 2.0;
-        
-        // CCL reduction proportional to how close we are to target
-        double ccl_multiplier = voltage_error / taper_range;
-        ccl_multiplier = max(0.0, min(1.0, ccl_multiplier));  // Clamp between 0 and 1
-        
-        // Return the delta (negative value reduces CCL)
-        return (ccl_multiplier * max_charge_a) - max_charge_a;
+      - lambda: |-
+          // --- Enable switch ---
+          if (!id(${yambms_id}_switch_auto_ccl).state)
+            return 0.0;
+
+          // --- True battery voltage from BMS ---
+          const double pack_v =
+            id(bms${yambms_id}_total_voltage).state;   // <-- TRUE BMS voltage
+
+          // --- Target (real landing voltage) ---
+          const double bulk_v =
+            id(${yambms_id}_bulk_voltage).state;
+
+          // --- Taper window ---
+          const double taper_v = ${charge_taper_start_offset};
+          if (taper_v <= 0.0) return 0.0;
+
+          const double taper_start_v = bulk_v - taper_v;
+
+          // --- Capacity-scaled reference current ---
+          const double Ah =
+            id(${yambms_id}_installed_battery_capacity).state;
+          if (Ah <= 0.0) return 0.0;
+
+          double I_ref = Ah * ${landing_c_rate};
+
+          // --- Safety ceilings (CLAMP ONLY) ---
+          I_ref = min(I_ref,
+                      id(${yambms_id}_max_charge_current).state);
+          I_ref = min(I_ref,
+                      id(${yambms_id}_max_requested_charge_current).state);
+
+          // --- No taper yet ---
+          if (pack_v < taper_start_v)
+            return 0.0;
+
+          // --- Linear landing ---
+          double frac = (bulk_v - pack_v) / taper_v;
+          if (frac < 0.0) frac = 0.0;
+          if (frac > 1.0) frac = 1.0;
+
+          double target_I = I_ref * frac;
+
+          // --- Convert to delta (negative reduces CCL) ---
+          return target_I - id(${yambms_id}_max_charge_current).state;
+
         
   # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial charge current values.
   - platform: copy
