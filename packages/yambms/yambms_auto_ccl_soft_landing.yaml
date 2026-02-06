@@ -6,15 +6,17 @@
 #   as the target voltage is approached.
 #
 # Contract with yambms_core.yaml:
-#   - This file ONLY writes: id(${yambms_id}_var_auto_ccl)
-#   - Value must be <= 0.0 (0 = no limit, negative = reduce CCL)
-#   - yambms_core combines it via min(...) and applies to max_charge_current
+#   - Participates in Auto CCL STEP pipeline
+#   - Writes ONLY: id(${yambms_id}_var_auto_ccl)
+#   - Value must be <= 0.0  (0 = no derate, negative = reduce)
+#   - Advances pipeline via: id(${yambms_id}_var_charge_current_step)++
 #------------------------------------------------------------------------------
 
 substitutions:
   # Volts below bulk where taper begins
   charge_taper_start_offset: '2.0'
-  # Max landing C-rate (scales with installed Ah)
+
+  # Max landing C-rate (A = Ah * C-rate)
   landing_c_rate: '0.30'
 
 switch:
@@ -25,75 +27,79 @@ switch:
     optimistic: true
     entity_category: config
 
-sensor:
-  - platform: template
-    name: ${name} ${yambms_name} Auto CCL Debug Delta
-    id: ${yambms_id}_auto_ccl_debug_delta
-    unit_of_measurement: A
-    accuracy_decimals: 2
-    internal: true
-    update_interval: never
+globals:
+  # Our assigned STEP index within the Auto CCL pipeline
+  - id: ${yambms_id}_auto_ccl_soft_landing_step
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+esphome:
+  on_boot:
+    priority: 600
+    then:
+      - lambda: |-
+          // Claim one slot in the Auto CCL function chain.
+          // Core will execute steps 1..N, then compute Requested CCL at N+1.
+          id(${yambms_id}_var_auto_ccl_functions_count)++;
+          id(${yambms_id}_auto_ccl_soft_landing_step) =
+            id(${yambms_id}_var_auto_ccl_functions_count);
 
 interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
+          // Only run when core schedules *our* step
+          const int cc_step = id(${yambms_id}_var_charge_current_step);
+          if (cc_step != id(${yambms_id}_auto_ccl_soft_landing_step)) return;
+
           // Default: no derate
           float delta_a = 0.0f;
 
           // Disabled => no derate
-          if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
-            id(${yambms_id}_var_auto_ccl) = 0.0f;
-            return;
+          if (id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
+
+            // Inputs (combined YamBMS values)
+            const float pack_v  = id(${yambms_id}_total_voltage).state;
+            const float bulk_v  = id(${yambms_id}_bulk_voltage).state;
+            const float taper_v = ${charge_taper_start_offset};
+
+            if (taper_v > 0.0f) {
+              const float taper_start_v = bulk_v - taper_v;
+
+              // Only act inside landing window
+              if (pack_v >= taper_start_v) {
+                const float Ah = id(${yambms_id}_installed_battery_capacity).state;
+
+                if (Ah > 0.0f) {
+                  // Reference current for landing curve
+                  float I_ref = Ah * ${landing_c_rate};
+
+                  // Clamp to YamBMS ceilings
+                  I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
+                  I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
+
+                  // Linear soft landing:
+                  //   full I_ref at taper_start_v
+                  //   zero at bulk_v
+                  float frac = (bulk_v - pack_v) / taper_v;
+                  if (frac < 0.0f) frac = 0.0f;
+                  if (frac > 1.0f) frac = 1.0f;
+
+                  const float target_I = I_ref * frac;
+
+                  // Convert to delta relative to max_charge_current
+                  delta_a = target_I - id(${yambms_id}_max_charge_current).state;
+
+                  // Never increase current
+                  if (delta_a > 0.0f) delta_a = 0.0f;
+                }
+              }
+            }
           }
 
-          // Inputs
-          const float pack_v = id(${yambms_id}_total_voltage).state;
-          const float bulk_v = id(${yambms_id}_bulk_voltage).state;
-          const float taper_v = ${charge_taper_start_offset};
-
-          if (taper_v <= 0.0f) {
-            id(${yambms_id}_var_auto_ccl) = 0.0f;
-            return;
-          }
-
-          const float taper_start_v = bulk_v - taper_v;
-
-          // Not in taper window yet
-          if (pack_v < taper_start_v) {
-            id(${yambms_id}_var_auto_ccl) = 0.0f;
-            return;
-          }
-
-          const float Ah = id(${yambms_id}_installed_battery_capacity).state;
-          if (Ah <= 0.0f) {
-            id(${yambms_id}_var_auto_ccl) = 0.0f;
-            return;
-          }
-
-          // Reference current for landing curve (A)
-          float I_ref = Ah * ${landing_c_rate};
-
-          // Clamp to safety ceilings
-          I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
-          I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
-
-          // Linear landing: full current at taper_start_v, zero at bulk_v
-          float frac = (bulk_v - pack_v) / taper_v;
-          if (frac < 0.0f) frac = 0.0f;
-          if (frac > 1.0f) frac = 1.0f;
-
-          const float target_I = I_ref * frac;
-
-          // Convert to delta relative to max_charge_current (negative reduces)
-          delta_a = target_I - id(${yambms_id}_max_charge_current).state;
-
-          // Never increase current (only reduce)
-          if (delta_a > 0.0f) delta_a = 0.0f;
-
-          // Export to core combiner
+          // Publish contribution for core combiner
           id(${yambms_id}_var_auto_ccl) = delta_a;
 
-          // Always export state
-          id(${yambms_id}_var_auto_ccl) = delta_a;
-          id(${yambms_id}_auto_ccl_debug_delta).publish_state(delta_a);
+          // Advance pipeline
+          id(${yambms_id}_var_charge_current_step)++;
