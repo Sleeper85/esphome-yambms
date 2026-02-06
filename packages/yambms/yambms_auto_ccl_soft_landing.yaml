@@ -84,6 +84,12 @@ interval:
             return;
           }
 
+          // Proof-of-life: this module executed its STEP
+          id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
+          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
+            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
+          );
+
           // Inputs
           const float pack_v = id(${yambms_id}_total_voltage).state;   // Battery Voltage
           const float bulk_v = id(${yambms_id}_bulk_voltage).state;    // Bulk Voltage (target)
@@ -118,12 +124,6 @@ interval:
           // Publish contribution for core combiner
           id(${yambms_id}_var_auto_ccl) = delta_a;
           id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);
-
-          // Proof-of-life: this module executed its STEP
-          id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
-          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
-            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
-          );
 
           // Advance pipeline
           id(${yambms_id}_var_charge_current_step)++;
