@@ -21,10 +21,10 @@ substitutions:
 
 globals:
   # Our assigned STEP index within the Auto CCL pipeline
-  - id: ${yambms_id}_auto_ccl_soft_landing_step
-    type: int
-    restore_value: no
-    initial_value: '0'
+  #- id: ${yambms_id}_auto_ccl_soft_landing_step
+  #  type: int
+  #  restore_value: no
+  #  initial_value: '0'
 
   # This just tells me it's running - can comment out after verifying
   - id: ${yambms_id}_auto_ccl_soft_landing_runs_count
@@ -63,73 +63,69 @@ esphome:
     priority: -100.0
     then:
       - lambda: |-
-          // Claim one slot in the Auto CCL function chain.
-          // Core will execute steps 1..N, then compute Requested CCL at N+1.
           id(${yambms_id}_var_auto_ccl_functions_count)++;
-          id(${yambms_id}_auto_ccl_soft_landing_step) =
-            id(${yambms_id}_var_auto_ccl_functions_count);
           ESP_LOGW("softland", "on_boot ran, my_step=%d",
-                   id(${yambms_id}_auto_ccl_soft_landing_step));
+                   id(${yambms_id}_var_auto_ccl_functions_count));
           
 interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
-
+          // STEP-2 gate: only run while core is executing Auto CCL functions
           const int cc_step = id(${yambms_id}_var_charge_current_step);
-          const int my_step = id(${yambms_id}_auto_ccl_soft_landing_step);
-          
-          if (cc_step != my_step) {
-            ESP_LOGW("softland", "skip: cc_step=%d my_step=%d", cc_step, my_step);
+          const int nfunc   = id(${yambms_id}_var_auto_ccl_functions_count);
+          if (cc_step < 1 || cc_step >= (nfunc + 1)) return;
+
+          // OFF => contribute nothing, but MUST pass the baton
+          if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
+            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            // optional visibility during testing:
+            id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
+            id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
+              (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
+            );
+            id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(0.0f);
+
+            id(${yambms_id}_var_charge_current_step)++;
             return;
           }
 
-          // Only run on our assigned STEP
-          if (cc_step != id(${yambms_id}_auto_ccl_soft_landing_step)) return;
-          
-          // OFF means OFF: do nothing, do NOT advance the pipeline
-          if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) return;
-          
           // Proof-of-life: enabled + scheduled
           id(${yambms_id}_auto_ccl_soft_landing_runs_count)++;
           id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
             (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count)
           );
-          
+
           // Inputs
-          const float pack_v = id(${yambms_id}_total_voltage).state;   // Battery Voltage
-          const float bulk_v = id(${yambms_id}_bulk_voltage).state;    // Bulk Voltage (target)
+          const float pack_v = id(${yambms_id}_total_voltage).state;
+          const float bulk_v = id(${yambms_id}_bulk_voltage).state;
           const float taper_v = ${charge_taper_start_offset};
           const float taper_start_v = bulk_v - taper_v;
 
-          // Outside landing window => no derate
-          if (pack_v < taper_start_v) {
-            id(${yambms_id}_var_auto_ccl) = 0.0f;
-            id(${yambms_id}_var_charge_current_step)++;
-            return;
+          // Default: no derate
+          float delta_a = 0.0f;
+
+          // Inside landing window => compute derate
+          if (pack_v >= taper_start_v) {
+            const float Ah = id(${yambms_id}_installed_battery_capacity).state;
+
+            float I_ref = Ah * ${landing_c_rate};
+            I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
+            I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
+
+            float frac = (bulk_v - pack_v) / taper_v;
+            if (frac < 0.0f) frac = 0.0f;
+            if (frac > 1.0f) frac = 1.0f;
+
+            const float target_I = I_ref * frac;
+
+            delta_a = target_I - id(${yambms_id}_max_charge_current).state;
+            if (delta_a > 0.0f) delta_a = 0.0f;
           }
-
-          const float Ah = id(${yambms_id}_installed_battery_capacity).state;
-
-          // Reference current for landing curve (A), clamped
-          float I_ref = Ah * ${landing_c_rate};
-          I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
-          I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
-
-          // Linear landing: full at taper_start_v, zero at bulk_v
-          float frac = (bulk_v - pack_v) / taper_v;
-          if (frac < 0.0f) frac = 0.0f;
-          if (frac > 1.0f) frac = 1.0f;
-
-          const float target_I = I_ref * frac;
-
-          // Delta (<= 0): negative reduces allowed current
-          float delta_a = target_I - id(${yambms_id}_max_charge_current).state;
-          if (delta_a > 0.0f) delta_a = 0.0f;
 
           // Publish contribution for core combiner
           id(${yambms_id}_var_auto_ccl) = delta_a;
           id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);
 
-          // Advance pipeline
+          // Pass the baton (exactly once)
           id(${yambms_id}_var_charge_current_step)++;
