@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 1.2.8
+# Updated : 2026.02.07
+# Version : 1.2.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+esphome:
+  on_boot:
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(${yambms_id}_var_auto_dcl_functions_count)++;
 
 substitutions:
   # +--------------------------------------+
@@ -40,65 +47,91 @@ switch:
     optimistic: true
     entity_category: config
 
-sensor:
-  # +--------------------------------------+
-  # | Auto Discharge Current Limit         |
-  # +--------------------------------------+
-  # First, an initial discharge current is calculated based upon the minimum cell voltage but only if the Auto Discharge Current switch is enabled.
-  - platform: copy
-    source_id: ${yambms_id}_min_cell_voltage
-    name: ${name} ${yambms_name} Initial Discharge Current
-    id: auto_dcl_initial
-    unit_of_measurement: A
-    device_class: current
-    internal: true
-    filters:
-    - lambda: |-
-        // Variables
-        double max_discharge_a = id(${yambms_id}_max_discharge_current).state;
-        double cell_low_v = id(${yambms_id}_cell_uvp).state + 0.2;
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      # +------------------------------------------+
+      # | Auto Discharge Current Limit             |
+      # +------------------------------------------+
+      - lambda: |-
+          int dc_step = id(${yambms_id}_var_discharge_current_step);
+          if (dc_step >= 1 && dc_step < id(${yambms_id}_var_auto_dcl_functions_count) + 1)
+          {
+            ESP_LOGD("yambms_debug", "Entering Auto DCL...");
 
-        // Auto Discharge Current function
-        if (!id(${yambms_id}_switch_auto_dcl).state) {
-          // No change to discharge current required
-          return 0.0;
-        } else if (id(${yambms_id}_min_cell_voltage).state < cell_low_v) {
-          // Set DCL delta to maximum as min cell voltage too low
-          return -max_discharge_a;
-        } else {
-          // Set DCL delta to automatic value
-          return max(0.0,(- pow(${discharge_a_factor_curve_end}, pow( max(0.0, ((x - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v}))),${discharge_a_factor_curve_shape}))+2) * max_discharge_a)
-          - max_discharge_a;
-        }
+            // Use static variables to persist state between interval runs
+            static float current_output = 0.0f;
+            static bool is_initialized = false;
 
-  # Second, an exponential moving average is calculated. This will be used to smooth the transition between different initial discharge current values.
-  - platform: copy
-    source_id: auto_dcl_initial
-    name: ${name} ${yambms_name} Moving Average Discharge Current
-    id:  auto_dcl_moving_average
-    unit_of_measurement: A
-    device_class: current
-    internal: true
-    filters:
-    - exponential_moving_average:
-        alpha: 0.15
-        send_every: 1
-        send_first_at: 1
+            // Configuration
+            float max_current           = id(${yambms_id}_max_discharge_current).state;
+            auto& output_id             = id(${yambms_id}_var_auto_dcl);
+            float alpha                 = 0.15f;
+            float min_amp_increase_step = 1.0; 
 
-  # Third, if the instantaneous initial discharge current value is lower than the moving average, use that, otherwise use the moving average.
-  # This means that cell voltage drops will be reacted to quickly, but increased cell voltages will not, preventing oscillation of requested current.
-  - platform: copy
-    source_id: auto_dcl_initial
-    name: ${name} ${yambms_name} Auto Discharge Current
-    id: auto_dcl
-    unit_of_measurement: A
-    device_class: current
-    accuracy_decimals: 1
-    internal: true
-    filters:
-    - lambda: |-
-        // Variables
-        double auto_dcl = round((min(id(auto_dcl_moving_average).state, x) * 10) / 10);
+            // Define raw inputs
+            float min_cell_v = id(${yambms_id}_min_cell_voltage).state;
+            float cell_low_v = id(${yambms_id}_cell_uvp).state + 0.2;
 
-        id(${yambms_id}_var_auto_dcl) = auto_dcl;
-        return auto_dcl;
+            // Exit if critical data is missing
+            if (isnan(max_current) || isnan(min_cell_v) || isnan(cell_low_v)) {
+              output_id = 0.0f;
+              id(${yambms_id}_var_discharge_current_step)++;
+              return;
+            }
+          
+            // Check switch enabled
+            if (!id(${yambms_id}_switch_auto_dcl).state) {
+              output_id = 0.0f;
+              id(${yambms_id}_var_discharge_current_step)++;
+              return;
+            }
+
+            // Calculate initial current delta
+            double delta = 0.0;
+
+            if (min_cell_v < cell_low_v) {
+              delta = -max_current;
+            } else {
+              double ratio = max(0.0, ((min_cell_v - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v})));
+              double curve = pow(${discharge_a_factor_curve_end}, pow(ratio, ${discharge_a_factor_curve_shape}));
+              delta = max(0.0, (-curve + 2) * max_current) - max_current;
+            }
+
+            if (!is_initialized) {
+              current_output = delta;
+              is_initialized = true;
+            }
+
+            // Apply decrease in current instantly      
+            // This means that cell voltage decreases will be reacted to quickly
+            if (delta < current_output) {
+               current_output = delta;
+            } 
+            // Apply increase in current slowly, prevent oscillation of cell voltage
+            else {
+               // Calculate the gap to output
+               float gap = delta - current_output;
+               
+               // Calculate exponential moving average
+               float step = gap * alpha;
+               
+               // Apply minimum increase step
+               // If the calculated step is tiny, force it to be at least min_amp_increase_step
+               if (step < min_amp_increase_step) {
+                   step = min_amp_increase_step;
+               }
+               
+               // Calculate output
+               if (step > gap) {
+                   current_output = delta;
+               } else {
+                   current_output += step;
+               }
+            }
+
+            // Update global
+            current_output = round(current_output * 10) / 10.0;
+            output_id = current_output;
+            id(${yambms_id}_var_discharge_current_step)++;
+          }
