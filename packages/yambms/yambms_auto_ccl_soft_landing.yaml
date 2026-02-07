@@ -115,18 +115,18 @@ interval:
             I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
             I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
 
-            float frac = (bulk_v - pack_v) / taper_v;
-            if (frac < 0.0f) frac = 0.0f;
-            if (frac > 1.0f) frac = 1.0f;
+            float frac = (bulk_v - pack_v) / taper_v;   // proximity to bulk (1 = taper start, 0 = at bulk)
+            if (frac > 1.0f) frac = 1.0f;               // below taper zone (too early to taper)
+            if (frac < 0.0f) frac = 0.0f;               // at/above bulk (overshoot or noise)
 
-            const float target_I = I_ref * frac;
+            const float target_I = I_ref * frac;        // target current
 
             delta_a = target_I - id(${yambms_id}_max_charge_current).state;
-            if (delta_a > 0.0f) delta_a = 0.0f;
+            if (delta_a > 0.0f) delta_a = 0.0f;         // delta is always negative, or it's 0
           }
 
           id(${yambms_id}_var_auto_ccl) = delta_a;                               // Do we get our own softland global?
-          id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);   // Update the Home Assistsnt sensor
+          id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);   // Update the Home Assistant sensor
 
           // Pass the baton exactly once
           id(${yambms_id}_var_charge_current_step)++;
