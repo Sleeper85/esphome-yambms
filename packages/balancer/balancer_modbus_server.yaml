@@ -1,5 +1,5 @@
-# Updated : 2025.08.14
-# Version : 1.1.1
+# Updated : 2026.02.07
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -35,7 +35,7 @@ globals:
     initial_value: '0.0'
 
 modbus_controller:
-  - modbus_id: ${modbus_id}
+  - modbus_id: modbus_server_${modbus_id}
     address: 10${bms_id} # max 255 (8bit)
     server_registers:
         # online_status (1/0)
