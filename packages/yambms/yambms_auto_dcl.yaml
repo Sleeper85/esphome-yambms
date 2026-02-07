@@ -93,7 +93,7 @@ interval:
             if (min_cell_v < cell_low_v) {
               delta = -max_current;
             } else {
-              double ratio = max(0.0, ((min_cell_v - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v})));
+              double ratio = max(0.0f, (float)((min_cell_v - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v})));
               double curve = pow(${discharge_a_factor_curve_end}, pow(ratio, ${discharge_a_factor_curve_shape}));
               delta = max(0.0, (-curve + 2) * max_current) - max_current;
             }
