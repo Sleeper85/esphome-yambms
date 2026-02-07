@@ -41,6 +41,11 @@
 # Note: Slave batteries only have access to Pack Status data (not config blocks).
 #       balance_trigger_voltage must be set via substitution for slaves.
 
+substitutions:
+  bms_balance_trigger_voltage: '0.030'
+  bms_cell_ovp: '3.650'
+  bms_cell_uvp: '2.500'
+
 packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
@@ -261,14 +266,7 @@ sensor:
         ambient_temperature:
           device_id: bms_${bms_id}
           name: "ambient temperature"
-        min_temperature:
-          id: bms${bms_id}_min_temperature
-          device_id: bms_${bms_id}
-          name: "min temperature"
-        max_temperature:
-          id: bms${bms_id}_max_temperature
-          device_id: bms_${bms_id}
-          name: "max temperature"
+        # min_temperature and max_temperature are provided by bms_temperature_sensor_4.yaml
         avg_temperature:
           device_id: bms_${bms_id}
           name: "average temperature"

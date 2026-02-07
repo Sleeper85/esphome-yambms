@@ -51,7 +51,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-ecoworthy-bms@v0.1.0-beta
+  - source: github://RAR/esphome-ecoworthy-bms@v0.1.2-beta
     refresh: 0s
 
 ecoworthy_bms:
@@ -290,14 +290,7 @@ sensor:
     ambient_temperature:
       device_id: bms_${bms_id}
       name: "ambient temperature"
-    min_temperature:
-      id: bms${bms_id}_min_temperature
-      device_id: bms_${bms_id}
-      name: "min temperature"
-    max_temperature:
-      id: bms${bms_id}_max_temperature
-      device_id: bms_${bms_id}
-      name: "max temperature"
+    # min_temperature and max_temperature are provided by bms_temperature_sensor_4.yaml
     avg_temperature:
       device_id: bms_${bms_id}
       name: "average temperature"
@@ -305,23 +298,24 @@ sensor:
       device_id: bms_${bms_id}
       name: "charge voltage limit"
     charge_current_limit:
-      id: bms${bms_id}_max_charge_current
       device_id: bms_${bms_id}
-      name: "max charging current"
+      name: "total pack max charging current"
     discharge_voltage_limit:
       device_id: bms_${bms_id}
       name: "discharge voltage limit"
     discharge_current_limit:
+      device_id: bms_${bms_id}
+      name: "total pack max discharge current"
+    # Individual battery limits from 0x45 (master only, not aggregated)
+    # These are the per-battery limits used by YamBMS for combine logic
+    individual_charge_current_limit:
+      id: bms${bms_id}_max_charge_current
+      device_id: bms_${bms_id}
+      name: "max charging current"
+    individual_discharge_current_limit:
       id: bms${bms_id}_max_discharge_current
       device_id: bms_${bms_id}
       name: "max discharge current"
-    # Individual battery limits from 0x45 (master only, not aggregated)
-    individual_charge_current_limit:
-      device_id: bms_${bms_id}
-      name: "individual charge current limit"
-    individual_discharge_current_limit:
-      device_id: bms_${bms_id}
-      name: "individual discharge current limit"
     fault_bitmask:
       id: bms${bms_id}_fault_bitmask
       device_id: bms_${bms_id}
