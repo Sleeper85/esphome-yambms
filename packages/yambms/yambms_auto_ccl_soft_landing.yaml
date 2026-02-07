@@ -25,10 +25,10 @@ globals:
     restore_value: no
     initial_value: '0'
 
-  - id: ${yambms_id}_auto_ccl_soft_landing_registered
-    type: bool
-    restore_value: no
-    initial_value: 'false'
+  #- id: ${yambms_id}_auto_ccl_soft_landing_registered
+  #  type: bool
+  #  restore_value: no
+  #  initial_value: 'false'
 
 switch:
   - platform: template
@@ -62,8 +62,7 @@ esphome:
     then:
       - lambda: |-
           id(${yambms_id}_var_auto_ccl_functions_count)++;
-          ESP_LOGW("softland", "on_boot ran, my_step=%d",
-                   id(${yambms_id}_var_auto_ccl_functions_count));
+          ESP_LOGE("softland", "on_boot ran");
           id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
             (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count));
 
@@ -74,12 +73,12 @@ interval:
           // ------------------------------------------------------------
           // One-time registration (fallback if package on_boot doesn't merge)
           // ------------------------------------------------------------
-          if (!id(${yambms_id}_auto_ccl_soft_landing_registered)) {
-            id(${yambms_id}_var_auto_ccl_functions_count)++;  // "I am an Auto-CCL reducer"
-            id(${yambms_id}_auto_ccl_soft_landing_registered) = true;
-            ESP_LOGW("softland", "registered: auto_ccl_functions_count=%d",
-                     id(${yambms_id}_var_auto_ccl_functions_count));
-          }
+          //if (!id(${yambms_id}_auto_ccl_soft_landing_registered)) {
+          //  id(${yambms_id}_var_auto_ccl_functions_count)++;  // "I am an Auto-CCL reducer"
+          //  id(${yambms_id}_auto_ccl_soft_landing_registered) = true;
+          //  ESP_LOGW("softland", "registered: auto_ccl_functions_count=%d",
+          //           id(${yambms_id}_var_auto_ccl_functions_count));
+          //}
 
           // ------------------------------------------------------------
           // STEP-2 gate (Sleeper85 scheme)
