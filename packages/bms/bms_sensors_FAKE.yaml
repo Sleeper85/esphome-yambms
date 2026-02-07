@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.2.5
+# Updated : 2026.02.07
+# Version : 1.2.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -106,13 +106,13 @@ switch:
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
   - platform: template
-    id: bms${bms_id}_charging_allowed_switch
+    id: bms${bms_id}_charge_switch
     device_id: bms_${bms_id}
     name: "charge switch"
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
   - platform: template
-    id: bms${bms_id}_discharging_allowed_switch
+    id: bms${bms_id}_discharge_switch
     device_id: bms_${bms_id}
     name: "discharge switch"
     restore_mode: RESTORE_DEFAULT_ON
@@ -142,13 +142,13 @@ binary_sensor:
     id: bms${bms_id}_charging_allowed
     device_id: bms_${bms_id}
     name: "charging"
-    lambda: return id(bms${bms_id}_charging_allowed_switch).state;
+    lambda: return id(bms${bms_id}_charge_switch).state;
   # discharging_allowed
   - platform: template
     id: bms${bms_id}_discharging_allowed
     device_id: bms_${bms_id}
     name: "discharging"
-    lambda: return id(bms${bms_id}_discharging_allowed_switch).state;
+    lambda: return id(bms${bms_id}_discharge_switch).state;
   # equalizing
   - platform: template
     id: bms${bms_id}_bms_equalizing
