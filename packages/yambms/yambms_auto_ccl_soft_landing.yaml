@@ -25,10 +25,10 @@ globals:
     restore_value: no
     initial_value: '0'
 
-  #- id: ${yambms_id}_auto_ccl_soft_landing_registered
-  #  type: bool
-  #  restore_value: no
-  #  initial_value: 'false'
+  - id: ${yambms_id}_auto_ccl_soft_landing_registered
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
 switch:
   - platform: template
@@ -56,43 +56,35 @@ sensor:
     entity_category: diagnostic
     update_interval: never
 
-esphome:
-  on_boot:
-    priority: -100.0
+script:
+  # This is called from my yambms.yaml config file to 'register' this function with yambms.
+  # esphome on_boot is unreliable. 
+  - id: ${yambms_id}_auto_ccl_soft_landing_register
+    mode: queued
     then:
       - lambda: |-
+          if (id(${yambms_id}_auto_ccl_soft_landing_registered)) return;   // already registered
+          id(${yambms_id}_auto_ccl_soft_landing_registered) = true;
+
           id(${yambms_id}_var_auto_ccl_functions_count)++;
-          ESP_LOGE("softland", "on_boot ran");
-          id(${yambms_id}_auto_ccl_soft_landing_runs).publish_state(
-            (float) id(${yambms_id}_auto_ccl_soft_landing_runs_count));
+
+          ESP_LOGW("softland",
+                   "%s registered: auto_ccl_functions_count=%d",
+                   "${yambms_id}",
+                   id(${yambms_id}_var_auto_ccl_functions_count));
 
 interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
-          // ------------------------------------------------------------
-          // One-time registration (fallback if package on_boot doesn't merge)
-          // ------------------------------------------------------------
-          //if (!id(${yambms_id}_auto_ccl_soft_landing_registered)) {
-          //  id(${yambms_id}_var_auto_ccl_functions_count)++;  // "I am an Auto-CCL reducer"
-          //  id(${yambms_id}_auto_ccl_soft_landing_registered) = true;
-          //  ESP_LOGW("softland", "registered: auto_ccl_functions_count=%d",
-          //           id(${yambms_id}_var_auto_ccl_functions_count));
-          //}
-
-          // ------------------------------------------------------------
-          // STEP-2 gate (Sleeper85 scheme)
-          // ------------------------------------------------------------
           const int cc_step = id(${yambms_id}_var_charge_current_step);
           const int nfunc   = id(${yambms_id}_var_auto_ccl_functions_count);
 
           if (cc_step < 1 || cc_step >= (nfunc + 1)) return;
 
-          // ------------------------------------------------------------
-          // Switch OFF: contribute nothing, but MUST pass the baton
-          // ------------------------------------------------------------
+          // Switch OFF: contribute nothing, but we must 'pass the baton' by incrementing the step
           if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state) {
-            id(${yambms_id}_var_auto_ccl) = 0.0f;
+            // Disabled: do not touch shared var_auto_ccl (avoid clobbering others)
             id(${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -104,20 +96,20 @@ interval:
           );
 
           // ------------------------------------------------------------
-          // Soft-landing math (overwrite var_auto_ccl for testing)
+          // Soft-landing math
           // ------------------------------------------------------------
-          const float pack_v  = id(${yambms_id}_total_voltage).state;
-          const float bulk_v  = id(${yambms_id}_bulk_voltage).state;
-          const float taper_v = ${charge_taper_start_offset};
+          const float pack_v  = id(${yambms_id}_total_voltage).state;   // Battery voltage
+          const float bulk_v  = id(${yambms_id}_bulk_voltage).state;    // Bulk voltage (taget)
+          const float taper_v = ${charge_taper_start_offset};           // Voltage offset where we start tapering
 
           float delta_a = 0.0f;
 
-          const float taper_start_v = bulk_v - taper_v;
+          const float taper_start_v = bulk_v - taper_v;                 // Voltage where we start tapering
 
-          if (pack_v >= taper_start_v) {
-            const float Ah = id(${yambms_id}_installed_battery_capacity).state;
+          if (pack_v >= taper_start_v) {                                          // We're in the 'taper zone'
+            const float Ah = id(${yambms_id}_installed_battery_capacity).state;   // Amps scaled to battery capacity
 
-            float I_ref = Ah * ${landing_c_rate};
+            float I_ref = Ah * ${landing_c_rate};                                 // This is where the taper curve starts
             I_ref = std::min(I_ref, id(${yambms_id}_max_charge_current).state);
             I_ref = std::min(I_ref, id(${yambms_id}_max_requested_charge_current).state);
 
@@ -131,8 +123,8 @@ interval:
             if (delta_a > 0.0f) delta_a = 0.0f;
           }
 
-          id(${yambms_id}_var_auto_ccl) = delta_a;  // test mode: overwrite
-          id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);
+          id(${yambms_id}_var_auto_ccl) = delta_a;                               // Do we get our own softland global?
+          id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta_a);   // Update the Home Assistsnt sensor
 
           // Pass the baton exactly once
           id(${yambms_id}_var_charge_current_step)++;
