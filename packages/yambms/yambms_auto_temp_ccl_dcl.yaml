@@ -1,5 +1,5 @@
-# Updated : 2026.02.02
-# Version : 1.1.3
+# Updated : 2026.02.07
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,11 +26,11 @@
 
 esphome:
   on_boot:
-    priority: -100.0
-    then:
-      - lambda: |-
-          id(${yambms_id}_var_auto_ccl_functions_count)++;
-          id(${yambms_id}_var_auto_dcl_functions_count)++;
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(${yambms_id}_var_auto_ccl_functions_count)++;
+            id(${yambms_id}_var_auto_dcl_functions_count)++;
 
 globals:
   - id: charging_table
