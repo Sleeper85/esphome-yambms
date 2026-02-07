@@ -1,4 +1,4 @@
-# Updated : 2026.02.04
+# Updated : 2026.02.07
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -758,7 +758,7 @@ interval:
                   // that these are not random/erroneous/false readings of the BMS
                   if (cutoff_counter > 4)
                   {
-                    ESP_LOGI("yambms", "Entering the Cut-Off phase...");
+                    ESP_LOGD("yambms_debug", "Entering the Cut-Off phase...");
 
                     // Cut-Off : the end of charging is near
                     id(${yambms_id}_var_charge_status) = "Cut-Off";
@@ -813,10 +813,11 @@ interval:
               }
             }
             // Charging not allowed (BMS or YamBMS)
-            else if ((id(${yambms_id}_var_charge_status) != "Init") && (id(${yambms_id}_var_bms_charging_logic) == false))
+            else if (id(${yambms_id}_var_bms_charging_logic) == true)
             {
-              id(${yambms_id}_var_charge_status) = "Wait";
+              if (!id(${yambms_id}_switch_charging).state) id(${yambms_id}_var_charge_status) = "Wait";
             }
+            else id(${yambms_id}_var_charge_status) = "Wait";
 
             // Publish the sensor
             id(${yambms_id}_charging_status).publish_state(id(${yambms_id}_var_charge_status));
@@ -905,10 +906,20 @@ interval:
                 requested_charge_current = round(id(${yambms_id}_max_charge_current).state + auto_limit);
                 if (requested_charge_current < 0) requested_charge_current = 0;
               }
+
               // Publish the sensor
               id(${yambms_id}_requested_charge_current).publish_state(requested_charge_current);
-              if (requested_charge_current > 0) id(${yambms_id}_var_requested_ccl_init) = true;
-              id(${yambms_id}_var_charge_current_step)++;
+
+              if (id(${yambms_id}_switch_charging).state) {
+                ESP_LOGD("yambms_debug", "Charging switch : true");
+                if (requested_charge_current > 0) id(${yambms_id}_var_requested_ccl_init) = true;
+              }
+              else {
+                ESP_LOGD("yambms_debug", "Charging switch : false");
+                id(${yambms_id}_var_requested_ccl_init) = true;
+              }
+
+              id(${yambms_id}_var_charge_current_step)++;              
             }
 
             // +-----------------------------------------------+
@@ -931,9 +942,20 @@ interval:
                 requested_discharge_current = round(id(${yambms_id}_max_discharge_current).state + auto_limit);
                 if (requested_discharge_current < 0) requested_discharge_current = 0;
               }
+
               // Publish the sensor
               id(${yambms_id}_requested_discharge_current).publish_state(requested_discharge_current);
-              if (requested_discharge_current > 0) id(${yambms_id}_var_requested_dcl_init) = true;
+              
+
+              if (id(${yambms_id}_switch_discharging).state) {
+                ESP_LOGD("yambms_debug", "Discharging switch : true");
+                if (requested_discharge_current > 0) id(${yambms_id}_var_requested_dcl_init) = true;
+              }
+              else {
+                ESP_LOGD("yambms_debug", "Discharging switch : false");
+                id(${yambms_id}_var_requested_dcl_init) = true;
+              }
+
               id(${yambms_id}_var_discharge_current_step)++;
             }
 
@@ -973,8 +995,8 @@ interval:
           if (id(${yambms_id}_discharging_instruction).has_state())
           {
             bool discharging_instruction = id(${yambms_id}_discharging_instruction).state;
-            if (discharging_instruction == true) ESP_LOGD("yambms_debug", "Discharging instruction  : true");
-            else ESP_LOGD("yambms_debug", "Discharging instruction  : false");
+            if (discharging_instruction == true) ESP_LOGD("yambms_debug", "Discharging instruction : true");
+            else ESP_LOGD("yambms_debug", "Discharging instruction : false");
           }
           if (id(${yambms_id}_requested_charge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested CVL : %f V", id(${yambms_id}_requested_charge_voltage).state);
           if (id(${yambms_id}_requested_discharge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested DVL : %f V", id(${yambms_id}_requested_discharge_voltage).state);
