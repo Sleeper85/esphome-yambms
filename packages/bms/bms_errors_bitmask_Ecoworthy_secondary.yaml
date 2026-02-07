@@ -18,12 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
   # +--------------------------------------+
-  # | Ecoworthy SLAVE Errors Bitmask       |
+  # | Ecoworthy SECONDARY Errors Bitmask       |
   # +--------------------------------------+
   # Maps Ecoworthy fault_bitmask (32-bit) and alarm_bitmask (32-bit) to
   # YamBMS Errors Bitmask (16bit)
   #
-  # This is identical to the master version - slave batteries expose
+  # This is identical to the primary version - secondary batteries expose
   # the same fault/alarm bitmask format via Pack Status polling.
 
   # YamBMS Error Bits:

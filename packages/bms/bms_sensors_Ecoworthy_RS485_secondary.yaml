@@ -18,18 +18,18 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # +--------------------------------------+
-# | Ecoworthy BMS RS485 SLAVE Package    |
+# | Ecoworthy BMS RS485 SECONDARY Package    |
 # +--------------------------------------+
-# This package provides YamBMS sensors for a SLAVE battery polled
-# through a master Ecoworthy BMS component.
+# This package provides YamBMS sensors for a SECONDARY battery polled
+# through a primary Ecoworthy BMS component.
 #
-# The master component must be configured with battery_count >= slave_battery_number
+# The primary component must be configured with battery_count >= secondary_battery_number
 #
 # Required substitutions:
-#   bms_id: The YamBMS BMS ID number for this slave
-#   bms_name: Display name for this slave BMS
+#   bms_id: The YamBMS BMS ID number for this secondary
+#   bms_name: Display name for this secondary BMS
 #   parent_ecoworthy_bms_id: ID of the parent ecoworthy_bms component (e.g., 'ecoworthy_bms9')
-#   slave_battery_number: The slave battery number (2, 3, 4, etc.)
+#   secondary_battery_number: The secondary battery number (2, 3, 4, etc.)
 #
 # Optional substitutions:
 #   bms_max_charge_current: Max charge current in A (default: 100)
@@ -38,8 +38,8 @@
 #   bms_cell_uvp: Cell under-voltage protection in V (default: 2.500)
 #   bms_balance_trigger_voltage: Balance trigger voltage in V (default: 0.030)
 #
-# Note: Slave batteries only have access to Pack Status data (not config blocks).
-#       balance_trigger_voltage must be set via substitution for slaves.
+# Note: Secondary batteries only have access to Pack Status data (not config blocks).
+#       balance_trigger_voltage must be set via substitution for secondarys.
 
 substitutions:
   bms_balance_trigger_voltage: '0.030'
@@ -49,19 +49,19 @@ substitutions:
 packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
-  bms_errors_bitmask: !include bms_errors_bitmask_Ecoworthy_slave.yaml
+  bms_errors_bitmask: !include bms_errors_bitmask_Ecoworthy_secondary.yaml
 
 # +--------------------------------------+
 # | Component entities                   |
 # +--------------------------------------+
-# Note: No ecoworthy_bms component created here - we reference the parent's slave sensors
+# Note: No ecoworthy_bms component created here - we reference the parent's secondary sensors
 
 binary_sensor:
-  # Slave battery binary sensors from parent component
+  # Secondary battery binary sensors from parent component
   - platform: ecoworthy_bms
     ecoworthy_bms_id: ${parent_ecoworthy_bms_id}
     batteries:
-      ${slave_battery_number}:
+      ${secondary_battery_number}:
         online_status:
           id: bms${bms_id}_online_status
           device_id: bms_${bms_id}
@@ -108,11 +108,11 @@ binary_sensor:
       return id(bms${bms_id}_discharge_mos_internal).state;
 
 sensor:
-  # Slave battery sensors from parent component
+  # Secondary battery sensors from parent component
   - platform: ecoworthy_bms
     ecoworthy_bms_id: ${parent_ecoworthy_bms_id}
     batteries:
-      ${slave_battery_number}:
+      ${secondary_battery_number}:
         total_voltage:
           id: bms${bms_id}_total_voltage
           device_id: bms_${bms_id}
@@ -369,11 +369,11 @@ sensor:
     lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
 
 text_sensor:
-  # Slave battery text sensors from parent component
+  # Secondary battery text sensors from parent component
   - platform: ecoworthy_bms
     ecoworthy_bms_id: ${parent_ecoworthy_bms_id}
     batteries:
-      ${slave_battery_number}:
+      ${secondary_battery_number}:
         operation_status:
           id: bms${bms_id}_status
           device_id: bms_${bms_id}

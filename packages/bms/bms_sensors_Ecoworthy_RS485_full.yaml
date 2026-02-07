@@ -21,8 +21,8 @@
 # | Ecoworthy BMS RS485 Sensor Package   |
 # +--------------------------------------+
 # This package integrates the Ecoworthy BMS component with YamBMS.
-# This is the MASTER package - use bms_sensors_Ecoworthy_RS485_slave.yaml
-# for slave batteries polled through this master.
+# This is the PRIMARY package - use bms_sensors_Ecoworthy_RS485_secondary.yaml
+# for secondary batteries polled through this primary.
 #
 # Required substitutions:
 #   bms_id: The BMS ID number
@@ -32,7 +32,7 @@
 #   bms_update_interval: Update interval (e.g., '3s')
 #
 # Optional substitutions:
-#   bms_battery_count: Number of batteries to poll (1=master only, 2+=master+slaves)
+#   bms_battery_count: Number of batteries to poll (1=primary only, 2+=primary+secondarys)
 #
 # Note: Protection thresholds (cell OVP/UVP, pack OVP/UVP) and balance settings
 #       are now read directly from BMS config registers
@@ -51,7 +51,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-ecoworthy-bms@v0.1.2-beta
+  - source: github://RAR/esphome-ecoworthy-bms@v0.2.0-beta
     refresh: 0s
 
 ecoworthy_bms:
@@ -306,7 +306,7 @@ sensor:
     discharge_current_limit:
       device_id: bms_${bms_id}
       name: "total pack max discharge current"
-    # Individual battery limits from 0x45 (master only, not aggregated)
+    # Individual battery limits from 0x45 (primary only, not aggregated)
     # These are the per-battery limits used by YamBMS for combine logic
     individual_charge_current_limit:
       id: bms${bms_id}_max_charge_current
