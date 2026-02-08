@@ -39,7 +39,7 @@
 #   bms_balance_trigger_voltage: Balance trigger voltage in V (default: 0.030)
 #
 # Note: Secondary batteries only have access to Pack Status data (not config blocks).
-#       balance_trigger_voltage must be set via substitution for secondarys.
+#       balance_trigger_voltage must be set via substitution for secondaries.
 
 substitutions:
   bms_balance_trigger_voltage: '0.030'

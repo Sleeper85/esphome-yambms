@@ -23,6 +23,16 @@
 
 ################################################################################
 
+##############################################################################
+# Example A : Primary + secondary batteries (one BMS polls multiple batteries)
+#
+# The primary BMS component reads data for all batteries on the RS485 bus.
+# Secondary batteries are exposed as separate YamBMS BMS entries using
+# bms_combine_Ecoworthy_RS485_secondary.yaml.
+#
+# Set bms_battery_count on the primary to the total number of batteries.
+##############################################################################
+
 packages:
 
   bms:
@@ -35,27 +45,67 @@ packages:
         vars:
           ecoworthy_modbus_uart_id: 'uart_esp_1'
           ecoworthy_modbus_baud_rate: '9600'
-      # Ecoworthy BMS 1
+      # Primary battery (BMS 1) - polls all batteries on the RS485 bus
       - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
         vars:
           bms_id: '1' # must be a number
           bms_name: 'Ecoworthy-BMS 1'
-          bms_address: '0x01' # BMS 1 modbus address (usually 0x01 for master)
-          bms_max_charge_current: '100'            # A. Max charge current
-          bms_max_discharge_current: '100'         # A. Max discharge current
-          bms_cell_ovp: '3.650'                    # V. Cell over-voltage protection
-          bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
-          bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
+          bms_address: '0x01' # BMS 1 modbus address (usually 0x01 for primary)
+          bms_battery_count: '3' # total batteries polled (1=primary only, 2+=primary+secondaries)
+          bms_cell_max_cycles: '6000.0'
           bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
-      # Ecoworthy BMS 2
-      - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
+      # Secondary battery 2 (BMS 2) - data polled by primary
+      - path: 'packages/bms/bms_combine_Ecoworthy_RS485_secondary.yaml'
         vars:
           bms_id: '2' # must be a number
           bms_name: 'Ecoworthy-BMS 2'
-          bms_address: '0x02' # BMS 2 modbus address
-          bms_max_charge_current: '100'            # A. Max charge current
-          bms_max_discharge_current: '100'         # A. Max discharge current
-          bms_cell_ovp: '3.650'                    # V. Cell over-voltage protection
-          bms_cell_uvp: '2.500'                    # V. Cell under-voltage protection
-          bms_balance_trigger_voltage: '0.030'     # V. Balance trigger voltage
-          bms_status_led_id: 'esp_light' # led used to show status. Default = esp_light, comment out to disable
+          parent_ecoworthy_bms_id: 'ecoworthy_bms1' # references the primary component
+          secondary_battery_number: '2'
+          bms_cell_max_cycles: '6000.0'
+          bms_status_led_id: 'esp_light'
+      # Secondary battery 3 (BMS 3) - data polled by primary
+      - path: 'packages/bms/bms_combine_Ecoworthy_RS485_secondary.yaml'
+        vars:
+          bms_id: '3' # must be a number
+          bms_name: 'Ecoworthy-BMS 3'
+          parent_ecoworthy_bms_id: 'ecoworthy_bms1' # references the primary component
+          secondary_battery_number: '3'
+          bms_cell_max_cycles: '6000.0'
+          bms_status_led_id: 'esp_light'
+
+##############################################################################
+# Example B : Multiple independent primaries (each BMS has its own address)
+#
+# Use this when each Ecoworthy BMS is independently addressed on the bus
+# and you don't need the primary/secondary polling pattern.
+# Protection thresholds (cell OVP/UVP) are read from BMS config registers.
+##############################################################################
+
+#packages:
+#
+#  bms:
+#    url: https://github.com/Sleeper85/esphome-yambms
+#    ref: main
+#    refresh: 60min
+#    files:
+#      # Ecoworthy Modbus - Include this ONCE per RS485 bus
+#      - path: 'packages/bms/bms_combine_Ecoworthy_RS485_modbus.yaml'
+#        vars:
+#          ecoworthy_modbus_uart_id: 'uart_esp_1'
+#          ecoworthy_modbus_baud_rate: '9600'
+#      # Ecoworthy BMS 1
+#      - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
+#        vars:
+#          bms_id: '1' # must be a number
+#          bms_name: 'Ecoworthy-BMS 1'
+#          bms_address: '0x01' # BMS 1 modbus address (usually 0x01 for primary)
+#          bms_cell_max_cycles: '6000.0'
+#          bms_status_led_id: 'esp_light'
+#      # Ecoworthy BMS 2
+#      - path: 'packages/bms/bms_combine_Ecoworthy_RS485.yaml'
+#        vars:
+#          bms_id: '2' # must be a number
+#          bms_name: 'Ecoworthy-BMS 2'
+#          bms_address: '0x02' # BMS 2 modbus address
+#          bms_cell_max_cycles: '6000.0'
+#          bms_status_led_id: 'esp_light'

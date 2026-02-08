@@ -32,7 +32,7 @@
 #   bms_update_interval: Update interval (e.g., '3s')
 #
 # Optional substitutions:
-#   bms_battery_count: Number of batteries to poll (1=primary only, 2+=primary+secondarys)
+#   bms_battery_count: Number of batteries to poll (1=primary only, 2+=primary+secondaries)
 #
 # Note: Protection thresholds (cell OVP/UVP, pack OVP/UVP) and balance settings
 #       are now read directly from BMS config registers
