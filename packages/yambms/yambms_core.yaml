@@ -1,4 +1,4 @@
-# Updated : 2026.02.07
+# Updated : 2026.02.08
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -279,6 +279,10 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: ${yambms_id}_var_auto_temperature_dcl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_var_auto_ccl_soft_landing
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -900,7 +904,8 @@ interval:
                 float auto_limit = std::min({
                   id(${yambms_id}_var_auto_ccl), 
                   id(${yambms_id}_var_auto_eoc), 
-                  id(${yambms_id}_var_auto_temperature_ccl)
+                  id(${yambms_id}_var_auto_temperature_ccl),
+                  id(${yambms_id}_var_auto_ccl_soft_landing)
                 });
 
                 requested_charge_current = round(id(${yambms_id}_max_charge_current).state + auto_limit);
