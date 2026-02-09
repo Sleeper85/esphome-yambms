@@ -8,6 +8,10 @@
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
 > [!TIP]
+> This page contains many links to other README.
+> If you don't find answers to your questions, [you'll find all the README in this folder](documents/README).
+
+> [!TIP]
 > Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](YamBMS_Remote_Packages_example.yaml)
 > is a good basis for creating your custom YAML.
 > Examples of `BMS`, `Shunt` and `Balancer` packages can be found in the [examples](examples/single-node/) folder.
@@ -130,7 +134,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2025.11.0 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2026.1.4 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
