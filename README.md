@@ -8,6 +8,10 @@
 [!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
 
 > [!TIP]
+> This page contains many links to other README.
+> If you don't find answers to your questions, [you'll find all the README in this folder](documents/README).
+
+> [!TIP]
 > Not sure which YAML to choose ? ... [YamBMS_Remote_Packages_example.yaml](YamBMS_Remote_Packages_example.yaml)
 > is a good basis for creating your custom YAML.
 > Examples of `BMS`, `Shunt` and `Balancer` packages can be found in the [examples](examples/single-node/) folder.
