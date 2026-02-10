@@ -86,7 +86,7 @@ interval:
             // Default target is 0.0 (No reduction in current)
             float delta = 0.0f;
 
-            // Only calculate a reduction if the switch is ON
+            // Only calculate a reduction if the switch is on
             if (id(${yambms_id}_switch_auto_ccl).state) {
                 if (max_cell_v > cell_high_v) {
                   delta = -max_current;
