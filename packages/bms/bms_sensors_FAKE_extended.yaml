@@ -1,0 +1,151 @@
+# Updated : 2026.02.11
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+number:
+  # state_of_charge
+  - platform: template
+    id: bms${bms_id}_number_battery_soc
+    device_id: bms_${bms_id}
+    name: "Battery SOC number"
+    mode: box
+    step: 1
+    min_value: 0
+    max_value: 100
+    restore_value: true
+    initial_value: ${bms_soc}
+    unit_of_measurement: "%"
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_state_of_charge).publish_state(x);
+
+  # current
+  - platform: template
+    id: bms${bms_id}_number_current
+    device_id: bms_${bms_id}
+    name: "Current number"
+    mode: box
+    step: 1
+    min_value: 0
+    max_value: 1000
+    restore_value: true
+    initial_value: ${bms_current}
+    device_class: current
+    unit_of_measurement: A
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_current).publish_state(x);
+
+  # min_cell_voltage
+  - platform: template
+    id: bms${bms_id}_number_min_cell_voltage
+    device_id: bms_${bms_id}
+    name: "Min cell voltage number"
+    mode: box
+    step: 0.005
+    min_value: 2.5
+    max_value: 3.65
+    restore_value: true
+    initial_value: ${bms_min_cell_voltage}
+    device_class: voltage
+    unit_of_measurement: V
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_min_cell_voltage).publish_state(x);
+  
+  # max_cell_voltage
+  - platform: template
+    id: bms${bms_id}_number_max_cell_voltage
+    device_id: bms_${bms_id}
+    name: "Max cell voltage number"
+    mode: box
+    step: 0.005
+    min_value: 2.5
+    max_value: 3.65
+    restore_value: true
+    initial_value: ${bms_max_cell_voltage}
+    device_class: voltage
+    unit_of_measurement: V
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_max_cell_voltage).publish_state(x);  
+  
+  # min_temperature
+  - platform: template
+    id: bms${bms_id}_number_min_temperature
+    device_id: bms_${bms_id}
+    name: "Min temperature number"
+    mode: box
+    step: 0.1
+    min_value: -30.0
+    max_value: 60.0
+    restore_value: true
+    initial_value: ${bms_min_temperature}
+    device_class: temperature
+    unit_of_measurement: °C
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_min_temperature).publish_state(x);
+  
+  # max_temperature
+  - platform: template
+    id: bms${bms_id}_number_max_temperature
+    device_id: bms_${bms_id}
+    name: "Max temperature number"
+    mode: box
+    step: 0.1
+    min_value: -30.0
+    max_value: 60.0
+    restore_value: true
+    initial_value: ${bms_max_temperature}
+    device_class: temperature
+    unit_of_measurement: °C
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_max_temperature).publish_state(x);
+
+  # errors_bitmask (16bits)
+  - platform: template
+    id: bms${bms_id}_number_yambms_errors_bitmask
+    device_id: bms_${bms_id}
+    name: "YamBMS Errors Bitmask number"
+    mode: box
+    step: 1
+    min_value: 0
+    max_value: 65535
+    restore_value: true
+    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
+    icon: mdi:alert-circle-outline
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_yambms_errors_bitmask).publish_state(x);
+  

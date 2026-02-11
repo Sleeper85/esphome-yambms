@@ -1,5 +1,5 @@
 # Updated : 2026.02.11
-# Version : 1.2.8
+# Version : 1.2.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,31 +29,31 @@ esphome:
       then:
         - lambda: |-
             // Setup first state
-            // id(bms${bms_id}_charging_allowed).publish_state();                // binary_sensor
-            // id(bms${bms_id}_discharging_allowed).publish_state();             // binary_sensor
-            id(bms${bms_id}_bms_equalizing).publish_state(false);                // binary_sensor
-            // id(bms${bms_id}_total_voltage).publish_state(${bms_voltage});     // lambda
+            // id(bms${bms_id}_charging_allowed).publish_state();                // automated binary_sensor
+            // id(bms${bms_id}_discharging_allowed).publish_state();             // automated binary_sensor
+            // id(bms${bms_id}_bms_equalizing).publish_state();                  // automated binary_sensor
+            // id(bms${bms_id}_total_voltage).publish_state();                   // automated {bms_voltage}
             id(bms${bms_id}_current).publish_state(${bms_current});
-            // id(bms${bms_id}_power).publish_state();                           // lambda
+            // id(bms${bms_id}_power).publish_state();                           // automated {bms_power}
             id(bms${bms_id}_state_of_charge).publish_state(${bms_soc});
             id(bms${bms_id}_battery_soh).publish_state(${bms_soh});
+            // id(bms${bms_id}_capacity_remaining_ah).publish_state();           // automated {bms_battery_capacity_remaining}
             id(bms${bms_id}_battery_capacity).publish_state(${bms_battery_capacity});
-            id(bms${bms_id}_capacity_remaining_ah).publish_state(${bms_battery_capacity_remaining});
             id(bms${bms_id}_charging_cycles).publish_state(${bms_charging_cycles});
             id(bms${bms_id}_max_charge_current).publish_state(${bms_max_charge_current});
             id(bms${bms_id}_max_discharge_current).publish_state(${bms_max_discharge_current});
-            // id(bms${bms_id}_min_cell_voltage).publish_state(${bms_min_cell_voltage}); // number
-            // id(bms${bms_id}_max_cell_voltage).publish_state(${bms_max_cell_voltage}); // number
+            id(bms${bms_id}_min_cell_voltage).publish_state(${bms_min_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(${bms_max_cell_voltage});
             id(bms${bms_id}_min_voltage_cell).publish_state(1);
             id(bms${bms_id}_max_voltage_cell).publish_state(8);
-            // id(bms${bms_id}_min_temperature).publish_state(bms${bms_id}_min_temperature); // number
-            // id(bms${bms_id}_max_temperature).publish_state(bms${bms_id}_max_temperature); // number
+            id(bms${bms_id}_min_temperature).publish_state(${bms_min_temperature});
+            id(bms${bms_id}_max_temperature).publish_state(${bms_max_temperature});
             id(bms${bms_id}_min_temperature_sensor).publish_state(${bms_id} * 100 + 1);
             id(bms${bms_id}_max_temperature_sensor).publish_state(${bms_id} * 100 + 2);
             id(bms${bms_id}_cell_ovp).publish_state(${bms_cell_ovp});
             id(bms${bms_id}_cell_uvp).publish_state(${bms_cell_uvp});
             id(bms${bms_id}_bms_balance_trigger_voltage).publish_state(${bms_balance_trigger_voltage});
-            // id(bms${bms_id}_yambms_errors_bitmask).publish_state(); // lambda > number
+            id(bms${bms_id}_yambms_errors_bitmask).publish_state(0);
 
 interval:
   - interval: ${yambms_update_interval}
@@ -135,82 +135,6 @@ binary_sensor:
     id: bms${bms_id}_bms_equalizing
     device_id: bms_${bms_id}
     name: "balancing"
-
-number:
-  # errors_bitmask (16bits)
-  - platform: template
-    id: bms${bms_id}_yambms_errors_bitmask_number
-    device_id: bms_${bms_id}
-    name: "YamBMS Errors Bitmask"
-    mode: box
-    step: 1
-    min_value: 0
-    max_value: 65535
-    restore_value: true
-    initial_value: 0 # 0~65535 (16bits) 0=NoAlarm
-    icon: mdi:alert-circle-outline
-    optimistic: true
-    entity_category: config
-  # min_cell_voltage
-  - platform: template
-    id: bms${bms_id}_min_cell_voltage
-    device_id: bms_${bms_id}
-    name: "min cell voltage"
-    mode: box
-    step: 0.005
-    min_value: 2.5
-    max_value: 3.65
-    restore_value: true
-    initial_value: ${bms_min_cell_voltage}
-    device_class: voltage
-    unit_of_measurement: V
-    optimistic: true
-    entity_category: config
-  # max_cell_voltage
-  - platform: template
-    id: bms${bms_id}_max_cell_voltage
-    device_id: bms_${bms_id}
-    name: "max cell voltage"
-    mode: box
-    step: 0.005
-    min_value: 2.5
-    max_value: 3.65
-    restore_value: true
-    initial_value: ${bms_max_cell_voltage}
-    device_class: voltage
-    unit_of_measurement: V
-    optimistic: true
-    entity_category: config
-  # min_temperature
-  - platform: template
-    id: bms${bms_id}_min_temperature
-    device_id: bms_${bms_id}
-    name: "min temperature"
-    mode: box
-    step: 0.1
-    min_value: -30.0
-    max_value: 60.0
-    restore_value: true
-    initial_value: ${bms_min_temperature}
-    device_class: temperature
-    unit_of_measurement: °C
-    optimistic: true
-    entity_category: config
-  # max_temperature
-  - platform: template
-    id: bms${bms_id}_max_temperature
-    device_id: bms_${bms_id}
-    name: "max temperature"
-    mode: box
-    step: 0.1
-    min_value: -30.0
-    max_value: 60.0
-    restore_value: true
-    initial_value: ${bms_max_temperature}
-    device_class: temperature
-    unit_of_measurement: °C
-    optimistic: true
-    entity_category: config
 
 sensor:
   # battery_capacity
@@ -311,6 +235,34 @@ sensor:
         - throttle: 10s
         - delta: 1
 
+  # min_cell_voltage
+  - platform: template
+    id: bms${bms_id}_min_cell_voltage
+    device_id: bms_${bms_id}
+    name: "Min Cell Voltage"
+    update_interval: never
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+
+  # max_cell_voltage
+  - platform: template
+    id: bms${bms_id}_max_cell_voltage
+    device_id: bms_${bms_id}
+    name: "Max Cell Voltage"
+    update_interval: never
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: voltage
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.001
+
   # min_voltage_cell
   - platform: template
     id: bms${bms_id}_min_voltage_cell
@@ -337,7 +289,37 @@ sensor:
         - throttle: 10s
         - delta: 1
 
-  # MIN temperature sensor
+  # min_temperature
+  - platform: template
+    id: bms${bms_id}_min_temperature
+    device_id: bms_${bms_id}
+    name: "min temperature"
+    update_interval: never
+    unit_of_measurement: °C
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+
+  # max_temperature
+  - platform: template
+    id: bms${bms_id}_max_temperature
+    device_id: bms_${bms_id}
+    name: "max temperature"
+    update_interval: never
+    unit_of_measurement: °C
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 0.1
+
+  # min_temperature sensor
   - platform: template
     id: bms${bms_id}_min_temperature_sensor
     device_id: bms_${bms_id}
@@ -350,7 +332,7 @@ sensor:
         - throttle: 10s
         - delta: 1
 
-  # MAX temperature sensor
+  # max_temperature sensor
   - platform: template
     id: bms${bms_id}_max_temperature_sensor
     device_id: bms_${bms_id}
@@ -486,7 +468,6 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(bms${bms_id}_yambms_errors_bitmask_number).state;
 
   # # temperature_sensor_1
   # - platform: template
