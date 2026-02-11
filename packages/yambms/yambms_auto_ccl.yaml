@@ -98,7 +98,7 @@ interval:
                 }
             }
             // If switch is off, delta stays 0.0f. 
-            // The logic below will smoothly ramp from the old negative value back to 0.
+            // Smoothly ramp from the old negative value back to 0 if required
 
             if (!is_initialized) {
               current_output = delta;
