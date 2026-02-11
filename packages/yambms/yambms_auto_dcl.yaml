@@ -1,5 +1,5 @@
-# Updated : 2026.02.07
-# Version : 1.2.9
+# Updated : 2026.02.11
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -80,23 +80,22 @@ interval:
               return;
             }
           
-            // Check switch enabled
-            if (!id(${yambms_id}_switch_auto_dcl).state) {
-              output_id = 0.0f;
-              id(${yambms_id}_var_discharge_current_step)++;
-              return;
-            }
-
-            // Calculate initial current delta
+            // Default target is 0.0 (No reduction in current)
             float delta = 0.0f;
 
-            if (min_cell_v < cell_low_v) {
-              delta = -max_current;
-            } else {
-              float ratio = max(0.0f, (float)((min_cell_v - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v})));
-              float curve = pow(${discharge_a_factor_curve_end}, pow(ratio, ${discharge_a_factor_curve_shape}));
-              delta = max(0.0f, (-curve + 2.0f) * max_current) - max_current;
+            // Only calculate a reduction if the switch is on
+            if (id(${yambms_id}_switch_auto_dcl).state) {
+                if (min_cell_v < cell_low_v) {
+                  delta = -max_current;
+                } else {
+                  // Calculate a curve based on the cell voltage.
+                  float ratio = max(0.0f, (float)((min_cell_v - ${discharge_knee_v}) / (cell_low_v - ${discharge_knee_v})));
+                  float curve = pow(${discharge_a_factor_curve_end}, pow(ratio, ${discharge_a_factor_curve_shape}));
+                  delta = max(0.0f, (-curve + 2.0f) * max_current) - max_current;
+                }
             }
+            // If switch is off, delta stays 0.0f. 
+            // Smoothly ramp from the old negative value back to 0 if required
 
             if (!is_initialized) {
               current_output = delta;
