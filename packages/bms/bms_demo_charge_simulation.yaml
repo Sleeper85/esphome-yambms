@@ -1,0 +1,144 @@
+# Updated : 2026.02.11
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------------------------------------------------+
+# | Import this package into your main YAML to activate the simulation
+# +--------------------------------------------------------------------------------+
+#
+#       - path: packages/bms/bms_demo_charge_simulation.yaml # Battery charge from 95 to 100%
+#         vars:
+#           bms_id: '1'
+#       - path: packages/bms/bms_demo_charge_simulation.yaml # Battery charge from 95 to 100%
+#         vars:
+#           bms_id: '2'
+#       - path: packages/bms/bms_demo_charge_simulation.yaml # Battery charge from 95 to 100%
+#         vars:
+#           bms_id: '3'
+#
+# +--------------------------------------------------------------------------------+
+
+substitutions:
+  battery_capacity: '280'
+  min_temperature: '4.8'
+  max_temperature: '5.0'
+  delta_cell_voltage: '0.005'
+
+switch:
+  # DEMO switch
+  - platform: template
+    id: bms${bms_id}_switch_demo_charge_simulation
+    name: "BMS ${bms_id} DEMO charge simulation"
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
+    on_state:
+      - lambda: |-
+          if (id(bms${bms_id}_switch_demo_charge_simulation).state)
+            id(bms${bms_id}_online_status_switch).turn_on();
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          // Vars
+          float cell_count = id(${yambms_id}_cell_count).state;
+          float requested_cvl = id(${yambms_id}_requested_charge_voltage).state;
+          const int step_sec = 10; // step duration in seconds
+          static int seconds = 0;
+
+          // Simulation reset
+          if (id(bms${bms_id}_switch_demo_charge_simulation).state == false ||
+              id(bms${bms_id}_online_status).state == false)
+            seconds = 0; // New Cycle
+
+          // Exit condition
+          if (id(${yambms_id}_var_initialized) == false) return;
+          if (id(bms${bms_id}_online_status).state == false) return;
+          if (id(bms${bms_id}_switch_demo_charge_simulation).state == false) return;
+
+          // YamBMS Setup
+          id(${yambms_id}_bulk_voltage).publish_state(3.45 * cell_count);
+          id(${yambms_id}_float_voltage).publish_state(3.35 * cell_count);
+          
+          // BMS Setup
+          id(bms${bms_id}_battery_capacity).publish_state(${battery_capacity});
+          id(bms${bms_id}_min_temperature).publish_state(${min_temperature});
+          id(bms${bms_id}_max_temperature).publish_state(${max_temperature});
+
+          // +---------------------------------------------------------------
+          // | Start of the simulation
+          // +---------------------------------------------------------------
+
+          seconds++;
+
+          // Cycle reset after 5min
+          if (seconds > 60 * 5) {
+            seconds = 1;
+          }
+
+          if (seconds <= 1 * step_sec) {
+            // Step 1 : 95% (10sec)
+            id(${yambms_id}_var_charge_status) = "Bulk";
+            id(bms${bms_id}_state_of_charge).publish_state(95);
+            id(bms${bms_id}_current).publish_state(20);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - 0.1 - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count - 0.1);
+          }
+          else if (seconds <= 2 * step_sec) {
+            // Step 2 : 96% (10sec)
+            id(bms${bms_id}_state_of_charge).publish_state(96);
+            id(bms${bms_id}_current).publish_state(15);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - 0.05 - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count - 0.05);
+          }
+          else if (seconds <= 3 * step_sec) {
+            // Step 3 : 97% (10sec)
+            id(bms${bms_id}_state_of_charge).publish_state(97);
+            id(bms${bms_id}_current).publish_state(10);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count);
+          }
+          else if (seconds <= 4 * step_sec) {
+            // Step 4 : 98% (10sec)
+            id(bms${bms_id}_state_of_charge).publish_state(98);
+            id(bms${bms_id}_current).publish_state(5);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count + 0.01 - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count + 0.01); // equalizing
+          }
+          else if (seconds <= 5 * step_sec) { // Entering Cut-off phase...
+            // Step 5 : 99% (10sec)
+            id(bms${bms_id}_state_of_charge).publish_state(99);
+            id(bms${bms_id}_current).publish_state(3.5);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count + 0.005 - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count + 0.005); // equalizing
+          }
+          else if (seconds <= 15 * step_sec) { // End of Cut-off phase...
+            // Step 6 : 100% (1min 10sec)
+            id(bms${bms_id}_state_of_charge).publish_state(100);
+            id(bms${bms_id}_current).publish_state(2.5);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count);
+          }
+          else if (id(${yambms_id}_var_charge_status) == "Float") {
+            // Step 7 : Float
+            id(bms${bms_id}_state_of_charge).publish_state(100);
+            id(bms${bms_id}_current).publish_state(0);
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - ${delta_cell_voltage});
+            id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count);
+          }
+          else seconds = 0; // New Cycle
