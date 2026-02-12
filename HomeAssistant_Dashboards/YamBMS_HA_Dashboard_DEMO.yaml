@@ -1,4 +1,4 @@
-# Updated : 2026.02.11
+# Updated : 2026.02.12
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -224,15 +224,19 @@ views:
               - entity: switch.bms_3_charge_switch
               - entity: switch.bms_3_discharge_switch
             title: BMS 3
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.yambms_demo_bms_1_demo_charge_simulation
-                name: BMS 1 => DEMO simulation
+                name: BMS 1 => Run charge simulation
               - entity: switch.yambms_demo_bms_2_demo_charge_simulation
-                name: BMS 2 => DEMO simulation
+                name: BMS 2 => Run charge simulation
               - entity: switch.yambms_demo_bms_3_demo_charge_simulation
-                name: BMS 3 => DEMO simulation
-            title: DEMO
+                name: BMS 3 => Run charge simulation
+            conditions:
+              - condition: state
+                state_not: unavailable
+            card:
+              title: DEMO
   - title: Control
     cards:
       - type: entity-filter
@@ -527,26 +531,32 @@ views:
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_1_battery_capacity', rounded=True) }}
-                  Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
-                  color=#41CD52>12532 Ah</font><br> Ave. Cell Vol.
-                  :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br> Balance
-                  Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br> Max
-                  temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('number.bms_1_max_temperature', rounded=True) }}
-                  °C</font>
+                  <center>
+                  Battery Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_battery_capacity', rounded=True) }} Ah</font><br>
+                  Cycle Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ (states('sensor.bms_1_battery_capacity') | float(0) * states('sensor.bms_1_charging_cycles') | float(0)) | round(0) }} Ah</font><br>
+                  Ave. Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ (((states('sensor.bms_1_min_cell_voltage') | float(0)) +
+                  (states('sensor.bms_1_max_cell_voltage') | float(0))) / 2) | round(3) }} V</font><br>
+                  Max Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_max_cell_voltage', rounded=True) }} V</font><br>
+                  Max temp. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_max_temperature', rounded=True) }} °C</font>
               - type: markdown
                 content: >-
-                  <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_1_battery_capacity_remaining',
-                  rounded=True) }} Ah</font><br> Cycle Count :&nbsp;&nbsp;<font
-                  color=#41CD52> {{ states('sensor.bms_1_charging_cycles',
-                  rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
-                  color=#41CD52>0.007 V</font><br> MOS temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>25.6 °C</font><br> Min temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{ states('number.bms_1_min_temperature',
-                  rounded=True) }} °C</font>
+                  <center>
+                  Remain Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_battery_capacity_remaining', rounded=True) }} Ah</font><br>
+                  Cycle Count :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_charging_cycles', rounded=True) }}</font><br>
+                  Delta Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ ((states('sensor.bms_1_max_cell_voltage') | float(0)) -
+                  (states('sensor.bms_1_min_cell_voltage') | float(0))) | round(3) }} V</font><br>
+                  Min Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_min_cell_voltage', rounded=True) }} V</font><br>
+                  Min temp. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_1_min_temperature', rounded=True) }} °C</font>
           - type: grid
             square: false
             columns: 2
@@ -563,15 +573,20 @@ views:
                   11. 3.311 V / 0.050 Ω<br> 12. 3.312 V / 0.050 Ω<br> 13. 3.313
                   V / 0.050 Ω<br> 14. 3.314 V / 0.050 Ω<br> 15. 3.315 V / 0.050
                   Ω<br> 16. 3.316 V / 0.050 Ω<br> </center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.bms_1_online_status_switch
               - entity: switch.bms_1_charge_switch
               - entity: switch.bms_1_discharge_switch
-              - entity: number.bms_1_min_cell_voltage
-              - entity: number.bms_1_max_cell_voltage
-              - entity: number.bms_1_min_temperature
-              - entity: number.bms_1_max_temperature
+              - entity: number.bms_1_battery_soc_number
+              - entity: number.bms_1_current_number
+              - entity: number.bms_1_min_cell_voltage_number
+              - entity: number.bms_1_max_cell_voltage_number
+              - entity: number.bms_1_min_temperature_number
+              - entity: number.bms_1_max_temperature_number
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         column_span: 1
         cards:
@@ -670,26 +685,32 @@ views:
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_2_battery_capacity', rounded=True) }}
-                  Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
-                  color=#41CD52>12532 Ah</font><br> Ave. Cell Vol.
-                  :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br> Balance
-                  Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br> Max
-                  temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('number.bms_2_max_temperature', rounded=True) }}
-                  °C</font>
+                  <center>
+                  Battery Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_battery_capacity', rounded=True) }} Ah</font><br>
+                  Cycle Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ (states('sensor.bms_2_battery_capacity') | float(0) * states('sensor.bms_2_charging_cycles') | float(0)) | round(0) }} Ah</font><br>
+                  Ave. Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ (((states('sensor.bms_2_min_cell_voltage') | float(0)) +
+                  (states('sensor.bms_2_max_cell_voltage') | float(0))) / 2) | round(3) }} V</font><br>
+                  Max Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_max_cell_voltage', rounded=True) }} V</font><br>
+                  Max temp. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_max_temperature', rounded=True) }} °C</font>
               - type: markdown
                 content: >-
-                  <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_2_battery_capacity_remaining',
-                  rounded=True) }} Ah</font><br> Cycle Count :&nbsp;&nbsp;<font
-                  color=#41CD52> {{ states('sensor.bms_2_charging_cycles',
-                  rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
-                  color=#41CD52>0.007 V</font><br> MOS temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>25.6 °C</font><br> Min temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{ states('number.bms_2_min_temperature',
-                  rounded=True) }} °C</font>
+                  <center>
+                  Remain Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_battery_capacity_remaining', rounded=True) }} Ah</font><br>
+                  Cycle Count :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_charging_cycles', rounded=True) }}</font><br>
+                  Delta Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ ((states('sensor.bms_2_max_cell_voltage') | float(0)) -
+                  (states('sensor.bms_2_min_cell_voltage') | float(0))) | round(3) }} V</font><br>
+                  Min Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_min_cell_voltage', rounded=True) }} V</font><br>
+                  Min temp. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_2_min_temperature', rounded=True) }} °C</font>
           - type: grid
             square: false
             columns: 2
@@ -706,15 +727,20 @@ views:
                   11. 3.311 V / 0.050 Ω<br> 12. 3.312 V / 0.050 Ω<br> 13. 3.313
                   V / 0.050 Ω<br> 14. 3.314 V / 0.050 Ω<br> 15. 3.315 V / 0.050
                   Ω<br> 16. 3.316 V / 0.050 Ω<br> </center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.bms_2_online_status_switch
               - entity: switch.bms_2_charge_switch
               - entity: switch.bms_2_discharge_switch
-              - entity: number.bms_2_min_cell_voltage
-              - entity: number.bms_2_max_cell_voltage
-              - entity: number.bms_2_min_temperature
-              - entity: number.bms_2_max_temperature
+              - entity: number.bms_2_battery_soc_number
+              - entity: number.bms_2_current_number
+              - entity: number.bms_2_min_cell_voltage_number
+              - entity: number.bms_2_max_cell_voltage_number
+              - entity: number.bms_2_min_temperature_number
+              - entity: number.bms_2_max_temperature_number
+            conditions:
+              - condition: state
+                state_not: unavailable
       - type: grid
         column_span: 1
         cards:
@@ -813,26 +839,32 @@ views:
                   %</font></font>
               - type: markdown
                 content: >-
-                  <center> Battery Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_3_battery_capacity', rounded=True) }}
-                  Ah</font><br> Cycle Capacity :&nbsp;&nbsp;<font
-                  color=#41CD52>12532 Ah</font><br> Ave. Cell Vol.
-                  :&nbsp;&nbsp;<font color=#41CD52>3.329 V</font><br> Balance
-                  Cur. :&nbsp;&nbsp;<font color=#41CD52>0.00 A</font><br> Max
-                  temp. :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('number.bms_3_max_temperature', rounded=True) }}
-                  °C</font>
+                  <center>
+                  Battery Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_battery_capacity', rounded=True) }} Ah</font><br>
+                  Cycle Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ (states('sensor.bms_3_battery_capacity') | float(0) * states('sensor.bms_3_charging_cycles') | float(0)) | round(0) }} Ah</font><br>
+                  Ave. Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ (((states('sensor.bms_3_min_cell_voltage') | float(0)) +
+                  (states('sensor.bms_3_max_cell_voltage') | float(0))) / 2) | round(3) }} V</font><br>
+                  Max Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_max_cell_voltage', rounded=True) }} V</font><br>
+                  Max temp. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_max_temperature', rounded=True) }} °C</font>
               - type: markdown
                 content: >-
-                  <center> Remain Capacity :&nbsp;&nbsp;<font color=#41CD52>{{
-                  states('sensor.bms_3_battery_capacity_remaining',
-                  rounded=True) }} Ah</font><br> Cycle Count :&nbsp;&nbsp;<font
-                  color=#41CD52> {{ states('sensor.bms_3_charging_cycles',
-                  rounded=True) }}</font><br> Delta Cell Vol. :&nbsp;&nbsp;<font
-                  color=#41CD52>0.007 V</font><br> MOS temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>25.6 °C</font><br> Min temp. :&nbsp;&nbsp;<font
-                  color=#41CD52>{{ states('number.bms_3_min_temperature',
-                  rounded=True) }} °C</font>
+                  <center>
+                  Remain Capacity :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_battery_capacity_remaining', rounded=True) }} Ah</font><br>
+                  Cycle Count :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_charging_cycles', rounded=True) }}</font><br>
+                  Delta Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ ((states('sensor.bms_3_max_cell_voltage') | float(0)) -
+                  (states('sensor.bms_3_min_cell_voltage') | float(0))) | round(3) }} V</font><br>
+                  Min Cell Vol. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_min_cell_voltage', rounded=True) }} V</font><br>
+                  Min temp. :&nbsp;&nbsp;
+                  <font color=#41CD52>{{ states('sensor.bms_3_min_temperature', rounded=True) }} °C</font>
           - type: grid
             square: false
             columns: 2
@@ -849,15 +881,20 @@ views:
                   11. 3.311 V / 0.050 Ω<br> 12. 3.312 V / 0.050 Ω<br> 13. 3.313
                   V / 0.050 Ω<br> 14. 3.314 V / 0.050 Ω<br> 15. 3.315 V / 0.050
                   Ω<br> 16. 3.316 V / 0.050 Ω<br> </center>
-          - type: entities
+          - type: entity-filter
             entities:
               - entity: switch.bms_3_online_status_switch
               - entity: switch.bms_3_charge_switch
               - entity: switch.bms_3_discharge_switch
-              - entity: number.bms_3_min_cell_voltage
-              - entity: number.bms_3_max_cell_voltage
-              - entity: number.bms_3_min_temperature
-              - entity: number.bms_3_max_temperature
+              - entity: number.bms_3_battery_soc_number
+              - entity: number.bms_3_current_number
+              - entity: number.bms_3_min_cell_voltage_number
+              - entity: number.bms_3_max_cell_voltage_number
+              - entity: number.bms_3_min_temperature_number
+              - entity: number.bms_3_max_temperature_number
+            conditions:
+              - condition: state
+                state_not: unavailable
   - title: Shunt
     type: sections
     max_columns: 3
