@@ -1,5 +1,5 @@
-# Updated : 2026.02.02
-# Version : 1.1.5
+# Updated : 2026.02.07
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,11 +29,11 @@ substitutions:
 
 esphome:
   on_boot:
-    priority: -100.0
-    then:
-      - lambda: |-
-          id(${yambms_id}_var_auto_ccl_functions_count)++;
-          
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(${yambms_id}_var_auto_ccl_functions_count)++;
+    
 switch:
   - platform: template
     name: ${name} ${yambms_name} Automatic EOC Current

@@ -1,5 +1,5 @@
-# Updated : 2026.02.09
-# Version : 1.7.0
+# Updated : 2026.02.11
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,14 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.7.0"
+  bms_model: "Fake BMS"
+  bms_protocol: "DEMO"
 
-esphome:
-  name: ${hostname}
-  friendly_name: ${friendly_name}
-  # comment: 'Solar system braining and more !'
-  # area: 'Technical local'
-  project:
-    name: Sleeper85.YamBMS
-    version: ${yambms_version}
-  min_version: 2026.1.4
+packages:
+  bms_sensors: !include bms_sensors_FAKE.yaml
+  bms_numbers: !include bms_sensors_FAKE_extended.yaml
+  bms_combine: !include bms_combine.yaml

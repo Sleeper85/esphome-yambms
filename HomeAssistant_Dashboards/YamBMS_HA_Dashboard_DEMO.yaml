@@ -1,5 +1,5 @@
-# Updated : 2026.01.24
-# Version : 1.6.1
+# Updated : 2026.02.11
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -83,8 +83,10 @@ views:
             entity: sensor.yambms_demo_yambms_1_delta_cell_voltage
             name: Delta Cell Voltage
           - type: tile
-            entity: binary_sensor.yambms_demo_yambms_1_bms_equalizing_state
+            entity: binary_sensor.yambms_demo_yambms_1_equalizing_state
             name: Equalizing state
+            vertical: false
+            features_position: bottom
           - type: entities
             entities:
               - entity: sensor.yambms_demo_yambms_1_max_cell_voltage
@@ -209,22 +211,28 @@ views:
               - entity: switch.bms_1_online_status_switch
               - entity: switch.bms_1_charge_switch
               - entity: switch.bms_1_discharge_switch
-              - entity: switch.bms_1_balance_switch
             title: BMS 1
           - type: entities
             entities:
               - entity: switch.bms_2_online_status_switch
               - entity: switch.bms_2_charge_switch
               - entity: switch.bms_2_discharge_switch
-              - entity: switch.bms_2_balance_switch
             title: BMS 2
           - type: entities
             entities:
               - entity: switch.bms_3_online_status_switch
               - entity: switch.bms_3_charge_switch
               - entity: switch.bms_3_discharge_switch
-              - entity: switch.bms_3_balance_switch
             title: BMS 3
+          - type: entities
+            entities:
+              - entity: switch.yambms_demo_bms_1_demo_charge_simulation
+                name: BMS 1 => DEMO simulation
+              - entity: switch.yambms_demo_bms_2_demo_charge_simulation
+                name: BMS 2 => DEMO simulation
+              - entity: switch.yambms_demo_bms_3_demo_charge_simulation
+                name: BMS 3 => DEMO simulation
+            title: DEMO
   - title: Control
     cards:
       - type: entity-filter
@@ -243,13 +251,13 @@ views:
       - type: entities
         entities:
           - entity: switch.yambms_demo_yambms_1_charge_enabled
-            name: YamBMS 1 Charge enabled
+            name: Charge enabled
           - entity: switch.yambms_demo_yambms_1_discharge_enabled
-            name: YamBMS 1 Discharge enabled
-          - entity: binary_sensor.yambms_demo_yambms_1_bms_charging_allowed
-            name: YamBMS 1 BMS Charging allowed
-          - entity: binary_sensor.yambms_demo_yambms_1_bms_discharging_allowed
-            name: YamBMS 1 BMS Discharging allowed
+            name: Discharge enabled
+          - entity: binary_sensor.yambms_demo_yambms_1_charging_allowed
+            name: Charging allowed
+          - entity: binary_sensor.yambms_demo_yambms_1_discharging_allowed
+            name: Discharging allowed
         title: YamBMS - Charge / Discharge switch
       - type: entities
         entities:
@@ -484,11 +492,12 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.bms_1_balance_switch', rounded=True) == 'on' %}
-                  <font color=#41CD52>{{ states('switch.bms_1_balance_switch',
-                  rounded=True) | upper }}</font> {% else %} <font
-                  color=#3090C7>{{ states('switch.bms_1_balance_switch',
-                  rounded=True) | upper }}</font> {% endif %}
+                  states('binary_sensor.bms_1_balancing', rounded=True) == 'on'
+                  %} <font color=#41CD52>{{
+                  states('binary_sensor.bms_1_balancing', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('binary_sensor.bms_1_balancing', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -559,7 +568,6 @@ views:
               - entity: switch.bms_1_online_status_switch
               - entity: switch.bms_1_charge_switch
               - entity: switch.bms_1_discharge_switch
-              - entity: switch.bms_1_balance_switch
               - entity: number.bms_1_min_cell_voltage
               - entity: number.bms_1_max_cell_voltage
               - entity: number.bms_1_min_temperature
@@ -627,11 +635,12 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.bms_2_balance_switch', rounded=True) == 'on' %}
-                  <font color=#41CD52>{{ states('switch.bms_2_balance_switch',
-                  rounded=True) | upper }}</font> {% else %} <font
-                  color=#3090C7>{{ states('switch.bms_2_balance_switch',
-                  rounded=True) | upper }}</font> {% endif %}
+                  states('binary_sensor.bms_2_balancing', rounded=True) == 'on'
+                  %} <font color=#41CD52>{{
+                  states('binary_sensor.bms_2_balancing', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('binary_sensor.bms_2_balancing', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -702,7 +711,6 @@ views:
               - entity: switch.bms_2_online_status_switch
               - entity: switch.bms_2_charge_switch
               - entity: switch.bms_2_discharge_switch
-              - entity: switch.bms_2_balance_switch
               - entity: number.bms_2_min_cell_voltage
               - entity: number.bms_2_max_cell_voltage
               - entity: number.bms_2_min_temperature
@@ -770,11 +778,12 @@ views:
               - type: markdown
                 content: >-
                   <center>Balance : <b> {% if
-                  states('switch.bms_3_balance_switch', rounded=True) == 'on' %}
-                  <font color=#41CD52>{{ states('switch.bms_3_balance_switch',
-                  rounded=True) | upper }}</font> {% else %} <font
-                  color=#3090C7>{{ states('switch.bms_3_balance_switch',
-                  rounded=True) | upper }}</font> {% endif %}
+                  states('binary_sensor.bms_3_balancing', rounded=True) == 'on'
+                  %} <font color=#41CD52>{{
+                  states('binary_sensor.bms_3_balancing', rounded=True) | upper
+                  }}</font> {% else %} <font color=#3090C7>{{
+                  states('binary_sensor.bms_3_balancing', rounded=True) | upper
+                  }}</font> {% endif %}
               - type: markdown
                 content: >-
                   <center><b><font color=#41CD52 size=4>{{
@@ -845,7 +854,6 @@ views:
               - entity: switch.bms_3_online_status_switch
               - entity: switch.bms_3_charge_switch
               - entity: switch.bms_3_discharge_switch
-              - entity: switch.bms_3_balance_switch
               - entity: number.bms_3_min_cell_voltage
               - entity: number.bms_3_max_cell_voltage
               - entity: number.bms_3_min_temperature
@@ -926,6 +934,4 @@ views:
                 name: Shunt 1 Combine enabled
               - entity: binary_sensor.shunt_1_can_be_combined
                 name: Shunt 1 Can be combined
-              - entity: sensor.shunt_1_state
-                name: Shunt 1 State
         column_span: 1

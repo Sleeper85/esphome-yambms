@@ -1,5 +1,5 @@
-# Updated : 2026.02.04
-# Version : 1.2.4
+# Updated : 2026.02.07
+# Version : 1.2.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,8 +21,8 @@ esphome:
   on_boot:
     - priority: 600
       then:
-      - lambda: id(${yambms_id}_running_version).publish_state("${yambms_version}");
-      - lambda: id(${yambms_id}_last_version).publish_state("${yambms_version}");
+        - lambda: id(${yambms_id}_running_version).publish_state("${yambms_version}");
+        - lambda: id(${yambms_id}_last_version).publish_state("${yambms_version}");
 
 text_sensor:
   # +--------------------------------------+

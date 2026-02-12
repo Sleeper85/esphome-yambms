@@ -1,4 +1,4 @@
-# Updated : 2026.02.04
+# Updated : 2026.02.10
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -282,6 +282,10 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: ${yambms_id}_var_auto_ccl_soft_landing
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: ${yambms_id}_var_auto_eoc
     type: float
     restore_value: no
@@ -365,19 +369,21 @@ interval:
             }
             
             // +-----------------------------------------------+
-            // | Errors bitmask (JK 16bit)                     |
+            // | YamBMS Errors bitmask (16bit)                 |
             // +-----------------------------------------------+
 
+            // Alarm
             // Alarm - all BMS are in alarm ?
             if (id(${yambms_id}_var_errors_bitmask_counter) == id(${yambms_id}_var_bms_counter))
-            {
               id(${yambms_id}_errors_bitmask_alarm).publish_state(id(${yambms_id}_var_errors_bitmask));
-            }
+            
             // At least one BMS is not in alarm
             else id(${yambms_id}_errors_bitmask_alarm).publish_state(0);
+
             // Warning
             id(${yambms_id}_errors_bitmask_warning).publish_state(id(${yambms_id}_var_errors_bitmask));
-            // errors_bitmask_counter ( number of BMS in alarms)
+
+            // BMS in alarms count
             id(${yambms_id}_errors_bitmask_counter).publish_state(id(${yambms_id}_var_errors_bitmask_counter));
 
             // +-----------------------------------------------+
@@ -527,15 +533,22 @@ interval:
             // | MIN min_cell_voltage                          |
             // | MIN min_voltage_cell (cell number)            |
             // +-----------------------------------------------+
-            id(${yambms_id}_min_cell_voltage).publish_state(id(${yambms_id}_var_min_cell_voltage));
+            float min_cell_v = id(${yambms_id}_var_min_cell_voltage);
+            id(${yambms_id}_min_cell_voltage).publish_state(min_cell_v);
             id(${yambms_id}_min_voltage_cell).publish_state(id(${yambms_id}_var_min_voltage_cell));
 
             // +-----------------------------------------------+
             // | MAX max_cell_voltage                          |
             // | MAX max_voltage_cell (cell number)            |
             // +-----------------------------------------------+
-            id(${yambms_id}_max_cell_voltage).publish_state(id(${yambms_id}_var_max_cell_voltage));
+            float max_cell_v = id(${yambms_id}_var_max_cell_voltage);
+            id(${yambms_id}_max_cell_voltage).publish_state(max_cell_v);
             id(${yambms_id}_max_voltage_cell).publish_state(id(${yambms_id}_var_max_voltage_cell));
+
+            // +-----------------------------------------------+
+            // | delta_cell_voltage                            |
+            // +-----------------------------------------------+
+            id(${yambms_id}_delta_cell_voltage).publish_state(max_cell_v - min_cell_v);
 
             // +-----------------------------------------------+
             // | MIN cell_ovp                                  |
@@ -573,9 +586,7 @@ interval:
             // | Charging allowed                              |
             // +-----------------------------------------------+
             if (id(${yambms_id}_switch_charging).state && id(${yambms_id}_var_charging_allowed_counter) > 0)
-            {
               id(${yambms_id}_charging_allowed).publish_state(true);
-            }
             else
               id(${yambms_id}_charging_allowed).publish_state(false);
 
@@ -583,9 +594,7 @@ interval:
             // | Discharging allowed                           |
             // +-----------------------------------------------+
             if (id(${yambms_id}_switch_discharging).state && id(${yambms_id}_var_discharging_allowed_counter) > 0)
-            {
               id(${yambms_id}_discharging_allowed).publish_state(true);
-            }
             else
               id(${yambms_id}_discharging_allowed).publish_state(false);
 
@@ -751,7 +760,7 @@ interval:
                   // that these are not random/erroneous/false readings of the BMS
                   if (cutoff_counter > 4)
                   {
-                    ESP_LOGI("yambms", "Entering the Cut-Off phase...");
+                    ESP_LOGD("yambms_debug", "Entering the Cut-Off phase...");
 
                     // Cut-Off : the end of charging is near
                     id(${yambms_id}_var_charge_status) = "Cut-Off";
@@ -806,10 +815,11 @@ interval:
               }
             }
             // Charging not allowed (BMS or YamBMS)
-            else if ((id(${yambms_id}_var_charge_status) != "Init") && (id(${yambms_id}_var_bms_charging_logic) == false))
+            else if (id(${yambms_id}_var_bms_charging_logic) == true)
             {
-              id(${yambms_id}_var_charge_status) = "Wait";
+              if (!id(${yambms_id}_switch_charging).state) id(${yambms_id}_var_charge_status) = "Wait";
             }
+            else id(${yambms_id}_var_charge_status) = "Wait";
 
             // Publish the sensor
             id(${yambms_id}_charging_status).publish_state(id(${yambms_id}_var_charge_status));
@@ -892,16 +902,27 @@ interval:
                 float auto_limit = std::min({
                   id(${yambms_id}_var_auto_ccl), 
                   id(${yambms_id}_var_auto_eoc), 
-                  id(${yambms_id}_var_auto_temperature_ccl)
+                  id(${yambms_id}_var_auto_temperature_ccl),
+                  id(${yambms_id}_var_auto_ccl_soft_landing)
                 });
 
                 requested_charge_current = round(id(${yambms_id}_max_charge_current).state + auto_limit);
                 if (requested_charge_current < 0) requested_charge_current = 0;
               }
+
               // Publish the sensor
               id(${yambms_id}_requested_charge_current).publish_state(requested_charge_current);
-              if (requested_charge_current > 0) id(${yambms_id}_var_requested_ccl_init) = true;
-              id(${yambms_id}_var_charge_current_step)++;
+
+              if (id(${yambms_id}_switch_charging).state) {
+                ESP_LOGD("yambms_debug", "Charging switch : true");
+                if (requested_charge_current > 0) id(${yambms_id}_var_requested_ccl_init) = true;
+              }
+              else {
+                ESP_LOGD("yambms_debug", "Charging switch : false");
+                id(${yambms_id}_var_requested_ccl_init) = true;
+              }
+
+              id(${yambms_id}_var_charge_current_step)++;              
             }
 
             // +-----------------------------------------------+
@@ -924,9 +945,20 @@ interval:
                 requested_discharge_current = round(id(${yambms_id}_max_discharge_current).state + auto_limit);
                 if (requested_discharge_current < 0) requested_discharge_current = 0;
               }
+
               // Publish the sensor
               id(${yambms_id}_requested_discharge_current).publish_state(requested_discharge_current);
-              if (requested_discharge_current > 0) id(${yambms_id}_var_requested_dcl_init) = true;
+              
+
+              if (id(${yambms_id}_switch_discharging).state) {
+                ESP_LOGD("yambms_debug", "Discharging switch : true");
+                if (requested_discharge_current > 0) id(${yambms_id}_var_requested_dcl_init) = true;
+              }
+              else {
+                ESP_LOGD("yambms_debug", "Discharging switch : false");
+                id(${yambms_id}_var_requested_dcl_init) = true;
+              }
+
               id(${yambms_id}_var_discharge_current_step)++;
             }
 
@@ -966,8 +998,8 @@ interval:
           if (id(${yambms_id}_discharging_instruction).has_state())
           {
             bool discharging_instruction = id(${yambms_id}_discharging_instruction).state;
-            if (discharging_instruction == true) ESP_LOGD("yambms_debug", "Discharging instruction  : true");
-            else ESP_LOGD("yambms_debug", "Discharging instruction  : false");
+            if (discharging_instruction == true) ESP_LOGD("yambms_debug", "Discharging instruction : true");
+            else ESP_LOGD("yambms_debug", "Discharging instruction : false");
           }
           if (id(${yambms_id}_requested_charge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested CVL : %f V", id(${yambms_id}_requested_charge_voltage).state);
           if (id(${yambms_id}_requested_discharge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested DVL : %f V", id(${yambms_id}_requested_discharge_voltage).state);
@@ -1047,8 +1079,6 @@ switch:
     optimistic: true
     entity_category: config
 
-
-
 # +--------------------------------------+
 # | binary_sensor                        |
 # +--------------------------------------+
@@ -1056,15 +1086,15 @@ binary_sensor:
   # equalizing
   - platform: template
     id: ${yambms_id}_equalizing
-    name: "${name} ${yambms_name} BMS equalizing state"
+    name: "${name} ${yambms_name} equalizing state"
   # charging_allowed
   - platform: template
     id: ${yambms_id}_charging_allowed
-    name: "${name} ${yambms_name} BMS charging allowed"
+    name: "${name} ${yambms_name} charging allowed"
   # discharging_allowed
   - platform: template
     id: ${yambms_id}_discharging_allowed
-    name: "${name} ${yambms_name} BMS discharging allowed"
+    name: "${name} ${yambms_name} discharging allowed"
   # +--------------------------------------+
   # | Discharging Instruction              |
   # +--------------------------------------+
@@ -1332,7 +1362,6 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.001
-    lambda: return (id(${yambms_id}_max_cell_voltage).state - id(${yambms_id}_min_cell_voltage).state);
 
   # total_voltage MEAN
   - platform: template
@@ -1922,23 +1951,18 @@ text_sensor:
     update_interval: never
     entity_category: diagnostic
     lambda: |-
-      if (!id(${yambms_id}_requested_charge_current).has_state() ||
-           id(${yambms_id}_requested_charge_current).state == 0)
-      {
-        return {"Charge Disabled"};
-      }
+      float limit_1 = id(${yambms_id}_var_auto_temperature_ccl);
+      float limit_2 = id(${yambms_id}_var_auto_eoc);
+      float limit_3 = id(${yambms_id}_var_auto_ccl);
+      float limit_4 = id(${yambms_id}_var_auto_ccl_soft_landing);
 
-      float t_limit = id(${yambms_id}_var_auto_temperature_ccl);
-      float e_limit = id(${yambms_id}_var_auto_eoc);
-      float c_limit = id(${yambms_id}_var_auto_ccl);
-
-      float min_val = std::min({t_limit, e_limit, c_limit});
+      float min_val = std::min({limit_1, limit_2, limit_3, limit_4});
 
       if (min_val == 0.0f) return {"No Derating"};
-      if (min_val == t_limit) return {"Temperature Derating"};
-      if (min_val == e_limit) return {"EOC Derating"};
-      if (min_val == c_limit) return {"AutoCCL Derating"};
-      
+      if (min_val == limit_1) return {"Temperature Derating"};
+      if (min_val == limit_2) return {"EOC Derating"};
+      if (min_val == limit_3) return {"AutoCCL Derating"};
+      if (min_val == limit_4) return {"Soft Landing Derating"};
       return {"Unknown"};
 
   # +----------------------------------------+
@@ -1951,19 +1975,12 @@ text_sensor:
     update_interval: never
     entity_category: diagnostic
     lambda: |-
-      if (!id(${yambms_id}_requested_discharge_current).has_state() ||
-           id(${yambms_id}_requested_discharge_current).state == 0)
-      {
-        return {"Discharge Disabled"};
-      }
+      float limit_1 = id(${yambms_id}_var_auto_temperature_dcl);
+      float limit_2 = id(${yambms_id}_var_auto_dcl);
 
-      float t_limit = id(${yambms_id}_var_auto_temperature_dcl);
-      float d_limit = id(${yambms_id}_var_auto_dcl);
-
-      float min_val = std::min(t_limit, d_limit);
+      float min_val = std::min(limit_1, limit_2);
 
       if (min_val == 0.0f) return {"No Derating"};
-      if (min_val == t_limit) return {"Temperature Derating"};
-      if (min_val == d_limit) return {"AutoDCL Derating"};
-      
+      if (min_val == limit_1) return {"Temperature Derating"};
+      if (min_val == limit_2) return {"AutoDCL Derating"};  
       return {"Unknown"};

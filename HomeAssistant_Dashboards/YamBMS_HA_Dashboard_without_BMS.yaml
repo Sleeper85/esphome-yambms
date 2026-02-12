@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.6.0
+# Updated : 2026.02.11
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -83,7 +83,7 @@ views:
             entity: sensor.yambms_yambms_1_delta_cell_voltage
             name: Delta Cell Voltage
           - type: tile
-            entity: binary_sensor.yambms_yambms_1_bms_equalizing_state
+            entity: binary_sensor.yambms_yambms_1_equalizing_state
             name: Equalizing state
           - type: entities
             entities:
@@ -217,13 +217,13 @@ views:
       - type: entities
         entities:
           - entity: switch.yambms_yambms_1_charge_enabled
-            name: YamBMS 1 Charge enabled
+            name: Charge enabled
           - entity: switch.yambms_yambms_1_discharge_enabled
-            name: YamBMS 1 Discharge enabled
-          - entity: binary_sensor.yambms_yambms_1_bms_charging_allowed
-            name: YamBMS 1 BMS Charging allowed
-          - entity: binary_sensor.yambms_yambms_1_bms_discharging_allowed
-            name: YamBMS 1 BMS Discharging allowed
+            name: Discharge enabled
+          - entity: binary_sensor.yambms_yambms_1_charging_allowed
+            name: Charging allowed
+          - entity: binary_sensor.yambms_yambms_1_discharging_allowed
+            name: Discharging allowed
         title: YamBMS - Charge / Discharge switch
       - type: entities
         entities:
