@@ -1,0 +1,135 @@
+#------------------------------------------------------------------------------
+# Auto CCL Soft Landing
+#
+# Purpose:
+#   Facilitate a soft landing at the bulk target by tapering charge current
+#   as the target voltage is approached.
+#
+# Contract with yambms_core.yaml:
+#   - Participates in Auto CCL STEP pipeline
+#   - Writes ONLY: id(${yambms_id}_var_auto_ccl_soft_landing)
+#   - Value must be <= 0.0  (0 = no reduction, negative = reduce)
+#   - Advances pipeline via: id(${yambms_id}_var_charge_current_step)++
+#------------------------------------------------------------------------------
+substitutions:
+  auto_ccl_soft_landing_knee_cell_v: '3.38125'   # knee start voltage (where taper becomes active)
+  auto_ccl_soft_landing_bulk_c_rate: '0.015'     # C-rate at bulk (curve crosses here)
+  auto_ccl_soft_landing_curve_shape: '0.4'       # 1.0 = linear, <1 = earlier reduction
+  auto_ccl_soft_landing_taper_to_0: 'false'      # Set to 'true' to allow the taper to continue to 0A
+
+esphome:
+  on_boot:
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(${yambms_id}_var_auto_ccl_functions_count)++;                // Registration
+            id(${yambms_id}_auto_ccl_soft_landing_last_run_ms) = millis();  // Initialize debug timestamp
+
+globals:
+  # Debug sensor to measure how often we run
+  - id: ${yambms_id}_auto_ccl_soft_landing_last_run_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+switch:
+  # This switch turns the feature on and off, but we always 'run' even when off
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing
+    id: ${yambms_id}_switch_auto_ccl_soft_landing
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          // Gate #1: Check if we are in the correct step
+          const int cc_step = id(${yambms_id}_var_charge_current_step);
+          const int n_funcs = id(${yambms_id}_var_auto_ccl_functions_count);
+          if (cc_step < 1 || cc_step > n_funcs) {
+            return;
+          }
+
+          ESP_LOGD("yambms_debug", "Auto CCL Soft Landing: step OK");          
+          
+          // Gate #2: can we run? (switch + required inputs)
+          if (!id(${yambms_id}_switch_auto_ccl_soft_landing).state ||
+              !id(${yambms_id}_total_voltage).has_state() ||
+              !id(${yambms_id}_bulk_voltage).has_state() ||
+              !id(${yambms_id}_max_charge_current).has_state() ||
+              !id(${yambms_id}_cell_count).has_state() ||
+              !id(${yambms_id}_battery_capacity).has_state())
+          {
+            ESP_LOGD("yambms_debug", "Auto CCL Soft Landing: gated off (disabled or missing inputs)");
+            id(${yambms_id}_var_auto_ccl_soft_landing) = 0.0f;
+            id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(0.0f);
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+                    
+          //-------------------------------------------------------------
+          // Soft-landing math (assume config + inputs are sane)
+          //-------------------------------------------------------------
+          
+          const float I_max        = id(${yambms_id}_max_charge_current).state; // System max charge current
+          const float I_start      = id(${yambms_id}_max_requested_charge_current).state;  // User max (start of the curve)
+          const float pack_v       = id(${yambms_id}_total_voltage).state;      // Battery voltage
+          const float cap_ah       = id(${yambms_id}_battery_capacity).state;   // Capacity in amp hours
+          const float bulk_v       = id(${yambms_id}_bulk_voltage).state;       // Bulk (target) voltage
+          const float cell_count   = id(${yambms_id}_cell_count).state;         // Cells per pack
+          const float knee_cell_v  = ${auto_ccl_soft_landing_knee_cell_v};      // Knee voltage (cell)
+          const float knee_start_v = knee_cell_v * cell_count;                  // Knee voltage (pack) - where taper begins
+          const float denom        = (bulk_v - knee_start_v);                   // Voltage 'distance' between knee and bulk
+          const float end_c        = ${auto_ccl_soft_landing_bulk_c_rate};      // C-rate at bulk
+          const float I_end        = cap_ah * end_c;                            // Current at bulk
+          const float curve_shape  = ${auto_ccl_soft_landing_curve_shape};      // Curve shape
+          
+          float delta = 0.0f;                                                   // Reduction only (<= 0)
+          
+          if (pack_v >= knee_start_v && denom > 0.0f) {                         // IN-DA-ZONE: taper window active
+            float p = (pack_v - knee_start_v) / denom;                          // Normalize position: p = 0 at knee, 1 at bulk
+            if (!${auto_ccl_soft_landing_taper_to_0} && p > 1.0f) p = 1.0f;     // Maintain bulk current or continue to taper to 0 ? 
+            const float s = 1.0f - powf(p, curve_shape);                        // Where are we on the curve?
+            float I_target = I_end + (I_start - I_end) * s;                     // Our target current
+            I_target = fmaxf(0.0f, fminf(I_target, I_max));                     // Clamp between 0 and system max charge current
+            delta = I_target - I_max;                                           // Compute the delta that we 'return'
+          }
+
+          // Publish return value
+          id(${yambms_id}_var_auto_ccl_soft_landing) = delta;                   // This is effectively our 'return'
+          id(${yambms_id}_auto_ccl_soft_landing_delta).publish_state(delta);    // Refresh the sensor
+          
+          // Debug: Keep track of how long each cycle takes (ideally around 2s)
+          const uint32_t last = id(${yambms_id}_auto_ccl_soft_landing_last_run_ms);
+          float age = (millis() - last) / 1000.0f;
+          id(${yambms_id}_auto_ccl_soft_landing_age).publish_state(age);
+          id(${yambms_id}_auto_ccl_soft_landing_last_run_ms) = millis();
+          
+          // Pass the baton
+          id(${yambms_id}_var_charge_current_step)++;
+
+#-------------------------------------------------------------------------------
+# Sensors down here because they are outputs/telemetry, not core logic.
+#-------------------------------------------------------------------------------
+sensor:
+  # This surfaces what value we are returning
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing Delta
+    id: ${yambms_id}_auto_ccl_soft_landing_delta
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never        # updated by publish
+
+  # The number of seconds since we last ran
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing Age
+    id: ${yambms_id}_auto_ccl_soft_landing_age
+    unit_of_measurement: s
+    device_class: duration
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: 1s
