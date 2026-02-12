@@ -1,4 +1,4 @@
-# Updated : 2026.02.10
+# Updated : 2026.02.12
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -209,10 +209,6 @@ globals:
     restore_value: no
     initial_value: 'false'
   - id: ${yambms_id}_var_bms_charging_logic
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-  - id: ${yambms_id}_var_force_bulk
     type: bool
     restore_value: no
     initial_value: 'false'
@@ -693,8 +689,6 @@ interval:
             if ((id(${yambms_id}_var_charge_status) == "EOC") && (id(${yambms_id}_switch_float).state)) id(${yambms_id}_var_charge_status) = "Float";
             // No Float => EOC
             else if ((id(${yambms_id}_var_charge_status) == "Float") && (!id(${yambms_id}_switch_float).state)) id(${yambms_id}_var_charge_status) = "EOC";
-            // No Force Bulk => Wait
-            else if ((id(${yambms_id}_var_force_bulk) == true) && (!id(${yambms_id}_switch_force_bulk).state)) id(${yambms_id}_var_charge_status) = "Wait";
             // Force Float
             else if (id(${yambms_id}_var_force_float) == true) id(${yambms_id}_var_charge_status) = "Float";
 
@@ -713,7 +707,6 @@ interval:
               // +-----------------------------------------------+
               if (id(${yambms_id}_switch_force_bulk).state)
               {
-                id(${yambms_id}_var_force_bulk) = true;
                 // Stop Force Bulk when entering the Cut-Off phase
                 if (id(${yambms_id}_var_charge_status) == "Cut-Off")
                   id(${yambms_id}_switch_force_bulk).turn_off();
