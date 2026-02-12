@@ -1,5 +1,5 @@
-# Updated : 2026.02.03
-# Version : 1.1.6
+# Updated : 2026.02.13
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,34 @@ packages:
   led_assign: !include shunt_base_led_assign.yaml
 
 sensor:
+  # Battery Charging Power
+  - platform: template
+    name: "Battery Charging Power"
+    id: shunt${shunt_id}_battery_charging_power
+    device_id: shunt_${shunt_id}
+    update_interval: ${shunt_update_interval}
+    unit_of_measurement: 'W'
+    device_class: power
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(shunt${shunt_id}_power).state > 0)
+        return id(shunt${shunt_id}_power).state;
+      else return 0;
+
+  # Battery Discharging Power
+  - platform: template
+    name: "Battery Discharging Power"
+    id: shunt${shunt_id}_battery_discharging_power
+    device_id: shunt_${shunt_id}
+    update_interval: ${shunt_update_interval}
+    unit_of_measurement: 'W'
+    device_class: power
+    accuracy_decimals: 0
+    lambda: |-
+      if (id(shunt${shunt_id}_power).state <= 0)
+        return (id(shunt${shunt_id}_power).state * -1); // Must be positive energy
+      else return 0;
+
   # Daily Charging Energy
   - platform: total_daily_energy
     name: "Daily Charging Energy"

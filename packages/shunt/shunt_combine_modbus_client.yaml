@@ -1,5 +1,5 @@
-# Updated : 2026.02.06
-# Version : 1.1.9
+# Updated : 2026.02.13
+# Version : 1.1.10
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -142,45 +142,4 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-  # charging_power
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_shunt${shunt_id}
-    id: shunt${shunt_id}_charging_power
-    device_id: shunt_${shunt_id}
-    name: "Charging Power"
-    register_type: read
-    address: 9
-    value_type: U_DWORD
-    accuracy_decimals: 2
-    unit_of_measurement: W
-    device_class: power
-    filters:
-      - multiply: 0.001
-      - clamp:
-          min_value: 0
-          max_value: 10000
-          ignore_out_of_range: true
-      - or:
-        - throttle: 10s
-        - delta: 0.01
-  # discharging_power
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller_shunt${shunt_id}
-    id: shunt${shunt_id}_discharging_power
-    device_id: shunt_${shunt_id}
-    name: "Discharging Power"
-    register_type: read
-    address: 11
-    value_type: U_DWORD
-    accuracy_decimals: 2
-    unit_of_measurement: W
-    device_class: power
-    filters:
-      - multiply: 0.001
-      - clamp:
-          min_value: 0
-          max_value: 10000
-          ignore_out_of_range: true
-      - or:
-        - throttle: 10s
-        - delta: 0.01
+
