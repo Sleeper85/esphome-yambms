@@ -1,5 +1,5 @@
-# Updated : 2026.02.06
-# Version : 1.1.4
+# Updated : 2026.02.13
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -46,13 +46,4 @@ modbus_server:
           value_type: U_WORD
           read_lambda: |-
             return uint16_t(id(shunt${shunt_id}_soc).state);
-        # charging_power (mW)
-        - address: 9
-          value_type: U_DWORD
-          read_lambda: |-
-            return uint32_t(id(shunt${shunt_id}_battery_charging_power).state * 1000);
-        # discharging_power (mW)
-        - address: 11
-          value_type: U_DWORD
-          read_lambda: |-
-            return uint32_t(id(shunt${shunt_id}_battery_discharging_power).state * 1000);
+
