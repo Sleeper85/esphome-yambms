@@ -1,0 +1,47 @@
+# Updated : 2026.02.08
+# Version : 1.0.0
+# GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | Ecoworthy BMS Secondary Combine Pkg  |
+# +--------------------------------------+
+# This package is for secondary batteries in a single-node setup.
+# It combines secondary battery data from an Ecoworthy BMS with YamBMS.
+#
+# The primary component must be configured with battery_count >= secondary_battery_number
+#
+# Required substitutions:
+#   bms_id: The YamBMS BMS ID number for this secondary
+#   bms_name: Display name for this secondary BMS
+#   parent_ecoworthy_bms_id: ID of the parent ecoworthy_bms component (e.g., 'ecoworthy_bms1')
+#   secondary_battery_number: The secondary battery number (2, 3, 4, etc.)
+#
+# Optional substitutions (have defaults):
+#   bms_max_charge_current: Max charge current in A (default: 100)
+#   bms_max_discharge_current: Max discharge current in A (default: 100)
+#   bms_cell_ovp: Cell over-voltage protection in V (default: 3.650)
+#   bms_cell_uvp: Cell under-voltage protection in V (default: 2.500)
+#   bms_balance_trigger_voltage: Balance trigger voltage in V (default: 0.030)
+
+substitutions:
+  bms_model: "Ecoworthy Secondary"
+  bms_protocol: "RS485"
+
+packages:
+  bms_combine: !include bms_combine.yaml
+  bms_sensors: !include bms_sensors_Ecoworthy_RS485_secondary.yaml

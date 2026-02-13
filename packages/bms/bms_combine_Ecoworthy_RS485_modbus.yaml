@@ -1,0 +1,45 @@
+# Updated : 2026.02.05
+# Version : 1.0.1
+# GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +--------------------------------------+
+# | Ecoworthy Modbus Setup               |
+# +--------------------------------------+
+# This package sets up the ecoworthy_modbus component for RS485 communication.
+# Include this ONCE per RS485 bus, then include the BMS package for each BMS.
+#
+# Required substitutions:
+#   ecoworthy_modbus_uart_id: UART ID for RS485 (e.g., 'uart_esp_1')
+#   ecoworthy_modbus_baud_rate: Baud rate (default: 9600)
+#   ecoworthy_modbus_id: ID for the modbus component (e.g., 'modbus_ecoworthy')
+
+substitutions:
+  ecoworthy_modbus_id: modbus_ecoworthy
+  ecoworthy_modbus_baud_rate: '9600'
+
+external_components:
+  - source: github://RAR/esphome-ecoworthy-bms@v0.2.0-beta
+    refresh: 0s
+
+uart:
+  - id: !extend ${ecoworthy_modbus_uart_id}
+    baud_rate: ${ecoworthy_modbus_baud_rate}
+
+ecoworthy_modbus:
+  - id: ${ecoworthy_modbus_id}
+    uart_id: ${ecoworthy_modbus_uart_id}
