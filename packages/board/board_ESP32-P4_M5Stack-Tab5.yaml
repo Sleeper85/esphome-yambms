@@ -1,0 +1,418 @@
+# Updated : 2026.02.05
+# Version : 1.7.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# M5Stack Tab5
+# https://docs.m5stack.com/en/core/M5Tab5
+
+# NOTE: The Tab5 uses ESP32-P4 as main MCU with ESP32-C6 as WiFi co-processor
+# This requires the esp32_hosted component for WiFi
+# The display uses mipi_dsi interface (1280x720 at 270° rotation)
+
+# +--------------------------------------+
+# | COMMU Module (M011) Configuration    |
+# +--------------------------------------+
+# The COMMU module connects via M5-Bus and provides:
+# - MCP2515 CAN controller (SPI): MOSI=G18, MISO=G19, SCK=G5, CS=G2, INT=G47
+# - RS485 (SP3485): TX=G6, RX=G7 (uses Port C pins on M5-Bus)
+# - TTL UART: TX=G37, RX=G38 (uses UART0 pins on M5-Bus)
+# Include board_options_itf_canbus_mcp2515.yaml for CAN
+# Include board_options_itf_uart_1.yaml + board_options_itf_modbus.yaml for RS485
+#
+# +--------------------------------------+
+# | DIN BASE (M132) Configuration        |
+# +--------------------------------------+
+# +--------------------------------------+
+# | DIN BASE (M132) Configuration        |
+# +--------------------------------------+
+# The DIN BASE provides Port.A and Port.B for native TWAI CAN (requires CAN transceiver unit):
+# - Port.A: PA_IN=G53, PA_OUT=G54 (M5-Bus pins 2,3)
+# - Port.B: PB_IN=G17, PB_OUT=G52 (M5-Bus pins 4,10)
+# Include board_options_itf_canbus_esp32_can.yaml for native CAN
+# Recommended: Use M5Stack CAN Unit (U085) or PwrCAN Module (M013.2) on Port.A or Port.B
+#
+
+substitutions:
+  board_chip: "ESP32-P4"
+  board_name: "M5Stack Tab5"
+  board_has_rgb: "false"
+  # Interfaces GPIOs
+  # I²C bus (internal peripherals)
+  i2c_sda: '31'
+  i2c_scl: '32'
+  # SPI bus (M5-Bus pins 7,9,11 - shared with microSD and COMMU module MCP2515)
+  spi_mosi_pin: '18'
+  spi_miso_pin: '19'
+  spi_clk_pin: '5'
+  # canbus_mcp2515 (COMMU Module via M5-Bus)
+  # CS: M5-Bus pin 21 (G2), INT: M5-Bus pin 23 (G47)
+  mcp2515_cs_pin: '2'
+  mcp2515_int_pin: '47'
+  # canbus_esp32_can (DIN BASE Port.B via native TWAI - requires external CAN transceiver unit)
+  # Port.B: PB_IN=G17 (M5-Bus pin 4), PB_OUT=G52 (M5-Bus pin 10)
+  tx_pin_4: '52'
+  rx_pin_4: '17'
+  # uart_esp_1 (RS485 via COMMU Module - M5-Bus pins 15,16)
+  # PC_RX=G7, PC_TX=G6
+  tx_pin_1: '6'
+  rx_pin_1: '7'
+  # uart_esp_2 (UART0 via M5-Bus pins 13,14)
+  # RXD0=G38, TXD0=G37
+  tx_pin_2: '37'
+  rx_pin_2: '38'
+  # talk_pin for RS485 flow control (directly wired on COMMU module, optional GPIO)
+  talk_pin: '48'
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+
+esp32:
+  board: esp32-p4-evboard
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      enable_idf_experimental_features: true
+
+# WiFi via ESP32-C6 co-processor
+esp32_hosted:
+  variant: esp32c6
+  active_high: true
+  clk_pin: GPIO12
+  cmd_pin: GPIO13
+  d0_pin: GPIO11
+  d1_pin: GPIO10
+  d2_pin: GPIO9
+  d3_pin: GPIO8
+  reset_pin: GPIO15
+  slot: 1
+
+psram:
+  mode: hex
+  speed: 200MHz
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  reboot_timeout: 0s
+  power_save_mode: none
+
+logger:
+  level: ERROR
+  hardware_uart: USB_SERIAL_JTAG
+
+# +--------------------------------------+
+# | I/O Expanders (pi4ioe5v6408)         |
+# +--------------------------------------+
+
+pi4ioe5v6408:
+  - id: pi4ioe1
+    address: 0x43
+    # 0: O - wifi_antenna_int_ext
+    # 1: O - speaker_enable
+    # 2: O - external_5v_power
+    # 3: NC
+    # 4: O - lcd reset
+    # 5: O - touch panel reset
+    # 6: O - camera reset
+    # 7: I - headphone detect
+  - id: pi4ioe2
+    address: 0x44
+    # 0: O - wifi_power
+    # 1: NC
+    # 2: NC
+    # 3: O - usb_5v_power
+    # 4: O - poweroff pulse
+    # 5: O - quick charge enable (inverted)
+    # 6: I - charging status
+    # 7: O - charge enable
+
+# +--------------------------------------+
+# | I²C Bus                              |
+# +--------------------------------------+
+
+i2c:
+  - id: bsp_bus
+    sda: ${i2c_sda}
+    scl: ${i2c_scl}
+    frequency: 400kHz
+
+# +--------------------------------------+
+# | ESP LDO for display                  |
+# +--------------------------------------+
+
+esp_ldo:
+  - voltage: 2.5V
+    channel: 3
+
+# +--------------------------------------+
+# | Power Management Switches            |
+# +--------------------------------------+
+
+switch:
+  - platform: gpio
+    id: wifi_power
+    name: ${name} WiFi Power
+    pin:
+      pi4ioe5v6408: pi4ioe2
+      number: 0
+    restore_mode: ALWAYS_ON
+    entity_category: config
+  - platform: gpio
+    id: wifi_antenna_int_ext
+    pin:
+      pi4ioe5v6408: pi4ioe1
+      number: 0
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: gpio
+    id: speaker_enable
+    name: ${name} Speaker Enable
+    pin:
+      pi4ioe5v6408: pi4ioe1
+      number: 1
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+  - platform: gpio
+    id: external_5v_power
+    name: ${name} External 5V Power
+    pin:
+      pi4ioe5v6408: pi4ioe1
+      number: 2
+    restore_mode: ALWAYS_ON
+    entity_category: config
+  - platform: gpio
+    id: usb_5v_power
+    name: ${name} USB Power
+    pin:
+      pi4ioe5v6408: pi4ioe2
+      number: 3
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+  - platform: gpio
+    id: quick_charge
+    name: ${name} Quick Charge
+    pin:
+      pi4ioe5v6408: pi4ioe2
+      number: 5
+      inverted: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+  - platform: gpio
+    id: charge_enable
+    name: ${name} Charge Enable
+    pin:
+      pi4ioe5v6408: pi4ioe2
+      number: 7
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+
+# +--------------------------------------+
+# | Binary Sensors                       |
+# +--------------------------------------+
+
+binary_sensor:
+  - platform: gpio
+    id: charging_status
+    name: ${name} Charging Status
+    pin:
+      pi4ioe5v6408: pi4ioe2
+      number: 6
+      mode: INPUT_PULLDOWN
+    entity_category: diagnostic
+  - platform: gpio
+    id: headphone_detect
+    name: ${name} Headphone Detect
+    pin:
+      pi4ioe5v6408: pi4ioe1
+      number: 7
+    entity_category: diagnostic
+
+# +--------------------------------------+
+# | Battery Monitoring (INA226)          |
+# +--------------------------------------+
+
+sensor:
+  - platform: ina226
+    address: 0x41
+    adc_averaging: 16
+    max_current: 8.192A
+    shunt_resistance: 0.005ohm
+    bus_voltage:
+      name: ${name} Battery Voltage
+    current:
+      name: ${name} Battery Current
+
+# +--------------------------------------+
+# | WiFi Antenna Selection               |
+# +--------------------------------------+
+
+select:
+  - platform: template
+    id: wifi_antenna_select
+    name: ${name} WiFi Antenna
+    options:
+      - "Internal"
+      - "External"
+    optimistic: true
+    on_value:
+      - if:
+          condition:
+            lambda: return i == 0;
+          then:
+            - switch.turn_off: wifi_antenna_int_ext
+          else:
+            - switch.turn_on: wifi_antenna_int_ext
+
+# +--------------------------------------+
+# | Display Timeout                      |
+# +--------------------------------------+
+
+number:
+  - platform: template
+    name: ${name} Screen Timeout
+    optimistic: true
+    id: display_timeout
+    unit_of_measurement: "s"
+    initial_value: 300
+    restore_value: true
+    min_value: 10
+    max_value: 300
+    step: 5
+    mode: box
+    entity_category: config
+
+# +--------------------------------------+
+# | Time (RTC and Home Assistant sync)   |
+# +--------------------------------------+
+
+time:
+  - platform: rx8130
+    id: rx8130_time
+    update_interval: 30 min
+
+  - platform: homeassistant
+    id: homeassistant_time
+    on_time_sync:
+      then:
+        - rx8130.write_time:
+            id: rx8130_time
+
+esphome:
+  on_boot:
+    - then:
+        rx8130.read_time:
+
+# +--------------------------------------+
+# | Touch Screen (GT911)                 |
+# +--------------------------------------+
+
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    interrupt_pin: GPIO23
+    update_interval: never
+    transform:
+      swap_xy: true
+      mirror_y: true
+    reset_pin:
+      pi4ioe5v6408: pi4ioe1
+      number: 5
+    calibration:
+      y_min: 0
+      y_max: 720
+      x_min: 0
+      x_max: 1280
+    on_release:
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+            - light.turn_on: backlight
+
+# +--------------------------------------+
+# | Display (MIPI DSI 1280x720)          |
+# +--------------------------------------+
+
+display:
+  - platform: mipi_dsi
+    id: my_display
+    rotation: 90
+    dimensions:
+      height: 1280
+      width: 720
+    model: M5Stack-Tab5
+    reset_pin:
+      pi4ioe5v6408: pi4ioe1
+      number: 4
+
+# +--------------------------------------+
+# | Backlight                            |
+# +--------------------------------------+
+
+output:
+  - platform: ledc
+    pin: GPIO22
+    id: backlight_pwm
+    frequency: 1000Hz
+  # ESP32 board without LED - template output for heartbeat
+  - platform: template
+    id: esp_output
+    type: binary
+    write_action:
+      - logger.log: "Inverter Heartbeat Output"
+
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: ${name} Display Backlight
+    id: backlight
+    restore_mode: ALWAYS_ON
+    default_transition_length: 250ms
+  # ESP Light used to see the inverter heartbeat
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: binary
+    id: esp_light
+    output: esp_output
+
+# +--------------------------------------+
+# | Fonts                                |
+# +--------------------------------------+
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_12
+    size: 12
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_20
+    size: 20
+    bpp: 4
+  - file: "gfonts://Roboto"
+    id: roboto_25
+    size: 25
+    bpp: 4
+
+# +--------------------------------------+
+# | LVGL                                 |
+# +--------------------------------------+
+# Note: LVGL configuration is provided by board_options_display_Tab5_1280x720.yaml
+# Do not add lvgl: section here - it will cause duplicate display IDs
