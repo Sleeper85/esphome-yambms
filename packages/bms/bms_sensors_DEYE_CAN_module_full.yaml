@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.10
+# Updated : 2026.02.14
+# Version : 1.1.11
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -500,6 +500,11 @@ sensor:
     device_class: 'temperature'
     state_class: 'measurement'
     accuracy_decimals: 1
+    filters:
+      - exponential_moving_average:
+          alpha: 0.1
+          send_every: 4
+      - delta: 0.2
 
   # Min. temperature sensor (fixed)
   - platform: template
@@ -521,6 +526,11 @@ sensor:
     device_class: 'temperature'
     state_class: 'measurement'
     accuracy_decimals: 1
+    filters:
+      - exponential_moving_average:
+          alpha: 0.1
+          send_every: 4
+      - delta: 0.2
 
   # Max. temperature sensor (fixed)
   - platform: template
