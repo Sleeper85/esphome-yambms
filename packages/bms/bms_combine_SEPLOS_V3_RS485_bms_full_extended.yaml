@@ -1,5 +1,5 @@
 # Updated : 2026.02.13
-# Version : 1.1.2
+# Version : 1.1.1
 # GitHub  : https://github.com/syssi/esphome-seplos-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,4 +19,4 @@
 
 packages:
   bms_combine: !include bms_combine.yaml
-  bms_sensors: !include bms_sensors_SEPLOS_V3_RS485_bms_full.yaml
+  bms_sensors: !include bms_sensors_SEPLOS_V3_RS485_bms_full_extended.yaml
