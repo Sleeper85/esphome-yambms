@@ -1,5 +1,5 @@
 # Updated : 2026.02.16
-# Version : 1.1.8
+# Version : 1.1.9
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -45,21 +45,18 @@ binary_sensor:
       name: "relay state"
   # Required sensors cannot be retrieved from Shunt
   # online_status
-  - platform: template
-    id: shunt${shunt_id}_online_status
-    device_id: shunt_${shunt_id}
-    name: "Online Status"
-    trigger_on_initial_state: true
-    on_state:
-      then:
-        - lambda: |-
-            // Pass the current state to the update function
-            id(global_update_fault)(${CAT_SHUNT}, ${shunt_id}, !x);
-    lambda: |-
-      if (id(shunt${shunt_id}_voltage).state > 0)
-        return true;
-      else
-        return false;
+  - platform: victron
+    victron_id: victron${shunt_id}
+    online:
+      id: shunt${shunt_id}_online_status
+      device_id: shunt_${shunt_id}
+      name: "Online status"
+      trigger_on_initial_state: true
+      on_state:
+        then:
+          - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_SHUNT}, ${shunt_id}, !x);
 
 sensor:
   - platform: victron
