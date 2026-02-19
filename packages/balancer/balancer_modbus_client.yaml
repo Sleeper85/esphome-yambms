@@ -1,5 +1,5 @@
-# Updated : 2026.02.06
-# Version : 1.1.7
+# Updated : 2026.02.19
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -46,6 +46,9 @@ modbus_controller:
         - lambda: |-
             id(balancer${bms_id}_online_status).publish_state(false);
             id(balancer${bms_id}_equalizing).publish_state(false);
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BALANCER}, ${bms_id}, 1);    
 
 # +--------------------------------------+
 # | Component entities                   |
@@ -65,6 +68,9 @@ binary_sensor:
       then:
         - lambda: |-
             id(bms${bms_id}_var_ext_balancer_online) = x;
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BALANCER}, ${bms_id}, !x);
   # equalizing
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_balancer${bms_id}
