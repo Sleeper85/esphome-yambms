@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.4
+# Updated : 2026.03.15
+# Version : 1.1.5
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -118,10 +118,18 @@ sensor:
       id: balancer${bms_id}_delta_cell_voltage
       device_id: balancer_${bms_id}
       name: "delta cell voltage"
+      filters:
+        - throttle_average: 30s
+        - round: 3
     average_cell_voltage:
       id: balancer${bms_id}_average_cell_voltage
       device_id: balancer_${bms_id}
       name: "average cell voltage"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 9
+            send_every: 4
+        - round: 3
     cell_voltage_1:
       id: balancer${bms_id}_cell_v_01
       device_id: balancer_${bms_id}
@@ -238,6 +246,11 @@ sensor:
       id: balancer${bms_id}_total_voltage
       device_id: balancer_${bms_id}
       name: "total voltage"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 9
+            send_every: 4
+        - round: 2
     temperature_sensor_1:
       id: balancer${bms_id}_temperature_sensor_1
       device_id: balancer_${bms_id}
