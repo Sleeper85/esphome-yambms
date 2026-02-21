@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.3.5
+# Updated : 2026.03.15
+# Version : 1.3.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -407,6 +407,8 @@ sensor:
       device_id: bms_${bms_id}
       name: "total runtime"
       entity_category: diagnostic
+      filters:
+        - throttle: 60s
     # start_current_calibration:
     #   name: "start current calibration"
     actual_battery_capacity:
