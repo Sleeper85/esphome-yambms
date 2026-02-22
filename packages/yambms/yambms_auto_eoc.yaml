@@ -1,5 +1,5 @@
-# Updated : 2026.02.07
-# Version : 1.1.6
+# Updated : 2026.02.22
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -160,7 +160,7 @@ interval:
               !id(${yambms_id}_max_charge_current).has_state()) {
             // Auto EOC Charging disabled
             id(${yambms_id}_var_auto_eoc) = 0;
-            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
             id(${yambms_id}_auto_eoc_status).publish_state("Stop: Disabled");
             id(${yambms_id}_var_charge_current_step)++;
             return;
@@ -169,7 +169,7 @@ interval:
           // Check if Float is active
           if (id(${yambms_id}_charging_instruction).state == "Float") {
             id(${yambms_id}_var_auto_eoc) = 0;
-            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
             id(${yambms_id}_auto_eoc_status).publish_state("Stop: Float");
             id(${yambms_id}_var_charge_current_step)++;
             return;
@@ -191,7 +191,7 @@ interval:
           if (!current_time.is_valid()) {
             ESP_LOGW("yambms_auto_eoc", "Time not valid");
             id(${yambms_id}_var_auto_eoc) = 0;
-            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
             id(${yambms_id}_auto_eoc_status).publish_state("Stop: Time not valid");
             id(${yambms_id}_var_charge_current_step)++;
             return;
@@ -205,6 +205,7 @@ interval:
           auto target_time = current_time;
           target_time.hour = target_hour;
           target_time.minute = target_minute;
+          target_time.second = 0;
           target_time.recalc_timestamp_local();
 
           // Calculate hours left until target time
@@ -212,7 +213,7 @@ interval:
 
           if (hours_left <= 0) {
             id(${yambms_id}_var_auto_eoc) = 0;
-            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(0);
+            id(${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
             id(${yambms_id}_auto_eoc_status).publish_state("Stop: Target time passed");
             id(${yambms_id}_var_charge_current_step)++;
             return;
@@ -260,6 +261,7 @@ interval:
           float return_value = 0;
           if (required_charge_current >= charge_current) {
             required_charge_current = 0;
+            return_value = NAN;
             id(${yambms_id}_auto_eoc_status).publish_state("Stop: Current above limit");
           } else {
             // The value is valid, return it
@@ -285,7 +287,7 @@ interval:
           }
 
           // Limit required charge current to maximum charge current
-          if (required_charge_current && (required_charge_current < charge_current)) {
+          if ((required_charge_current > 0.0f) && (required_charge_current < charge_current)) {
             // Calculate negative difference to charge current
             id(${yambms_id}_var_auto_eoc) = round(required_charge_current - charge_current);
           } else {
