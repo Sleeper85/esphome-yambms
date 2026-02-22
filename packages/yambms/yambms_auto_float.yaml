@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 1.1.4
+# Updated : 2026.02.22
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -88,12 +88,12 @@ sensor:
     lambda: |-
       // Variables
       const auto mode = id(${yambms_id}_auto_float_mode).active_index();        // Mode: 0 - Disabled, 1 - Follow, 2 - Immediately
-      const double bulk_v = id(${yambms_id}_bulk_voltage).state;                // Bulk voltage
-      const double target_float_v = id(${yambms_id}_float_voltage).state;       // Target float voltage
-      const double step_v = id(${yambms_id}_auto_float_step_v).state;           // Voltage step for each decrement
-      const double max_total_v = id(${yambms_id}_auto_float_total_v).state;     // Total voltage (mean and max)
+      const float  bulk_v = id(${yambms_id}_bulk_voltage).state;                // Bulk voltage
+      const float  target_float_v = id(${yambms_id}_float_voltage).state;       // Target float voltage
+      const float  step_v = id(${yambms_id}_auto_float_step_v).state;           // Voltage step for each decrement
+      const float  max_total_v = id(${yambms_id}_auto_float_total_v).state;     // Total voltage (mean and max)
       const auto update_interval = id(${yambms_id}_auto_float_interval).state;  // Update interval in minutes
-      static double float_v = bulk_v;                                           // Initialize float voltage
+      static float  float_v = bulk_v;                                           // Initialize float voltage
       static uint8_t time_count = 0;                                            // Interval counter
       bool decrement = false;
       
@@ -108,7 +108,7 @@ sensor:
       else if (id(${yambms_id}_var_charge_status) == "Float")
       {
         // Check update interval
-        if (++time_count >= update_interval)
+        if (++time_count >= (uint8_t)update_interval)
         {
           // Follow mode : Wait for battery to drop below current float voltage
           if (mode == 1)
@@ -132,7 +132,6 @@ sensor:
       else
       {
         // Reset values
-        id(${yambms_id}_var_auto_float) = 0;
         float_v = bulk_v;
         time_count = 0;
       }
