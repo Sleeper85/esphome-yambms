@@ -1,5 +1,5 @@
-# Updated : 2026.02.19
-# Version : 1.7.0
+# Updated : 2026.02.22
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -430,7 +430,7 @@ interval:
               // MEAN Battery SOC (Shunt/BMS)
               if (id(${yambms_id}_var_shunt_use) == true)
                 soc = round(id(${yambms_id}_var_shunt_total_soc) / id(${yambms_id}_var_to_combine_shunt_counter));
-              else
+              else if (id(${yambms_id}_var_total_battery_capacity) > 0)
                 soc = round(id(${yambms_id}_var_total_battery_capacity_remaining) / id(${yambms_id}_var_total_battery_capacity) * 100);
 
               // SOC manipulation
@@ -1901,7 +1901,7 @@ text_sensor:
       int eb_counter = id(${yambms_id}_errors_bitmask_counter).state;
 
       // At least one BMS in alarm
-      if ((eb_counter > 0) & (eb_counter < id(${yambms_id}_var_bms_counter))) return {"Warning"};
+      if ((eb_counter > 0) && (eb_counter < id(${yambms_id}_var_bms_counter))) return {"Warning"};
       // All BMS are in alarm
       else if (errors_bitmask > 0)
       {
