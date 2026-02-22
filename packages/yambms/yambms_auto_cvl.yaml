@@ -1,5 +1,5 @@
-# Updated : 2026.01.30
-# Version : 2.4.6
+# Updated : 2026.02.22
+# Version : 2.4.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -84,27 +84,38 @@ sensor:
     lambda: |-
       // Variables
 
-      double static integral = 0.0;                                             // Integral term initialization
-      double static prev_integral = 0.0;                                        // Prior Integral term initialization
-      double cell_bulk_v = (id(${yambms_id}_bulk_voltage).state / id(${yambms_id}_cell_count).state);
-      double balance_delta = id(${yambms_id}_balance_trigger_voltage).state;
-      double max_allowed_voltage = cell_bulk_v + balance_delta;
-      double max_cell_v = id(${yambms_id}_max_cell_voltage).state;
-      double max_CVL = id(${yambms_id}_bulk_voltage).state + id(${yambms_id}_auto_cvl_boost_charge_v).state;  // Maximum CVL
-      double min_CVL = id(${yambms_id}_float_voltage).state;                                                  // Minimum CVL
-      double CVL = id(${yambms_id}_bulk_voltage).state;                                                       // Starting CVL
-      double CVL_orig = id(${yambms_id}_bulk_voltage).state;                                                  // Starting CVL snapshot
+      static float integral = 0.0;                                             // Integral term initialization
+      static float prev_integral = 0.0;                                        // Prior Integral term initialization
+      float cell_count = id(${yambms_id}_cell_count).state;
+      float bulk_voltage = id(${yambms_id}_bulk_voltage).state;
+      float balance_delta = id(${yambms_id}_balance_trigger_voltage).state;
+      float max_cell_v = id(${yambms_id}_max_cell_voltage).state;
+      float min_CVL = id(${yambms_id}_float_voltage).state;                    // Minimum CVL
+      float CVL = bulk_voltage;                                                // Starting CVL
+      float CVL_orig = bulk_voltage;                                           // Starting CVL snapshot
 
-      double kp = id(${yambms_id}_auto_cvl_kp).state;                           // Proportional gain, adjust as needed
-      double ki = id(${yambms_id}_auto_cvl_ki).state;                           // Integral gain, adjust as needed
-      double dt = 1.0;                                                          // Time step, adjust based on update_interval
-      double error = 0.0;                                                       // Starting error
-      double output = 0.0;                                                      // Starting output
+      float kp = id(${yambms_id}_auto_cvl_kp).state;                           // Proportional gain, adjust as needed
+      float ki = id(${yambms_id}_auto_cvl_ki).state;                           // Integral gain, adjust as needed
+      float dt = 1.0;                                                          // Time step, adjust based on update_interval
+      float error = 0.0;                                                       // Starting error
+      float output = 0.0;                                                      // Starting output
+
+      // Check if values are available, if not return bulk voltage as CVL
+      if (isnan(cell_count) || isnan(bulk_voltage) || isnan(balance_delta) || isnan(max_cell_v) ||
+          isnan(min_CVL) || cell_count <= 0) {
+        id(${yambms_id}_var_auto_cvl) = 0.0;
+        return bulk_voltage;
+      }
+
+      float max_CVL = bulk_voltage + id(${yambms_id}_auto_cvl_boost_charge_v).state;  // Maximum CVL
+      float cell_bulk_v = (bulk_voltage / cell_count);
+      float max_allowed_voltage = cell_bulk_v + balance_delta;
 
       // Check feature enabled
       if (!id(${yambms_id}_switch_auto_cvl).state){
         id(${yambms_id}_var_auto_cvl) = 0.0;
-        return id(${yambms_id}_bulk_voltage).state;
+        prev_integral = 0.0;
+        return bulk_voltage;
       } else {
         // PI Algorithm
         error = cell_bulk_v - max_cell_v;
