@@ -158,10 +158,10 @@ interval:
                 active = true;
                 above_knee_since_ms = 0;
 
-                // Set the anchor voltage to the current voltage (where we _are_ vs where we expected to be)
+                // Set the anchor voltage to the current voltage (where we _are_ since we may now be above the knee)
                 V_anchor = V_pack;
                 
-                // Calculate CCL at the knee 
+                // Calculate CCL at the anchor 
                 I_anchor = id(${yambms_id}_var_sl_current_max_10m);             // Max current over the last 10 minutes
                 const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};        // Set a min in case recent current is low
                 I_anchor = fmaxf(I_anchor, I_min);
