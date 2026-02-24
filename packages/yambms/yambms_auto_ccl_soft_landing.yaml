@@ -1,0 +1,399 @@
+#-------------------------------------------------------------------------------
+# Auto CCL Soft Landing
+#
+# Purpose:
+#   Facilitate a soft landing at the bulk target by tapering charge current
+#   as the target voltage is approached. Without this battery voltage tends
+#   to overshoot the bulk voltage by .2v to .3v
+#
+# Contract with yambms_core.yaml:
+#   - Participates in Auto CCL STEP pipeline
+#   - Writes only: id(${yambms_id}_var_auto_ccl_soft_landing)
+#   - Value must be <= 0.0  (negative = reduce, 0 = no reduction)
+#   - Advances pipeline via: id(${yambms_id}_var_charge_current_step)++
+#
+# Notes:
+#  . The reason I'm anchoring the curve at the knee to a current that's less than
+#    the maximum is simply to not have to taper all the way from .35c. It makes
+#    for a more gentle taper.
+#  . Knee voltage is defined as the voltage that unambiguously signals we are
+#    near 100%. Set it above any _continuous_ voltage seen below 98% SOC.
+#  . A higher knee dictates a shorter dwell time since voltage will be rising
+#    faster and there's less chance of a premature activation with a higher knee.
+#-------------------------------------------------------------------------------
+substitutions:
+  auto_ccl_sl_knee_v:       '3.3875'  # knee/activation voltage (cell)
+  auto_ccl_sl_release_v:    '0.0125'  # hysteresis below knee to allow release (e.g. 0.2V/16)
+  auto_ccl_sl_activate_s:   '60'      # seconds voltage must remain >= knee to activate
+  auto_ccl_sl_knee_c_rate:  '0.08'    # minimum CCL (expressed as a c-rate) at the knee
+  auto_ccl_sl_bulk_c_rate:  '0.003'   # tail current for balancing
+  auto_ccl_sl_curve_exp:    '1.0'     # curve shape: [1..2] 1=linear, >1 -> quicker decline, longer tail
+  auto_ccl_sl_shunt_spike:  '0.05'    # shunt voltage spike magnitude that will be damped
+  auto_ccl_sl_near_v_delta: '0.3'     # 'near bulk' delta voltage (pack) (used in ema)
+
+esphome:
+  on_boot:
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(${yambms_id}_var_auto_ccl_functions_count)++;   // Registration
+
+globals:
+  # Battery Voltage (calculated in an interval)
+  - id: ${yambms_id}_var_sl_battery_v
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+  # Rolling max charge current over previous 10-minutes
+  - id: ${yambms_id}_var_sl_current_max_10m
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+switch:
+  # This switch turns the feature on and off
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL Soft Landing
+    id: ${yambms_id}_switch_auto_ccl_sl
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  # These are used to 'calibrate' shunt voltage to match BMS voltage
+  - platform: template
+    name: "${name} ${yambms_name} Auto CCL SL V Offset"
+    id: ${yambms_id}_number_auto_ccl_sl_v_offset
+    unit_of_measurement: "V"
+    min_value: -0.2
+    max_value: 0.2
+    step: 0.005
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0
+
+  - platform: template
+    name: "${name} ${yambms_name} Auto CCL SL V R"
+    id: ${yambms_id}_number_auto_ccl_sl_v_r_mohm
+    unit_of_measurement: "mΩ"
+    min_value: 0.0
+    max_value: 10.0
+    step: 0.25       # .25v is the smallest move that makes a visible difference
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+
+          //--------------------------------------------------------------------
+          // Soft Landing internal state (persistent across loop executions)
+          //--------------------------------------------------------------------
+          static bool  active    = false;             // Active state
+          static float V_anchor  = NAN;               // Pack voltage at activation
+          static float I_anchor  = NAN;               // Current limit at activation
+          static uint32_t above_knee_since_ms = 0;    // Timestamp when V first crossed knee
+          static uint32_t last_run_ms = 0;            // Debug: last execution time
+
+          //--------------------------------------------------------------------
+          // Gate #1: Check if we are in the correct step
+          //--------------------------------------------------------------------
+          const int cc_step = id(${yambms_id}_var_charge_current_step);
+          const int n_funcs = id(${yambms_id}_var_auto_ccl_functions_count);
+          if (cc_step < 1 || cc_step > n_funcs) {
+            return;
+          }
+          
+          //--------------------------------------------------------------------
+          // Gate #2: Is 'soft landing' enabled?
+          //--------------------------------------------------------------------
+          if (!id(${yambms_id}_switch_auto_ccl_sl).state) {
+            id(${yambms_id}_var_auto_ccl_soft_landing) = 0.0f;
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          //--------------------------------------------------------------------
+          // Soft-landing math (assume configuration + inputs are sane)
+          //--------------------------------------------------------------------
+          
+          const int cell_count = id(${yambms_id}_cell_count).state;             // Cells per pack
+          const float cap_ah   = id(${yambms_id}_battery_capacity).state;       // Battery capacity
+          const float I_max    = id(${yambms_id}_max_charge_current).state;     // Max charge current
+          const float I_bulk   = ${auto_ccl_sl_bulk_c_rate} * cap_ah;           // Target current at bulk
+          const float V_bulk   = id(${yambms_id}_bulk_voltage).state;           // Bulk voltage
+          const float V_pack   = id(${yambms_id}_var_sl_battery_v);             // Battery voltage (adjusted and smoothed)
+          const float V_knee   = ${auto_ccl_sl_knee_v} * cell_count;            // Knee voltage
+
+          float I_target       = I_max;                                         // Default: no reduction
+          float delta          = 0.0f;                                          // This is our 'return' value
+
+          //--------------------------------------------------------------------
+          // Soft Landing activation state machine (voltage-based dwell + latch)
+          //  - If voltage is below knee, do nothing
+          //  - If voltage rises above knee, start a dwell timer
+          //  - If voltage remains above knee, switch to active state
+          //  - If voltage dips below knee + hysteresis, reset the timer
+          //--------------------------------------------------------------------
+          
+          const float release_v = ${auto_ccl_sl_release_v} * cell_count;
+          const uint32_t activate_ms = ${auto_ccl_sl_activate_s} * 1000UL;
+          
+          // -------------------------------
+          // Not active → require dwell
+          // -------------------------------
+          if (!active) {
+          
+            if (V_pack >= V_knee) {                                             // We're in the zone
+          
+              if (above_knee_since_ms == 0) {                                   // Our first time here
+                above_knee_since_ms = millis();                                 // Start the timer
+              }
+              else if ((millis() - above_knee_since_ms) >= activate_ms) {       // Activate
+                active = true;
+                above_knee_since_ms = 0;
+
+                // Set the anchor voltage to the current voltage (where we _are_ vs where we expected to be)
+                V_anchor = V_pack;
+                
+                // Calculate CCL at the knee 
+                I_anchor = id(${yambms_id}_var_sl_current_max_10m);             // Max current over the last 10 minutes
+                const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};        // Set a min in case recent current is low
+                I_anchor = fmaxf(I_anchor, I_min);
+              }
+            } else {
+              above_knee_since_ms = 0;                                          // We're below the zone; reset timer
+              V_anchor = NAN;
+              I_anchor = NAN;
+            }
+          }
+          
+          // -------------------------------
+          // Active → release on hysteresis
+          // -------------------------------
+          else {
+            if (V_pack <= (V_knee - release_v)) {                               // V_knee, not V_anchor
+              active = false;
+              above_knee_since_ms = 0;
+            }
+          }
+          
+          //--------------------------------------------------------------------
+          // Calculate desired Charge Current
+          //--------------------------------------------------------------------
+
+          if (active) {
+            float p = (V_pack - V_anchor) / (V_bulk - V_anchor);                // normalize to 0-1
+            p = fmaxf(0.0f, fminf(p, 1.0f));                                    // clamp between [0:1]
+            const float curve = powf(1.0f - p, ${auto_ccl_sl_curve_exp});       // our position along the curve between 0 and 1
+            I_target = I_bulk + (I_anchor - I_bulk) * curve;                    // calculate target current from our position on the curve
+            I_target = fminf(I_target, I_max);                                  // unlikely but possible
+            delta = I_target - I_max;                                           // this is our 'return' value
+          }
+
+          // 'Return' Value
+          id(${yambms_id}_var_auto_ccl_soft_landing) = delta;
+
+          // Publish values
+          id(${yambms_id}_auto_ccl_sl_delta).publish_state(delta);              // sensor
+          id(${yambms_id}_auto_ccl_sl_target).publish_state(I_target);          // sensor
+          
+          // Debug - how long did this loop take?
+          float age = (millis() - last_run_ms) / 1000.0f;                       // convert to seconds
+          last_run_ms = millis();                                               // restart the timer
+          id(${yambms_id}_auto_ccl_sl_age).publish_state(age);                  // sensor
+
+          // Pass the baton
+          id(${yambms_id}_var_charge_current_step)++;
+
+  #-----------------------------------------------------------------------------
+  # Compute a stable battery voltage for control logic
+  #
+  # Why:
+  #   - Soft-landing logic needs a continuous, well-behaved voltage signal
+  #   - Voltage source (BMS or shunt) is selected upstream by yambms_core
+  #   - If shunt voltage is being used, an optional linear correction
+  #     (offset − I*R) can compensate for voltage drop
+  #
+  # Contract:
+  #   - Reads:  id(${yambms_id}_total_voltage)    (sensor)
+  #             id(${yambms_id}_current)          (sensor)
+  #   - Writes: id(${yambms_id}_var_sl_battery_v) (global)
+  #   - Publishes: auto_ccl_sl_battery_v          (sensor)
+  #
+  # Behavior:
+  #   - Applies optional shunt voltage adjustment
+  #   - Limits single-sample spikes (a shunt problem)
+  #   - Adaptive EMA: smooth far from bulk, fast reacting near bulk
+  #
+  # Notes:
+  #   - Downstream logic operates only on the smoothed battery voltage
+  #   - Shunt voltage adjustment defaults to 0 (no adjustment)
+  #   - Voltage spikes are not ignored because they can stall the ema, so their
+  #     magnitude is limited. 
+  #   - DT_S must be the same number of seconds as ${yambms_update_interval}
+  #     We can't use the interval directly because it's '1s'
+  #-----------------------------------------------------------------------------
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+
+          static float V_ema = 0.0f;                                            // previous EMA (persistent)
+          static bool ema_initialized = false;
+
+          if (id(${yambms_id}_var_initialized) == false) return;                // Boot initialization not yet complete
+
+          constexpr float DT_S = 1.0f;                                          // interval seconds
+
+          float V = id(${yambms_id}_total_voltage).state;                       // Voltage
+
+          // shunt voltage correction
+          if (id(${yambms_id}_var_shunt_use)) {
+            const float I      = id(${yambms_id}_current).state;                      // Current (+chg, -dis)
+            const float V_off  = id(${yambms_id}_number_auto_ccl_sl_v_offset).state;  // Voltage offset
+            const float R_mohm = id(${yambms_id}_number_auto_ccl_sl_v_r_mohm).state;  // Resistance in milliohms
+            const float R_ohm  = R_mohm / 1000.0f;                                    // convert to ohms
+            V = V + V_off - (I * R_ohm);                                              // corrected voltage
+          }
+          
+          if (isnan(V) || V < 9.0f) return;                                     // don't poison V_ema with 'unknown' or weird glitches
+
+          // Seed EMA on first valid run (after voltage correction)
+          if (!ema_initialized) {
+            V_ema = V;                                                          // update the static
+            ema_initialized = true;
+            return;
+          }
+
+          // Voltage spike handling: rate-limit instead of reject (prevents EMA freeze)
+          const float max_step = ${auto_ccl_sl_shunt_spike};                    // e.g. 0.06 V
+          const float d = V - V_ema;
+          if (fabsf(d) > max_step) {
+            V = V_ema + copysignf(max_step, d);                                 // clamp step and keep going
+          }
+
+          // Variable rate EMA
+          const float tau_slow = id(${yambms_id}_var_shunt_use) ? 18.0f : 9.0f; // maximum smoothing
+          const float tau_fast = 2.0f;                                          // very little smoothing, fast reaction
+          
+          const float V_bulk   = id(${yambms_id}_bulk_voltage).state;
+          const float dv_near  = ${auto_ccl_sl_near_v_delta};                   // voltage delta from bulk where EMA gets fast
+          float w = 1.0f - (V_bulk - V) / dv_near;                              // blend factor: 0 when far from bulk, 1 when at/above bulk
+          w = fmaxf(0.0f, fminf(w, 1.0f));
+          
+          const float tau = tau_slow + w * (tau_fast - tau_slow);
+          const float alpha = 1.0f - expf(-DT_S / tau);
+
+          V_ema = V_ema + alpha * (V - V_ema);                                  // EMA
+
+          //ESP_LOGI("auto_ccl_sl", "publishing: V=%.3f V_ema=%.3f init=%d",
+          //         V, V_ema, (int)id(${yambms_id}_var_initialized));
+         
+          id(${yambms_id}_var_sl_battery_v) = V_ema;                            // Global (the main interval reads this)
+          id(${yambms_id}_auto_ccl_sl_battery_v).publish_state(V_ema);          // Sensor - ema   (for HA)
+          id(${yambms_id}_auto_ccl_sl_v_corrected_raw).publish_state(V);        // Sensor - raw V (for HA)
+
+  #-----------------------------------------------------------------------------
+  # Rolling 10-minute maximum charge current
+  #
+  # Purpose:
+  #   Capture the highest charge current over the last 10 minutes (sampled
+  #   every 10s) and use it as the anchor for the soft-landing taper curve.
+  #
+  # Why:
+  #   Instantaneous current can dip due to clouds, load changes, or control
+  #   adjustments. Anchoring the taper to a transient low value would compress
+  #   the curve, causing premature current reduction.
+  #
+  # Contract:
+  #   var_sl_current_max_10m represents a recent, realistic upper bound of
+  #   charging capability — not a momentary reading.
+  #-----------------------------------------------------------------------------
+  - interval: 10s
+    then:
+      - lambda: |-
+          static float hist[60] = {0.0f};                     // 6 samples per minute for 10 minutes
+          static int idx = 0;
+          static bool hist_filled = false;
+  
+          const float i = id(${yambms_id}_current).state;     // charge current
+          hist[idx] = i;
+          idx++;
+  
+          if (idx >= 60) {v
+            idx = 0;
+            hist_filled = true;
+          }
+  
+          const int n = hist_filled ? 60 : idx;               // number of entries in the array
+
+          float max_i = hist[0];
+          for (int k = 1; k < n; k++) {
+            max_i = fmaxf(max_i, hist[k]);
+          }
+  
+          id(${yambms_id}_var_sl_current_max_10m) = max_i;    // store in a global so the main interval can read it
+
+#-------------------------------------------------------------------------------
+# Sensors
+#-------------------------------------------------------------------------------
+sensor:
+  # This surfaces what value we are returning
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL Delta
+    id: ${yambms_id}_auto_ccl_sl_delta
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never        # updated by publish
+    internal: false
+
+  # Target charge current we calculated. This is the "CCL curve"
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL Target Current
+    id: ${yambms_id}_auto_ccl_sl_target
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+    internal: false
+
+  # Adjusted and smoothed Battery voltage
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL Battery Voltage
+    id: ${yambms_id}_auto_ccl_sl_battery_v
+    unit_of_measurement: V
+    device_class: voltage
+    accuracy_decimals: 2
+    entity_category: diagnostic
+    update_interval: never
+    internal: false
+
+  # Corrected voltage before EMA. Useful for validation and tuning shunt calibration
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL V Corrected Raw
+    id: ${yambms_id}_auto_ccl_sl_v_corrected_raw
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
+    update_interval: never
+    internal: false
+
+  # Debug: How long since we last ran? Not needed but can reveal issues with the loop
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL Age
+    id: ${yambms_id}_auto_ccl_sl_age
+    unit_of_measurement: s
+    device_class: duration
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    update_interval: never
+    internal: false
