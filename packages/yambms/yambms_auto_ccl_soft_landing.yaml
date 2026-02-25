@@ -325,7 +325,7 @@ interval:
           hist[idx] = i;
           idx++;
   
-          if (idx >= 60) {v
+          if (idx >= 60) {
             idx = 0;
             hist_filled = true;
           }
