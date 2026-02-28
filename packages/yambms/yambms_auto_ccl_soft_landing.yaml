@@ -15,19 +15,23 @@
 # Notes:
 #  . The reason I'm anchoring the curve at the knee to a current that's less than
 #    the maximum is simply to not have to taper all the way from .35c. It makes
-#    for a more gentle taper.
+#    for a more gentle taper. Starting the curve too low can result in a 
+#    premature completion of cutoff.
 #  . Knee voltage is defined as the voltage that unambiguously signals we are
 #    near 100%. Set it above any _continuous_ voltage seen below 98% SOC.
 #  . A higher knee dictates a shorter dwell time since voltage will be rising
 #    faster and there's less chance of a premature activation with a higher knee.
+#  . Because Soft Landing reduces charge current, YamBMS may transition to float
+#    well before the battery voltage reaches bulk. If float is disabled, this
+#    will result in Charging Instruction 'stop' before bulk voltage is reached.
 #-------------------------------------------------------------------------------
 substitutions:
-  auto_ccl_sl_knee_v:       '3.3875'  # knee/activation voltage (cell)
+  auto_ccl_sl_knee_v:       '3.4'     # knee/activation voltage (cell)
   auto_ccl_sl_release_v:    '0.0125'  # hysteresis below knee to allow release (e.g. 0.2V/16)
-  auto_ccl_sl_activate_s:   '60'      # seconds voltage must remain >= knee to activate
-  auto_ccl_sl_knee_c_rate:  '0.08'    # minimum CCL (expressed as a c-rate) at the knee
-  auto_ccl_sl_bulk_c_rate:  '0.003'   # tail current for balancing
-  auto_ccl_sl_curve_exp:    '1.0'     # curve shape: [1..2] 1=linear, >1 -> quicker decline, longer tail
+  auto_ccl_sl_activate_s:   '10'      # seconds voltage must remain >= knee to activate
+  auto_ccl_sl_knee_c_rate:  '0.08'    # minimum CCL at the knee (expressed as a c-rate)
+  auto_ccl_sl_bulk_c_rate:  '0.0'     # 0 is the right number
+  auto_ccl_sl_curve_exp:    '0.85'    # curve shape: 1=linear, >1=quicker drop, longer tail, <1=convex
   auto_ccl_sl_shunt_spike:  '0.05'    # shunt voltage spike magnitude that will be damped
   auto_ccl_sl_near_v_delta: '0.3'     # 'near bulk' delta voltage (pack) (used in ema)
 
@@ -80,7 +84,7 @@ number:
     unit_of_measurement: "mΩ"
     min_value: 0.0
     max_value: 10.0
-    step: 0.25       # .25v is the smallest move that makes a visible difference
+    step: 0.1       # .1v is the smallest move that makes a visible difference
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
@@ -343,28 +347,6 @@ interval:
 # Sensors
 #-------------------------------------------------------------------------------
 sensor:
-  # This surfaces what value we are returning
-  - platform: template
-    name: ${name} ${yambms_name} Auto CCL SL Delta
-    id: ${yambms_id}_auto_ccl_sl_delta
-    unit_of_measurement: A
-    device_class: current
-    accuracy_decimals: 0
-    entity_category: diagnostic
-    update_interval: never        # updated by publish
-    internal: false
-
-  # Target charge current we calculated. This is the "CCL curve"
-  - platform: template
-    name: ${name} ${yambms_name} Auto CCL SL Target Current
-    id: ${yambms_id}_auto_ccl_sl_target
-    unit_of_measurement: A
-    device_class: current
-    accuracy_decimals: 0
-    entity_category: diagnostic
-    update_interval: never
-    internal: false
-
   # Adjusted and smoothed Battery voltage
   - platform: template
     name: ${name} ${yambms_name} Auto CCL SL Battery Voltage
@@ -384,6 +366,28 @@ sensor:
     accuracy_decimals: 2
     device_class: voltage
     state_class: measurement
+    update_interval: never
+    internal: false
+
+  # This surfaces what value we are returning
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL Delta
+    id: ${yambms_id}_auto_ccl_sl_delta
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never        # updated by publish
+    internal: false
+
+  # Target charge current we calculated. This is the "CCL curve"
+  - platform: template
+    name: ${name} ${yambms_name} Auto CCL SL Target Current
+    id: ${yambms_id}_auto_ccl_sl_target
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 0
+    entity_category: diagnostic
     update_interval: never
     internal: false
 
