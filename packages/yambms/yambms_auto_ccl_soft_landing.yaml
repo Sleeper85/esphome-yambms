@@ -26,20 +26,26 @@
 #    will result in Charging Instruction 'stop' before bulk voltage is reached.
 #  . Two-phase: curve (knee to bulk) ends at I_bulk (bulk_c_rate) at V_bulk; once V>=bulk,
 #    5s dwell then straight taper from I_bulk to 0 over ramp_to_zero_s.
+#  . After landed, CCL only rises again when V stays below (bulk - release_hyst_v) for
+#    release_dwell_s (debounce), so a single sample at the boundary does not release.
 #-------------------------------------------------------------------------------
 substitutions:
-  auto_ccl_sl_knee_v:         '3.4'    # knee/activation voltage (cell)
-  auto_ccl_sl_release_v:      '0.0125' # hysteresis below knee to allow release (e.g. 0.2V/16)
-  auto_ccl_sl_activate_s:     '10'     # seconds voltage must remain >= knee to activate
-  auto_ccl_sl_knee_c_rate:    '0.1'    # minimum CCL at the knee (expressed as a c-rate)
-  auto_ccl_sl_bulk_c_rate:    '0.01'   # c-rate at bulk: 6A / 614ah = .01c
-  auto_ccl_sl_curve_exp:      '1.0'    # curve shape: 1=linear, >1=quicker drop, longer tail
-  auto_ccl_sl_shunt_spike:    '0.05'   # shunt voltage spike magnitude that will be damped
-  auto_ccl_sl_near_v_delta:   '0.3'    # 'near bulk' delta voltage (pack) (used in ema)
-  # These substitutions define what happens at bulk
-  auto_ccl_sl_release_hyst_v: '0.02'   # pack V drop below bulk required before allowing CCL to rise again (after landed)
-  auto_ccl_sl_bulk_dwell_s:   '5'      # seconds V must remain >= bulk before starting ramp to 0 (5 readings at 1s)
-  auto_ccl_sl_ramp_to_zero_s: '30'     # seconds to ramp from bulk down to 0 after dwell (avoids voltage dip)
+  # Knee / activation (when we consider "near full" and start the taper)
+  auto_ccl_sl_knee_v:          '3.4'    # knee/activation voltage (cell)
+  auto_ccl_sl_release_v:       '0.0125' # hysteresis below knee to allow release (e.g. 0.2V/16)
+  auto_ccl_sl_activate_s:      '10'     # seconds voltage must remain >= knee to activate
+  auto_ccl_sl_knee_c_rate:     '0.1'    # minimum CCL at the knee (expressed as a c-rate)
+  # Curve (shape between knee and bulk)
+  auto_ccl_sl_curve_exp:       '1.0'    # curve shape: 1=linear, >1=quicker drop, longer tail
+  auto_ccl_sl_bulk_c_rate:     '0.0065' # c-rate at bulk (curve end, then hold then ramp)
+  # Bulk / landing (at and after bulk)
+  auto_ccl_sl_release_hyst_v:  '0.02'   # pack V drop below bulk required before allowing CCL to rise again (after landed)
+  auto_ccl_sl_release_dwell_s: '3'      # seconds V must remain below (bulk - hyst) before release (debounce)
+  auto_ccl_sl_bulk_dwell_s:    '5'      # seconds V must remain >= bulk before starting ramp to 0 (5 readings at 1s)
+  auto_ccl_sl_ramp_to_zero_s:  '30'     # seconds to ramp from bulk down to 0 after dwell (avoids voltage dip)
+  # Shunt / voltage smoothing (EMA and spike clamp)
+  auto_ccl_sl_shunt_spike:     '0.05'   # shunt voltage spike magnitude that will be damped
+  auto_ccl_sl_near_v_delta:    '0.3'    # 'near bulk' delta voltage (pack) (used in ema)
 
 esphome:
   on_boot:
@@ -111,6 +117,7 @@ interval:
           static uint32_t landed_at_ms = 0;           // When we transitioned to landed (for ramp-to-zero timing)
           static uint32_t at_bulk_since_ms = 0;       // When V first reached bulk (for 5s dwell)
           static uint32_t above_knee_since_ms = 0;    // Timestamp when V first crossed knee
+          static uint32_t below_bulk_hyst_since_ms = 0;  // When V first went below (bulk - hyst); 0 = not below
           static uint32_t last_run_ms = 0;            // Debug: last execution time
 
           //--------------------------------------------------------------------
@@ -157,6 +164,7 @@ interval:
           const float release_v            = ${auto_ccl_sl_release_v} * cell_count;
           const uint32_t activate_ms       = ${auto_ccl_sl_activate_s} * 1000UL;
           const float release_hysteresis_v = ${auto_ccl_sl_release_hyst_v};
+          const uint32_t release_dwell_ms  = ${auto_ccl_sl_release_dwell_s} * 1000UL;
           const uint32_t at_bulk_dwell_ms  = ${auto_ccl_sl_bulk_dwell_s} * 1000UL;
           const uint32_t ramp_to_zero_ms   = ${auto_ccl_sl_ramp_to_zero_s} * 1000UL;
           
@@ -190,22 +198,30 @@ interval:
           }
           
           // -------------------------------
-          // Active → release on hysteresis
+          // Active → release on hysteresis (debounced so ramp-to-zero droop doesn't retrigger)
           // -------------------------------
           else {
             if (landed) {
-              if (V_pack <= (V_bulk - release_hysteresis_v)) {                   // Require V to drop 0.02V below bulk
-                active = false;
-                landed = false;
-                landed_at_ms = 0;
-                at_bulk_since_ms = 0;
-                above_knee_since_ms = 0;
+              if (V_pack <= (V_bulk - release_hysteresis_v)) {
+                if (below_bulk_hyst_since_ms == 0)
+                  below_bulk_hyst_since_ms = millis();
+                else if ((millis() - below_bulk_hyst_since_ms) >= release_dwell_ms) {
+                  active = false;
+                  landed = false;
+                  landed_at_ms = 0;
+                  at_bulk_since_ms = 0;
+                  above_knee_since_ms = 0;
+                  below_bulk_hyst_since_ms = 0;
+                }
+              } else {
+                below_bulk_hyst_since_ms = 0;                                   // Back above threshold; cancel release
               }
             } else {
               if (V_pack <= (V_knee - release_v)) {                              // Below knee: release (pre-bulk)
                 active = false;
                 at_bulk_since_ms = 0;
                 above_knee_since_ms = 0;
+                below_bulk_hyst_since_ms = 0;
               }
             }
           }
@@ -234,12 +250,21 @@ interval:
                 I_target = I_bulk * (1.0f - fraction);
               }
             } else {
-              // Below bulk: curve only. Curve right end = I_bulk (bulk_c_rate) at V_bulk
-              at_bulk_since_ms = 0;
-              float p = (V_pack - V_anchor) / (V_bulk - V_anchor);              // normalize to 0-1
-              p = fmaxf(0.0f, fminf(p, 1.0f));                                  // clamp between [0:1]
-              const float curve = powf(1.0f - p, ${auto_ccl_sl_curve_exp});     // our position along the curve
-              I_target = I_bulk + (I_anchor - I_bulk) * curve;                  // curve ends at I_bulk at bulk
+              // Below bulk: curve only when not yet landed (so small dip doesn't bump CCL back up)
+              if (!landed) {
+                at_bulk_since_ms = 0;
+                float p = (V_pack - V_anchor) / (V_bulk - V_anchor);              // normalize to 0-1
+                p = fmaxf(0.0f, fminf(p, 1.0f));                                  // clamp between [0:1]
+                const float curve = powf(1.0f - p, ${auto_ccl_sl_curve_exp});     // our position along the curve
+                I_target = I_bulk + (I_anchor - I_bulk) * curve;                  // curve ends at I_bulk at bulk
+              } else {
+                // Landed but V dipped below bulk: keep ramping to zero until release (hysteresis)
+                const uint32_t elapsed = millis() - landed_at_ms;
+                const float fraction = (ramp_to_zero_ms > 0)
+                  ? fminf(1.0f, (float)elapsed / (float)ramp_to_zero_ms)
+                  : 1.0f;
+                I_target = I_bulk * (1.0f - fraction);
+              }
             }
             I_target = fminf(I_target, I_max);                                  // unlikely but possible
             delta = I_target - I_max;                                           // this is our 'return' value
