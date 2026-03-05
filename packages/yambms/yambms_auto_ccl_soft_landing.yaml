@@ -19,30 +19,23 @@
 #    premature completion of cutoff.
 #  . Knee voltage is defined as the voltage that unambiguously signals we are
 #    near 100%. Set it above any _continuous_ voltage seen below 98% SOC.
-#  . A higher knee dictates a shorter dwell time since voltage will be rising
-#    faster and there's less chance of a premature activation with a higher knee.
+#  . Knee at 3.4V (cell) unambiguously signals ~98%+; no activation dwell.
 #  . Because Soft Landing reduces charge current, YamBMS may transition to float
 #    well before the battery voltage reaches bulk. If float is disabled, this
 #    will result in Charging Instruction 'stop' before bulk voltage is reached.
-#  . Two-phase: curve (knee to bulk) ends at I_bulk (bulk_c_rate) at V_bulk; once V>=bulk,
-#    5s dwell then straight taper from I_bulk to 0 over ramp_to_zero_s.
-#  . After landed, CCL only rises again when V stays below (bulk - release_hyst_v) for
-#    release_dwell_s (debounce), so a single sample at the boundary does not release.
+#  . Curve (knee to bulk) ends at I_bulk at V_bulk. At bulk we hold I_bulk; no ramp, no dwell.
+#  . Landed: hold I_bulk until V falls release_bulk_v below bulk, then follow curve again.
 #-------------------------------------------------------------------------------
 substitutions:
   # Knee / activation (when we consider "near full" and start the taper)
-  auto_ccl_sl_knee_v:          '3.4'    # knee/activation voltage (cell)
-  auto_ccl_sl_release_v:       '0.0125' # hysteresis below knee to allow release (e.g. 0.2V/16)
-  auto_ccl_sl_activate_s:      '10'     # seconds voltage must remain >= knee to activate
+  auto_ccl_sl_knee_v:          '3.4'    # knee/activation voltage (cell); >= 98%
+  auto_ccl_sl_release_knee_v:  '0.0125' # hysteresis below knee to allow release (cell; e.g. 0.2V/16)
   auto_ccl_sl_knee_c_rate:     '0.1'    # minimum CCL at the knee (expressed as a c-rate)
   # Curve (shape between knee and bulk)
   auto_ccl_sl_curve_exp:       '1.0'    # curve shape: 1=linear, >1=quicker drop, longer tail
-  auto_ccl_sl_bulk_c_rate:     '0.0065' # c-rate at bulk (curve end, then hold then ramp)
+  auto_ccl_sl_bulk_c_rate:     '0.003'  # c-rate at bulk (0 or a trickle charge)
   # Bulk / landing (at and after bulk)
-  auto_ccl_sl_release_hyst_v:  '0.02'   # pack V drop below bulk required before allowing CCL to rise again (after landed)
-  auto_ccl_sl_release_dwell_s: '3'      # seconds V must remain below (bulk - hyst) before release (debounce)
-  auto_ccl_sl_bulk_dwell_s:    '5'      # seconds V must remain >= bulk before starting ramp to 0 (5 readings at 1s)
-  auto_ccl_sl_ramp_to_zero_s:  '30'     # seconds to ramp from bulk down to 0 after dwell (avoids voltage dip)
+  auto_ccl_sl_release_bulk_v:  '0.05'   # V drop below bulk (pack) before allowing CCL to rise again (after landed)
   # Shunt / voltage smoothing (EMA and spike clamp)
   auto_ccl_sl_shunt_spike:     '0.05'   # shunt voltage spike magnitude that will be damped
   auto_ccl_sl_near_v_delta:    '0.3'    # 'near bulk' delta voltage (pack) (used in ema)
@@ -55,13 +48,13 @@ esphome:
             id(${yambms_id}_var_auto_ccl_functions_count)++;   // Registration
 
 globals:
-  # Battery Voltage (calculated in an interval)
+  # Battery Voltage
   - id: ${yambms_id}_var_sl_battery_v
     type: float
     restore_value: no
     initial_value: '0.0'
 
-  # Rolling max charge current over previous 10-minutes (calculated in an interval)
+  # Rolling max charge current over previous 10-minutes
   - id: ${yambms_id}_var_sl_current_max_10m
     type: float
     restore_value: no
@@ -110,16 +103,12 @@ interval:
           //--------------------------------------------------------------------
           // Soft Landing internal state (persistent across loop executions)
           //--------------------------------------------------------------------
-          static bool  active    = false;             // Active state
-          static float V_anchor  = NAN;               // Pack voltage at activation
-          static float I_anchor  = NAN;               // Current limit at activation
-          static bool  landed    = false;             // True after V >= bulk for bulk_dwell_s (then we ramp to 0)
-          static uint32_t landed_at_ms = 0;           // When we transitioned to landed (for ramp-to-zero timing)
-          static uint32_t at_bulk_since_ms = 0;       // When V first reached bulk (for 5s dwell)
-          static uint32_t above_knee_since_ms = 0;    // Timestamp when V first crossed knee
-          static uint32_t below_bulk_hyst_since_ms = 0;  // When V first went below (bulk - hyst); 0 = not below
-          static uint32_t last_run_ms = 0;            // Debug: last execution time
-
+          static bool     active   = false;   // Above the knee
+          static bool     landed   = false;   // We've reached bulk
+          static float    V_anchor = NAN;     // Pack voltage at activation (curve start)
+          static float    I_anchor = NAN;     // CCL at activation (curve start)
+          static uint32_t last_run_ms = 0;    // Debug: last execution time
+          
           //--------------------------------------------------------------------
           // Gate #1: Check if we are in the correct step
           //--------------------------------------------------------------------
@@ -142,145 +131,80 @@ interval:
           // Soft-landing math (assume configuration + inputs are sane)
           //--------------------------------------------------------------------
           
-          const int cell_count = id(${yambms_id}_cell_count).state;             // Cells per pack
-          const float cap_ah   = id(${yambms_id}_battery_capacity).state;       // Battery capacity
-          const float I_max    = id(${yambms_id}_max_charge_current).state;     // Max charge current
-          const float I_bulk   = ${auto_ccl_sl_bulk_c_rate} * cap_ah;           // Target current at bulk
-          const float V_bulk   = id(${yambms_id}_bulk_voltage).state;           // Bulk voltage
-          const float V_pack   = id(${yambms_id}_var_sl_battery_v);             // Battery voltage (adjusted and smoothed)
-          const float V_knee   = ${auto_ccl_sl_knee_v} * cell_count;            // Knee voltage
+          const int cell_count = id(${yambms_id}_cell_count).state;           // Cells per pack
+          const float cap_ah   = id(${yambms_id}_battery_capacity).state;     // Battery capacity
+          const float I_max    = id(${yambms_id}_max_charge_current).state;   // Max charge current
+          const float I_bulk   = ${auto_ccl_sl_bulk_c_rate} * cap_ah;         // Target current at bulk
+          const float V_knee   = ${auto_ccl_sl_knee_v} * cell_count;          // Knee voltage
+          const float V_bulk   = id(${yambms_id}_bulk_voltage).state;         // Bulk voltage
+          const float V_pack   = id(${yambms_id}_var_sl_battery_v);           // Battery voltage (adjusted and smoothed)
 
-          float I_target       = I_max;                                         // Default: no reduction
-          float delta          = 0.0f;                                          // This is our 'return' value
+          float I_target       = I_max;                                       // Default: no reduction
+          float delta          = 0.0f;                                        // This is our 'return' value
 
-          //--------------------------------------------------------------------
-          // Soft Landing activation state machine (voltage-based dwell + latch)
-          //  - If voltage is below knee, do nothing
-          //  - If voltage rises above knee, start a dwell timer
-          //  - If voltage remains above knee, switch to active state
-          //  - If voltage dips below knee + hysteresis, reset the timer
-          //--------------------------------------------------------------------
-          
-          const float release_v            = ${auto_ccl_sl_release_v} * cell_count;
-          const uint32_t activate_ms       = ${auto_ccl_sl_activate_s} * 1000UL;
-          const float release_hysteresis_v = ${auto_ccl_sl_release_hyst_v};
-          const uint32_t release_dwell_ms  = ${auto_ccl_sl_release_dwell_s} * 1000UL;
-          const uint32_t at_bulk_dwell_ms  = ${auto_ccl_sl_bulk_dwell_s} * 1000UL;
-          const uint32_t ramp_to_zero_ms   = ${auto_ccl_sl_ramp_to_zero_s} * 1000UL;
-          
-          // -------------------------------
-          // Not active → require dwell
-          // -------------------------------
+          const float release_knee_v = ${auto_ccl_sl_release_knee_v} * cell_count;  // hysteresis below knee to release (pre-bulk)
+          const float release_bulk_v = ${auto_ccl_sl_release_bulk_v};               // hysteresis below bulk to release (from landed)
+
+          // ----- Not active -----
           if (!active) {
-          
-            if (V_pack >= V_knee) {                                             // We're in the zone
-          
-              if (above_knee_since_ms == 0) {                                   // Our first time here
-                above_knee_since_ms = millis();                                 // Start the timer
+            if (V_pack >= V_knee) {                                           // above knee: activate
+              active = true;
+              V_anchor = V_pack;                                              // anchor the left end of the curve
+              I_anchor = id(${yambms_id}_var_sl_current_max_10m);
+              const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};        // min in case recent current is low
+              I_anchor = fmaxf(I_anchor, I_min);
+            } else {                                                          // below knee: release
+              if (V_pack <= (V_knee - release_knee_v)) {                      // below knee + hysteresis: clear anchor
+                V_anchor = NAN;
+                I_anchor = NAN;
               }
-              else if ((millis() - above_knee_since_ms) >= activate_ms) {       // Activate
-                active = true;
-                above_knee_since_ms = 0;
-
-                // Set the anchor voltage to the current voltage (where we _are_ since we will now be above the knee)
-                V_anchor = V_pack;
-                
-                // Calculate CCL at the anchor 
-                I_anchor = id(${yambms_id}_var_sl_current_max_10m);             // Max current over the last 10 minutes
-                const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};        // Set a min in case recent current is low
-                I_anchor = fmaxf(I_anchor, I_min);
-              }
-            } else {
-              above_knee_since_ms = 0;                                          // We're below the zone; reset timer
-              V_anchor = NAN;
-              I_anchor = NAN;
             }
           }
-          
-          // -------------------------------
-          // Active → release on hysteresis (debounced so ramp-to-zero droop doesn't retrigger)
-          // -------------------------------
+          // ----- Active -----
           else {
-            if (landed) {
-              if (V_pack <= (V_bulk - release_hysteresis_v)) {
-                if (below_bulk_hyst_since_ms == 0)
-                  below_bulk_hyst_since_ms = millis();
-                else if ((millis() - below_bulk_hyst_since_ms) >= release_dwell_ms) {
-                  active = false;
-                  landed = false;
-                  landed_at_ms = 0;
-                  at_bulk_since_ms = 0;
-                  above_knee_since_ms = 0;
-                  below_bulk_hyst_since_ms = 0;
-                }
-              } else {
-                below_bulk_hyst_since_ms = 0;                                   // Back above threshold; cancel release
-              }
-            } else {
-              if (V_pack <= (V_knee - release_v)) {                              // Below knee: release (pre-bulk)
+            if (landed) {                                                     // landed at bulk
+              if (V_pack <= (V_bulk - release_bulk_v))                        // below bulk + hysteresis: release
+                landed = false;
+            } else {                                                          // below bulk
+              if (V_pack <= (V_knee - release_knee_v)) {                      // below knee + hysteresis: release
                 active = false;
-                at_bulk_since_ms = 0;
-                above_knee_since_ms = 0;
-                below_bulk_hyst_since_ms = 0;
+                V_anchor = NAN;
+                I_anchor = NAN;
               }
             }
           }
-          
+
           //--------------------------------------------------------------------
           // Calculate desired Charge Current
           //--------------------------------------------------------------------
-
           if (active) {
-            if (V_pack >= V_bulk) {
-              // At or above bulk: hold at I_bulk (bulk_c_rate) for 5s dwell, then ramp to 0
-              if (!landed) {
-                if (at_bulk_since_ms == 0)
-                  at_bulk_since_ms = millis();
-                else if ((millis() - at_bulk_since_ms) >= at_bulk_dwell_ms) {
-                  landed = true;
-                  landed_at_ms = millis();
-                }
-                I_target = I_bulk;
-              } else {
-                // Straight taper from I_bulk to 0 over ramp_to_zero_s
-                const uint32_t elapsed = millis() - landed_at_ms;
-                const float fraction = (ramp_to_zero_ms > 0)
-                  ? fminf(1.0f, (float)elapsed / (float)ramp_to_zero_ms)
-                  : 1.0f;
-                I_target = I_bulk * (1.0f - fraction);
-              }
+            if (V_pack >= V_bulk) {                                           // We've landed
+              landed = true;
+              I_target = I_bulk;                                              // Used to calculate the delta
             } else {
-              // Below bulk: curve only when not yet landed (so small dip doesn't bump CCL back up)
-              if (!landed) {
-                at_bulk_since_ms = 0;
-                float p = (V_pack - V_anchor) / (V_bulk - V_anchor);              // normalize to 0-1
-                p = fmaxf(0.0f, fminf(p, 1.0f));                                  // clamp between [0:1]
-                const float curve = powf(1.0f - p, ${auto_ccl_sl_curve_exp});     // our position along the curve
-                I_target = I_bulk + (I_anchor - I_bulk) * curve;                  // curve ends at I_bulk at bulk
+              if (landed) {
+                I_target = I_bulk;                                            // Hold until release
               } else {
-                // Landed but V dipped below bulk: keep ramping to zero until release (hysteresis)
-                const uint32_t elapsed = millis() - landed_at_ms;
-                const float fraction = (ramp_to_zero_ms > 0)
-                  ? fminf(1.0f, (float)elapsed / (float)ramp_to_zero_ms)
-                  : 1.0f;
-                I_target = I_bulk * (1.0f - fraction);
+                float p = (V_pack - V_anchor) / (V_bulk - V_anchor);          // normalize 0-1
+                p = fmaxf(0.0f, fminf(p, 1.0f));
+                const float curve = powf(1.0f - p, ${auto_ccl_sl_curve_exp});
+                I_target = I_bulk + (I_anchor - I_bulk) * curve;              // curve ends at I_bulk at bulk
               }
             }
-            I_target = fminf(I_target, I_max);                                  // unlikely but possible
-            delta = I_target - I_max;                                           // this is our 'return' value
+            delta = I_target - I_max;                                         // this is our 'return' value
           }
 
           // 'Return' Value
           id(${yambms_id}_var_auto_ccl_soft_landing) = delta;
 
           // Publish values
-          id(${yambms_id}_auto_ccl_sl_delta).publish_state(delta);              // sensor
-          id(${yambms_id}_auto_ccl_sl_target).publish_state(I_target);          // sensor
+          id(${yambms_id}_auto_ccl_sl_delta).publish_state(delta);            // sensor
+          id(${yambms_id}_auto_ccl_sl_target).publish_state(I_target);        // sensor
           
           // Debug - how long did this loop take?
-          float age = (millis() - last_run_ms) / 1000.0f;                       // convert to seconds
-          last_run_ms = millis();                                               // restart the timer
-          id(${yambms_id}_auto_ccl_sl_age).publish_state(age);                  // sensor
+          float age = (millis() - last_run_ms) / 1000.0f;                     // convert to seconds
+          last_run_ms = millis();                                             // restart the timer
+          id(${yambms_id}_auto_ccl_sl_age).publish_state(age);                // sensor
 
           // Pass the baton
           id(${yambms_id}_var_charge_current_step)++;
@@ -337,7 +261,7 @@ interval:
           
           if (isnan(V) || V < 9.0f) return;                                     // don't poison V_ema with 'unknown' or weird glitches
 
-          const float V_corrected_raw = V;                                       // true raw before spike clamp (for calibration sensor)
+          const float V_corrected_raw = V;                                      // true raw before spike clamp (for calibration sensor)
 
           // Seed EMA on first valid run (after voltage correction)
           if (!ema_initialized) {
@@ -368,9 +292,6 @@ interval:
 
           V_ema = V_ema + alpha * (V - V_ema);                                  // EMA
 
-          //ESP_LOGI("auto_ccl_sl", "publishing: V=%.3f V_ema=%.3f init=%d",
-          //         V, V_ema, (int)id(${yambms_id}_var_initialized));
-         
           id(${yambms_id}_var_sl_battery_v) = V_ema;                            // Global (the main interval reads this)
           id(${yambms_id}_auto_ccl_sl_battery_v).publish_state(V_ema);          // Sensor - ema   (for HA)
           id(${yambms_id}_auto_ccl_sl_v_corrected_raw).publish_state(V_corrected_raw);  // True pre-EMA raw (for HA/calibration)
