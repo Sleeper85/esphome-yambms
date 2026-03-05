@@ -33,9 +33,9 @@ substitutions:
   auto_ccl_sl_knee_c_rate:     '0.1'    # minimum CCL at the knee (expressed as a c-rate)
   # Curve (shape between knee and bulk)
   auto_ccl_sl_curve_exp:       '1.0'    # curve shape: 1=linear, >1=quicker drop, longer tail
-  auto_ccl_sl_bulk_c_rate:     '0.003'  # c-rate at bulk (0 or a trickle charge)
+  auto_ccl_sl_bulk_c_rate:     '0.0'    # c-rate at bulk (0 or a trickle charge)
   # Bulk / landing (at and after bulk)
-  auto_ccl_sl_release_bulk_v:  '0.05'   # V drop below bulk (pack) before allowing CCL to rise again (after landed)
+  auto_ccl_sl_release_bulk_v:  '0.02'   # V drop below bulk (pack) before allowing CCL to rise again
   # Shunt / voltage smoothing (EMA and spike clamp)
   auto_ccl_sl_shunt_spike:     '0.05'   # shunt voltage spike magnitude that will be damped
   auto_ccl_sl_near_v_delta:    '0.3'    # 'near bulk' delta voltage (pack) (used in ema)
@@ -146,24 +146,17 @@ interval:
           const float release_bulk_v = ${auto_ccl_sl_release_bulk_v};               // hysteresis below bulk to release (from landed)
 
           // ----- Not active -----
-          if (!active) {
-            if (V_pack >= V_knee) {                                           // above knee: activate
-              active = true;
-              V_anchor = V_pack;                                              // anchor the left end of the curve
-              I_anchor = id(${yambms_id}_var_sl_current_max_10m);
-              const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};        // min in case recent current is low
-              I_anchor = fmaxf(I_anchor, I_min);
-            } else {                                                          // below knee: release
-              if (V_pack <= (V_knee - release_knee_v)) {                      // below knee + hysteresis: clear anchor
-                V_anchor = NAN;
-                I_anchor = NAN;
-              }
-            }
+          if (!active && V_pack >= V_knee) {                                  // above knee: activate
+            active = true;
+            V_anchor = V_pack;
+            I_anchor = id(${yambms_id}_var_sl_current_max_10m);
+            const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};          // min in case recent current is low
+            I_anchor = fmaxf(I_anchor, I_min);
           }
           // ----- Active -----
           else {
             if (landed) {                                                     // landed at bulk
-              if (V_pack <= (V_bulk - release_bulk_v))                        // below bulk + hysteresis: release
+              if (V_pack < (V_bulk - release_bulk_v))                         // below bulk + hysteresis: release
                 landed = false;
             } else {                                                          // below bulk
               if (V_pack <= (V_knee - release_knee_v)) {                      // below knee + hysteresis: release
