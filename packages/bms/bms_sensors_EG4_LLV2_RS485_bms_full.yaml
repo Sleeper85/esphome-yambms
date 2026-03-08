@@ -361,9 +361,36 @@ text_sensor:
     model:
       device_id: bms_${bms_id}
       name: "model"
+      filters:
+      - lambda: |-
+          std::string filtered_str = "";
+          for (char c : x) {
+            if (c >= 32 && c <= 126) {
+              filtered_str += c;
+            }
+          }
+          return filtered_str;
     firmware_version:
       device_id: bms_${bms_id}
       name: "version"
+      filters:
+      - lambda: |-
+          std::string filtered_str = "";
+          for (char c : x) {
+            if (c >= 32 && c <= 126) {
+              filtered_str += c;
+            }
+          }
+          return filtered_str;
     serial_number:
       device_id: bms_${bms_id}
       name: "firmware date"
+      filters:
+      - lambda: |-
+          std::string filtered_str = "";
+          for (char c : x) {
+            if (c >= 32 && c <= 126) {
+              filtered_str += c;
+            }
+          }
+          return filtered_str;
