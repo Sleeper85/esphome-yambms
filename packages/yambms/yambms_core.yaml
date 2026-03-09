@@ -666,7 +666,7 @@ text_sensor:
             // that these are not random/erroneous/false readings of the BMS
             if (cutoff_counter > 4)
             {
-              ESP_LOGI("yambms", "Entering the Cut-Off phase...");
+              ESP_LOGD("yambms", "Entering the Cut-Off phase...");
 
               // Cut-Off : the end of charging is near
               id(${yambms_id}_charge_status) = "Cut-Off";
@@ -723,7 +723,7 @@ text_sensor:
       // Charging not allowed (BMS or YamBMS)
       else if (id(${yambms_id}_bms_charging_logic) == false) id(${yambms_id}_charge_status) = "Wait";
 
-      ESP_LOGI("yambms", "Charge Status : %s", id(${yambms_id}_charge_status).c_str());
+      ESP_LOGD("yambms", "Charge Status : %s", id(${yambms_id}_charge_status).c_str());
       return id(${yambms_id}_charge_status);
 
   # +--------------------------------------+
