@@ -158,7 +158,7 @@ canbus:
               uint32_t inverter_ack_interval_ms = (inverter_ack_ms_current - id(${canbus_id}_inverter_ack_ms_previous));
               id(${canbus_id}_inverter_ack_ms_previous) = inverter_ack_ms_current;
               id(${canbus_id}_inverter_heartbeat).publish_state(inverter_ack_interval_ms);
-              ESP_LOGI("canbus", "received can_id: 0x305 ack_interval %d ms", inverter_ack_interval_ms);
+              ESP_LOGD("canbus", "received can_id: 0x305 ack_interval %d ms", inverter_ack_interval_ms);
             }
 
 interval:
@@ -263,27 +263,27 @@ interval:
                         // Manual BMS name selection
                         if ((id(${canbus_id}_bms_name).active_index() == 1) | (id(${canbus_id}_auto_bms_name) == 1))
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : PYLON");
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : PYLON");
                           return {0x50, 0x59, 0x4C, 0x4F, 0x4E, 0x20, 0x20, 0x20}; // PYLON (recognized by Deye, add SOH info)
                         }
                         else if ((id(${canbus_id}_bms_name).active_index() == 2) | (id(${canbus_id}_auto_bms_name) == 2))
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : GOODWE");
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : GOODWE");
                           return {0x47, 0x4F, 0x4F, 0x44, 0x57, 0x45, 0x20, 0x20}; // GOODWE
                         }
                         else if ((id(${canbus_id}_bms_name).active_index() == 3) | (id(${canbus_id}_auto_bms_name) == 3))
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : SHEnergy");
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : SHEnergy");
                           return {0x53, 0x48, 0x45, 0x6E, 0x65, 0x72, 0x67, 0x79}; // SHEnergy (SEPLOS, recognized by Deye)
                         }
                         else if ((id(${canbus_id}_bms_name).active_index() == 4) | (id(${canbus_id}_auto_bms_name) == 4))
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : SMA");
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : SMA");
                           return {0x53, 0x4D, 0x41, 0x20, 0x20, 0x20, 0x20, 0x20}; // SMA
                         }
                         else if ((id(${canbus_id}_bms_name).active_index() == 5) | (id(${canbus_id}_auto_bms_name) == 5))
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : BYD");
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : BYD");
                           return {0x42, 0x59, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00}; // BYD (recognized by Deye)
                         }
                         //
@@ -291,7 +291,7 @@ interval:
                         //
                         else if ((id(${canbus_id}_bms_name).active_index() == 7) | (id(${canbus_id}_auto_bms_name) == 7))
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : Deye PCS infos");
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : Deye PCS infos");
                           // Byte [00:01]    : BMS name (ASCII) [DY]
                           // Byte [02:03:04] : Battery pack number (ASCII) [001]
                           // Byte [05]       : Battery manufacturer [1:GOTION 96Ah, 2:CATL 100Ah, 3:EVE 100Ah, 4:PH 100Ah, 5:EVE 120Ah, 6:PH 100Ah(214R), 7:ZENERGY 104Ah]
@@ -301,7 +301,7 @@ interval:
                         }
                         else
                         {
-                          ESP_LOGI("canbus", "send can_id: 0x35E ASCII : YamBMS"); // Auto BMS name 0
+                          ESP_LOGD("canbus", "send can_id: 0x35E ASCII : YamBMS"); // Auto BMS name 0
                           return {0x59, 0x61, 0x6D, 0x42, 0x4D, 0x53, 0x00, 0x00}; // YamBMS
                         }
 
@@ -329,7 +329,7 @@ interval:
                         can_mesg[6] = uint16_t(id(${yambms_id}_requested_discharge_voltage).state * 10) & 0xff;
                         can_mesg[7] = uint16_t(id(${yambms_id}_requested_discharge_voltage).state * 10) >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x351 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x351 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x355 - Actual State of Charge (SOC), State of Health (SOH), Remaining total capacity
@@ -369,7 +369,7 @@ interval:
                           can_mesg[7] = min_cell_voltage_i >> 8 & 0xff;
                         }
 
-                        ESP_LOGI("canbus", "send can_id: 0x355 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x355 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x356 - Actual Voltage / Current / Temperature / Cycles (Deye 0x305 ACK)
@@ -409,7 +409,7 @@ interval:
                           can_mesg[7] = int16_t(id(${yambms_id}_min_temperature).state * 10) >> 8 & 0xff;
                         }
 
-                        ESP_LOGI("canbus", "send can_id: 0x356 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x356 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x359 - Protection Alarms, Warning and Flags ( PYLON / PYLON V2 )
@@ -479,7 +479,7 @@ interval:
                           can_mesg[6] = uint16_t(id(${yambms_id}_battery_capacity).state) >> 8 & 0xff;
                         }
 
-                        ESP_LOGI("canbus", "send can_id: 0x359 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x359 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x35C - Request flag to Enable/Disable: Charge, Discharge ( PYLON / PYLON V2 )
@@ -516,7 +516,7 @@ interval:
                           can_mesg[3] = uint16_t(id(${yambms_id}_charging_cycles).state) >> 8 & 0xff;
                         }
 
-                        ESP_LOGI("canbus", "send can_id: 0x35C hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x35C hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x35A - Protection Alarms and Warning ( SMA / Victron / PYLON V2 )
@@ -578,7 +578,7 @@ interval:
                           if (errors_bitmask_warning & 0x1000) can_mesg[7] |= 0x0001;    // Cell imbalance warning
                         }
 
-                        ESP_LOGI("canbus", "send can_id: 0x35A hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x35A hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x35F - Battery information ( SMA, Victron )
@@ -601,7 +601,7 @@ interval:
                         can_mesg[4] = uint16_t(id(${yambms_id}_battery_capacity_remaining).state) & 0xff;
                         can_mesg[5] = uint16_t(id(${yambms_id}_battery_capacity_remaining).state) >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x35F hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x35F hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x70  - Actual Max Cell Temp, Min Cell Temp, Max Cell V, Min Cell V ( SEPLOS V1.0 )
@@ -632,7 +632,7 @@ interval:
                         can_mesg[6] = min_cell_voltage_i & 0xff;
                         can_mesg[7] = min_cell_voltage_i >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x70 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x70 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x371 - Actual Max Cell Temp ID, Min Cell Temp ID, Max Cell V ID, Min Cell ID ( SEPLOS V1.0 )
@@ -659,7 +659,7 @@ interval:
                         can_mesg[6] = uint16_t(id(${yambms_id}_min_voltage_cell).state) & 0xff;
                         can_mesg[7] = uint16_t(id(${yambms_id}_min_voltage_cell).state) >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x371 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x371 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x372 - Battery modules information ( Victron / PYLON V2 )
@@ -681,7 +681,7 @@ interval:
                         can_mesg[4] = id(${yambms_id}_bms_blocking_discharge).state;
                         can_mesg[6] = (id(${yambms_id}_bms_count).state - id(${yambms_id}_bms_combined).state);
 
-                        ESP_LOGI("canbus", "send can_id: 0x372 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x372 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x373 - Actual Min Cell V, Max Cell V, Min Cell Temp (Kelvin), Max Cell Temp (Kelvin) ( Victron / PYLON V2 )
@@ -712,7 +712,7 @@ interval:
                         can_mesg[6] = max_temp_kelvin & 0xff;
                         can_mesg[7] = max_temp_kelvin >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x373 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x373 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x374 - Min cell voltage ID [ASCII] ( Victron / PYLON V2 )
@@ -729,8 +729,8 @@ interval:
                         // save int cell_id to 8 bytes char array
                         snprintf(can_mesg, 8, "%d", cell_id);
 
-                        ESP_LOGI("canbus", "send can_id: 0x374 [ASCII] Min cell voltage ID : %d", cell_id);
-                        ESP_LOGI("canbus", "send can_id: 0x374 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x374 [ASCII] Min cell voltage ID : %d", cell_id);
+                        ESP_LOGD("canbus", "send can_id: 0x374 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x375 - Max cell voltage ID [ASCII] ( Victron / PYLON V2 )
@@ -747,8 +747,8 @@ interval:
                         // save int cell_id to 8 bytes char array
                         snprintf(can_mesg, 8, "%d", cell_id);
 
-                        ESP_LOGI("canbus", "send can_id: 0x375 [ASCII] Max cell voltage ID : %d", cell_id);
-                        ESP_LOGI("canbus", "send can_id: 0x375 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x375 [ASCII] Max cell voltage ID : %d", cell_id);
+                        ESP_LOGD("canbus", "send can_id: 0x375 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x376 - Min cell temperature ID [ASCII] ( Victron / PYLON V2 )
@@ -765,8 +765,8 @@ interval:
                         // save int sensor_id to 8 bytes char array
                         snprintf(can_mesg, 8, "%d", sensor_id);
 
-                        ESP_LOGI("canbus", "send can_id: 0x376 [ASCII] Min temperature sensor ID : %d", sensor_id);
-                        ESP_LOGI("canbus", "send can_id: 0x376 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x376 [ASCII] Min temperature sensor ID : %d", sensor_id);
+                        ESP_LOGD("canbus", "send can_id: 0x376 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x377 - Max cell temperature ID [ASCII] ( Victron / PYLON V2 )
@@ -783,8 +783,8 @@ interval:
                         // save int sensor_id to 8 bytes char array
                         snprintf(can_mesg, 8, "%d", sensor_id);
 
-                        ESP_LOGI("canbus", "send can_id: 0x377 [ASCII] Max temperature sensor ID : %d", sensor_id);
-                        ESP_LOGI("canbus", "send can_id: 0x377 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x377 [ASCII] Max temperature sensor ID : %d", sensor_id);
+                        ESP_LOGD("canbus", "send can_id: 0x377 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x379 - Battery Installed Capacity Ah for Victron, Sol-Ark, LuxPower ( Victron / PYLON V2 )
@@ -799,7 +799,7 @@ interval:
                         can_mesg[0] = uint16_t(id(${yambms_id}_installed_battery_capacity).state) & 0xff;
                         can_mesg[1] = uint16_t(id(${yambms_id}_installed_battery_capacity).state) >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x379 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x379 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x382 - Product identification [ASCII] ( Victron )
@@ -810,7 +810,7 @@ interval:
                       canbus_id: ${canbus_node_id}
                       can_id: 0x382
                       data: !lambda |-
-                        ESP_LOGI("canbus", "send can_id: 0x382 [ASCII] Product : YamBMS");
+                        ESP_LOGD("canbus", "send can_id: 0x382 [ASCII] Product : YamBMS");
                         return {0x59, 0x61, 0x6D, 0x42, 0x4D, 0x53, 0x00, 0x00}; // YamBMS
 
             - if: # 0x360 - Force charge instruction ( Victron )
@@ -826,7 +826,7 @@ interval:
                         // Byte 0 : Force charge instruction
                         if (id(${yambms_id}_requested_force_charge).state) can_mesg[0] = 0xFF;
 
-                        ESP_LOGI("canbus", "send can_id: 0x360 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x360 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x359 - Protection and System errors ( Deye PCS )
@@ -837,7 +837,7 @@ interval:
                       canbus_id: ${canbus_node_id}
                       can_id: 0x359
                       data: !lambda |-
-                        ESP_LOGI("canbus", "send can_id: 0x359 : Protection and System errors (not yet implemented)");
+                        ESP_LOGD("canbus", "send can_id: 0x359 : Protection and System errors (not yet implemented)");
                         return {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             - if: # 0x361 - Actual Max Cell Temp, Min Cell Temp, Max Cell V, Min Cell V ( Deye PCS )
@@ -867,7 +867,7 @@ interval:
                         can_mesg[6] = int16_t(id(${yambms_id}_min_temperature).state * 10) & 0xff;
                         can_mesg[7] = int16_t(id(${yambms_id}_min_temperature).state * 10) >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x361 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x361 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x363 - Software and Hardware version ( Deye PCS )
@@ -880,7 +880,7 @@ interval:
                       data: !lambda |-
                         // Byte [00:01] : Software version
                         // Byte [02:03] : Hardware version
-                        ESP_LOGI("canbus", "send can_id: 0x363 : Software and Hardware version");
+                        ESP_LOGD("canbus", "send can_id: 0x363 : Software and Hardware version");
                         // Deye BAT SE-G5.1 Pro-B (EVE 100Ah) reply :
                         return {0x20, 0x08, 0x21, 0x02, 0x00, 0x00, 0x00, 0x00}; // Deye PCS
 
@@ -905,7 +905,7 @@ interval:
                         can_mesg[3] = (id(${yambms_id}_bms_count).state - id(${yambms_id}_bms_combined).state);
                         can_mesg[4] = id(${yambms_id}_bms_count).state;
 
-                        ESP_LOGI("canbus", "send can_id: 0x364 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x364 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
 
             - if: # 0x371 - BMS instruction : [ON-GRID] Charge Amps, Discharge Amps ( Deye PCS )
@@ -926,5 +926,5 @@ interval:
                         can_mesg[2] = uint16_t(id(${yambms_id}_requested_discharge_current).state * 10) & 0xff;
                         can_mesg[3] = uint16_t(id(${yambms_id}_requested_discharge_current).state * 10) >> 8 & 0xff;
 
-                        ESP_LOGI("canbus", "send can_id: 0x371 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
+                        ESP_LOGD("canbus", "send can_id: 0x371 hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
