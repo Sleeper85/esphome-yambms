@@ -30,12 +30,12 @@ substitutions:
   # Knee / activation (when we consider "near full" and start the taper)
   auto_ccl_sl_knee_v:          '3.4'    # knee/activation voltage (cell); >= 98%
   auto_ccl_sl_release_knee_v:  '0.0125' # hysteresis below knee to allow release (cell; e.g. 0.2V/16)
-  auto_ccl_sl_knee_c_rate:     '0.1'    # minimum CCL at the knee (expressed as a c-rate)
+  auto_ccl_sl_knee_c_rate:     '0.12'   # minimum CCL at the knee (expressed as a c-rate)
   # Curve (shape between knee and bulk)
-  auto_ccl_sl_curve_exp:       '1.0'    # curve shape: 1=linear, >1=quicker drop, longer tail
-  auto_ccl_sl_bulk_c_rate:     '0.0'    # c-rate at bulk (0 or a trickle charge)
+  auto_ccl_sl_curve_exp:       '1.0'    # curve shape: 1=linear, >1=quicker drop, <1=slower drop
+  auto_ccl_sl_bulk_c_rate:     '0.003'  # c-rate at bulk (0 or a trickle charge)
   # Bulk / landing (at and after bulk)
-  auto_ccl_sl_release_bulk_v:  '0.02'   # V drop below bulk (pack) before allowing CCL to rise again
+  auto_ccl_sl_release_bulk_v:  '0.03'   # V drop below bulk (pack) before allowing CCL to rise again
   # Shunt / voltage smoothing (EMA and spike clamp)
   auto_ccl_sl_shunt_spike:     '0.05'   # shunt voltage spike magnitude that will be damped
   auto_ccl_sl_near_v_delta:    '0.3'    # 'near bulk' delta voltage (pack) (used in ema)
@@ -105,7 +105,6 @@ interval:
           //--------------------------------------------------------------------
           static bool     active   = false;   // Above the knee
           static bool     landed   = false;   // We've reached bulk
-          static float    V_anchor = NAN;     // Pack voltage at activation (curve start)
           static float    I_anchor = NAN;     // CCL at activation (curve start)
           static uint32_t last_run_ms = 0;    // Debug: last execution time
           
@@ -148,7 +147,6 @@ interval:
           // ----- Not active -----
           if (!active && V_pack >= V_knee) {                                  // above knee: activate
             active = true;
-            V_anchor = V_pack;
             I_anchor = id(${yambms_id}_var_sl_current_max_10m);
             const float I_min = cap_ah * ${auto_ccl_sl_knee_c_rate};          // min in case recent current is low
             I_anchor = fmaxf(I_anchor, I_min);
@@ -156,12 +154,11 @@ interval:
           // ----- Active -----
           else {
             if (landed) {                                                     // landed at bulk
-              if (V_pack < (V_bulk - release_bulk_v))                         // below bulk + hysteresis: release
+              if (V_pack <= (V_bulk - release_bulk_v))                        // below bulk + hysteresis: release
                 landed = false;
             } else {                                                          // below bulk
               if (V_pack <= (V_knee - release_knee_v)) {                      // below knee + hysteresis: release
                 active = false;
-                V_anchor = NAN;
                 I_anchor = NAN;
               }
             }
@@ -178,7 +175,7 @@ interval:
               if (landed) {
                 I_target = I_bulk;                                            // Hold until release
               } else {
-                float p = (V_pack - V_anchor) / (V_bulk - V_anchor);          // normalize 0-1
+                float p = (V_pack - V_knee) / (V_bulk - V_knee);              // normalize 0-1 (curve knee→bulk)
                 p = fmaxf(0.0f, fminf(p, 1.0f));
                 const float curve = powf(1.0f - p, ${auto_ccl_sl_curve_exp});
                 I_target = I_bulk + (I_anchor - I_bulk) * curve;              // curve ends at I_bulk at bulk
