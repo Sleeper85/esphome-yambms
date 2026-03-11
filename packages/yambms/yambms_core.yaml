@@ -1,4 +1,4 @@
-# Updated : 2026.03.10
+# Updated : 2026.03.11
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -287,6 +287,10 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: ${yambms_id}_var_auto_float
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ${yambms_id}_var_auto_soc_limit
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -915,7 +919,8 @@ interval:
                   id(${yambms_id}_var_auto_ccl), 
                   id(${yambms_id}_var_auto_eoc), 
                   id(${yambms_id}_var_auto_temperature_ccl),
-                  id(${yambms_id}_var_auto_ccl_soft_landing)
+                  id(${yambms_id}_var_auto_ccl_soft_landing),
+                  id(${yambms_id}_var_auto_soc_limit),
                 });
 
                 requested_charge_current = round(id(${yambms_id}_max_charge_current).state + auto_limit);
@@ -1961,14 +1966,16 @@ text_sensor:
       float limit_2 = id(${yambms_id}_var_auto_eoc);
       float limit_3 = id(${yambms_id}_var_auto_ccl);
       float limit_4 = id(${yambms_id}_var_auto_ccl_soft_landing);
+      float limit_5 = id(${yambms_id}_var_auto_soc_limit);
 
-      float min_val = std::min({limit_1, limit_2, limit_3, limit_4});
+      float min_val = std::min({limit_1, limit_2, limit_3, limit_4, limit_5});
 
       if (min_val == 0.0f) return {"No Derating"};
       if (min_val == limit_1) return {"Temperature Derating"};
       if (min_val == limit_2) return {"EOC Derating"};
       if (min_val == limit_3) return {"AutoCCL Derating"};
       if (min_val == limit_4) return {"Soft Landing Derating"};
+      if (min_val == limit_5) return {"SoC Limit Derating"};
       return {"Unknown"};
 
   # +----------------------------------------+

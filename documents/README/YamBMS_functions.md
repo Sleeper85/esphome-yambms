@@ -195,6 +195,45 @@ At about 18:08 the battery is 100% after a short balancing period.
 ![Image](../../images/YamBMS_Auto_EOC_Graph.png "YamBMS Auto EOC Graph")
 
 
+## Auto SoC Limit
+
+![Image](../../images/YamBMS_Auto_SoC_Limit.png "YamBMS Auto SoC Limit")
+
+When to use: You want to charge your battery up to a specific SoC value.
+
+This function allows to set a target SoC when charging. Upon reaching this limit, it can either switch to `Float`, limit the `Requested Charge Current (CCL)` or both.
+
+There are some configuration options to adjust the behaviour:
+
+- `Automatic SoC Limit`: This switch enables or disables the function.
+- `Auto SoC Limit`: The SoC limit value.
+- `Auto SoC Limit Mode`: The mode to use when the limit is reached.
+- `Auto SoC Hysteresis`: Configurable hysteresis value when to stop limiting `Requested Charge Current (CCL)`.
+- `Auto SoC Limit CCL`: The value that will be used for `Requested Charge Current (CCL)` when the limit is reached and `Auto SoC Limit` is set to `CCL` or `Float + CCL`.
+
+The text sensor `Auto SoC Limit Status` will show the current status of the function:
+- `Stop: Disabled`: Function is disabled.
+- `Stop: SoC limit reached`: The configured SoC limit was reached.
+- `Run`: Function enabled, SoC limit not reached.
+
+Modes:
+- `Float`: Will set the charging mode from `Bulk` to `Float`. If already at `Float`, nothing will happen.
+- `CCL`: Limits the `Requested Charge Current (CCL)` to the value set by `Auto SoC Limit CCL`. The limit will be removed once the `SoC` is below `Auto SoC Limit` - `Auto SoC Hysteresis`.
+- `Float + CCL`: Will use both previously described methods. However while the `Requested Charge Current (CCL)` will be removed, the charging mode will not be reset to `Bulk`. For this, `Rebulk SoC` is available.
+
+Note: Some inverters may not like `0A` for `Requested Charge Current (CCL)`. `Auto SoC Limit CCL` allows to set a small value to effectively limit the charging process.
+
+Example: 
+- `Auto SoC Limit` is set to `80%`
+- `Auto SoC Limit Mode` is set to `CCL`
+- `Auto SoC Hysteresis` is set to `5%`
+
+The current `SoC` is `70%`. When it reaches `80%` during charging, `Requested Charge Current (CCL)` is set to `Auto SoC Limit CCL`.
+Afterwards the battery is then discharged, however `Requested Charge Current (CCL)` will stay at `Auto SoC Limit CCL` until `SoC` reaches 
+`Auto SoC Limit` - `Auto SoC Hysteresis` = `80%` - `5%` = `75%`. Without this, the `SoC` would oscillate between
+`79%` and `80%`, stressing components unnecessary.
+
+
 ## Inverter Heartbeat Monitoring
 
 ![Image](../../images/YamBMS_Inverter_Heartbeat.png "YamBMS_Inverter_Heartbeat")

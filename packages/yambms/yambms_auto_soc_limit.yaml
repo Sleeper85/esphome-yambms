@@ -1,0 +1,233 @@
+# Updated : 2026.03.11
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+esphome:
+  on_boot:
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(${yambms_id}_var_auto_ccl_functions_count)++;
+
+globals:
+  # Last SoC value
+  - id: ${yambms_id}_var_auto_soc_last_value
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: ${yambms_id}_var_auto_soc_target_reached
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+switch:
+  - platform: template
+    name: ${name} ${yambms_name} Automatic SoC Limit
+    id: ${yambms_id}_switch_auto_soc_limit
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  - platform: template
+    name: "${name} ${yambms_name} Auto SoC Limit"
+    id: "${yambms_id}_auto_soc_limit"
+    step: 5
+    min_value: 40
+    max_value: 95
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 80
+    unit_of_measurement: '%'
+    icon: mdi:battery-charging-80
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            // Reset last SoC value and target reached flag
+            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
+  - platform: template
+    name: "${name} ${yambms_name} Auto SoC Limit Hysteresis"
+    id: "${yambms_id}_auto_soc_hysteresis"
+    step: 5
+    min_value: 5
+    max_value: 40
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 5
+    unit_of_measurement: '%'
+    icon: mdi:battery-minus
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            // Reset last SoC value and target reached flag
+            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
+  - platform: template
+    name: "${name} ${yambms_name} Auto SoC Limit CCL"
+    id: "${yambms_id}_auto_soc_ccl"
+    step: 1
+    min_value: 0
+    max_value: 10
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 1
+    unit_of_measurement: 'A'
+    icon: mdi:current-dc
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: |-
+            // Reset last SoC value and target reached flag
+            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
+
+select:
+  - platform: template
+    name: "${name} ${yambms_name} Auto SoC Limit Mode"
+    id: ${yambms_id}_auto_soc_limit_mode
+    options:
+      - "Float"
+      - "CCL"
+      - "Float + CCL"
+    restore_value: true
+    initial_option: "Float"
+    optimistic: true
+    entity_category: config
+    set_action:
+      then:
+        - lambda: |-
+            // Reset last SoC value and target reached flag
+            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
+
+text_sensor:
+  # +--------------------------------------+
+  # | Auto SoC Status                     |
+  # +--------------------------------------+
+  - platform: template
+    name: "${name} ${yambms_name} Auto SoC Limit Status"
+    id: ${yambms_id}_auto_soc_limit_status
+    update_interval: never
+    icon: mdi:information-outline
+    entity_category: diagnostic
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      # +------------------------------------------+
+      # | Auto SoC Charge Current Limit            |
+      # +------------------------------------------+
+      - lambda: |-
+          // Check if we are in the correct step
+          int cc_step = id(${yambms_id}_var_charge_current_step);
+          if ((cc_step < 1) || (cc_step >= (id(${yambms_id}_var_auto_ccl_functions_count) + 1))) {
+            return;
+          }
+          
+          ESP_LOGD("yambms_debug", "Entering Auto SoC Limit...");
+
+          // Check if enabled
+          if (!id(${yambms_id}_switch_auto_soc_limit).state || 
+              !id(${yambms_id}_battery_soc).has_state() ||
+              !id(${yambms_id}_max_charge_current).has_state()) {
+            // Auto SoC Charging disabled
+            id(${yambms_id}_var_auto_soc_limit) = 0;
+            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Disabled");
+            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Update in 60s intervals only
+          static uint32_t last_execution_ms = 0;
+          uint32_t current_ms = millis();
+
+          if ((current_ms - last_execution_ms) < 60000) {
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          last_execution_ms = current_ms;
+
+          // Check if SoC has changed since last execution, if not, skip calculations
+          int soc = id(${yambms_id}_battery_soc).state;
+
+          if (soc == id(${yambms_id}_var_auto_soc_last_value)) {
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          id(${yambms_id}_var_auto_soc_last_value) = soc;
+
+          // Check if target SoC was already reached
+          int target_soc = id(${yambms_id}_auto_soc_limit).state;
+
+          if (id(${yambms_id}_var_auto_soc_target_reached)) {
+            // If target was reached but SoC has dropped below target - hysteresis, allow increasing charge current again
+            float soc_hysteresis = target_soc - id(${yambms_id}_auto_soc_hysteresis).state;
+            if (soc <= soc_hysteresis) {
+              ESP_LOGD("yambms_debug", "Auto SoC Limit: Activating again, SoC dropped below target - hysteresis");
+              id(${yambms_id}_var_auto_soc_target_reached) = false;
+              id(${yambms_id}_var_auto_soc_limit) = 0;
+              id(${yambms_id}_auto_soc_limit_status).publish_state("Run");
+            }
+
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Check if target SoC is reached or exceeded
+          if (soc >= target_soc) {
+            id(${yambms_id}_var_auto_soc_target_reached) = true;
+            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: SoC limit reached");
+            ESP_LOGD("yambms_debug", "Auto SoC Limit: Target SoC reached");
+
+            // Get mode
+            const auto mode = id(${yambms_id}_auto_soc_limit_mode).active_index();
+
+            if (mode == 0) {
+              // Float mode
+              ESP_LOGD("yambms_debug", "Auto SoC Limit: Applying Float mode");
+              id(${yambms_id}_var_charge_status) = "Float";
+              id(${yambms_id}_var_auto_soc_limit) = 0;
+            } else if (mode == 1) {
+              // CCL mode
+              ESP_LOGD("yambms_debug", "Auto SoC Limit: Applying CCL mode");
+              id(${yambms_id}_var_auto_soc_limit) = -(id(${yambms_id}_max_charge_current).state - id(${yambms_id}_auto_soc_ccl).state);
+            } else if (mode == 2) {
+              // Float + CCL mode
+              ESP_LOGD("yambms_debug", "Auto SoC Limit: Applying Float + CCL mode");
+              id(${yambms_id}_var_charge_status) = "Float";
+              id(${yambms_id}_var_auto_soc_limit) = -(id(${yambms_id}_max_charge_current).state - id(${yambms_id}_auto_soc_ccl).state);
+            } else {
+              // Default case (should not happen)
+              ESP_LOGD("yambms_debug", "Auto SoC Limit: Unknown mode");
+            }
+          } else {
+            id(${yambms_id}_auto_soc_limit_status).publish_state("Run");
+            id(${yambms_id}_var_auto_soc_limit) = 0;
+          }
+
+          id(${yambms_id}_var_charge_current_step)++;

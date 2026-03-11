@@ -1,4 +1,4 @@
-# Updated : 2026.02.12
+# Updated : 2026.03.11
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -326,6 +326,19 @@ views:
           - entity: number.yambms_demo_yambms_1_auto_eoc_increase_stop_soc
             name: Stop SoC
         title: YamBMS - Auto EOC
+      - type: entities
+        entities:
+          - entity: switch.yambms_demo_yambms_1_automatic_soc_limit
+            name: Automatic SoC Limit
+          - entity: number.yambms_demo_yambms_1_auto_soc_limit
+            name: SoC Limit
+          - entity: number.yambms_demo_yambms_1_auto_soc_limit_hysteresis
+            name: SoC Limit Hysteresis
+          - entity: select.yambms_demo_yambms_1_auto_soc_limit_mode
+            name: Auto SoC Limit Mode
+          - entity: sensor.yambms_demo_yambms_1_auto_soc_limit_status
+            name: Auto SoC Limit Status
+        title: YamBMS - Auto SoC Limit
       - type: entities
         entities:
           - entity: number.yambms_demo_yambms_1_rebulk_soc
