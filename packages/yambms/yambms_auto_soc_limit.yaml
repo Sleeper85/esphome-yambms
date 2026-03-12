@@ -1,5 +1,5 @@
-# Updated : 2026.03.11
-# Version : 1.1.1
+# Updated : 2026.03.12
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -25,11 +25,7 @@ esphome:
             id(${yambms_id}_var_auto_ccl_functions_count)++;
 
 globals:
-  # Last SoC value
-  - id: ${yambms_id}_var_auto_soc_last_value
-    type: int
-    restore_value: no
-    initial_value: '0'
+  # Target SoC was reached flag
   - id: ${yambms_id}_var_auto_soc_target_reached
     type: bool
     restore_value: no
@@ -60,8 +56,7 @@ number:
     on_value:
       then:
         - lambda: |-
-            // Reset last SoC value and target reached flag
-            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            // Reset target reached flag
             id(${yambms_id}_var_auto_soc_target_reached) = false;
   - platform: template
     name: "${name} ${yambms_name} Auto SoC Limit Hysteresis"
@@ -79,8 +74,7 @@ number:
     on_value:
       then:
         - lambda: |-
-            // Reset last SoC value and target reached flag
-            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            // Reset target reached flag
             id(${yambms_id}_var_auto_soc_target_reached) = false;
   - platform: template
     name: "${name} ${yambms_name} Auto SoC Limit CCL"
@@ -98,8 +92,7 @@ number:
     on_value:
       then:
         - lambda: |-
-            // Reset last SoC value and target reached flag
-            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            // Reset target reached flag
             id(${yambms_id}_var_auto_soc_target_reached) = false;
 
 select:
@@ -117,8 +110,7 @@ select:
     set_action:
       then:
         - lambda: |-
-            // Reset last SoC value and target reached flag
-            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            // Reset target reached flag
             id(${yambms_id}_var_auto_soc_target_reached) = false;
 
 text_sensor:
@@ -154,7 +146,16 @@ interval:
             // Auto SoC Charging disabled
             id(${yambms_id}_var_auto_soc_limit) = 0;
             id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Disabled");
-            id(${yambms_id}_var_auto_soc_last_value) = 0;
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
+            id(${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Check if Force Bulk is active
+          if (id(${yambms_id}_switch_force_bulk).state) {
+            // If Force Bulk is active, we should not limit charge current or switch to Float
+            id(${yambms_id}_var_auto_soc_limit) = 0;
+            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Force Bulk active");
             id(${yambms_id}_var_auto_soc_target_reached) = false;
             id(${yambms_id}_var_charge_current_step)++;
             return;
@@ -171,27 +172,29 @@ interval:
 
           last_execution_ms = current_ms;
 
-          // Check if SoC has changed since last execution, if not, skip calculations
-          int soc = id(${yambms_id}_battery_soc).state;
-
-          if (soc == id(${yambms_id}_var_auto_soc_last_value)) {
+          // Only work in Bulk or Float mode
+          if (id(${yambms_id}_var_charge_status) != "Bulk" && id(${yambms_id}_var_charge_status) != "Float") {
+            id(${yambms_id}_var_auto_soc_limit) = 0;
+            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Not in Bulk/Float");
+            id(${yambms_id}_var_auto_soc_target_reached) = false;
             id(${yambms_id}_var_charge_current_step)++;
             return;
           }
 
-          id(${yambms_id}_var_auto_soc_last_value) = soc;
-
           // Check if target SoC was already reached
+          int soc = id(${yambms_id}_battery_soc).state;
           int target_soc = id(${yambms_id}_auto_soc_limit).state;
 
           if (id(${yambms_id}_var_auto_soc_target_reached)) {
             // If target was reached but SoC has dropped below target - hysteresis, allow increasing charge current again
-            float soc_hysteresis = target_soc - id(${yambms_id}_auto_soc_hysteresis).state;
+            int soc_hysteresis = target_soc - id(${yambms_id}_auto_soc_hysteresis).state;
             if (soc <= soc_hysteresis) {
               ESP_LOGD("yambms_debug", "Auto SoC Limit: Activating again, SoC dropped below target - hysteresis");
               id(${yambms_id}_var_auto_soc_target_reached) = false;
               id(${yambms_id}_var_auto_soc_limit) = 0;
               id(${yambms_id}_auto_soc_limit_status).publish_state("Run");
+            } else {
+              id(${yambms_id}_auto_soc_limit_status).publish_state("Wait: Reactivating at " + std::to_string(soc_hysteresis) + "%");
             }
 
             id(${yambms_id}_var_charge_current_step)++;

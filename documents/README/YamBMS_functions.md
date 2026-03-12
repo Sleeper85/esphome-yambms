@@ -213,8 +213,11 @@ There are some configuration options to adjust the behaviour:
 
 The text sensor `Auto SoC Limit Status` will show the current status of the function:
 - `Stop: Disabled`: Function is disabled.
-- `Stop: SoC limit reached`: The configured SoC limit was reached.
-- `Run`: Function enabled, SoC limit not reached.
+- `Stop: Force Bulk active`: The `Force Bulk` switch is enabled.
+- `Stop: Not in Bulk/Float`: Charging status is not `Bulk` or `Float`, this function will not be enabled during `Cut-Off` or `Balancing`.
+- `Stop: SoC limit reached`: The configured `SoC` limit was reached.
+- `Wait: Reactivating at xx%`: The configured `SoC` limit was reached, now it waits until the SoC goes down to `Auto SoC Limit` - `Auto SoC Hysteresis`.
+- `Run`: Function enabled, `SoC` limit not reached.
 
 Modes:
 - `Float`: Will set the charging mode from `Bulk` to `Float`. If already at `Float`, nothing will happen.
