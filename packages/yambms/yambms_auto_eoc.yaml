@@ -1,5 +1,5 @@
-# Updated : 2026.02.22
-# Version : 1.1.7
+# Updated : 2026.03.13
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -235,6 +235,20 @@ interval:
           // Apply negative capacity modifier
           battery_capacity += (battery_capacity * (id(${yambms_id}_auto_eoc_modifier).state / 100.0));
         
+          // Check if Auto SoC Limit is active
+          int auto_soc_limit = 0;
+          if (id(${yambms_id}_switch_auto_soc_limit).state && 
+              id(${yambms_id}_auto_soc_limit_status).has_state()) {
+            // Check status, if Run, remove Auto SoC limit difference from battery capacity
+            if (id(${yambms_id}_auto_soc_limit_status).state.starts_with("Run")) {
+              auto_soc_limit = id(${yambms_id}_auto_soc_limit).state;
+              battery_capacity = (battery_capacity * auto_soc_limit) / 100.0;
+              ESP_LOGD("yambms_auto_eoc", "Auto SoC Limit is active, adjusted battery capacity");
+            } else {
+              ESP_LOGD("yambms_auto_eoc", "Auto SoC Limit is active but not running, not adjusting battery capacity");
+            }
+          }
+
           // Calculate missing capacity
           auto capacity_required = battery_capacity - id(${yambms_id}_battery_capacity_remaining).state;
           if (capacity_required < 0) {
@@ -276,6 +290,9 @@ interval:
                 // Return previous filtered charge current
                 return_value = filtered_charge_current;
                 id(${yambms_id}_auto_eoc_status).publish_state("Run: Current increase stopped");
+              } else if (auto_soc_limit) {
+                // Update status to running with Auto SoC Limit
+                id(${yambms_id}_auto_eoc_status).publish_state("Run: Auto SoC Limit " + std::to_string(auto_soc_limit) + "%");
               } else {
                 // Update status to running
                 id(${yambms_id}_auto_eoc_status).publish_state("Run");

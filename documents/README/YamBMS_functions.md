@@ -182,11 +182,13 @@ The text sensor `Auto EOC Status` will show the current status of the function:
 - `Stop: Current above limit`: The required charge current is above the current charge limit.
 - `Run: Current increase stopped`: Running, but no current increase because of `Auto EOC Increase Stop Hours` or `Auto EOC Increase Stop SoC`.
 - `Run`: Working normally.
+- `Run: Auto SoC Limit xx%`: Enabled, but reduced the target capacity by the value selected for `Auto SoC Limit`.
 
 The sensor `Auto EOC Current` will show the calculated charging current. Note that it is filtered by an EWMA filter with a default 3 minute delay.
 That means that changes to the options or parameters are not immediately visible. This avoids that the `Requested Charge Current (CCL)` will fluctuate too much. It will show 0A when the function is disabled/stopped or there is no solution.
 
-The function used to calculate the required charging current is very basic. The missing battery capacity (difference between `Battery Capacity` and `Capacity Remaining`) divided by the remaining hours. It will be updated every minute, but afterwards filtered before it is used for `Requested Charge Current (CCL)`. That means it will adapt, but not take into account any special circumstances. For example if `Auto CCL` is enabled and required, the charge current may further be limited by `Auto CCL`. The target time may then not be reached exactly. To account for this, the parameter `Auto EOC Correction` can be used to increase the overall current a little to compensate for the lower end current.
+The function used to calculate the required charging current is very basic. The missing battery capacity (difference between `Battery Capacity` and `Capacity Remaining`) divided by the remaining hours. If `Auto SoC Limit` is active,
+the configured limit value will be used to calculate the target capacity. It will be updated every minute, but afterwards filtered before it is used for `Requested Charge Current (CCL)`. That means it will adapt, but not take into account any special circumstances. For example if `Auto CCL` is enabled and required, the charge current may further be limited by `Auto CCL`. The target time may then not be reached exactly. To account for this, the parameter `Auto EOC Correction` can be used to increase the overall current a little to compensate for the lower end current.
 
 Here is an example when the target time is set to 18:00. Starting at 00:00, the required current increases as the battery is discharged. When the battery starts charging as the sun is up, the required current stabilizes around 14A.
 The current is increased at the end as it does not exactly hit its required charge, but at 17:30, the required current is stable because the parameter `Auto EOC Increase Stop Hours` was set to 0.5 hours, so it will not be increased anymore.
