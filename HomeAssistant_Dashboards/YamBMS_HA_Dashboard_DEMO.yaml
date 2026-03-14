@@ -345,6 +345,8 @@ views:
             name: Rebulk SoC
           - entity: number.yambms_demo_yambms_1_rebulk_v
             name: Rebulk V.
+          - entity: number.yambms_demo_yambms_1_rebulk_days
+            name: Rebulk Days
           - entity: switch.yambms_demo_yambms_1_force_bulk_top_bal
             name: Force Bulk (top bal)
         title: YamBMS - ReBulk

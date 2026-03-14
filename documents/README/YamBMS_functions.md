@@ -79,7 +79,8 @@ The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplie
 
 ![Image](../../images/YamBMS_ReBulk.png "YamBMS_ReBulk")
 
-There are two parameters to start a new `Bulk` phase. You can set a `Rebulk SoC` or a `Rebulk V.` value, only one of these conditions must be met.
+There are three parameters to start a new `Bulk` phase. You can set a `Rebulk SoC`, a `Rebulk V.` value or the `Rebulk Days` (since last full charge), only one of these conditions must be met.
+`Rebulk Days` can be disabled by setting them to `0`.
 
 If needed you can also force a `Bulk` charge with the `Force Bulk (top bal)` switch. The switch will automatically deactivate when your cells enter the `Balancing` phase.
 
@@ -215,7 +216,8 @@ There are some configuration options to adjust the behaviour:
 
 The text sensor `Auto SoC Limit Status` will show the current status of the function:
 - `Stop: Disabled`: Function is disabled.
-- `Stop: Force Bulk active`: The `Force Bulk` switch is enabled.
+- `Stop: Force Bulk active`: The `Force Bulk` switch is enabled, this function will not be enabled
+- `Stop: Rebulk Days active`: `Rebulk Days` is `> 0` and last full charge was longer ago than the specified number of days, this function will not be enabled.
 - `Stop: Not in Bulk/Float`: Charging status is not `Bulk` or `Float`, this function will not be enabled during `Cut-Off` or `Balancing`.
 - `Stop: SoC limit reached`: The configured `SoC` limit was reached.
 - `Wait: Reactivating at xx%`: The configured `SoC` limit was reached, now it waits until the SoC goes down to `Auto SoC Limit` - `Auto SoC Hysteresis`.
