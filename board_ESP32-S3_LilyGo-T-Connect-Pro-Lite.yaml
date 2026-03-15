@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.3
+# Updated : 2026.03.15
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -51,7 +51,6 @@ packages:
   board_rgb_led: !include board_options_led_control.yaml
 
 esp32:
-  board: esp32-s3-devkitc-1
   variant: esp32s3
   flash_size: 16MB # ajust according to your ESP32-S3 version
   cpu_frequency: 240MHz
