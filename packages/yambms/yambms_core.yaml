@@ -716,19 +716,25 @@ interval:
               // | Rebulk after N days since last full charge    |
               // +-----------------------------------------------+
               int rebulk_days = (int)id(${yambms_id}_rebulk_days).state;
-              if (rebulk_days == 0) {
+              if (rebulk_days == 0)                                  // Function disabled
+              {
                 id(${yambms_id}_var_rebulk_days_active) = false;
-              } else if (!id(${yambms_id}_var_rebulk_days_active)) {
-                if (rebulk_days > 0) {
+              }
+              else if (!id(${yambms_id}_var_rebulk_days_active))     // Function enabled
+              {
+                if (rebulk_days > 0)
+                {
                   time_t last_eoc = id(${yambms_id}_var_eoc_timestamp);
-                  if (last_eoc > 0) {
+                  if (last_eoc > 0)
+                  {
                     // Round down to 00:00:00 so rebulk gets enabled early in the day
                     struct tm *eoc_tm = localtime(&last_eoc);
                     eoc_tm->tm_hour = 0; eoc_tm->tm_min = 0; eoc_tm->tm_sec = 0;
                     time_t last_eoc_day = mktime(eoc_tm);
                     time_t now = id(my_time).utcnow().timestamp;
                     float days_since_eoc = (float)(now - last_eoc_day) / 86400.0f;
-                    if (days_since_eoc >= rebulk_days) {
+                    if (days_since_eoc >= rebulk_days)
+                    {
                       id(${yambms_id}_var_rebulk_days_active) = true;
                       ESP_LOGD("yambms_debug", "Rebulk after %d days since last full charge: activating rebulk logic", rebulk_days);
                     }
@@ -760,10 +766,11 @@ interval:
               // SoC <= 85% (default value)
               else if (id(${yambms_id}_battery_soc).state <= id(${yambms_id}_rebulk_soc).state)
                 id(${yambms_id}_var_charge_status) = "Bulk";
+              // Rebulk Days >= 14 (default value)
+              else if (id(${yambms_id}_var_rebulk_days_active) == true)
+                id(${yambms_id}_var_charge_status) = "Bulk";
               // Force Charge requested
               else if (id(${yambms_id}_requested_force_charge).state)
-                id(${yambms_id}_var_charge_status) = "Bulk";
-              else if (id(${yambms_id}_var_rebulk_days_active) == true)
                 id(${yambms_id}_var_charge_status) = "Bulk";
 
               // +-----------------------------------------------+
