@@ -1,4 +1,4 @@
-# Updated : 2026.03.24
+# Updated : 2026.04.12
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -176,12 +176,6 @@ views:
             layout_options:
               grid_columns: 2
               grid_rows: 2
-          - type: tile
-            entity: sensor.yambms_demo_board_uptime
-            name: Board Uptime
-          - type: tile
-            entity: sensor.yambms_demo_board_esphome_version
-            name: ESPHome version
           - type: entities
             entities:
               - entity: sensor.yambms_demo_requested_charge_voltage
@@ -201,6 +195,92 @@ views:
             entity: sensor.yambms_demo_last_version
             name: Last version
         column_span: 1
+      - type: grid
+        cards:
+          - type: heading
+            heading: YamBMS - Overview
+            heading_style: title
+          - type: markdown
+            content: |
+              {% set on = '<font color="#4CAF50"><b>ON</b></font>' %}
+              {% set off = '<font color="#9e9e9e">OFF</font>' %}
+              <table>
+                <tr>
+                  <td>CCL Derating Reason</td>
+                  <td>{% set v = states('sensor.yambms_demo_ccl_derating_reason') %}{% if v == 'No Derating' %}<font color="#4CAF50">{{ v }}</font>{% else %}<font color="#FFC107">{{ v }}</font>{% endif %} — {{ states('sensor.yambms_demo_requested_charge_current')|float|round }} A</td>
+                </tr>
+                <tr>
+                  <td>DCL Derating Reason</td>
+                  <td>{% set v = states('sensor.yambms_demo_dcl_derating_reason') %}{% if v == 'No Derating' %}<font color="#4CAF50">{{ v }}</font>{% else %}<font color="#FFC107">{{ v }}</font>{% endif %} — {{ states('sensor.yambms_demo_requested_discharge_current')|float|round }} A</td>
+                </tr>
+                {% if is_state('switch.yambms_demo_automatic_charge_voltage','on') %}
+                <tr>
+                  <td>Automatic Charge Voltage</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_demo_automatic_charge_current','on') %}
+                <tr>
+                  <td>Automatic Charge Current</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_demo_automatic_discharge_current','on') %}
+                <tr>
+                  <td>Automatic Discharge Current</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_demo_temperature_based_current_limitation','on') %}
+                <tr>
+                  <td>Temp. Based Current Limit</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_demo_automatic_eoc_current','on') %}
+                <tr>
+                  <td>Automatic EOC Current</td>
+                  <td>{% set eoc_status = states('sensor.yambms_demo_auto_eoc_status') %}{% set eoc_val %}{{ states('number.yambms_demo_auto_eoc_target_hour') | int }}:{{ '%02d' % (states('number.yambms_demo_auto_eoc_target_minute') | int) }} — {{ eoc_status }}{% endset %}{% if eoc_status.startswith('Stop:') %}<font color="#FFC107">{{ eoc_val }}</font>{% elif eoc_status.startswith('Run') %}<font color="#4CAF50">{{ eoc_val }}</font>{% else %}{{ eoc_val }}{% endif %}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_demo_automatic_soc_limit','on') %}
+                <tr>
+                  <td>Automatic SoC Limit</td>
+                  <td>{% set soc_status = states('sensor.yambms_demo_auto_soc_limit_status') %}{% if soc_status.startswith('Stop:') %}<font color="#FFC107">{{ states('number.yambms_demo_auto_soc_limit') }} % — {{ soc_status }}</font>{% elif soc_status == 'Run' %}<font color="#4CAF50">{{ states('number.yambms_demo_auto_soc_limit') }} % — {{ soc_status }}</font>{% else %}{{ states('number.yambms_demo_auto_soc_limit') }} % — {{ soc_status }}{% endif %}</td>
+                </tr>
+                {% endif %}
+                {% set rebulk_days = states('number.yambms_demo_rebulk_days') | int %}
+                {% if rebulk_days != 0 %}
+                <tr>
+                  <td>Rebulk Days</td>
+                  <td>{% set last = strptime(states('sensor.yambms_demo_last_complete_charge') | trim, '%H:%M %d %b %Y') %}{% set remaining = (last.date() + timedelta(days=rebulk_days) - now().date()).days %}{{ rebulk_days }} days — {% if remaining < 0 %}<font color="#F44336">{{ remaining | abs }} overdue</font>{% elif remaining == 0 %}<font color="#F44336">{{ remaining }} remaining</font>{% elif remaining <= 2 %}<font color="#FFC107">{{ remaining }} remaining</font>{% else %}<font color="#4CAF50">{{ remaining }} remaining</font>{% endif %}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td>Rebulk SoC</td>
+                  <td>{{ states('number.yambms_demo_rebulk_soc')|float|round }} %</td>
+                </tr>
+                <tr>
+                  <td>Rebulk Voltage</td>
+                  <td>{{ states('number.yambms_demo_rebulk_v')|float|round(2) }} V</td>
+                </tr>
+                <tr>
+                  <td>Board Uptime</td>
+                  <td>{{ states('sensor.yambms_demo_board_uptime') }}</td>
+                </tr>
+                <tr>
+                  <td>ESPHome Version</td>
+                  <td>{{ states('sensor.yambms_demo_board_esphome_version') }}</td>
+                </tr>
+                <tr>
+                  <td>YamBMS Running version</td>
+                  <td>{{ states('sensor.yambms_demo_running_version') }}</td>
+                </tr>
+                <tr>
+                  <td>YamBMS Last version</td>
+                  <td>{{ states('sensor.yambms_demo_last_version') }}</td>
+                </tr>
+              </table>
       - type: grid
         cards:
           - type: heading
