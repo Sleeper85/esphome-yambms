@@ -27,8 +27,8 @@ board_name: "WS Touch LCD 4.3B"
 tx_pin_1: '44'
 rx_pin_1: '43'
 # canbus_esp32_can USB / CAN port
-tx_pin_2: '15'
-rx_pin_2: '16'
+tx_pin_4: '15'
+rx_pin_4: '16'
 # I²C bus I²C port and Touch screen
 i2c_sda: '8'
 i2c_scl: '9'
