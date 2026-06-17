@@ -1,4 +1,4 @@
-# Updated : 2026.03.24
+# Updated : 2026.06.17
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -85,8 +85,6 @@ views:
           - type: tile
             entity: binary_sensor.yambms_demo_equalizing_state
             name: Equalizing state
-            vertical: false
-            features_position: bottom
           - type: entities
             entities:
               - entity: sensor.yambms_demo_max_cell_voltage
@@ -173,15 +171,9 @@ views:
                 name: Shunt count
               - entity: sensor.yambms_demo_shunt_combined
                 name: Shunt combined
-            layout_options:
-              grid_columns: 2
-              grid_rows: 2
-          - type: tile
-            entity: sensor.yambms_demo_board_uptime
-            name: Board Uptime
-          - type: tile
-            entity: sensor.yambms_demo_board_esphome_version
-            name: ESPHome version
+            grid_options:
+              columns: 6
+              rows: 4
           - type: entities
             entities:
               - entity: sensor.yambms_demo_requested_charge_voltage
@@ -194,12 +186,6 @@ views:
                 name: Requested Discharge Current
               - entity: binary_sensor.yambms_demo_requested_force_charge
                 name: Requested Force Charge
-          - type: tile
-            entity: sensor.yambms_demo_running_version
-            name: Running version
-          - type: tile
-            entity: sensor.yambms_demo_last_version
-            name: Last version
         column_span: 1
       - type: grid
         cards:
@@ -263,6 +249,7 @@ views:
           - entity: binary_sensor.yambms_demo_discharging_allowed
             name: Discharging allowed
         title: YamBMS - Charge / Discharge switch
+        show_header_toggle: false
       - type: entities
         entities:
           - entity: sensor.yambms_demo_charging_status
@@ -280,6 +267,7 @@ views:
           - entity: number.yambms_demo_inverter_offset_v
             name: Inverter Offset V.
         title: YamBMS - Charging Settings
+        show_header_toggle: false
       - type: entities
         entities:
           - entity: number.yambms_demo_rebulk_soc
@@ -326,65 +314,6 @@ views:
           - entity: sensor.yambms_demo_requested_discharge_current
             name: Requested Discharge Current
         title: YamBMS - Requested Values
-      - type: entities
-        entities:
-          - entity: sensor.yambms_demo_last_complete_charge
-            name: Last Complete Charge
-          - entity: binary_sensor.yambms_demo_board_online_status
-            name: Board Online Status
-          - entity: sensor.yambms_demo_board_uptime
-            name: Board Uptime
-          - entity: sensor.yambms_demo_board_esphome_version
-            name: Board ESPHome version
-          - entity: button.yambms_demo_board_restart
-            name: Board Restart
-        title: YamBMS - Diagnostic
-      - type: entity-filter
-        entities:
-          - entity: binary_sensor.yambms_demo_canbus_1_status
-            name: CANBUS Status
-          - entity: switch.yambms_demo_canbus_1_inverter_heartbeat_monitoring
-            name: CANBUS Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_demo_canbus_1_inverter_heartbeat
-            name: CANBUS Inverter Heartbeat
-          - entity: binary_sensor.yambms_demo_rs485_1_status
-            name: RS485 Status
-          - entity: switch.yambms_demo_rs485_1_inverter_heartbeat_monitoring
-            name: RS485 Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_demo_rs485_1_inverter_heartbeat
-            name: RS485 Inverter Heartbeat
-        conditions:
-          - condition: state
-            state_not: unavailable
-        card:
-          title: YamBMS - Inverter Status & Heartbeat
-      - type: entity-filter
-        entities:
-          - entity: sensor.yambms_demo_board_debug_free_psram_percent
-            name: Debug Free PSRAM (%)
-          - entity: sensor.yambms_demo_board_debug_free_psram
-            name: Debug Free PSRAM
-          - entity: sensor.yambms_demo_board_debug_heap_free_percent
-            name: Debug Heap free (%)
-          - entity: sensor.yambms_demo_board_debug_heap_free
-            name: Debug Heap free
-          - entity: sensor.yambms_demo_board_debug_heap_max_block_percent
-            name: Debug Heap max block (%)
-          - entity: sensor.yambms_demo_board_debug_heap_max_block
-            name: Debug Heap max block
-          - entity: sensor.yambms_demo_board_debug_loop_time
-            name: Debug Loop time
-          - entity: sensor.yambms_demo_board_uptime
-            name: Board Uptime
-          - entity: sensor.yambms_demo_board_esphome_version
-            name: Board ESPHome version
-          - entity: sensor.yambms_demo_board_debug_reset_reason
-            name: Debug Reset reason
-        conditions:
-          - condition: state
-            state_not: unavailable
-        card:
-          title: YamBMS - DEBUG
   - title: Auto Functions
     cards:
       - type: entities
@@ -447,6 +376,68 @@ views:
           - entity: number.yambms_demo_auto_eoc_increase_stop_soc
             name: Stop SoC
         title: YamBMS - Auto EOC
+  - title: Diagnostic
+    cards:
+      - type: entity-filter
+        entities:
+          - entity: sensor.yambms_demo_board_debug_free_psram_percent
+            name: Debug Free PSRAM (%)
+          - entity: sensor.yambms_demo_board_debug_free_psram
+            name: Debug Free PSRAM
+          - entity: sensor.yambms_demo_board_debug_heap_free_percent
+            name: Debug Heap free (%)
+          - entity: sensor.yambms_demo_board_debug_heap_free
+            name: Debug Heap free
+          - entity: sensor.yambms_demo_board_debug_heap_max_block_percent
+            name: Debug Heap max block (%)
+          - entity: sensor.yambms_demo_board_debug_heap_max_block
+            name: Debug Heap max block
+          - entity: sensor.yambms_demo_board_debug_loop_time
+            name: Debug Loop time
+          - entity: sensor.yambms_demo_board_debug_reset_reason
+            name: Debug Reset reason
+          - entity: sensor.yambms_demo_board_uptime
+            name: Board Uptime
+          - entity: sensor.yambms_demo_board_esphome_version
+            name: ESPHome version
+          - entity: button.yambms_demo_board_restart
+            name: Board Restart
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - Diagnostic
+      - type: entities
+        entities:
+          - entity: sensor.yambms_demo_requested_charge_voltage
+            name: Requested Charge Voltage
+          - entity: sensor.yambms_demo_requested_discharge_voltage
+            name: Requested Discharge Voltage
+          - entity: sensor.yambms_demo_requested_charge_current
+            name: Requested Charge Current
+          - entity: sensor.yambms_demo_requested_discharge_current
+            name: Requested Discharge Current
+        title: YamBMS - Requested Values
+      - type: entity-filter
+        entities:
+          - entity: binary_sensor.yambms_demo_canbus_1_status
+            name: CANBUS Status
+          - entity: switch.yambms_demo_canbus_1_inverter_heartbeat_monitoring
+            name: CANBUS Inverter Heartbeat Monitoring
+          - entity: sensor.yambms_demo_canbus_1_inverter_heartbeat
+            name: CANBUS Inverter Heartbeat
+          - entity: binary_sensor.yambms_demo_rs485_1_status
+            name: RS485 Status
+          - entity: switch.yambms_demo_rs485_1_inverter_heartbeat_monitoring
+            name: RS485 Inverter Heartbeat Monitoring
+          - entity: sensor.yambms_demo_rs485_1_inverter_heartbeat
+            name: RS485 Inverter Heartbeat
+        conditions:
+          - condition: state
+            state_not: unavailable
+        card:
+          title: YamBMS - Inverter Status & Heartbeat
+    type: masonry
   - title: BMS
     type: sections
     max_columns: 3

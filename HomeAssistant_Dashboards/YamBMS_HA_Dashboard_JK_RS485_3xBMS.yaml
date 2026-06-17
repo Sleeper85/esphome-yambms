@@ -1,4 +1,4 @@
-# Updated : 2026.03.24
+# Updated : 2026.06.17
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -171,15 +171,9 @@ views:
                 name: Shunt count
               - entity: sensor.yambms_1_shunt_combined
                 name: Shunt combined
-            layout_options:
-              grid_columns: 2
-              grid_rows: 2
-          - type: tile
-            entity: sensor.yambms_board_uptime
-            name: Board Uptime
-          - type: tile
-            entity: sensor.yambms_board_esphome_version
-            name: ESPHome version
+            grid_options:
+              columns: 6
+              rows: 4
           - type: entities
             entities:
               - entity: sensor.yambms_1_requested_charge_voltage
@@ -192,13 +186,108 @@ views:
                 name: Requested Discharge Current
               - entity: binary_sensor.yambms_1_requested_force_charge
                 name: Requested Force Charge
-          - type: tile
-            entity: sensor.yambms_1_running_version
-            name: Running version
-          - type: tile
-            entity: sensor.yambms_1_last_version
-            name: Last version
         column_span: 1
+      - type: grid
+        cards:
+          - type: heading
+            heading: YamBMS - Overview
+            heading_style: title
+          - type: markdown
+            content: |-
+              {% set on = '<font color="#4CAF50"><b>ON</b></font>' %}
+              {% set off = '<font color="#9e9e9e">OFF</font>' %}
+              <table>
+                <tr>
+                  <td>CCL Derating Reason</td>
+                  <td>{% set v = states('sensor.yambms_1_ccl_derating_reason') %}{% if v == 'No Derating' %}<font color="#4CAF50">{{ v }}</font>{% else %}<font color="#FFC107">{{ v }}</font>{% endif %} — {{ states('sensor.yambms_1_requested_charge_current')|float|round }} A</td>
+                </tr>
+                <tr>
+                  <td>DCL Derating Reason</td>
+                  <td>{% set v = states('sensor.yambms_1_dcl_derating_reason') %}{% if v == 'No Derating' %}<font color="#4CAF50">{{ v }}</font>{% else %}<font color="#FFC107">{{ v }}</font>{% endif %} — {{ states('sensor.yambms_1_requested_discharge_current')|float|round }} A</td>
+                </tr>
+                {% if is_state('switch.yambms_1_temperature_based_current_limitation','on') %}
+                <tr>
+                  <td>Temp. Based Current Limit</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_1_automatic_charge_voltage','on') %}
+                <tr>
+                  <td>Automatic Charge Voltage</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_1_automatic_charge_current','on') %}
+                <tr>
+                  <td>Automatic Charge Current</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_1_automatic_discharge_current','on') %}
+                <tr>
+                  <td>Automatic Discharge Current</td>
+                  <td>{{ on }}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_1_automatic_eoc_current','on') %}
+                <tr>
+                  <td>Automatic EOC Current</td>
+                  <td>{% set eoc_status = states('sensor.yambms_1_auto_eoc_status') %}{% set eoc_val %}{{ states('number.yambms_1_auto_eoc_target_hour') | int }}:{{ '%02d' % (states('number.yambms_1_auto_eoc_target_minute') | int) }} — {{ eoc_status }}{% endset %}{% if eoc_status.startswith('Stop:') %}<font color="#FFC107">{{ eoc_val }}</font>{% elif eoc_status.startswith('Run') %}<font color="#4CAF50">{{ eoc_val }}</font>{% else %}{{ eoc_val }}{% endif %}</td>
+                </tr>
+                {% endif %}
+                {% if is_state('switch.yambms_1_automatic_soc_limit','on') %}
+                <tr>
+                  <td>Automatic SoC Limit</td>
+                  <td>{% set soc_status = states('sensor.yambms_1_auto_soc_limit_status') %}{% if soc_status.startswith('Stop:') %}<font color="#FFC107">{{ states('number.yambms_1_auto_soc_limit') }} % — {{ soc_status }}</font>{% elif soc_status == 'Run' %}<font color="#4CAF50">{{ states('number.yambms_1_auto_soc_limit') }} % — {{ soc_status }}</font>{% else %}{{ states('number.yambms_1_auto_soc_limit') }} % — {{ soc_status }}{% endif %}</td>
+                </tr>
+                {% endif %}
+                {% set rebulk_days = states('number.yambms_1_rebulk_days') | int %}
+                {% if rebulk_days != 0 %}
+                <tr>
+                  <td>Rebulk Days</td>
+                  <td>{% set last = strptime(states('sensor.yambms_1_last_complete_charge') | trim, '%H:%M %d %b %Y') %}{% set remaining = (last.date() + timedelta(days=rebulk_days) - now().date()).days %}{{ rebulk_days }} days — {% if remaining < 0 %}<font color="#F44336">{{ remaining | abs }} overdue</font>{% elif remaining == 0 %}<font color="#F44336">{{ remaining }} remaining</font>{% elif remaining <= 2 %}<font color="#FFC107">{{ remaining }} remaining</font>{% else %}<font color="#4CAF50">{{ remaining }} remaining</font>{% endif %}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td>Rebulk SoC</td>
+                  <td>{{ states('number.yambms_1_rebulk_soc')|float|round }} %</td>
+                </tr>
+                <tr>
+                  <td>Rebulk Voltage</td>
+                  <td>{{ states('number.yambms_1_rebulk_v')|float|round(2) }} V</td>
+                </tr>
+                </table>
+          - type: heading
+            heading: YamBMS - Diagnostic
+            heading_style: title
+          - type: markdown
+            content: |2
+                <table>
+                <tr>
+                  <td>Uptime</td>
+                  <td>{{ states('sensor.yambms_board_uptime') }}</td>
+                </tr>
+                <tr>
+                  <td>Loop Time</td>
+                  <td>{{ states('sensor.yambms_board_debug_loop_time')|float|round }} ms</td>
+                </tr>
+                  <tr>
+                  <td>Heap Free Memory</td>
+                  <td>{{ states('sensor.yambms_board_debug_heap_free_percent')|float|round }} %</td>
+                </tr>
+                <tr>
+                  <td>YamBMS Running version</td>
+                  <td>{{ states('sensor.yambms_1_running_version') }}</td>
+                </tr>
+                <tr>
+                  <td>YamBMS Last version</td>
+                  <td>{{ states('sensor.yambms_1_last_version') }}</td>
+                </tr>
+                <tr>
+                  <td>ESPHome Version</td>
+                  <td>{{ states('sensor.yambms_board_esphome_version')[:8] }}</td>
+                </tr>
+              </table>
   - title: Settings
     cards:
       - type: entity-filter
@@ -225,6 +314,7 @@ views:
           - entity: binary_sensor.yambms_1_discharging_allowed
             name: Discharging allowed
         title: YamBMS - Charge / Discharge switch
+        show_header_toggle: false
       - type: entities
         entities:
           - entity: sensor.yambms_1_charging_status
@@ -242,6 +332,7 @@ views:
           - entity: number.yambms_1_inverter_offset_v
             name: Inverter Offset V.
         title: YamBMS - Charging Settings
+        show_header_toggle: false
       - type: entities
         entities:
           - entity: number.yambms_1_rebulk_soc
@@ -288,65 +379,6 @@ views:
           - entity: sensor.yambms_1_requested_discharge_current
             name: Requested Discharge Current
         title: YamBMS - Requested Values
-      - type: entities
-        entities:
-          - entity: sensor.yambms_1_last_complete_charge
-            name: Last Complete Charge
-          - entity: binary_sensor.yambms_board_online_status
-            name: Board Online Status
-          - entity: sensor.yambms_board_uptime
-            name: Board Uptime
-          - entity: sensor.yambms_board_esphome_version
-            name: Board ESPHome version
-          - entity: button.yambms_board_restart
-            name: Board Restart
-        title: YamBMS - Diagnostic
-      - type: entity-filter
-        entities:
-          - entity: binary_sensor.yambms_1_canbus_1_status
-            name: CANBUS Status
-          - entity: switch.yambms_1_canbus_1_inverter_heartbeat_monitoring
-            name: CANBUS Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_1_canbus_1_inverter_heartbeat
-            name: CANBUS Inverter Heartbeat
-          - entity: binary_sensor.yambms_1_rs485_1_status
-            name: RS485 Status
-          - entity: switch.yambms_1_rs485_1_inverter_heartbeat_monitoring
-            name: RS485 Inverter Heartbeat Monitoring
-          - entity: sensor.yambms_1_rs485_1_inverter_heartbeat
-            name: RS485 Inverter Heartbeat
-        conditions:
-          - condition: state
-            state_not: unavailable
-        card:
-          title: YamBMS - Inverter Status & Heartbeat
-      - type: entity-filter
-        entities:
-          - entity: sensor.yambms_board_debug_free_psram_percent
-            name: Debug Free PSRAM (%)
-          - entity: sensor.yambms_board_debug_free_psram
-            name: Debug Free PSRAM
-          - entity: sensor.yambms_board_debug_heap_free_percent
-            name: Debug Heap free (%)
-          - entity: sensor.yambms_board_debug_heap_free
-            name: Debug Heap free
-          - entity: sensor.yambms_board_debug_heap_max_block_percent
-            name: Debug Heap max block (%)
-          - entity: sensor.yambms_board_debug_heap_max_block
-            name: Debug Heap max block
-          - entity: sensor.yambms_board_debug_loop_time
-            name: Debug Loop time
-          - entity: sensor.yambms_board_uptime
-            name: Board Uptime
-          - entity: sensor.yambms_board_esphome_version
-            name: Board ESPHome version
-          - entity: sensor.yambms_board_debug_reset_reason
-            name: Debug Reset reason
-        conditions:
-          - condition: state
-            state_not: unavailable
-        card:
-          title: YamBMS - DEBUG
   - title: Auto Functions
     cards:
       - type: entities
@@ -409,141 +441,37 @@ views:
           - entity: number.yambms_1_auto_eoc_increase_stop_soc
             name: Stop SoC
         title: YamBMS - Auto EOC
+  - title: Diagnostic
+    cards:
       - type: entity-filter
         entities:
-          - entity: select.yambms_1_canbus_1_yambms_name
-            name: CANBUS YamBMS name
-          - entity: select.yambms_1_canbus_1_yambms_protocol
-            name: CANBUS YamBMS protocol
-          - entity: select.yambms_1_rs485_1_yambms_protocol
-            name: RS485 YamBMS protocol
+          - entity: sensor.yambms_board_debug_free_psram_percent
+            name: Debug Free PSRAM (%)
+          - entity: sensor.yambms_board_debug_free_psram
+            name: Debug Free PSRAM
+          - entity: sensor.yambms_board_debug_heap_free_percent
+            name: Debug Heap free (%)
+          - entity: sensor.yambms_board_debug_heap_free
+            name: Debug Heap free
+          - entity: sensor.yambms_board_debug_heap_max_block_percent
+            name: Debug Heap max block (%)
+          - entity: sensor.yambms_board_debug_heap_max_block
+            name: Debug Heap max block
+          - entity: sensor.yambms_board_debug_loop_time
+            name: Debug Loop time
+          - entity: sensor.yambms_board_debug_reset_reason
+            name: Debug Reset reason
+          - entity: sensor.yambms_board_uptime
+            name: Board Uptime
+          - entity: sensor.yambms_board_esphome_version
+            name: ESPHome version
+          - entity: button.yambms_board_restart
+            name: Board Restart
         conditions:
           - condition: state
             state_not: unavailable
         card:
-          title: YamBMS - Inverter Comm. Protocol
-      - type: entities
-        entities:
-          - entity: switch.yambms_1_charge_enabled
-            name: Charge enabled
-          - entity: switch.yambms_1_discharge_enabled
-            name: Discharge enabled
-          - entity: binary_sensor.yambms_1_charging_allowed
-            name: Charging allowed
-          - entity: binary_sensor.yambms_1_discharging_allowed
-            name: Discharging allowed
-        title: YamBMS - Charge / Discharge switch
-      - type: entities
-        entities:
-          - entity: switch.yambms_1_automatic_charge_voltage
-            name: Automatic Charge Voltage
-          - entity: number.yambms_1_auto_cvl_boost_charge_v
-            name: Auto CVL Boost Charge V.
-        title: YamBMS - Auto CVL
-      - type: entities
-        entities:
-          - entity: sensor.yambms_1_charging_status
-            name: Charging Status
-          - entity: sensor.yambms_1_charging_instruction
-            name: Charging Instruction
-          - entity: switch.yambms_1_float_charge_enabled
-            name: Float charge enabled
-          - entity: switch.yambms_1_eoc_timer_enabled
-            name: EOC timer enabled
-          - entity: number.yambms_1_bulk_voltage
-            name: Bulk voltage
-          - entity: number.yambms_1_float_voltage
-            name: Float voltage
-          - entity: number.yambms_1_inverter_offset_v
-            name: Inverter Offset V.
-        title: YamBMS - Charging Settings
-      - type: entities
-        entities:
-          - entity: switch.yambms_1_automatic_charge_current
-            name: Automatic Charge Current
-          - entity: switch.yambms_1_automatic_discharge_current
-            name: Automatic Discharge Current
-        title: YamBMS - Auto CCL / DCL
-      - type: entities
-        entities:
-          - entity: select.yambms_1_automatic_float_voltage
-            name: Automatic Float Voltage
-          - entity: sensor.yambms_1_auto_float_voltage
-            name: Auto Float Voltage
-          - entity: number.yambms_1_auto_float_update_interval
-            name: Update Interval
-          - entity: number.yambms_1_auto_float_voltage_step
-            name: Voltage Step
-        title: YamBMS - Auto Float
-      - type: entities
-        entities:
-          - entity: switch.yambms_1_automatic_eoc_current
-            name: Automatic EOC Current
-          - entity: sensor.yambms_1_auto_eoc_status
-            name: Status
-          - entity: sensor.yambms_1_auto_eoc_current
-            name: Required Current
-          - entity: number.yambms_1_auto_eoc_target_hour
-            name: Target hour
-          - entity: number.yambms_1_auto_eoc_target_minute
-            name: Target minute
-          - entity: number.yambms_1_auto_eoc_correction
-            name: Current Correction
-          - entity: number.yambms_1_auto_eoc_capacity_modifier
-            name: Capacity Modifier
-          - entity: number.yambms_1_auto_eoc_increase_stop_hours
-            name: Stop hours
-          - entity: number.yambms_1_auto_eoc_increase_stop_soc
-            name: Stop SoC
-        title: YamBMS - Auto EOC
-      - type: entities
-        entities:
-          - entity: switch.yambms_1_automatic_soc_limit
-            name: Automatic SoC Limit
-          - entity: number.yambms_1_auto_soc_limit
-            name: SoC Limit
-          - entity: number.yambms_1_auto_soc_limit_hysteresis
-            name: SoC Limit Hysteresis
-          - entity: select.yambms_1_auto_soc_limit_mode
-            name: Auto SoC Limit Mode
-          - entity: sensor.yambms_1_auto_soc_limit_status
-            name: Auto SoC Limit Status
-        title: YamBMS - Auto SoC Limit
-      - type: entities
-        entities:
-          - entity: number.yambms_1_rebulk_soc
-            name: Rebulk SoC
-          - entity: number.yambms_1_rebulk_v
-            name: Rebulk V.
-          - entity: number.yambms_1_rebulk_days
-            name: Rebulk Days
-          - entity: switch.yambms_1_force_bulk
-            name: Force Bulk
-        title: YamBMS - ReBulk
-      - type: entities
-        entities:
-          - entity: number.yambms_1_max_requested_charge_current
-            name: Max charge current
-          - entity: number.yambms_1_max_requested_discharge_current
-            name: Max discharge current
-          - entity: switch.yambms_1_temperature_based_current_limitation
-            name: Temperature-based current limitation
-          - entity: sensor.yambms_1_ccl_derating_reason
-            name: CCL Derating Reason
-          - entity: sensor.yambms_1_dcl_derating_reason
-            name: DCL Derating Reason
-        title: YamBMS - Max requested current
-      - type: entities
-        entities:
-          - entity: switch.yambms_1_request_force_charge
-            name: Request force charge
-          - entity: number.yambms_1_request_force_charge_start_soc
-            name: Force charge Start SoC
-          - entity: number.yambms_1_request_force_charge_stop_soc
-            name: Force charge Stop SoC
-          - entity: binary_sensor.yambms_1_requested_force_charge
-            name: Requested Force Charge
-        title: YamBMS - Request force charge
+          title: YamBMS - Diagnostic
       - type: entities
         entities:
           - entity: sensor.yambms_1_requested_charge_voltage
@@ -555,19 +483,6 @@ views:
           - entity: sensor.yambms_1_requested_discharge_current
             name: Requested Discharge Current
         title: YamBMS - Requested Values
-      - type: entities
-        entities:
-          - entity: sensor.yambms_1_last_complete_charge
-            name: Last Complete Charge
-          - entity: binary_sensor.yambms_board_online_status
-            name: Board Online Status
-          - entity: sensor.yambms_board_uptime
-            name: Board Uptime
-          - entity: sensor.yambms_board_esphome_version
-            name: Board ESPHome version
-          - entity: button.yambms_board_restart
-            name: Board Restart
-        title: YamBMS - Diagnostic
       - type: entity-filter
         entities:
           - entity: binary_sensor.yambms_1_canbus_1_status
@@ -587,33 +502,7 @@ views:
             state_not: unavailable
         card:
           title: YamBMS - Inverter Status & Heartbeat
-      - type: entity-filter
-        entities:
-          - entity: sensor.yambms_board_debug_free_psram_percent
-            name: Debug Free PSRAM (%)
-          - entity: sensor.yambms_board_debug_free_psram
-            name: Debug Free PSRAM
-          - entity: sensor.yambms_board_debug_heap_free_percent
-            name: Debug Heap free (%)
-          - entity: sensor.yambms_board_debug_heap_free
-            name: Debug Heap free
-          - entity: sensor.yambms_board_debug_heap_max_block_percent
-            name: Debug Heap max block (%)
-          - entity: sensor.yambms_board_debug_heap_max_block
-            name: Debug Heap max block
-          - entity: sensor.yambms_board_debug_loop_time
-            name: Debug Loop time
-          - entity: sensor.yambms_board_uptime
-            name: Board Uptime
-          - entity: sensor.yambms_board_esphome_version
-            name: Board ESPHome version
-          - entity: sensor.yambms_board_debug_reset_reason
-            name: Debug Reset reason
-        conditions:
-          - condition: state
-            state_not: unavailable
-        card:
-          title: YamBMS - DEBUG
+    type: masonry
   - title: BMS
     type: sections
     max_columns: 3
