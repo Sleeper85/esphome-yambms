@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.3.4
+# Updated : 2026.06.18
+# Version : 1.3.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,7 +26,7 @@ packages:
   bms_combine: !include bms_combine.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_BLE.yaml
-  bms_battery_soh: !include bms_battery_soh.yaml
+  bms_battery_soh: !include bms_base_battery_soh.yaml
 
 ota:
   on_begin:
@@ -331,10 +331,10 @@ sensor:
       id: bms${bms_id}_discharging_power
       device_id: bms_${bms_id}
       name: "discharging power"
-    power_tube_temperature:
+    mosfet_temperature:
       id: bms${bms_id}_power_tube_temperature
       device_id: bms_${bms_id}
-      name: "power tube temperature"
+      name: "mosfet temperature"
     temperature_sensor_1:
       id: bms${bms_id}_temperature_sensor_1
       device_id: bms_${bms_id}
@@ -351,7 +351,7 @@ sensor:
       id: bms${bms_id}_capacity_remaining_ah
       device_id: bms_${bms_id}
       # name: "capacity remaining"
-    total_battery_capacity_setting:
+    full_charge_capacity:
       id: bms${bms_id}_battery_capacity
       device_id: bms_${bms_id}
       name: "total battery capacity setting"
@@ -369,10 +369,10 @@ sensor:
     balancing_current:
       device_id: bms_${bms_id}
       name: "balancing current"
-    errors_bitmask:
-      id: bms${bms_id}_errors_bitmask
-      device_id: bms_${bms_id}
-      name: "errors bitmask"
+    # errors_bitmask:
+    #   id: bms${bms_id}_errors_bitmask
+    #   device_id: bms_${bms_id}
+    #   name: "errors bitmask"
 
 text_sensor:
   - platform: jk_bms_ble
@@ -380,10 +380,22 @@ text_sensor:
     errors:
       device_id: bms_${bms_id}
       name: "errors"
+    errors_bitmask_hex:
+      id: bms${bms_id}_errors_bitmask
+      device_id: bms_${bms_id}
+      name: "errors bitmask hex"
+    balancer_status:
+      device_id: bms_${bms_id}
+      name: "balancer status"
     total_runtime_formatted:
       device_id: bms_${bms_id}
       name: "total runtime formatted"
-      entity_category: diagnostic
+    software_version:
+      device_id: bms_${bms_id}
+      name: "software version"
+    hardware_version:
+      device_id: bms_${bms_id}
+      name: "hardware version"
 
 number:
   - platform: jk_bms_ble
@@ -431,7 +443,7 @@ number:
       id: bms${bms_id}_max_discharge_current
       device_id: bms_${bms_id}
       name: "max discharge current"
-    balance_starting_voltage:
+    balancing_start_voltage:
       id: bms${bms_id}_balance_starting_voltage
       device_id: bms_${bms_id}
       name: "balance starting voltage"
@@ -439,6 +451,31 @@ number:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}
       # name: "balance trigger voltage"
+    # Added 2024.11.11
+    charge_overtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charge overtemperature protection"
+    charge_overtemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "charge overtemperature protection recovery"
+    discharge_overtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "discharge overtemperature protection"
+    discharge_overtemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "discharge overtemperature protection recovery"
+    charge_undertemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charge undertemperature protection"
+    charge_undertemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "charge undertemperature protection recovery"
+    mosfet_overtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "mosfet overtemperature protection"
+    mosfet_overtemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "mosfet overtemperature protection recovery"
 
 button:
   - platform: jk_bms_ble
