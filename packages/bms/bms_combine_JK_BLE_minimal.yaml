@@ -1,4 +1,4 @@
-# Updated : 2026.06.18
+# Updated : 2026.06.20
 # Version : 1.3.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
@@ -198,10 +198,21 @@ sensor:
     balancing_current:
       device_id: bms_${bms_id}
       name: "balancing current"
-    # errors_bitmask:
-    #   id: bms${bms_id}_errors_bitmask
-    #   device_id: bms_${bms_id}
-    #   name: "errors bitmask"
+
+  # FAKE errors_bitmask
+  # Alarm management is not supported at this time
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_errors_bitmask
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
 
 text_sensor:
   - platform: jk_bms_ble
@@ -210,7 +221,6 @@ text_sensor:
       device_id: bms_${bms_id}
       name: "errors"
     errors_bitmask_hex:
-      id: bms${bms_id}_errors_bitmask
       device_id: bms_${bms_id}
       name: "errors bitmask hex"
     balancer_status:
