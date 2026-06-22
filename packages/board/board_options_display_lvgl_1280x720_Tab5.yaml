@@ -94,6 +94,10 @@ font:
 # +--------------------------------------+
 
 lvgl:
+  # Rotation lives here (not under display:) — required by ESPHome 2026.6+ with LVGL.
+  # mipi_dsi has no hardware rotation, so LVGL rotates in software (PPA-accelerated on
+  # P4) and auto-transforms touch coords. The gt911 therefore has NO transform block.
+  rotation: 90
   byte_order: little_endian
   color_depth: 16
   buffer_size: 100%

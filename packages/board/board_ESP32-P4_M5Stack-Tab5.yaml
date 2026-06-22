@@ -328,17 +328,18 @@ touchscreen:
     id: my_touchscreen
     interrupt_pin: 23
     update_interval: never
-    transform:
-      swap_xy: true
-      mirror_y: true
+    # No transform here: rotation is handled in the lvgl: config (rotation: 90),
+    # and ESPHome 2026.6 LVGL auto-transforms touch coords via rotate_coordinates().
+    # Adding swap_xy/mirror here would double-rotate. Calibration is in panel-native
+    # (unrotated) orientation: x over 0..720 (width), y over 0..1280 (height).
     reset_pin:
       pi4ioe5v6408: pi4ioe1
       number: 5
     calibration:
-      y_min: 0
-      y_max: 720
       x_min: 0
-      x_max: 1280
+      x_max: 720
+      y_min: 0
+      y_max: 1280
 
 # +--------------------------------------+
 # | Display (MIPI DSI 1280x720)          |
@@ -347,7 +348,8 @@ touchscreen:
 display:
   - platform: mipi_dsi
     id: my_display
-    rotation: 90
+    # rotation is set in the lvgl: config, not here — ESPHome 2026.6+ rejects
+    # 'rotation' under display when LVGL is used.
     dimensions:
       height: 1280
       width: 720
