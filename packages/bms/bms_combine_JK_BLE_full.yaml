@@ -1,5 +1,5 @@
-# Updated : 2026.06.20
-# Version : 1.3.6
+# Updated : 2026.06.22
+# Version : 1.3.7
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -332,7 +332,6 @@ sensor:
       device_id: bms_${bms_id}
       name: "discharging power"
     mosfet_temperature:
-      id: bms${bms_id}_power_tube_temperature
       device_id: bms_${bms_id}
       name: "mosfet temperature"
     temperature_sensor_1:
@@ -354,7 +353,7 @@ sensor:
     full_charge_capacity:
       id: bms${bms_id}_battery_capacity
       device_id: bms_${bms_id}
-      name: "total battery capacity setting"
+      name: "full charge capacity"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
       device_id: bms_${bms_id}
@@ -456,7 +455,7 @@ number:
     balancing_start_voltage:
       id: bms${bms_id}_balance_starting_voltage
       device_id: bms_${bms_id}
-      name: "balance starting voltage"
+      name: "balancing start voltage"
     balance_trigger_voltage:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}
