@@ -402,8 +402,6 @@ lvgl:
                       - range_from: -400
                         range_to: 400
                         angle_range: 180
-                        ticks:
-                          count: 0
                         indicators:
                           - line:
                               id: current_needle
@@ -464,8 +462,6 @@ lvgl:
                       - range_from: -24
                         range_to: 24
                         angle_range: 180
-                        ticks:
-                          count: 0
                         indicators:
                           - line:
                               id: power_needle
