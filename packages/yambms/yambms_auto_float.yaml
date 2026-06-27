@@ -1,5 +1,5 @@
-# Updated : 2026.03.23
-# Version : 1.1.6
+# Updated : 2026.06.27
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,8 +20,8 @@
 select:
   - platform: template
     name: "Automatic Float Voltage"
-    id: ${yambms_id}_auto_float_mode
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_float_mode
+    device_id: yambms_yambms${yambms_id}
     options:
       - "Disabled"
       - "Follow"
@@ -38,8 +38,8 @@ select:
 number:
   - platform: template
     name: "Auto Float Voltage Step"
-    id: ${yambms_id}_auto_float_step_v
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_float_step_v
+    device_id: yambms_yambms${yambms_id}
     step: 0.1
     min_value: 0.1
     max_value: 0.5
@@ -53,8 +53,8 @@ number:
 
   - platform: template
     name: "Auto Float Update Interval"
-    id: ${yambms_id}_auto_float_interval
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_float_interval
+    device_id: yambms_yambms${yambms_id}
     step: 1
     min_value: 1
     max_value: 10
@@ -69,21 +69,21 @@ number:
 sensor:
   # Filter total voltage (max)
   - platform: template
-    id: ${yambms_id}_auto_float_total_v
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_float_total_v
+    device_id: yambms_yambms${yambms_id}
     update_interval: 30s
     filters:
       - max:
           window_size: 4
-    lambda: return id(${yambms_id}_total_voltage).state;
+    lambda: return id(yambms${yambms_id}_total_voltage).state;
 
   # +--------------------------------------+
   # | Auto Float Voltage Control           |
   # +--------------------------------------+
   - platform: template
     name: "Auto Float Voltage"
-    id: ${yambms_id}_auto_float_v
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_float_v
+    device_id: yambms_yambms${yambms_id}
     update_interval: 60s  # Keep this at 60s, otherwise "Auto Float Update Interval" won't work!
     unit_of_measurement: V
     device_class: voltage
@@ -92,12 +92,12 @@ sensor:
       - round: 1
     lambda: |-
       // Variables
-      const auto mode = id(${yambms_id}_auto_float_mode).active_index();        // Mode: 0 - Disabled, 1 - Follow, 2 - Immediately
-      const float  bulk_v = id(${yambms_id}_bulk_voltage).state;                // Bulk voltage
-      const float  target_float_v = id(${yambms_id}_float_voltage).state;       // Target float voltage
-      const float  step_v = id(${yambms_id}_auto_float_step_v).state;           // Voltage step for each decrement
-      const float  max_total_v = id(${yambms_id}_auto_float_total_v).state;     // Total voltage (mean and max)
-      const auto update_interval = id(${yambms_id}_auto_float_interval).state;  // Update interval in minutes
+      const auto mode = id(yambms${yambms_id}_auto_float_mode).active_index();        // Mode: 0 - Disabled, 1 - Follow, 2 - Immediately
+      const float  bulk_v = id(yambms${yambms_id}_bulk_voltage).state;                // Bulk voltage
+      const float  target_float_v = id(yambms${yambms_id}_float_voltage).state;       // Target float voltage
+      const float  step_v = id(yambms${yambms_id}_auto_float_step_v).state;           // Voltage step for each decrement
+      const float  max_total_v = id(yambms${yambms_id}_auto_float_total_v).state;     // Total voltage (mean and max)
+      const auto update_interval = id(yambms${yambms_id}_auto_float_interval).state;  // Update interval in minutes
       static float  float_v = bulk_v;                                           // Initialize float voltage
       static uint8_t time_count = 0;                                            // Interval counter
       bool decrement = false;
@@ -106,11 +106,11 @@ sensor:
       if ((mode == 0) || (bulk_v <= target_float_v))
       {
         // Return Float voltage
-        id(${yambms_id}_var_auto_float) = 0;
+        id(yambms${yambms_id}_var_auto_float) = 0;
         return target_float_v;
       }
       // Auto Float enabled + Floating
-      else if (id(${yambms_id}_var_charge_status) == "Float")
+      else if (id(yambms${yambms_id}_var_charge_status) == "Float")
       {
         // Check update interval
         if (++time_count >= (uint8_t)update_interval)
@@ -119,7 +119,7 @@ sensor:
           if (mode == 1)
           {
             // Check battery voltage and wait for the battery voltage to reach current float voltage
-            if ((id(${yambms_id}_total_voltage).state > 0) && (max_total_v <= float_v)) decrement = true;
+            if ((id(yambms${yambms_id}_total_voltage).state > 0) && (max_total_v <= float_v)) decrement = true;
           }
           // Immediately mode : Start immediately
           else if (mode == 2) decrement = true;
@@ -142,7 +142,7 @@ sensor:
       }
 
       // Store difference for CVL calculation
-      id(${yambms_id}_var_auto_float) = float_v - target_float_v;
+      id(yambms${yambms_id}_var_auto_float) = float_v - target_float_v;
 
       // Return Auto Float voltage
       return float_v;

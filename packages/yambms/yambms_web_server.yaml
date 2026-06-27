@@ -1,5 +1,5 @@
-# Updated : 2026.01.16
-# Version : 1.1.4
+# Updated : 2026.06.27
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -74,137 +74,137 @@ web_server:
 
 select:
   # YamBMS - Auto Float
-  - id: !extend ${yambms_id}_auto_float_mode
+  - id: !extend yambms${yambms_id}_auto_float_mode
     web_server:
       sorting_group_id: yambms_auto_float
 
 binary_sensor:
   # YamBMS - Request force charge
-  - id: !extend ${yambms_id}_requested_force_charge
+  - id: !extend yambms${yambms_id}_requested_force_charge
     web_server:
       sorting_group_id: yambms_request_force_charge
   # YamBMS - Charge / Discharge switch
-  - id: !extend ${yambms_id}_charging_allowed
+  - id: !extend yambms${yambms_id}_charging_allowed
     web_server:
       sorting_group_id: yambms_charge_discharge_switch
-  - id: !extend ${yambms_id}_discharging_allowed
+  - id: !extend yambms${yambms_id}_discharging_allowed
     web_server:
       sorting_group_id: yambms_charge_discharge_switch
 
 text_sensor:
   # YamBMS - Charging Settings
-  - id: !extend ${yambms_id}_charging_status
+  - id: !extend yambms${yambms_id}_charging_status
     web_server:
       sorting_group_id: yambms_charging_settings
-  - id: !extend ${yambms_id}_charging_instruction
+  - id: !extend yambms${yambms_id}_charging_instruction
     web_server:
       sorting_group_id: yambms_charging_settings
   # YamBMS - Max requested current
-  - id: !extend ${yambms_id}_ccl_derating_reason
+  - id: !extend yambms${yambms_id}_ccl_derating_reason
     web_server:
       sorting_group_id: yambms_max_requested_current
-  - id: !extend ${yambms_id}_dcl_derating_reason
+  - id: !extend yambms${yambms_id}_dcl_derating_reason
     web_server:
       sorting_group_id: yambms_max_requested_current
 
 switch:
   # YamBMS - Charging Settings
-  - id: !extend ${yambms_id}_switch_float
+  - id: !extend yambms${yambms_id}_switch_float
     web_server:
       sorting_group_id: yambms_charging_settings
-  - id: !extend ${yambms_id}_switch_eoc_timer
+  - id: !extend yambms${yambms_id}_switch_eoc_timer
     web_server:
       sorting_group_id: yambms_charging_settings
   # YamBMS - ReBulk
-  - id: !extend ${yambms_id}_switch_force_bulk
+  - id: !extend yambms${yambms_id}_switch_force_bulk
     web_server:
       sorting_group_id: yambms_rebulk
   # YamBMS - Request force charge
-  - id: !extend ${yambms_id}_switch_request_force_charge
+  - id: !extend yambms${yambms_id}_switch_request_force_charge
     web_server:
       sorting_group_id: yambms_request_force_charge
   # YamBMS - Charge / Discharge switch
-  - id: !extend ${yambms_id}_switch_charging
+  - id: !extend yambms${yambms_id}_switch_charging
     web_server:
       sorting_group_id: yambms_charge_discharge_switch
-  - id: !extend ${yambms_id}_switch_discharging
+  - id: !extend yambms${yambms_id}_switch_discharging
     web_server:
       sorting_group_id: yambms_charge_discharge_switch
   # YamBMS - Auto CVL
-  - id: !extend ${yambms_id}_switch_auto_cvl
+  - id: !extend yambms${yambms_id}_switch_auto_cvl
     web_server:
       sorting_group_id: yambms_auto_cvl
   # YamBMS - Auto CCL / DCL
-  - id: !extend ${yambms_id}_switch_auto_ccl
+  - id: !extend yambms${yambms_id}_switch_auto_ccl
     web_server:
       sorting_group_id: yambms_auto_ccl_dcl
-  - id: !extend ${yambms_id}_switch_auto_dcl
+  - id: !extend yambms${yambms_id}_switch_auto_dcl
     web_server:
       sorting_group_id: yambms_auto_ccl_dcl
   # YamBMS - Max requested current
-  - id: !extend ${yambms_id}_switch_temperature_based_current_limitation
+  - id: !extend yambms${yambms_id}_switch_temperature_based_current_limitation
     web_server:
       sorting_group_id: yambms_max_requested_current
 
 number:
   # YamBMS - Charging Settings
-  - id: !extend ${yambms_id}_bulk_voltage
+  - id: !extend yambms${yambms_id}_bulk_voltage
     web_server:
       sorting_group_id: yambms_charging_settings
-  - id: !extend ${yambms_id}_float_voltage
+  - id: !extend yambms${yambms_id}_float_voltage
     web_server:
       sorting_group_id: yambms_charging_settings
-  - id: !extend ${yambms_id}_inverter_offset_v
+  - id: !extend yambms${yambms_id}_inverter_offset_v
     web_server:
       sorting_group_id: yambms_charging_settings
   # YamBMS - ReBulk
-  - id: !extend ${yambms_id}_rebulk_soc
+  - id: !extend yambms${yambms_id}_rebulk_soc
     web_server:
       sorting_group_id: yambms_rebulk
-  - id: !extend ${yambms_id}_rebulk_voltage
+  - id: !extend yambms${yambms_id}_rebulk_voltage
     web_server:
       sorting_group_id: yambms_rebulk
   # YamBMS - Max requested current
-  - id: !extend ${yambms_id}_max_requested_charge_current
+  - id: !extend yambms${yambms_id}_max_requested_charge_current
     web_server:
       sorting_group_id: yambms_max_requested_current
-  - id: !extend ${yambms_id}_max_requested_discharge_current
+  - id: !extend yambms${yambms_id}_max_requested_discharge_current
     web_server:
       sorting_group_id: yambms_max_requested_current
   # YamBMS - Request force charge
-  - id: !extend ${yambms_id}_request_force_charge_start_soc
+  - id: !extend yambms${yambms_id}_request_force_charge_start_soc
     web_server:
       sorting_group_id: yambms_request_force_charge
-  - id: !extend ${yambms_id}_request_force_charge_stop_soc
+  - id: !extend yambms${yambms_id}_request_force_charge_stop_soc
     web_server:
       sorting_group_id: yambms_request_force_charge
   # YamBMS - Auto CVL
-  - id: !extend ${yambms_id}_auto_cvl_boost_charge_v
+  - id: !extend yambms${yambms_id}_auto_cvl_boost_charge_v
     web_server:
       sorting_group_id: yambms_auto_cvl
   # YamBMS - Auto Float
-  - id: !extend ${yambms_id}_auto_float_step_v
+  - id: !extend yambms${yambms_id}_auto_float_step_v
     web_server:
       sorting_group_id: yambms_auto_float
-  - id: !extend ${yambms_id}_auto_float_interval
+  - id: !extend yambms${yambms_id}_auto_float_interval
     web_server:
       sorting_group_id: yambms_auto_float
 
 sensor:
   # YamBMS - Requested Values
-  - id: !extend ${yambms_id}_requested_charge_voltage
+  - id: !extend yambms${yambms_id}_requested_charge_voltage
     web_server:
       sorting_group_id: yambms_requested_values
-  - id: !extend ${yambms_id}_requested_discharge_voltage
+  - id: !extend yambms${yambms_id}_requested_discharge_voltage
     web_server:
       sorting_group_id: yambms_requested_values
-  - id: !extend ${yambms_id}_requested_charge_current
+  - id: !extend yambms${yambms_id}_requested_charge_current
     web_server:
       sorting_group_id: yambms_requested_values
-  - id: !extend ${yambms_id}_requested_discharge_current
+  - id: !extend yambms${yambms_id}_requested_discharge_current
     web_server:
       sorting_group_id: yambms_requested_values
   # YamBMS - Auto Float
-  - id: !extend ${yambms_id}_auto_float_v
+  - id: !extend yambms${yambms_id}_auto_float_v
     web_server:
       sorting_group_id: yambms_auto_float

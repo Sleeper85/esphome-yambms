@@ -1,4 +1,4 @@
-# Updated : 2026.03.24
+# Updated : 2026.06.27
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -68,7 +68,7 @@ substitutions:
   # | YamBMS Settings                      |
   # +--------------------------------------+
   # Please read the cut-off charging logic README to understand how the YamBMS works
-  yambms_id: 'yambms1' # Must begin with a letter and cannot contain spaces
+  yambms_id: '1' # Number without spaces
   yambms_name: 'YamBMS 1' # Prefix for YamBMS entities
   yambms_update_interval: '1s'
   # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
@@ -348,11 +348,14 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> Config and Custom Local Packages
+  # | >>> Add your custom packages below
   # +------------------------------------------------------------------------------+
 
-  # Local Packages intended for creating custom codes
-  # or sharing settings between several main.yaml
-
-  # yambms_config: !include yambms_config.yaml
+  # Custom packages
   # yambms_custom: !include yambms_custom.yaml
+
+# +------------------------------------------------------------------------------+
+# | >>> Add your custom YAML below
+# +----- -------------------------------------------------------------------------+
+
+# Custom YAML

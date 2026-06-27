@@ -1,4 +1,4 @@
-# Updated : 2026.03.23
+# Updated : 2026.06.27
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -152,7 +152,14 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> Config and Custom Local Packages
+  # | >>> Add your custom packages below
   # +------------------------------------------------------------------------------+
 
-  # Add your packages or YAML below
+  # Custom packages
+  # yambms_custom: !include yambms_custom.yaml
+
+# +------------------------------------------------------------------------------+
+# | >>> Add your custom YAML below
+# +----- -------------------------------------------------------------------------+
+
+# Custom YAML

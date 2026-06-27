@@ -1,5 +1,5 @@
-# Updated : 2026.03.23
-# Version : 1.1.4
+# Updated : 2026.06.27
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,11 +22,11 @@ esphome:
     - priority: -100.0
       then:
         - lambda: |-
-            id(${yambms_id}_var_auto_ccl_functions_count)++;
+            id(yambms${yambms_id}_var_auto_ccl_functions_count)++;
 
 globals:
   # Target SoC was reached flag
-  - id: ${yambms_id}_var_auto_soc_target_reached
+  - id: yambms${yambms_id}_var_auto_soc_target_reached
     type: bool
     restore_value: no
     initial_value: 'false'
@@ -34,8 +34,8 @@ globals:
 switch:
   - platform: template
     name: "Automatic SoC Limit"
-    id: ${yambms_id}_switch_auto_soc_limit
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_switch_auto_soc_limit
+    device_id: yambms_yambms${yambms_id}
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
@@ -43,8 +43,8 @@ switch:
 number:
   - platform: template
     name: "Auto SoC Limit"
-    id: ${yambms_id}_auto_soc_limit
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_soc_limit
+    device_id: yambms_yambms${yambms_id}
     step: 5
     min_value: 40
     max_value: 95
@@ -59,11 +59,11 @@ number:
       then:
         - lambda: |-
             // Reset target reached flag
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
   - platform: template
     name: "Auto SoC Limit Hysteresis"
-    id: ${yambms_id}_auto_soc_hysteresis
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_soc_hysteresis
+    device_id: yambms_yambms${yambms_id}
     step: 5
     min_value: 5
     max_value: 40
@@ -78,11 +78,11 @@ number:
       then:
         - lambda: |-
             // Reset target reached flag
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
   - platform: template
     name: "Auto SoC Limit CCL"
-    id: ${yambms_id}_auto_soc_ccl
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_soc_ccl
+    device_id: yambms_yambms${yambms_id}
     step: 1
     min_value: 0
     max_value: 10
@@ -97,13 +97,13 @@ number:
       then:
         - lambda: |-
             // Reset target reached flag
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
 
 select:
   - platform: template
     name: "Auto SoC Limit Mode"
-    id: ${yambms_id}_auto_soc_limit_mode
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_soc_limit_mode
+    device_id: yambms_yambms${yambms_id}
     options:
       - "Float"
       - "CCL"
@@ -116,7 +116,7 @@ select:
       then:
         - lambda: |-
             // Reset target reached flag
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
 
 text_sensor:
   # +--------------------------------------+
@@ -124,8 +124,8 @@ text_sensor:
   # +--------------------------------------+
   - platform: template
     name: "Auto SoC Limit Status"
-    id: ${yambms_id}_auto_soc_limit_status
-    device_id: yambms_${yambms_id}
+    id: yambms${yambms_id}_auto_soc_limit_status
+    device_id: yambms_yambms${yambms_id}
     update_interval: never
     icon: mdi:information-outline
     entity_category: diagnostic
@@ -138,42 +138,42 @@ interval:
       # +------------------------------------------+
       - lambda: |-
           // Check if we are in the correct step
-          int cc_step = id(${yambms_id}_var_charge_current_step);
-          if ((cc_step < 1) || (cc_step >= (id(${yambms_id}_var_auto_ccl_functions_count) + 1))) {
+          int cc_step = id(yambms${yambms_id}_var_charge_current_step);
+          if ((cc_step < 1) || (cc_step >= (id(yambms${yambms_id}_var_auto_ccl_functions_count) + 1))) {
             return;
           }
           
           ESP_LOGD("yambms_debug", "Entering Auto SoC Limit...");
 
           // Check if enabled
-          if (!id(${yambms_id}_switch_auto_soc_limit).state || 
-              !id(${yambms_id}_battery_soc).has_state() ||
-              !id(${yambms_id}_max_charge_current).has_state()) {
+          if (!id(yambms${yambms_id}_switch_auto_soc_limit).state || 
+              !id(yambms${yambms_id}_battery_soc).has_state() ||
+              !id(yambms${yambms_id}_max_charge_current).has_state()) {
             // Auto SoC Charging disabled
-            id(${yambms_id}_var_auto_soc_limit) = 0;
-            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Disabled");
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
-            id(${yambms_id}_var_charge_current_step)++;
+            id(yambms${yambms_id}_var_auto_soc_limit) = 0;
+            id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Stop: Disabled");
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
 
           // Check if Force Bulk is active
-          if (id(${yambms_id}_switch_force_bulk).state) {
+          if (id(yambms${yambms_id}_switch_force_bulk).state) {
             // If Force Bulk is active, we should not limit charge current or switch to Float
-            id(${yambms_id}_var_auto_soc_limit) = 0;
-            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Force Bulk active");
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
-            id(${yambms_id}_var_charge_current_step)++;
+            id(yambms${yambms_id}_var_auto_soc_limit) = 0;
+            id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Stop: Force Bulk active");
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
 
           // Check if Rebulk Days is active
-          if (id(${yambms_id}_var_rebulk_days_active)) {
+          if (id(yambms${yambms_id}_var_rebulk_days_active)) {
             // If Rebulk Days is active, we should not limit charge current or switch to Float
-            id(${yambms_id}_var_auto_soc_limit) = 0;
-            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Rebulk Days active");
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
-            id(${yambms_id}_var_charge_current_step)++;
+            id(yambms${yambms_id}_var_auto_soc_limit) = 0;
+            id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Stop: Rebulk Days active");
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
 
@@ -182,71 +182,71 @@ interval:
           uint32_t current_ms = millis();
 
           if ((current_ms - last_execution_ms) < 60000) {
-            id(${yambms_id}_var_charge_current_step)++;
+            id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
 
           last_execution_ms = current_ms;
 
           // Only work in Bulk or Float mode
-          if (id(${yambms_id}_var_charge_status) != "Bulk" && id(${yambms_id}_var_charge_status) != "Float") {
-            id(${yambms_id}_var_auto_soc_limit) = 0;
-            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: Not in Bulk/Float");
-            id(${yambms_id}_var_auto_soc_target_reached) = false;
-            id(${yambms_id}_var_charge_current_step)++;
+          if (id(yambms${yambms_id}_var_charge_status) != "Bulk" && id(yambms${yambms_id}_var_charge_status) != "Float") {
+            id(yambms${yambms_id}_var_auto_soc_limit) = 0;
+            id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Stop: Not in Bulk/Float");
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
+            id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
 
           // Check if target SoC was already reached
-          int soc = id(${yambms_id}_battery_soc).state;
-          int target_soc = id(${yambms_id}_auto_soc_limit).state;
+          int soc = id(yambms${yambms_id}_battery_soc).state;
+          int target_soc = id(yambms${yambms_id}_auto_soc_limit).state;
 
-          if (id(${yambms_id}_var_auto_soc_target_reached)) {
+          if (id(yambms${yambms_id}_var_auto_soc_target_reached)) {
             // If target was reached but SoC has dropped below target - hysteresis, allow increasing charge current again
-            int soc_hysteresis = target_soc - id(${yambms_id}_auto_soc_hysteresis).state;
+            int soc_hysteresis = target_soc - id(yambms${yambms_id}_auto_soc_hysteresis).state;
             if (soc <= soc_hysteresis) {
               ESP_LOGD("yambms_debug", "Auto SoC Limit: Activating again, SoC dropped below target - hysteresis");
-              id(${yambms_id}_var_auto_soc_target_reached) = false;
-              id(${yambms_id}_var_auto_soc_limit) = 0;
-              id(${yambms_id}_auto_soc_limit_status).publish_state("Run");
+              id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
+              id(yambms${yambms_id}_var_auto_soc_limit) = 0;
+              id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Run");
             } else {
-              id(${yambms_id}_auto_soc_limit_status).publish_state("Wait: Reactivating at " + std::to_string(soc_hysteresis) + "%");
+              id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Wait: Reactivating at " + std::to_string(soc_hysteresis) + "%");
             }
 
-            id(${yambms_id}_var_charge_current_step)++;
+            id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
 
           // Check if target SoC is reached or exceeded
           if (soc >= target_soc) {
-            id(${yambms_id}_var_auto_soc_target_reached) = true;
-            id(${yambms_id}_auto_soc_limit_status).publish_state("Stop: SoC limit reached");
+            id(yambms${yambms_id}_var_auto_soc_target_reached) = true;
+            id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Stop: SoC limit reached");
             ESP_LOGD("yambms_debug", "Auto SoC Limit: Target SoC reached");
 
             // Get mode
-            const auto mode = id(${yambms_id}_auto_soc_limit_mode).active_index();
+            const auto mode = id(yambms${yambms_id}_auto_soc_limit_mode).active_index();
 
             if (mode == 0) {
               // Float mode
               ESP_LOGD("yambms_debug", "Auto SoC Limit: Applying Float mode");
-              id(${yambms_id}_var_charge_status) = "Float";
-              id(${yambms_id}_var_auto_soc_limit) = 0;
+              id(yambms${yambms_id}_var_charge_status) = "Float";
+              id(yambms${yambms_id}_var_auto_soc_limit) = 0;
             } else if (mode == 1) {
               // CCL mode
               ESP_LOGD("yambms_debug", "Auto SoC Limit: Applying CCL mode");
-              id(${yambms_id}_var_auto_soc_limit) = -(id(${yambms_id}_max_charge_current).state - id(${yambms_id}_auto_soc_ccl).state);
+              id(yambms${yambms_id}_var_auto_soc_limit) = -(id(yambms${yambms_id}_max_charge_current).state - id(yambms${yambms_id}_auto_soc_ccl).state);
             } else if (mode == 2) {
               // Float + CCL mode
               ESP_LOGD("yambms_debug", "Auto SoC Limit: Applying Float + CCL mode");
-              id(${yambms_id}_var_charge_status) = "Float";
-              id(${yambms_id}_var_auto_soc_limit) = -(id(${yambms_id}_max_charge_current).state - id(${yambms_id}_auto_soc_ccl).state);
+              id(yambms${yambms_id}_var_charge_status) = "Float";
+              id(yambms${yambms_id}_var_auto_soc_limit) = -(id(yambms${yambms_id}_max_charge_current).state - id(yambms${yambms_id}_auto_soc_ccl).state);
             } else {
               // Default case (should not happen)
               ESP_LOGD("yambms_debug", "Auto SoC Limit: Unknown mode");
             }
           } else {
-            id(${yambms_id}_auto_soc_limit_status).publish_state("Run");
-            id(${yambms_id}_var_auto_soc_limit) = 0;
+            id(yambms${yambms_id}_auto_soc_limit_status).publish_state("Run");
+            id(yambms${yambms_id}_var_auto_soc_limit) = 0;
           }
 
-          id(${yambms_id}_var_charge_current_step)++;
+          id(yambms${yambms_id}_var_charge_current_step)++;
