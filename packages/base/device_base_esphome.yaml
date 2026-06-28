@@ -1,4 +1,4 @@
-# Updated : 2026.02.16
+# Updated : 2026.06.28
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -28,4 +28,4 @@ esphome:
   project:
     name: Sleeper85.YamBMS
     version: ${yambms_version}
-  min_version: 2026.1.5
+  min_version: 2026.6.0
