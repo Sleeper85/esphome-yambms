@@ -43,3 +43,11 @@ By default an ESP32 has `3 UARTs`, one of which is used for the logger output. T
 logger:
   baud_rate: 0
 ```
+
+### Logs commands examples
+
+```
+esphome logs YamBMS.yaml --device /dev/ttyUSB0 | grep -E 'yambms_debug:|Restarting device'
+esphome logs YamBMS.yaml --device /dev/ttyUSB0 | grep '0x351 hex:'
+esphome logs YamBMS.yaml --device /dev/ttyUSB0 | grep -E '0x351 hex:|0x356 hex:'
+```
