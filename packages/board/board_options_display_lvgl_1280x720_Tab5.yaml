@@ -94,6 +94,10 @@ font:
 # +--------------------------------------+
 
 lvgl:
+  # Rotation lives here (not under display:) — required by ESPHome 2026.6+ with LVGL.
+  # mipi_dsi has no hardware rotation, so LVGL rotates in software (PPA-accelerated on
+  # P4) and auto-transforms touch coords. The gt911 therefore has NO transform block.
+  rotation: 90
   byte_order: little_endian
   color_depth: 16
   buffer_size: 100%
@@ -402,24 +406,20 @@ lvgl:
                       - range_from: -400
                         range_to: 400
                         angle_range: 180
-                        ticks:
-                          count: 0
                         indicators:
                           - line:
                               id: current_needle
                               width: 5
-                              r_mod: 25
+                              length: -25
                               value: 0
                               color: 0xFFFFFF
                           - arc:
                               color: 0xFF3000
-                              r_mod: 10
                               width: 40
                               start_value: -400
                               end_value: 0
                           - arc:
                               color: 0x00FF00
-                              r_mod: 10
                               width: 40
                               start_value: 0
                               end_value: 400
@@ -464,24 +464,20 @@ lvgl:
                       - range_from: -24
                         range_to: 24
                         angle_range: 180
-                        ticks:
-                          count: 0
                         indicators:
                           - line:
                               id: power_needle
                               width: 5
-                              r_mod: 25
+                              length: -25
                               value: 0
                               color: 0xFFFFFF
                           - arc:
                               color: 0xFF3000
-                              r_mod: 10
                               width: 40
                               start_value: -24
                               end_value: 0
                           - arc:
                               color: 0x00FF00
-                              r_mod: 10
                               width: 40
                               start_value: 0
                               end_value: 24

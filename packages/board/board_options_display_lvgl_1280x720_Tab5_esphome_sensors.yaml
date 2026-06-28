@@ -79,7 +79,8 @@ interval:
           // Update current gauge and text
           float current = id(${yambms_id}_current).state;
           if (!isnan(current)) {
-            lv_meter_set_indicator_value(id(current_meter), id(current_needle), (int32_t)current);
+            // LVGL 9.4 removed lv_meter; the needle is now an ESPHome IndicatorLine.
+            id(current_needle)->set_value((int32_t)current);
             char buf[32];
             snprintf(buf, sizeof(buf), "%.1f A", current);
             lv_label_set_text(id(current_text), buf);
@@ -97,7 +98,7 @@ interval:
           // Update power gauge and text
           float power = id(${yambms_id}_power).state / 1000.0f;  // Convert to kW
           if (!isnan(power)) {
-            lv_meter_set_indicator_value(id(power_meter), id(power_needle), (int32_t)(power));
+            id(power_needle)->set_value((int32_t)(power));
             char buf[32];
             snprintf(buf, sizeof(buf), "%.2f kW", power);
             lv_label_set_text(id(power_text), buf);
