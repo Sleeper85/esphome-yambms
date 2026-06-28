@@ -1,5 +1,5 @@
-# Updated : 2026.03.15
-# Version : 1.1.5
+# Updated : 2026.06.28
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -322,6 +322,9 @@ number:
       id: balancer${bms_id}_balance_starting_voltage
       device_id: balancer_${bms_id}
       name: "balance starting voltage"
+    balance_stop_diff_voltage:
+      device_id: balancer_${bms_id}
+      name: "balance stop diff voltage"
     nominal_battery_capacity:
       device_id: balancer_${bms_id}
       name: "total battery capacity"
