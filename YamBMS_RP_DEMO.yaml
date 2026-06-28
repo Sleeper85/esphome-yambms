@@ -1,4 +1,4 @@
-# Updated : 2026.06.27
+# Updated : 2026.06.28
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -198,9 +198,10 @@ packages:
   # | >>> Uncomment the display that corresponds to your board
   # +------------------------------------------------------------------------------+
 
-      # - path: 'packages/board/board_options_display_128x128.yaml' # AtomS3 / AtomS3R display
-      # - path: 'packages/board/board_options_display_480x222.yaml' # LilyGo T-Connect Pro display
-      # - path: 'packages/board/board_options_display_lvgl_800x480_basic_blue_esphome.yaml' # WS Touch LCD 4.3" and 7"
+      # - path: 'packages/board/board_options_display_128x128.yaml'                                # AtomS3 / AtomS3R
+      # - path: 'packages/board/board_options_display_480x222.yaml'                                # LilyGo T-Connect Pro
+      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml' # WS Touch LCD 4.3" and 7"
+      # - path: 'packages/board/board_options_display_lvgl_package_1280x720_Tab5_esphome.yaml'     # M5Stack Tab5
       
       #   vars:
       #     display_auto_next_page_interval: '5s'

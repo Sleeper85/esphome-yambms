@@ -1,5 +1,5 @@
-# Updated : 2026.02.19
-# Version : 1.1.2
+# Updated : 2026.06.28
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,155 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# +---------------------------------------------------------+
-# | Pages  : Page 1 = Battery | Page 2 = Status             |
-# +---------------------------------------------------------+
-
-# +---------------------------------------------------------+
-# | Fonts                                                   |
-# +---------------------------------------------------------+
-font:
-  - file: "gfonts://Montserrat"
-    id: font_14
-    size: 14
-    bpp: 4
-  - file: "gfonts://Montserrat"
-    id: font_18
-    size: 18
-    bpp: 4
-    glyphs: "!\"%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ °↑↓"
-  - file: "gfonts://Montserrat"
-    id: font_22
-    size: 22
-    bpp: 4
-  - file: "gfonts://Montserrat"
-    id: font_28
-    size: 28
-    bpp: 4
-  - file: "gfonts://Montserrat"
-    id: font_40
-    size: 40
-    bpp: 4
-
-# +---------------------------------------------------------+
-# | Display Timeout                                         |
-# +---------------------------------------------------------+
-
-number:
-  - platform: template
-    id: display_timeout
-    device_id: ${board_id}
-    name: "Display timeout"
-    optimistic: true
-    unit_of_measurement: "s"
-    initial_value: 300
-    restore_value: true
-    min_value: 5
-    max_value: 300
-    step: 5
-    mode: box
-    entity_category: config
-
-# +---------------------------------------------------------+
-# | Touch Screen actions                                    |
-# +---------------------------------------------------------+
-
-touchscreen:
-  - platform: gt911
-    id: !extend my_touchscreen
-    on_release: # when the finger leaves the screen surface
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-            - light.turn_on: backlight
-
-
-# +---------------------------------------------------------+
-# | Color definitions (LVGL hex)                            |
-# +---------------------------------------------------------+
-substitutions:
-  color_bg: '0x1a1a2e'    # dark navy
-  color_panel: '0x16213e' # slightly lighter navy
-  color_1: '0xffffff'     # white
-  color_2: '0xb2bec3'     # grey
-  color_3: '0x0f3460'     # blue
-  color_4: '0x74b9ff'     # light_blue
-  color_5: '0x00b894'     # green
-  color_6: '0xfdcb6e'     # yellow
-  color_7: '0xe17055'     # red
-
-# +---------------------------------------------------------+
-# | LVGL Configuration                                      |
-# +---------------------------------------------------------+
 lvgl:
-  displays:
-    - my_display
-  touchscreens:
-    - my_touchscreen
-
-  on_idle:
-    timeout: !lambda "return (id(display_timeout).state * 1000);"
-    then:
-      - light.turn_off: backlight
-      - lvgl.pause:
-
-  # Global style defaults
-  theme:
-    label:
-      text_color: ${color_1}
-    obj:
-      pad_all: 0
-      scrollbar_mode: "off"
 
   # ┌─────────────────────────────────────────────────────┐
-  # │ PAGE 1 — BATTERY                                    │
+  # │ PAGE — BATTERY                                      │
   # └─────────────────────────────────────────────────────┘
+
   pages:
     - id: page_battery
       bg_color: ${color_bg}
       widgets:
-
-        # ── NAV BUTTONS (bottom-right, always visible) ───
-        - button:
-            id: btn_p1
-            x: 670
-            y: 440
-            width: 50
-            height: 32
-            bg_color: ${color_3}
-            border_width: 2
-            border_color: ${color_5}
-            radius: 6
-            widgets:
-              - label:
-                  text: "P1"
-                  text_font: font_14
-                  text_color: ${color_5}
-                  align: CENTER
-            on_click:
-              - lvgl.page.show: page_battery
-
-        - button:
-            id: btn_p2
-            x: 730
-            y: 440
-            width: 50
-            height: 32
-            bg_color: ${color_panel}
-            border_width: 1
-            border_color: ${color_2}
-            radius: 6
-            widgets:
-              - label:
-                  text: "P2"
-                  text_font: font_14
-                  text_color: ${color_2}
-                  align: CENTER
-            on_click:
-              - lvgl.page.show: page_status
-
 
         # ── ROW 1 : Faults Status | Battery SoC | Charge Status ────────
 
@@ -529,6 +390,7 @@ lvgl:
                   text_color: ${color_4}
 
         # ── ROW 2 : Voltage | Power | Current ───
+
         # Voltage
         - obj:
             x: 20
@@ -623,6 +485,7 @@ lvgl:
                   text_align: CENTER
 
         # ── ROW 3 : Capacity infos - SoH ──
+
         # Installed Capacity
         - obj:
             x: 20
@@ -740,6 +603,7 @@ lvgl:
                   text_align: CENTER
 
         # ── ROW 4 : Cell voltages + Delta + Temperatures ──
+
         # Max Cell V.
         - obj:
             x: 20
@@ -911,52 +775,14 @@ lvgl:
                   text_align: CENTER
 
     # ┌─────────────────────────────────────────────────────┐
-    # │ PAGE 2 — STATUS                                     │
+    # │ PAGE — STATUS                                       │
     # └─────────────────────────────────────────────────────┘
     - id: page_status
       bg_color: ${color_bg}
       widgets:
 
-        # ── NAV BUTTONS ───────────────────────────────────
-        - button:
-            id: btn_p1_s
-            x: 670
-            y: 440
-            width: 50
-            height: 32
-            bg_color: ${color_panel}
-            border_width: 1
-            border_color: ${color_2}
-            radius: 6
-            widgets:
-              - label:
-                  text: "P1"
-                  text_font: font_14
-                  text_color: ${color_2}
-                  align: CENTER
-            on_click:
-              - lvgl.page.show: page_battery
-
-        - button:
-            id: btn_p2_s
-            x: 730
-            y: 440
-            width: 50
-            height: 32
-            bg_color: ${color_3}
-            border_width: 2
-            border_color: ${color_5}
-            radius: 6
-            widgets:
-              - label:
-                  text: "P2"
-                  text_font: font_14
-                  text_color: ${color_5}
-                  align: CENTER
-            on_click:
-              - lvgl.page.show: page_status
-
         # ── ROW 1 : Charging status | Charge instruction | Discharge instruction | Last Complete Charge ──
+
         # Charging status
         - obj:
             x: 20
@@ -1074,6 +900,7 @@ lvgl:
                   text_align: CENTER
 
         # ── ROW 2 : Alarm | Warning | Free 1 | Free 2 ──
+
         # Alarm
         - obj:
             x: 20
@@ -1191,6 +1018,7 @@ lvgl:
                   text_align: CENTER
 
         # ── ROW 4 : BMS counters | Shunt counters | Uptime | Version ──
+
         # BMS info panel
         - obj:
             x: 20

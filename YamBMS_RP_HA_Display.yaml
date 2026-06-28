@@ -1,4 +1,4 @@
-# Updated : 2026.06.27
+# Updated : 2026.06.28
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -82,12 +82,47 @@ packages:
   # | >>> Uncomment the display that corresponds to your board
   # +------------------------------------------------------------------------------+
 
-      - path: 'packages/board/board_options_display_lvgl_800x480_basic_blue_ha.yaml' # 800x480 basic blue display
-      # - path: 'packages/board/board_options_display_lvgl_1280x720_Tab5_ha.yaml' # 1280x720 Tab5 display
+      - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_yambms.yaml'   # 800x480 Blue Navy display - YamBMS pages
+      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml'   # 800x480 Blue Navy display - Overview + YamBMS pages  
+      # - path: 'packages/board/board_options_display_lvgl_package_1280x720_Tab5_ha.yaml'            # 1280x720 Tab5 display
+
         vars:
-          device_name: 'yambms' # The friendly_name of your YamBMS node is in lowercase; spaces are replaced by underscores
+          # Variables required for all display YAMLs
+          device_name: 'yambms'   # The friendly_name of your YamBMS node is in lowercase; spaces are replaced by underscores
           yambms_name: 'yambms_1' # The yambms_name of your YamBMS node is in lowercase; spaces are replaced by underscores
 
+          # Uncomment the variables below to use the following YAMLs :
+          # => board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml
+
+          # Overview page inputs
+
+          # pv_power_now:              your_pv_power_now
+          # pv_energy_today:           your_pv_energy_today
+          # grid_import_now:           your_grid_import_now
+          # grid_import_today:         your_grid_import_today
+          # grid_export_now:           your_grid_export_now
+          # grid_export_today:         your_grid_export_today
+          # bat_soc:                   yambms_1_battery_soc
+          # bat_power:                 yambms_1_power
+          # bat_charge_now:            yambms_1_battery_charging_power
+          # bat_charge_today:          yambms_1_daily_charging_energy
+          # bat_discharge_now:         yambms_1_battery_discharging_power
+          # bat_discharge_today:       yambms_1_daily_discharging_energy
+          # home_power_now:            your_home_power_now
+          # home_daily_energy_total:   your_home_daily_energy_total
+          # home_daily_energy_solar:   your_home_daily_energy_solar
+          # home_daily_energy_grid:    your_home_daily_energy_grid
+          # home_daily_energy_battery: yambms_1_daily_discharging_energy
+
+          # Overview page animation
+          # Max power = dot max speed
+
+          # anim_pv_power_max:         1000
+          # anim_grid_power_max:       3000
+          # anim_battery_power_max:    3000
+          # anim_home_power_max:       3000
+          # anim_duration_min:         800  # ms at max power
+          # anim_duration_max:         4000 # ms at nul power
 
 
   # +------------------------------------------------------------------------------+

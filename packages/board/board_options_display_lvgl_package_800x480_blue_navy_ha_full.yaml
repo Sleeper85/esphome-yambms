@@ -1,5 +1,5 @@
-# Updated : 2026.02.19
-# Version : 1.1.1
+# Updated : 2026.06.28
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  home_page: 'page_overview'
+
 packages:
-  lvgl_display: !include board_options_display_lvgl_800x480_basic_blue.yaml
-  ha_sensors: !include board_options_display_lvgl_ha_sensors.yaml
+  lvgl_design_base:     !include board_options_display_lvgl_design_800x480_blue_navy_base.yaml
+  lvgl_design_overview: !include board_options_display_lvgl_design_800x480_blue_navy_overview.yaml
+  lvgl_design_yambms:   !include board_options_display_lvgl_design_800x480_blue_navy_yambms.yaml
+  ha_sensors_overview:  !include board_options_display_lvgl_ha_sensors_blue_navy_overview.yaml
+  ha_sensors_yambms:    !include board_options_display_lvgl_ha_sensors_blue_navy_yambms.yaml

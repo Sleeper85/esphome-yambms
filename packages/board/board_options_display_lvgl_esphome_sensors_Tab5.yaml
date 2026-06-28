@@ -1,7 +1,6 @@
-# Updated  : 2026.02.23
-# Version  : 1.1.2
+# Updated  : 2026.06.28
+# Version  : 1.1.3
 # GitHub   : https://github.com/Sleeper85/esphome-yambms
-# ESPHome  : 2026.2.1
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -25,7 +24,7 @@
 # | For use on the YamBMS node itself (not a standalone display).
 # |
 # | Required substitutions: `yambms_id` - the YamBMS instance ID to monitor.
-# | Requires: board_options_display_lvgl_1280x720_Tab5.yaml (LVGL layout)
+# | Requires: board_options_display_lvgl_design_1280x720_Tab5.yaml (LVGL layout)
 # |
 # +--------------------------------------------------------------------------+
 
@@ -77,7 +76,7 @@ interval:
     then:
       - lambda: |-
           // Update current gauge and text
-          float current = id(${yambms_id}_current).state;
+          float current = id(yambms${yambms_id}_current).state;
           if (!isnan(current)) {
             // LVGL 9.4 removed lv_meter; the needle is now an ESPHome IndicatorLine.
             id(current_needle)->set_value((int32_t)current);
@@ -96,7 +95,7 @@ interval:
           }
           
           // Update power gauge and text
-          float power = id(${yambms_id}_power).state / 1000.0f;  // Convert to kW
+          float power = id(yambms${yambms_id}_power).state / 1000.0f;  // Convert to kW
           if (!isnan(power)) {
             id(power_needle)->set_value((int32_t)(power));
             char buf[32];
@@ -105,7 +104,7 @@ interval:
           }
           
           // Update voltage
-          float voltage = id(${yambms_id}_total_voltage).state;
+          float voltage = id(yambms${yambms_id}_total_voltage).state;
           if (!isnan(voltage)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.2fv", voltage);
@@ -113,7 +112,7 @@ interval:
           }
           
           // Update delta cell voltage (display in mV)
-          float delta = id(${yambms_id}_delta_cell_voltage).state;
+          float delta = id(yambms${yambms_id}_delta_cell_voltage).state;
           if (!isnan(delta)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.0f mV", delta * 1000.0f);
@@ -121,7 +120,7 @@ interval:
           }
           
           // Update SOC
-          float soc = id(${yambms_id}_battery_soc).state;
+          float soc = id(yambms${yambms_id}_battery_soc).state;
           if (!isnan(soc)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.0f%%", soc);
@@ -141,8 +140,8 @@ interval:
           }
           
           // Update capacity
-          float capacity_remaining = id(${yambms_id}_battery_capacity_remaining).state;
-          float battery_capacity = id(${yambms_id}_battery_capacity).state;
+          float capacity_remaining = id(yambms${yambms_id}_battery_capacity_remaining).state;
+          float battery_capacity = id(yambms${yambms_id}_battery_capacity).state;
           if (!isnan(capacity_remaining) && !isnan(battery_capacity)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.0f of %.0fAh", capacity_remaining, battery_capacity);
@@ -150,8 +149,8 @@ interval:
           }
           
           // Update BMS combined count
-          float bms_combined = id(${yambms_id}_bms_combined).state;
-          float bms_count = id(${yambms_id}_bms_count).state;
+          float bms_combined = id(yambms${yambms_id}_bms_combined).state;
+          float bms_count = id(yambms${yambms_id}_bms_count).state;
           if (!isnan(bms_combined) && !isnan(bms_count)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.0f of %.0f", bms_combined, bms_count);
@@ -159,7 +158,7 @@ interval:
           }
           
           // Update BMS blocking count (BMSes that are blocking charge)
-          float alarming = id(${yambms_id}_bms_blocking_charge).state;
+          float alarming = id(yambms${yambms_id}_bms_blocking_charge).state;
           if (!isnan(alarming)) {
             char buf[32];
             snprintf(buf, sizeof(buf), "%.0f", alarming);
@@ -172,11 +171,11 @@ interval:
           }
           
           // Update charging status text
-          std::string charging_status = id(${yambms_id}_charging_status).state;
+          std::string charging_status = id(yambms${yambms_id}_charging_status).state;
           lv_label_set_text(id(charging_status_text), charging_status.c_str());
           
           // Update charging allowed
-          bool charging_allowed = id(${yambms_id}_charging_allowed).state;
+          bool charging_allowed = id(yambms${yambms_id}_charging_allowed).state;
           if (charging_allowed) {
             lv_label_set_text(id(charging_allowed_text), "Allowed");
             lv_obj_set_style_text_color(id(charging_allowed_text), lv_color_hex(0x13BF13), 0);
@@ -186,7 +185,7 @@ interval:
           }
           
           // Update discharging allowed
-          bool discharging_allowed = id(${yambms_id}_discharging_allowed).state;
+          bool discharging_allowed = id(yambms${yambms_id}_discharging_allowed).state;
           if (discharging_allowed) {
             lv_label_set_text(id(discharging_allowed_text), "Allowed");
             lv_obj_set_style_text_color(id(discharging_allowed_text), lv_color_hex(0x13BF13), 0);
@@ -213,29 +212,3 @@ interval:
             snprintf(buf, sizeof(buf), "%02d:%02d", now.hour, now.minute);
             lv_label_set_text(id(time_text), buf);
           }
-
-# +--------------------------------------+
-# | Touch Screen actions                 |
-# +--------------------------------------+
-
-touchscreen:
-  - platform: gt911
-    id: !extend my_touchscreen
-    on_release: # when the finger leaves the screen surface
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-            - light.turn_on: backlight
-
-# +--------------------------------------+
-# | LVGL Idle Timeout                    |
-# +--------------------------------------+
-
-lvgl:
-  on_idle:
-    timeout: !lambda "return (id(display_timeout).state * 1000);"
-    then:
-      - light.turn_off: backlight
-      - lvgl.pause:
