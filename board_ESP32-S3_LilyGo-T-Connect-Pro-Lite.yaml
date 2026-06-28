@@ -1,0 +1,130 @@
+# Updated : 2026.03.15
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://wiki.lilygo.cc/get_started/en/High_speed/T-Connect-Pro/T-Connect-Pro.html
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "LilyGo T-Connect Pro"
+  # Interfaces GPIOs
+  # uart_esp_1: RS232
+  tx_pin_1: '4'
+  rx_pin_1: '5'
+  # uart_esp_2: RS485
+  tx_pin_2: '17'
+  rx_pin_2: '18'
+  # canbus_esp32_can: CAN
+  tx_pin_4: '6'
+  rx_pin_4: '7'
+  # esp_light_X
+  lilygo_led_1: '46'
+  lilygo_led_2: '3'
+  lilygo_led_3: '21'
+  lilygo_led_4: '41'
+  board_has_rgb: "true" # LED `RGB` flag to show functionality is available
+  # buttons
+  lilygo_btn_a: '39'
+  lilygo_btn_b: '40'
+  # relay
+  lilygo_rly: '8'
+
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_ethernet: !include ../base/device_base_ethernet.yaml
+  board_rgb_led: !include board_options_led_control.yaml
+
+esp32:
+  variant: esp32s3
+  flash_size: 16MB # ajust according to your ESP32-S3 version
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+
+ethernet:
+  id: my_network
+  type: W5500
+  clk_pin: 12
+  mosi_pin: 11
+  miso_pin: 13
+  cs_pin: 10
+  interrupt_pin: 9
+  reset_pin: 48
+  clock_speed: 40MHz
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+
+light:
+
+  # RGB LED 1
+  - platform: esp32_rmt_led_strip
+    id: esp_light_1
+    rgb_order: GRB
+    pin: ${lilygo_led_1}
+    num_leds: 1
+    chipset: ws2812
+    rmt_symbols: 48
+    restore_mode: ALWAYS_OFF
+    default_transition_length: 0.5s
+  # RGB LED 2
+  - platform: esp32_rmt_led_strip
+    id: esp_light_2
+    rgb_order: GRB
+    pin: ${lilygo_led_2}
+    num_leds: 1
+    chipset: ws2812
+    rmt_symbols: 48
+    restore_mode: ALWAYS_OFF
+    default_transition_length: 1s
+  # RGB LED 3
+  - platform: esp32_rmt_led_strip
+    id: esp_light_3
+    rgb_order: GRB
+    pin: ${lilygo_led_3}
+    num_leds: 1
+    chipset: ws2812
+    rmt_symbols: 48
+    restore_mode: ALWAYS_OFF
+    default_transition_length: 0.5s
+  # RGB LED 4
+  - platform: esp32_rmt_led_strip
+    id: esp_light_4
+    rgb_order: GRB
+    pin: ${lilygo_led_4}
+    num_leds: 1
+    chipset: ws2812
+    rmt_symbols: 48
+    restore_mode: ALWAYS_OFF
+    default_transition_length: 0.5s
+
+# Relay: IO8
+switch:
+  - platform: gpio
+    name: "Relay"
+    icon: "mdi:electric-switch"
+    pin:
+      number: ${lilygo_rly}
+      inverted: true
+      mode: OUTPUT_OPEN_DRAIN
+    restore_mode: RESTORE_DEFAULT_OFF

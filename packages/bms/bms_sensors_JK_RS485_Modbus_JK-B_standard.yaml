@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.9
+# Updated : 2026.03.15
+# Version : 1.2.3
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -86,6 +86,12 @@ binary_sensor:
       id: bms${bms_id}_online_status
       device_id: bms_${bms_id}
       name: "status online"
+      trigger_on_initial_state: true
+      on_state:
+        then:
+          - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
     status_heating:
       device_id: bms_${bms_id}
       name: "status heating"
@@ -185,6 +191,8 @@ sensor:
     battery_total_runtime:
       device_id: bms_${bms_id}
       name: "battery total runtime"
+      filters:
+        - throttle: 60s
     balancing_current:
       device_id: bms_${bms_id}
       name: "balancing current"
@@ -444,3 +452,9 @@ number:
     cell_power_off_voltage:
       device_id: bms_${bms_id}
       name: "cell power off voltage"
+    charging_lowtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charging lowtemperature protection"
+    charging_lowtemperature_protection_recovery:
+      device_id: bms_${bms_id}
+      name: "charging lowtemperature protection recovery"

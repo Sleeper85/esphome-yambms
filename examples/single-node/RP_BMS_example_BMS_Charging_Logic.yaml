@@ -1,5 +1,5 @@
-# Updated : 2025.07.26
-# Version : 1.1.1
+# Updated : 2026.02.15
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,7 +19,15 @@
 
 ############################ Remote Packages Example ###########################
 
-# This is not a working YAML but just code ready to copy into your main YAML.
+# This is not a working YAML but just code ready to copy into
+# your main YAML below the `packages:` section.
+
+# packages:
+#   remote_packages:
+#     url: https://github.com/Sleeper85/esphome-yambms
+#     ref: main
+#     refresh: 60s
+#     files:
 
 ################################################################################
 
@@ -29,11 +37,6 @@
   # This logic acts directly on the charging MOSFETs; please use it only if necessary and at your own risk.
   # The BMS charge switch will be turned ON again during ReBulk.
 
-  bms_charging_logic:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 0s
-    files:
       # BMS 1
       - path: 'packages/bms/bms_options_charging_logic.yaml'
         vars:

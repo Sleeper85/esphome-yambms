@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.6
+# Updated : 2026.02.15
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,13 +38,16 @@ substitutions:
   spi_miso_pin: '4'
   spi_clk_pin: '5'
   mcp2515_cs_pin: '6'
+  # LED
+  board_has_rgb: "false" # LED `RGB` flag to show functionality is available
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
+  led_control: !include board_options_led_control.yaml
 
 esp32:
-  board: esp32-s3-devkitc-1
+  variant: esp32s3
   flash_size: 8MB # adjust according to your ESP32-S3 version
   cpu_frequency: 240MHz 
   framework:
@@ -52,7 +55,7 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
 wifi:
   id: my_network

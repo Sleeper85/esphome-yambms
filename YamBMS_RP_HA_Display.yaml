@@ -1,0 +1,200 @@
+# Updated : 2026.06.28
+# Version : 1.7.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+######################## YamBMS Remote Packages Version ########################
+
+# You can compile this YAML directly without the `packages` folder.
+# The packages will be automatically downloaded from GitHub.
+# Don't forget to configure your WiFi credentials in the secrets.yaml
+
+################################################################################
+
+# If needed, configure a static IP here
+# wifi:
+#   manual_ip:
+#     static_ip: 192.168.0.85
+#     gateway: 192.168.0.1
+#     subnet: 255.255.255.0
+#     dns1: 8.8.8.8
+#     dns2: 8.8.4.4
+
+logger:
+  level: INFO # VERBOSE / DEBUG / INFO / WARN
+  # baud_rate: 115200 # Send logs to the `hardware_uart` USB output (this consumes a UART interface)
+  # hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
+
+ota:
+  - platform: esphome
+
+api: # This YAML only works with the API
+
+
+
+# +--------------------------------------+
+# | Global Settings                      |
+# +--------------------------------------+
+substitutions:
+  # This project uses the `sub-device` function of ESPHome to prefix entity names.
+  # This allows to group entities into logical devices that appear separately in Home Assistant.
+  hostname: 'yambms-display' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
+  friendly_name : 'YamBMS Display' # Name of your board (prefix for board entities)
+
+# +--------------------------------------+
+# | Packages                             |
+# +--------------------------------------+
+
+# PLEASE READ : https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_RP_YAML.md
+
+packages:
+  remote_packages:
+    url: https://github.com/Sleeper85/esphome-yambms
+    ref: dev
+    refresh: 0s
+    files:
+
+  # +------------------------------------------------------------------------------+
+  # | >>> UNCOMMENT YOUR BOARD
+  # | >>> ONLY ONE BOARD !
+  # +------------------------------------------------------------------------------+
+
+      # - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml' # 800x480
+      - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-7.yaml' # 800x480
+      # - path: 'packages/board/board_ESP32-P4_M5Stack-Tab5.yaml' # 1280x720
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Display
+  # | >>> Uncomment the display that corresponds to your board
+  # +------------------------------------------------------------------------------+
+
+      - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_yambms.yaml'   # 800x480 Blue Navy display - YamBMS pages
+      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml'   # 800x480 Blue Navy display - Overview + YamBMS pages  
+      # - path: 'packages/board/board_options_display_lvgl_package_1280x720_Tab5_ha.yaml'            # 1280x720 Tab5 display
+
+        vars:
+          # Variables required for all display YAMLs
+          device_name: 'yambms'   # The friendly_name of your YamBMS node is in lowercase; spaces are replaced by underscores
+          yambms_name: 'yambms_1' # The yambms_name of your YamBMS node is in lowercase; spaces are replaced by underscores
+
+          # Uncomment the variables below to use the following YAMLs :
+          # => board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml
+
+          # Overview page inputs
+
+          # pv_power_now:              your_pv_power_now
+          # pv_energy_today:           your_pv_energy_today
+          # grid_import_now:           your_grid_import_now
+          # grid_import_today:         your_grid_import_today
+          # grid_export_now:           your_grid_export_now
+          # grid_export_today:         your_grid_export_today
+          # bat_soc:                   yambms_1_battery_soc
+          # bat_power:                 yambms_1_power
+          # bat_charge_now:            yambms_1_battery_charging_power
+          # bat_charge_today:          yambms_1_daily_charging_energy
+          # bat_discharge_now:         yambms_1_battery_discharging_power
+          # bat_discharge_today:       yambms_1_daily_discharging_energy
+          # home_power_now:            your_home_power_now
+          # home_daily_energy_total:   your_home_daily_energy_total
+          # home_daily_energy_solar:   your_home_daily_energy_solar
+          # home_daily_energy_grid:    your_home_daily_energy_grid
+          # home_daily_energy_battery: yambms_1_daily_discharging_energy
+
+          # Overview page animation
+          # Max power = dot max speed
+
+          # anim_pv_power_max:         1000
+          # anim_grid_power_max:       3000
+          # anim_battery_power_max:    3000
+          # anim_home_power_max:       3000
+          # anim_duration_min:         800  # ms at max power
+          # anim_duration_max:         4000 # ms at nul power
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Board Options
+  # | >>> Uncomment your interfaces and options
+  # +------------------------------------------------------------------------------+
+
+      # UART 1 (uart_id: uart_esp_1)
+      # - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
+      # UART 2 (uart_id: uart_esp_2)
+      # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
+      # UART 3 (uart_id: uart_esp_3)
+      # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
+
+      # UART flow control
+      # - path: 'packages/board/board_options_itf_uart_flow_control.yaml'
+      #   vars:
+      #     uart_id: 'uart_esp_1'
+      #     uart_flow_control_pin: ${talk_pin}
+
+      # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
+      # - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
+      #   vars:
+      #     # to bms = canbus_bms_1
+      #     # to inverter = canbus_inverter_1
+      #     canbus_node_id: 'canbus_inverter_1'
+      
+      # CAN transceiver - MCP2515
+      # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
+      #   vars:
+      #     # to bms = canbus_bms_1
+      #     # to inverter = canbus_inverter_1
+      #     canbus_node_id: 'canbus_inverter_1'
+
+      # PSRAM octal 80Mhz
+      # - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
+
+      # Web Server
+      # - path: 'packages/yambms/yambms_web_server.yaml'
+
+      # WiFi AP @ 192.168.4.1
+      # - path: 'packages/board/board_options_wifi_ap.yaml'
+
+      # Captive Portal @ 192.168.4.1
+      # - path: 'packages/board/board_options_captive_portal.yaml'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> DEBUG ( logger level must be DEBUG )
+  # +------------------------------------------------------------------------------+
+
+      # - path: packages/base/device_debug_ESP32.yaml
+      - path: packages/base/device_debug_ESP32_PSRAM.yaml
+        vars:
+          debug_name: 'Debug'
+          debug_update_interval: '5s'
+          # Size of your PSRAM in bits
+          # 8Mb='8388608' | 6Mb='6291456' | 4Mb='4194304' | 2Mb='2097152' | NoPSRAM='0'
+          debug_psram_size: '8388608'
+
+
+
+  # +------------------------------------------------------------------------------+
+  # | >>> Add your custom packages below
+  # +------------------------------------------------------------------------------+
+
+  # Custom packages
+  # yambms_custom: !include yambms_custom.yaml
+
+# +------------------------------------------------------------------------------+
+# | >>> Add your custom YAML below
+# +----- -------------------------------------------------------------------------+
+
+# Custom YAML

@@ -1,5 +1,5 @@
-# Updated : 2026.01.22
-# Version : 1.2.2
+# Updated : 2026.06.27
+# Version : 1.2.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,23 +19,26 @@
 
 esphome:
   on_boot:
-    then:
-    - lambda: id(${yambms_id}_running_version).publish_state("${yambms_version}");
-    - lambda: id(${yambms_id}_last_version).publish_state("${yambms_version}");
+    - priority: 600
+      then:
+        - lambda: id(yambms${yambms_id}_running_version).publish_state("${yambms_version}");
+        - lambda: id(yambms${yambms_id}_last_version).publish_state("${yambms_version}");
 
 text_sensor:
   # +--------------------------------------+
   # | YamBMS version                       |
   # +--------------------------------------+
   - platform: template
-    name: ${name} ${yambms_name} Running version
-    id: ${yambms_id}_running_version
+    name: "Running version"
+    id: yambms${yambms_id}_running_version
+    device_id: yambms_yambms${yambms_id}
     icon: mdi:cogs
     entity_category: diagnostic
     update_interval: never
   - platform: template
-    name: ${name} ${yambms_name} Last version
-    id: ${yambms_id}_last_version
+    name: "Last version"
+    id: yambms${yambms_id}_last_version
+    device_id: yambms_yambms${yambms_id}
     icon: mdi:new-box
     entity_category: diagnostic
     update_interval: never
@@ -50,7 +53,7 @@ interval:
       if:
         condition:
           and:
-            - lambda : return id(${yambms_id}_service) == true;
+            - lambda : return id(yambms${yambms_id}_var_service) == true;
             - lambda : return id(my_network).is_connected();
         then:
         - http_request.get:
@@ -61,7 +64,7 @@ interval:
               - lambda: |-
                   json::parse_json(body, [](JsonObject root) -> bool {
                     // Explicitly cast to std::string to resolve ambiguity
-                    id(${yambms_id}_last_version).publish_state(root["version"].as<std::string>());
+                    id(yambms${yambms_id}_last_version).publish_state(root["version"].as<std::string>());
                     return true;
                   });
 
@@ -76,8 +79,8 @@ interval:
               root["board_name"] = "${board_name}";
               root["bms_model"] = "${bms_model}";
               root["bms_protocol"] = "${bms_protocol}";
-              root["bms_count"] = id(${yambms_id}_var_bms_counter);
-              root["canbus_name"] = id(${yambms_id}_inverter_bms_name);
-              root["canbus_protocol"] = id(${yambms_id}_inverter_protocol);
+              root["bms_count"] = id(yambms${yambms_id}_var_bms_counter);
+              root["canbus_name"] = id(yambms${yambms_id}_var_inverter_bms_name);
+              root["canbus_protocol"] = id(yambms${yambms_id}_var_inverter_protocol);
               root["uptime"] = id(esp32_uptime).state;
               root["date_time_now"] = id(esp32_date_time_now).state;

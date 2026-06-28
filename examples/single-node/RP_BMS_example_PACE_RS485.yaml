@@ -1,5 +1,5 @@
-# Updated : 2025.12.23
-# Version : 1.1.2
+# Updated : 2026.02.16
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,17 +19,18 @@
 
 ############################ Remote Packages Example ###########################
 
-# This is not a working YAML but just code ready to copy into your main YAML.
+# This is not a working YAML but just code ready to copy into
+# your main YAML below the `packages:` section.
+
+# packages:
+#   remote_packages:
+#     url: https://github.com/Sleeper85/esphome-yambms
+#     ref: main
+#     refresh: 60s
+#     files:
 
 ################################################################################
 
-packages:
-
-  bms:
-    url: https://github.com/Sleeper85/esphome-yambms
-    ref: main
-    refresh: 0s
-    files:
       # Pace Modbus
       - path: 'packages/bms/bms_combine_PACE_RS485_modbus.yaml'
         vars:
@@ -40,13 +41,16 @@ packages:
         vars:
           bms_id: '1' # BMS id and modbus address
           bms_name: 'PACE-BMS 1'
+          bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
       # BMS 2
       - path: 'packages/bms/bms_combine_PACE_RS485_bms_full.yaml'
         vars:
           bms_id: '2' # BMS id and modbus address
           bms_name: 'PACE-BMS 2'
+          bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
       # BMS 3
       - path: 'packages/bms/bms_combine_PACE_RS485_bms_full.yaml'
         vars:
           bms_id: '3' # BMS id and modbus address
           bms_name: 'PACE-BMS 3'
+          bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable

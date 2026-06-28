@@ -1,5 +1,5 @@
-# Updated : 2025.07.28
-# Version : 1.1.2
+# Updated : 2026.02.18
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  display_auto_next_page_interval: '5s'
+  display_rotation: '0' # 0/90/180/270 rotation angle in degrees
+
 # +--------------------------------------+
 # | Display Related                      |
 # +--------------------------------------+
-
-packages:
-  psram: !include board_options_PSRAM_octal_80Mhz.yaml
-
 color:
   - id: my_black
     hex: "000000"
@@ -82,6 +82,7 @@ interval:
 display:
   # T-Connect-Pro display see https://esphome.io/components/display/ili9xxx.html
   - id: !extend my_display
+    rotation: ${display_rotation}
     pages:
       - id: page1
         lambda: |-

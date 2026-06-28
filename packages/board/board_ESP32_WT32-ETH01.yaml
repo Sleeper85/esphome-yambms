@@ -1,5 +1,5 @@
-# Updated : 2025.08.13
-# Version : 1.1.2
+# Updated : 2026.02.15
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -36,13 +36,16 @@ substitutions:
   # canbus_esp32_can
   tx_pin_4: '14' # to CAN transceiver CTX
   rx_pin_4: '15' # to CAN transceiver CRX
+  # LED
+  board_has_rgb: "false" # LED `RGB` flag to show functionality is available
 
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_ethernet: !include ../base/device_base_ethernet.yaml
+  led_control: !include board_options_led_control.yaml
 
 esp32:
-  board: esp32dev
+  variant: esp32
   cpu_frequency: 240MHz
   framework:
     type: esp-idf

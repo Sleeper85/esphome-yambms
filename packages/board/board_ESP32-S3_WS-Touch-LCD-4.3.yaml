@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.5
+# Updated : 2026.06.28
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -44,9 +44,9 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
+  no_led_control: !include board_options_no_led_control.yaml
 
 esp32:
-  board: esp32-s3-devkitc-1
   variant: esp32s3
   flash_size: 8MB
   cpu_frequency: 240MHz
@@ -79,30 +79,11 @@ logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
 
-# +--------------------------------------+
-# | Inverter Heartbeat Light             |
-# +--------------------------------------+
-
-light:
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
-
 # +----------------------------------------+
 # | S3 Touch-LCD-4.3 related configuration |
 # +----------------------------------------+
 
 output:
-  # ESP32 board without LED
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
-      #- lambda: C++ code; # action to be performed at each inverter heartbeat
-
   # Enable CAN TJA1051 chip
   - platform: gpio
     id: USB_SEL
@@ -113,6 +94,15 @@ output:
       mode:
         output: true
       inverted: true # set to HIGH level
+  # Backlight output
+  - platform: gpio
+    id: backlight_output
+    pin:
+      ch422g: ch422g_hub
+      number: 2
+      mode:
+        output: true
+      inverted: false
 
 # switch:
 #   - platform: gpio
@@ -126,7 +116,6 @@ output:
 #       inverted: true # set default to HIGH level
 
 # I/O Expander
-# esphome 2024.9.0
 # https://esphome.io/components/ch422g.html
 ch422g:
   - id: ch422g_hub
@@ -137,95 +126,45 @@ i2c:
   scl: ${i2c_scl}
   scan: True
 
-# LCD 800×480
-display:
-  - platform: rpi_dpi_rgb
-    id: my_display
-    auto_clear_enabled: false
-    update_interval: never
-    color_order: RGB
-    pclk_frequency: 14MHz # 16
-    dimensions:
-      width: 800
-      height: 480
-    de_pin:
-      number: 5
+# +--------------------------------------+
+# | Touch Screen (I²C bus)               |
+# +--------------------------------------+
+# | has_gt911_5d = i2c.probe_device(0x5d);
+# | has_gt911_14 = i2c.probe_device(0x14);
+# +--------------------------------------+
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    update_interval: 16ms
+    interrupt_pin: 4
     reset_pin:
       ch422g: ch422g_hub
-      number: 3
-    # esphome 2024.9.0
-    enable_pin:
-      ch422g: ch422g_hub
-      number: 2
-    hsync_pin:
-      number: 46
-      ignore_strapping_warning: true
-    vsync_pin:
-      number: 3
-      ignore_strapping_warning: true
-    pclk_pin: 7
-    hsync_back_porch: 10  # 30
-    hsync_front_porch: 20 # 210
-    hsync_pulse_width: 10 # 30
-    vsync_back_porch: 10  # 4
-    vsync_front_porch: 10 # 4
-    vsync_pulse_width: 10 # 4
-    data_pins:
-      red:
-        - 1         #r3
-        - 2         #r4
-        - 42        #r5
-        - 41        #r6
-        - 40        #r7
-      blue:
-        - 14        #b3
-        - 38        #b4
-        - 18        #b5
-        - 17        #b6
-        - 10        #b7
-      green:
-        - 39        #g2
-        - 0         #g3
-        - 45        #g4
-        - 48        #g5
-        - 47        #g6
-        - 21        #g7
+      number: 1
+    # on_touch:
+    #   - lambda: |-
+    #         ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #             touch.x,
+    #             touch.y,
+    #             touch.x_raw,
+    #             touch.y_raw
+    #             );
 
-# Touch screen (I²C bus)
-# has_gt911_5d = i2c.probe_device(0x5d);
-# has_gt911_14 = i2c.probe_device(0x14);
-touchscreen:
-  platform: gt911
-  id: my_touchscreen
-  update_interval: 16ms
-  interrupt_pin: 4
-  # esphome 2024.9.0
-  reset_pin:
-    ch422g: ch422g_hub
-    number: 1
-  on_touch:
-    - lambda: |-
-          ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-              touch.x,
-              touch.y,
-              touch.x_raw,
-              touch.y_raw
-              );
+# +--------------------------------------+
+# | Backlight                            |
+# +--------------------------------------+
+light:
+  # Backlight
+  - platform: binary
+    id: backlight
+    output: backlight_output
+    restore_mode: ALWAYS_ON
 
-font:
-  - file: "gfonts://Roboto"
-    id: chu_nano
-    size: 12
-
-# LVGL
-lvgl:
-  displays:
-    - my_display
-  touchscreens:
-    - my_touchscreen
-  pages:
-    - id: main_page
-      widgets:
-        - label:
-            align: CENTER
-            text: 'YamBMS is running...'
+# +--------------------------------------+
+# | Display (LCD 800×480)                |
+# +--------------------------------------+
+display:
+  - platform: mipi_rgb
+    id: my_display
+    model: ESP32-S3-TOUCH-LCD-4.3
+    update_interval: never
+    auto_clear_enabled: false

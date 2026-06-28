@@ -1,5 +1,5 @@
-# Updated : 2025.12.23
-# Version : 1.1.2
+# Updated : 2026.02.19
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@ substitutions:
   balancer_protocol: "Modbus"
 
 packages:
-  sub_device: !include balancer_base_sub_device.yaml
+  balancer_base: !include balancer_base.yaml
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -30,7 +30,7 @@ packages:
 
 modbus_controller:
   - id: modbus_controller_balancer${bms_id}
-    modbus_id: ${modbus_id}
+    modbus_id: modbus_client_${modbus_id}
     setup_priority: -10
     address: 10${bms_id}
     update_interval: 20s
@@ -46,6 +46,9 @@ modbus_controller:
         - lambda: |-
             id(balancer${bms_id}_online_status).publish_state(false);
             id(balancer${bms_id}_equalizing).publish_state(false);
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BALANCER}, ${bms_id}, 1);    
 
 # +--------------------------------------+
 # | Component entities                   |
@@ -65,6 +68,9 @@ binary_sensor:
       then:
         - lambda: |-
             id(bms${bms_id}_var_ext_balancer_online) = x;
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BALANCER}, ${bms_id}, !x);
   # equalizing
   - platform: modbus_controller
     modbus_controller_id: modbus_controller_balancer${bms_id}
@@ -94,6 +100,10 @@ sensor:
     device_class: voltage
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
@@ -115,6 +125,10 @@ sensor:
     device_class: voltage
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001

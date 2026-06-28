@@ -1,0 +1,556 @@
+# Updated : 2026.06.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  # Animation - Max power = dot max speed
+  anim_pv_power_max: "5000"
+  anim_grid_power_max: "3000"
+  anim_battery_power_max: "2000"
+  anim_home_power_max: "5000"
+  anim_duration_min: "800"       # ms at max power
+  anim_duration_max: "4000"      # ms at nul power
+
+lvgl:
+
+  # ┌──────────────────────────────────────────────────────
+  # │ PAGE — OVERVIEW                                     │
+  # └──────────────────────────────────────────────────────
+
+  pages:
+    - id: page_overview
+      bg_color: ${color_bg}
+      widgets:
+
+        # ┌──────────────────────────────────────────────────────
+        # | DATE AND HOUR
+        # └──────────────────────────────────────────────────────
+
+        # ── Date
+        - label:
+            id: lbl_date
+            x: 30
+            y: 8
+            width: 370
+            text: "Wednesday 17"
+            text_font: font_28
+            text_color: ${color_2}
+            text_align: LEFT
+        # ── Clock
+        - label:
+            id: lbl_clock
+            x: 400
+            y: 8
+            width: 370
+            text: "--:--"
+            text_font: font_28
+            text_color: ${color_2}
+            text_align: RIGHT
+
+        # ┌──────────────────────────────────────────────────────
+        # | SOLAR
+        # └──────────────────────────────────────────────────────
+        - obj:
+            x: 290
+            y: 10
+            width: 220
+            height: 94
+            bg_color: ${color_panel}
+            border_width: 2
+            border_color: ${color_6}
+            radius: 12
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 10
+                  y: 6
+                  width: 200
+                  text: "SOLAR"
+                  text_font: font_14
+                  text_color: ${color_6}
+                  text_align: CENTER
+              - label:
+                  id: lbl_pv_now
+                  x: 10
+                  y: 22
+                  width: 200
+                  text: "--- W"
+                  text_font: font_22
+                  text_color: ${color_1}
+                  text_align: CENTER
+              - obj:
+                  x: 10
+                  y: 54
+                  width: 200
+                  height: 1
+                  bg_color: ${color_3}
+                  border_width: 0
+                  radius: 0
+                  scrollbar_mode: "off"
+              - label:
+                  id: lbl_pv_today
+                  x: 10
+                  y: 62
+                  width: 200
+                  text: "Today: --- kWh"
+                  text_font: font_14
+                  text_color: ${color_6}
+                  text_align: CENTER
+
+        # ┌──────────────────────────────────────────────────────
+        # | GRID
+        # └──────────────────────────────────────────────────────
+        - obj:
+            x: 30
+            y: 118
+            width: 200
+            height: 146
+            bg_color: ${color_panel}
+            border_width: 2
+            border_color: ${color_2}
+            radius: 12
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 10
+                  y: 6
+                  width: 180
+                  text: "GRID"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_grid_net_now
+                  x: 10
+                  y: 22
+                  width: 180
+                  text: "--- W"
+                  text_font: font_22
+                  text_color: ${color_1}
+                  text_align: CENTER
+              - label:
+                  x: 10
+                  y: 54
+                  text: "Import:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_grid_import_now
+                  x: 85
+                  y: 54
+                  width: 105
+                  text: "--- W"
+                  text_font: font_14
+                  text_color: ${color_7}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 74
+                  text: "Today:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_grid_import_today
+                  x: 85
+                  y: 74
+                  width: 105
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_7}
+                  text_align: RIGHT
+              - obj:
+                  x: 10
+                  y: 95
+                  width: 180
+                  height: 1
+                  bg_color: ${color_3}
+                  border_width: 0
+                  radius: 0
+                  scrollbar_mode: "off"
+              - label:
+                  x: 10
+                  y: 100
+                  text: "Export:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_grid_export_now
+                  x: 85
+                  y: 100
+                  width: 105
+                  text: "--- W"
+                  text_font: font_14
+                  text_color: ${color_5}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 120
+                  text: "Today:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_grid_export_today
+                  x: 85
+                  y: 120
+                  width: 105
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_5}
+                  text_align: RIGHT
+
+        # ┌──────────────────────────────────────────────────────
+        # | BATTERY
+        # └──────────────────────────────────────────────────────
+        - obj:
+            x: 570
+            y: 118
+            width: 200
+            height: 146
+            bg_color: ${color_panel}
+            border_width: 2
+            border_color: ${color_5}
+            radius: 12
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 10
+                  y: 6
+                  width: 180
+                  text: "BATTERY"
+                  text_font: font_14
+                  text_color: ${color_5}
+                  text_align: CENTER
+              - label:
+                  id: lbl_bat_power
+                  x: 10
+                  y: 22
+                  width: 90
+                  text: "--- W"
+                  text_font: font_22
+                  text_color: ${color_1}
+                  text_align: CENTER
+              - label:
+                  id: lbl_bat_soc
+                  x: 100
+                  y: 22
+                  width: 90
+                  text: "-- %"
+                  text_font: font_22
+                  text_color: ${color_1}
+                  text_align: CENTER
+              - label:
+                  x: 10
+                  y: 54
+                  text: "Charge:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bat_charge_now
+                  x: 90
+                  y: 54
+                  width: 100
+                  text: "--- W"
+                  text_font: font_14
+                  text_color: ${color_4}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 74
+                  text: "Today:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bat_charge_today
+                  x: 90
+                  y: 74
+                  width: 100
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_4}
+                  text_align: RIGHT
+              - obj:
+                  x: 10
+                  y: 95
+                  width: 180
+                  height: 1
+                  bg_color: ${color_3}
+                  border_width: 0
+                  radius: 0
+                  scrollbar_mode: "off"
+              - label:
+                  x: 10
+                  y: 100
+                  text: "Discharge:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bat_discharge_now
+                  x: 90
+                  y: 100
+                  width: 100
+                  text: "--- W"
+                  text_font: font_14
+                  text_color: ${color_5}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 120
+                  text: "Today:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bat_discharge_today
+                  x: 90
+                  y: 120
+                  width: 100
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_5}
+                  text_align: RIGHT
+
+        # ┌──────────────────────────────────────────────────────
+        # | HOME
+        # └──────────────────────────────────────────────────────
+        - obj:
+            x: 290
+            y: 278
+            width: 220
+            height: 152
+            bg_color: ${color_panel}
+            border_width: 2
+            border_color: ${color_4}
+            radius: 12
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 10
+                  y: 6
+                  width: 200
+                  text: "HOME"
+                  text_font: font_14
+                  text_color: ${color_4}
+                  text_align: CENTER
+              - label:
+                  id: lbl_home_now
+                  x: 10
+                  y: 22
+                  width: 200
+                  text: "--- W"
+                  text_font: font_22
+                  text_color: ${color_1}
+                  text_align: CENTER
+              - obj:
+                  x: 10
+                  y: 54
+                  width: 200
+                  height: 1
+                  bg_color: ${color_3}
+                  border_width: 0
+                  radius: 0
+                  scrollbar_mode: "off"
+              - label:
+                  x: 10
+                  y: 62
+                  text: "Today:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_home_daily_energy_total
+                  x: 95
+                  y: 62
+                  width: 115
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_4}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 82
+                  text: "Solar:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_home_daily_energy_solar
+                  x: 95
+                  y: 82
+                  width: 115
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_6}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 102
+                  text: "Grid:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_home_daily_energy_grid
+                  x: 95
+                  y: 102
+                  width: 115
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_7}
+                  text_align: RIGHT
+              - label:
+                  x: 10
+                  y: 122
+                  text: "Battery:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_home_daily_energy_bat
+                  x: 95
+                  y: 122
+                  width: 115
+                  text: "--- kWh"
+                  text_font: font_14
+                  text_color: ${color_5}
+                  text_align: RIGHT
+
+        # ┌──────────────────────────────────────────────────────
+        # | CONNECTION LINES — Junction
+        # └──────────────────────────────────────────────────────
+
+        # Line Solar (vertical, yellow)
+        - obj:
+            id: line_solar
+            x: 399
+            y: 104
+            width: 2
+            height: 85
+            bg_color: ${color_6}
+            border_width: 0
+            radius: 0
+            scrollbar_mode: "off"
+
+        # Line Grid (horizontal, grey)
+        - obj:
+            id: line_grid
+            x: 230
+            y: 190
+            width: 168
+            height: 2
+            bg_color: ${color_2}
+            border_width: 0
+            radius: 0
+            scrollbar_mode: "off"
+
+        # Line Battery (horizontal, green)
+        - obj:
+            id: line_battery
+            x: 402
+            y: 190
+            width: 168
+            height: 2
+            bg_color: ${color_5}
+            border_width: 0
+            radius: 0
+            scrollbar_mode: "off"
+
+        # Line Home (vertical, light blue)
+        - obj:
+            id: line_home
+            x: 399
+            y: 192
+            width: 2
+            height: 86
+            bg_color: ${color_4}
+            border_width: 0
+            radius: 0
+            scrollbar_mode: "off"
+
+        # Junction circle
+        # Outer ring
+        - obj:
+            x: 376
+            y: 167
+            width: 48
+            height: 48
+            bg_color: ${color_panel}
+            border_width: 2
+            border_color: ${color_1}
+            radius: 24
+            scrollbar_mode: "off"
+        # Inner dot
+        - obj:
+            x: 394
+            y: 185
+            width: 12
+            height: 12
+            bg_color: ${color_1}
+            border_width: 0
+            radius: 6
+            scrollbar_mode: "off"
+
+        # ┌──────────────────────────────────────────────────────
+        # | ANIMATED DOTS — 1 per line, color = block border color
+        # └──────────────────────────────────────────────────────
+
+        # Solar dot (yellow)
+        - obj:
+            id: dot_solar
+            x: 395
+            y: 106
+            width: 10
+            height: 10
+            bg_color: ${color_6}
+            border_width: 0
+            radius: 5
+            scrollbar_mode: "off"
+
+        # Grid dot (grey, hidden by default)
+        - obj:
+            id: dot_grid
+            x: 232
+            y: 186
+            width: 10
+            height: 10
+            bg_color: ${color_2}
+            border_width: 0
+            radius: 5
+            scrollbar_mode: "off"
+
+        # Battery dot (green, hidden by default)
+        - obj:
+            id: dot_bat
+            x: 404
+            y: 186
+            width: 10
+            height: 10
+            bg_color: ${color_5}
+            border_width: 0
+            radius: 5
+            scrollbar_mode: "off"
+
+        # Home dot (light blue)
+        - obj:
+            id: dot_home
+            x: 395
+            y: 194
+            width: 10
+            height: 10
+            bg_color: ${color_4}
+            border_width: 0
+            radius: 5
+            scrollbar_mode: "off"
