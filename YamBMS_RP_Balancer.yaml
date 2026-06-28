@@ -323,8 +323,8 @@ packages:
           canbus_name: 'CANBUS 1'
           canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
           canbus_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
-          # The CAN bus link will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305)
-          # before the end of the `canbus_link_timer` (5s by default).
+          # CAN frames sending will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305) before the end of the `canbus_link_timer` (5s by default).
+          canbus_link_timer_enabled: 'true' # Set it to 'false' if your inverter/charger is not sending ACK (can_id 0x305) every `1s` as specified by the protocol
           canbus_link_timer: '5s'
           canbus_extended_ack: 'false' # Set to 'true' for enable extended 29-bit IDs (required for Schneider XW Pro)
 
