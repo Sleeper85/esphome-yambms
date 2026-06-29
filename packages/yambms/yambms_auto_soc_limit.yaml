@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.1.5
+# Updated : 2026.06.29
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -187,6 +187,18 @@ interval:
           }
 
           last_execution_ms = current_ms;
+
+          // Rebulk SoC must be lower than target SoC
+          if (id(yambms${yambms_id}_rebulk_soc).state >= id(yambms${yambms_id}_auto_soc_limit).state) {
+            // Set Rebulk SoC to Automatic SoC Limit - Auto SoC Limit Hysteresis - 5%
+            float new_rebulk_soc = id(yambms${yambms_id}_auto_soc_limit).state - id(yambms${yambms_id}_auto_soc_hysteresis).state - 5;
+            // Clamp to 0
+            if (new_rebulk_soc < 0) {
+              new_rebulk_soc = 0;
+            }
+            id(yambms${yambms_id}_rebulk_soc).publish_state(new_rebulk_soc);
+            ESP_LOGW("yambms_debug", "Auto SoC Limit: Rebulk SoC must be lower than target SoC, adjusting Rebulk SoC");
+          }
 
           // Only work in Bulk or Float mode
           if (id(yambms${yambms_id}_var_charge_status) != "Bulk" && id(yambms${yambms_id}_var_charge_status) != "Float") {
