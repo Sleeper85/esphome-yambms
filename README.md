@@ -81,10 +81,11 @@ Currently only available for a resolution of **800x480**.
 
 The display can retrieve information in two different ways :
 
-* **ESPHome version**: LVGL code executed on the **YamBMS node***
-  * Package to be imported => [board_options_display_lvgl_800x480_basic_blue_esphome.yaml](packages/board/board_options_display_lvgl_800x480_basic_blue_esphome.yaml)
-* **HA version**: LVGL code executed on a **standalone node*** with informations coming from `Home Assistant` (only requires a WiFi connection)
+* **HA version (recommended)**: LVGL code executed on a **standalone node*** with informations coming from `Home Assistant` (only requires a WiFi connection)
   * Example => [YamBMS_RP_HA_Display.yaml](YamBMS_RP_HA_Display.yaml)
+* **ESPHome version**: LVGL code executed on the **YamBMS node***
+  * Package to be imported => [board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml](packages/board/board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml)
+
 
 ![Image](images/YamBMS_Display.png "YamBMS Display")
 
@@ -159,7 +160,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2026.1.5 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2026.6.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
