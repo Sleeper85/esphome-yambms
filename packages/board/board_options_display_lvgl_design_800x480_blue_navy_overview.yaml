@@ -1,5 +1,5 @@
-# Updated : 2026.06.28
-# Version : 1.1.1
+# Updated : 2026.06.29
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,15 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
-
-substitutions:
-  # Animation - Max power = dot max speed
-  anim_pv_power_max: "5000"
-  anim_grid_power_max: "3000"
-  anim_battery_power_max: "2000"
-  anim_home_power_max: "5000"
-  anim_duration_min: "800"       # ms at max power
-  anim_duration_max: "4000"      # ms at nul power
 
 lvgl:
 
@@ -57,7 +48,7 @@ lvgl:
             x: 400
             y: 8
             width: 370
-            text: "--:--"
+            text: "06:00"
             text_font: font_28
             text_color: ${color_2}
             text_align: RIGHT
@@ -145,36 +136,44 @@ lvgl:
                   text_font: font_22
                   text_color: ${color_1}
                   text_align: CENTER
+
               - label:
+                  id: lbl_grid_voltage
                   x: 10
-                  y: 54
-                  text: "Import:"
+                  y: 50
+                  width: 90
+                  text: "--- V"
                   text_font: font_14
                   text_color: ${color_2}
+                  text_align: CENTER
+            #   - label:
+            #       id: lbl_grid_free_1
+            #       x: 10
+            #       y: 70
+            #       width: 90
+            #       text: "---"
+            #       text_font: font_14
+            #       text_color: ${color_2}
+            #       text_align: CENTER
               - label:
-                  id: lbl_grid_import_now
-                  x: 85
-                  y: 54
-                  width: 105
-                  text: "--- W"
-                  text_font: font_14
-                  text_color: ${color_7}
-                  text_align: RIGHT
-              - label:
-                  x: 10
-                  y: 74
-                  text: "Today:"
+                  id: lbl_grid_frequency
+                  x: 100
+                  y: 50
+                  width: 90
+                  text: "--.- Hz"
                   text_font: font_14
                   text_color: ${color_2}
-              - label:
-                  id: lbl_grid_import_today
-                  x: 85
-                  y: 74
-                  width: 105
-                  text: "--- kWh"
-                  text_font: font_14
-                  text_color: ${color_7}
-                  text_align: RIGHT
+                  text_align: CENTER
+            #   - label:
+            #       id: lbl_grid_free_2
+            #       x: 100
+            #       y: 70
+            #       width: 90
+            #       text: "---"
+            #       text_font: font_14
+            #       text_color: ${color_2}
+            #       text_align: CENTER
+
               - obj:
                   x: 10
                   y: 95
@@ -187,22 +186,22 @@ lvgl:
               - label:
                   x: 10
                   y: 100
-                  text: "Export:"
+                  text: "Daily import:"
                   text_font: font_14
                   text_color: ${color_2}
               - label:
-                  id: lbl_grid_export_now
+                  id: lbl_grid_import_today
                   x: 85
                   y: 100
                   width: 105
-                  text: "--- W"
+                  text: "--- kWh"
                   text_font: font_14
-                  text_color: ${color_5}
+                  text_color: ${color_7}
                   text_align: RIGHT
               - label:
                   x: 10
                   y: 120
-                  text: "Today:"
+                  text: "Daily export:"
                   text_font: font_14
                   text_color: ${color_2}
               - label:
@@ -242,50 +241,50 @@ lvgl:
                   id: lbl_bat_power
                   x: 10
                   y: 22
-                  width: 90
+                  width: 180
                   text: "--- W"
                   text_font: font_22
                   text_color: ${color_1}
                   text_align: CENTER
+
+
               - label:
                   id: lbl_bat_soc
-                  x: 100
-                  y: 22
+                  x: 10
+                  y: 50
                   width: 90
-                  text: "-- %"
-                  text_font: font_22
-                  text_color: ${color_1}
+                  text: "--- %"
+                  text_font: font_14
+                  text_color: ${color_2}
                   text_align: CENTER
               - label:
+                  id: lbl_bat_charging_phase
                   x: 10
-                  y: 54
-                  text: "Charge:"
+                  y: 70
+                  width: 90
+                  text: "Float"
                   text_font: font_14
                   text_color: ${color_2}
+                  text_align: CENTER
               - label:
-                  id: lbl_bat_charge_now
-                  x: 90
-                  y: 54
-                  width: 100
-                  text: "--- W"
-                  text_font: font_14
-                  text_color: ${color_4}
-                  text_align: RIGHT
-              - label:
-                  x: 10
-                  y: 74
-                  text: "Today:"
+                  id: lbl_bat_voltage
+                  x: 100
+                  y: 50
+                  width: 90
+                  text: "--.- V"
                   text_font: font_14
                   text_color: ${color_2}
+                  text_align: CENTER
               - label:
-                  id: lbl_bat_charge_today
-                  x: 90
-                  y: 74
-                  width: 100
-                  text: "--- kWh"
+                  id: lbl_cell_voltage
+                  x: 100
+                  y: 70
+                  width: 90
+                  text: "-.-- Vpc"
                   text_font: font_14
-                  text_color: ${color_4}
-                  text_align: RIGHT
+                  text_color: ${color_2}
+                  text_align: CENTER
+
               - obj:
                   x: 10
                   y: 95
@@ -298,22 +297,22 @@ lvgl:
               - label:
                   x: 10
                   y: 100
-                  text: "Discharge:"
+                  text: "Daily charge:"
                   text_font: font_14
                   text_color: ${color_2}
               - label:
-                  id: lbl_bat_discharge_now
+                  id: lbl_bat_charge_today
                   x: 90
                   y: 100
                   width: 100
-                  text: "--- W"
+                  text: "--- kWh"
                   text_font: font_14
-                  text_color: ${color_5}
+                  text_color: ${color_4}
                   text_align: RIGHT
               - label:
                   x: 10
                   y: 120
-                  text: "Today:"
+                  text: "Daily discharge:"
                   text_font: font_14
                   text_color: ${color_2}
               - label:
@@ -493,15 +492,15 @@ lvgl:
             radius: 24
             scrollbar_mode: "off"
         # Inner dot
-        - obj:
-            x: 394
-            y: 185
-            width: 12
-            height: 12
-            bg_color: ${color_1}
-            border_width: 0
-            radius: 6
-            scrollbar_mode: "off"
+        # - obj:
+        #     x: 394
+        #     y: 185
+        #     width: 12
+        #     height: 12
+        #     bg_color: ${color_1}
+        #     border_width: 0
+        #     radius: 6
+        #     scrollbar_mode: "off"
 
         # ┌──────────────────────────────────────────────────────
         # | ANIMATED DOTS — 1 per line, color = block border color
@@ -511,7 +510,7 @@ lvgl:
         - obj:
             id: dot_solar
             x: 395
-            y: 106
+            y: 125
             width: 10
             height: 10
             bg_color: ${color_6}
@@ -522,7 +521,7 @@ lvgl:
         # Grid dot (grey, hidden by default)
         - obj:
             id: dot_grid
-            x: 232
+            x: 300
             y: 186
             width: 10
             height: 10
@@ -534,7 +533,7 @@ lvgl:
         # Battery dot (green, hidden by default)
         - obj:
             id: dot_bat
-            x: 404
+            x: 500
             y: 186
             width: 10
             height: 10
@@ -547,7 +546,7 @@ lvgl:
         - obj:
             id: dot_home
             x: 395
-            y: 194
+            y: 250
             width: 10
             height: 10
             bg_color: ${color_4}
