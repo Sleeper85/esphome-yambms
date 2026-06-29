@@ -1,5 +1,5 @@
 # Updated : 2026.06.29
-# Version : 1.3.9
+# Version : 1.4.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -158,6 +158,7 @@ display:
       offset_width: 1
       pad_height: 0
       pad_width: 0
+    invert_colors: true
     color_depth: 8
     update_interval: ${display_update_interval}
     data_rate: 40MHz
