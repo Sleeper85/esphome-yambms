@@ -1,5 +1,5 @@
-# Updated : 2026.02.15
-# Version : 1.3.8
+# Updated : 2026.06.29
+# Version : 1.3.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -49,6 +49,7 @@ packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
   no_led_control: !include board_options_no_led_control.yaml
+  psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
   variant: esp32s3
@@ -140,18 +141,23 @@ binary_sensor:
 
 display:
   # Atom S3R display
-  # https://esphome.io/components/display/st7789v.html
-  - platform: st7789v
+  # Chipset: ST7735
+  # Resolution : 128x128px
+  # ST7735 is natively supported by mipi_spi (https://esphome.io/components/display/mipi_spi/),
+  - platform: mipi_spi
     spi_id: atom_spi_bus
     id: my_display
-    model: Custom
+    model: ST7735
     cs_pin: 14
     dc_pin: 42
     reset_pin: 48
-    height: 128
-    width: 128
-    offset_height: 2
-    offset_width: 1
-    eightbitcolor: true
+    dimensions:
+      height: 128
+      width: 128
+      offset_height: 2
+      offset_width: 1
+      pad_height: 0
+      pad_width: 0
+    color_depth: 8
     update_interval: ${display_update_interval}
-    data_rate: 40Mhz
+    data_rate: 40MHz
