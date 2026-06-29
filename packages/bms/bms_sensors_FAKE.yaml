@@ -1,5 +1,5 @@
-# Updated : 2026.02.11
-# Version : 1.2.9
+# Updated : 2026.06.29
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -60,13 +60,13 @@ interval:
     then:
       - lambda: |-
           // Vars
-          float cell_count = id(${yambms_id}_cell_count).state;
+          float cell_count = id(yambms${yambms_id}_cell_count).state;
           float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
           float max_cell_v = id(bms${bms_id}_max_cell_voltage).state;
           float current = id(bms${bms_id}_current).state;
           float battery_capacity = id(bms${bms_id}_battery_capacity).state;
           float battery_soc = id(bms${bms_id}_state_of_charge).state;
-          float bulk_v = id(${yambms_id}_bulk_voltage).state;
+          float bulk_v = id(yambms${yambms_id}_bulk_voltage).state;
 
           // Voltage
           float voltage = cell_count * (min_cell_v + max_cell_v) / 2;

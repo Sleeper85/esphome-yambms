@@ -1,5 +1,5 @@
-# Updated : 2026.02.18
-# Version : 1.1.4
+# Updated : 2026.03.29
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -80,7 +80,6 @@ interval:
 # | Display Handling                     |
 # +--------------------------------------+
 display:
-  # T-Connect-Pro display see https://esphome.io/components/display/ili9xxx.html
   - id: !extend my_display
     rotation: ${display_rotation}
     pages:
@@ -89,7 +88,7 @@ display:
           it.rectangle(0,  0, it.get_width(), it.get_height(), id(my_blue));
           it.rectangle(0, 20, it.get_width(), it.get_height(), id(my_blue));   // header bar
           it.rectangle(0, 100, it.get_width(), it.get_height(), id(my_blue));  // footer bar
-          it.printf(64, 118, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(${yambms_id}_charging_status).state.c_str());
+          it.printf(64, 118, id(roboto_18), id(my_yellow), TextAlign::CENTER, "%s", id(yambms${yambms_id}_charging_status).state.c_str());
           // ESP status
           if (id(esp32_online_status).state)
           {
@@ -109,5 +108,5 @@ display:
             it.print(2, 5, id(roboto_12), id(my_red), TextAlign::TOP_LEFT, "CAN KO");
           }
           it.print((128 / 2), (128 / 3) * 1, id(roboto_24), id(my_gray), TextAlign::CENTER,"SoC %");
-          it.printf((128 / 2), (128 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(${yambms_id}_battery_soc).state);
+          it.printf((128 / 2), (128 / 3) * 2 - 5, id(roboto_32), id(my_gray), TextAlign::CENTER, "%.1f", id(yambms${yambms_id}_battery_soc).state);
           
