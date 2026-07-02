@@ -336,17 +336,23 @@ There are some configuration options to adjust the behaviour:
 - `Auto EOC Correction`: This increases or decreases the `Requested Charge Current (CCL)` and allows for correcting charger/inverter differences, for example if the inverter delivers less current than requested.
 - `Auto EOC Capacity Modifier`: This allows to lower the target capacity for the calculation. If your battery `Capacity Remaining` does not reach `Battery Capacity` when 100% full, you can adjust the value here.
 - `Auto EOC Increase Stop Hours`: When nearing the target time but the charge current can not be reached, the `Requested Charge Current (CCL)` will increase until it reaches the max. charge current. To avoid this, a time frame bevor the target time can be chosen in which the current will not be increased. E.g. if this option is set to 1 hour, the `Requested Charge Current (CCL)` is 40A and the time is between `Target Hour - 1 hour` and `Target Hour`, it will stay at 40A.
-- `Auto EOC Increase Stop SoC`: Similar to `Auto EOC Increase Stop Hours`, this stops increasing the `Requested Charge Current (CCL)` when the `SoC` is equal or above the specified `SoC`.
+- `Auto EOC Increase Stop SoC`: Similar to `Auto EOC Increase Stop Hours`, this stops increasing the `Requested Charge Current (CCL)` when the `SoC` is equal or above the specified `SoC`. The maximum value is `98%` because the `Battery SoC` is clamped to `98%` until end-of-charge (this keeps some inverters from stopping charging when the SoC reaches 100%), so a higher threshold could never be reached before end-of-charge and the stop condition would never trigger.
 
 The text sensor `Auto EOC Status` will show the current status of the function:
 - `Stop: Disabled`: Function is disabled or capacity not available.
 - `Stop: Float`: YamBMS currently in `Float` mode, not `Bulk`.
 - `Stop: Time not valid`: The ESPHome device time is not valid.
-- `Stop: Target time passed`: The current time is after the selected target time.
+- `Stop: Target time passed`: The current time is after the selected target time (and the grace period does not apply, see below).
 - `Stop: Current above limit`: The required charge current is above the current charge limit.
 - `Run: Current increase stopped`: Running, but no current increase because of `Auto EOC Increase Stop Hours` or `Auto EOC Increase Stop SoC`.
 - `Run`: Working normally.
 - `Run: Auto SoC Limit xx%`: Enabled, but reduced the target capacity by the value selected for `Auto SoC Limit`.
+- `... (Grace period)`: Appended to a `Run` status when the target time has passed but the grace period is active (see below), e.g. `Run (Grace period)`.
+
+Holding the current: The function never releases the `Requested Charge Current (CCL)` limit to the maximum while it still has a current to hold, as this would let the current spike back up. The last limited current is held instead in two situations:
+
+- Grace period: normally the limit would be released as soon as the target time has passed. Instead, as long as there is a current being held, a one hour grace period applies: the function keeps holding the current at its last value for up to one hour past the target time so a battery that has not quite finished charges gently instead of spiking to the maximum. During this period the status is suffixed with ` (Grace period)`. The grace period ends one hour after the target time, after which the status returns to `Stop: Target time passed`.
+- Target capacity reached: when the battery has reached the target capacity (`Battery Capacity` adjusted by `Auto EOC Capacity Modifier`, and by `Auto SoC Limit` if active) before the target time, the calculated current would drop to `0A` and normally release the limit. Instead the last limited current is held until the charger switches to `Float`. Note that if the `Auto EOC Capacity Modifier` targets a capacity below `100%`, the function considers the battery "done" at that lower capacity.
 
 The sensor `Auto EOC Current` will show the calculated charging current. Note that it is filtered by an EWMA filter with a default 3 minute delay.
 That means that changes to the options or parameters are not immediately visible. This avoids that the `Requested Charge Current (CCL)` will fluctuate too much. It will show 0A when the function is disabled/stopped or there is no solution.
