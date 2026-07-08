@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.7.0
+# Updated : 2026.07.08
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -928,12 +928,12 @@ interval:
               requested_charge_voltage = 0;
             // Bulk
             else if (charging_instruction == "Bulk")
-              requested_charge_voltage = (id(yambms${yambms_id}_bulk_voltage).state + id(yambms${yambms_id}_inverter_offset_v).state + id(yambms${yambms_id}_var_auto_cvl));
+              requested_charge_voltage = (id(yambms${yambms_id}_bulk_voltage).state + id(yambms${yambms_id}_charger_offset_v).state + id(yambms${yambms_id}_var_auto_cvl));
             // Float
             else if (charging_instruction == "Float")
-              requested_charge_voltage = (id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_inverter_offset_v).state) + id(yambms${yambms_id}_var_auto_float);
+              requested_charge_voltage = (id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_charger_offset_v).state) + id(yambms${yambms_id}_var_auto_float);
             // Stop Charging
-            else requested_charge_voltage = (id(yambms${yambms_id}_rebulk_voltage).state + id(yambms${yambms_id}_inverter_offset_v).state);
+            else requested_charge_voltage = (id(yambms${yambms_id}_rebulk_voltage).state + id(yambms${yambms_id}_charger_offset_v).state);
             // Publish the sensor
             id(yambms${yambms_id}_requested_charge_voltage).publish_state(requested_charge_voltage);
 
@@ -1275,9 +1275,10 @@ number:
     on_value:
       then:
         - lambda: id(yambms${yambms_id}_var_rebulk_days_active) = false;
+  # Charger Offset V.
   - platform: template
-    name: "Inverter Offset V."
-    id: yambms${yambms_id}_inverter_offset_v
+    name: "Charger Offset V."
+    id: yambms${yambms_id}_charger_offset_v
     device_id: yambms_yambms${yambms_id}
     step: 0.1
     min_value: 0
@@ -1289,7 +1290,6 @@ number:
     icon: mdi:sine-wave
     optimistic: true
     entity_category: config
-    # internal: true
   - platform: template
     name: "Max requested charge current"
     id: yambms${yambms_id}_max_requested_charge_current

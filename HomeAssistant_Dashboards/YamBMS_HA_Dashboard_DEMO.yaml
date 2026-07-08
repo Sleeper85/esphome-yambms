@@ -1,5 +1,5 @@
-# Updated : 2026.06.17
-# Version : 1.7.0
+# Updated : 2026.07.08
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -264,8 +264,8 @@ views:
             name: Bulk voltage
           - entity: number.yambms_demo_float_voltage
             name: Float voltage
-          - entity: number.yambms_demo_inverter_offset_v
-            name: Inverter Offset V.
+          - entity: number.yambms_demo_charger_offset_v
+            name: Charger Offset V.
         title: YamBMS - Charging Settings
         show_header_toggle: false
       - type: entities
