@@ -1,5 +1,5 @@
-# Updated : 2026.06.28
-# Version : 1.7.0
+# Updated : 2026.07.08
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.7.0"
+  yambms_version: "1.7.1"
 
 esphome:
   name: ${hostname}
