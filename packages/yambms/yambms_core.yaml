@@ -501,19 +501,27 @@ interval:
 
             if (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0)
             {
+              // User-defined hard ceiling (slider)
               float max_charge_current_yambms = id(yambms${yambms_id}_max_requested_charge_current).state;
+              // BMS protection guard : aggregated OCP values with 10% safety margin
               float max_charge_current_bms = id(yambms${yambms_id}_var_total_max_charge_current) * 0.9;
+              // Nominal charge current : total battery capacity x global C-Rate (default 0.5C)
+              float max_charge_current_crate = battery_capacity * id(yambms${yambms_id}_max_charge_crate).state;
 
-              if (max_charge_current_bms > max_charge_current_yambms)
-                max_charge_current = max_charge_current_yambms;
-              else
-                max_charge_current = max_charge_current_bms;
+              // The max charge current is the lowest of the three values
+              max_charge_current = std::min({
+                max_charge_current_yambms,
+                max_charge_current_bms,
+                max_charge_current_crate
+              });
 
               ESP_LOGD("yambms_debug", "Max charge current YamBMS : %f A", max_charge_current_yambms);
               ESP_LOGD("yambms_debug", "Max charge current BMS : %f A", max_charge_current_bms);
+              ESP_LOGD("yambms_debug", "Max charge current C-Rate : %f A", max_charge_current_crate);
 
               if (cc_step == 0) id(yambms${yambms_id}_var_charge_current_step) = 1;
             }
+
             id(yambms${yambms_id}_max_charge_current).publish_state(round(max_charge_current));
             ESP_LOGD("yambms_debug", "Max charge current : %f A", max_charge_current);
 
@@ -528,19 +536,27 @@ interval:
 
             if (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0)
             {
+              // User-defined hard ceiling (slider)
               float max_discharge_current_yambms = id(yambms${yambms_id}_max_requested_discharge_current).state;
+              // BMS protection guard : aggregated OCP values with 10% safety margin
               float max_discharge_current_bms = id(yambms${yambms_id}_var_total_max_discharge_current) * 0.9;
+              // Nominal discharge current : total battery capacity x global C-Rate (default 1C)
+              float max_discharge_current_crate = battery_capacity * id(yambms${yambms_id}_max_discharge_crate).state;
 
-              if (max_discharge_current_bms > max_discharge_current_yambms)
-                max_discharge_current = max_discharge_current_yambms;
-              else
-                max_discharge_current = max_discharge_current_bms;
+              // The max discharge current is the lowest of the three values
+              max_discharge_current = std::min({
+                max_discharge_current_yambms,
+                max_discharge_current_bms,
+                max_discharge_current_crate
+              });
 
               ESP_LOGD("yambms_debug", "Max discharge current YamBMS : %f A", max_discharge_current_yambms);
               ESP_LOGD("yambms_debug", "Max discharge current BMS : %f A", max_discharge_current_bms);
+              ESP_LOGD("yambms_debug", "Max discharge current C-Rate : %f A", max_discharge_current_crate);
 
               if (dc_step == 0) id(yambms${yambms_id}_var_discharge_current_step) = 1;
             }
+
             id(yambms${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
             ESP_LOGD("yambms_debug", "Max discharge current : %f A", max_discharge_current);
 
@@ -1199,9 +1215,12 @@ binary_sensor:
 # | number                               |
 # +--------------------------------------+
 number:
+
   #
   # Min/max values ​​are updated automatically based on battery chemistry and cell count.
   #
+
+  # Bulk voltage
   - platform: template
     name: "Bulk voltage"
     id: yambms${yambms_id}_bulk_voltage
@@ -1216,6 +1235,7 @@ number:
     icon: mdi:battery-charging
     optimistic: true
     entity_category: config
+  # Float voltage
   - platform: template
     name: "Float voltage"
     id: yambms${yambms_id}_float_voltage
@@ -1230,6 +1250,7 @@ number:
     icon: mdi:battery-charging
     optimistic: true
     entity_category: config
+  # Rebulk Voltage
   - platform: template
     name: "Rebulk V."
     id: yambms${yambms_id}_rebulk_voltage
@@ -1244,6 +1265,7 @@ number:
     icon: mdi:sine-wave
     optimistic: true
     entity_category: config
+  # Rebulk SoC
   - platform: template
     name: "Rebulk SoC"
     id: yambms${yambms_id}_rebulk_soc
@@ -1258,6 +1280,7 @@ number:
     icon: mdi:battery-medium
     optimistic: true
     entity_category: config
+  # Rebulk Days
   - platform: template
     name: "Rebulk Days"
     id: yambms${yambms_id}_rebulk_days
@@ -1290,6 +1313,7 @@ number:
     icon: mdi:sine-wave
     optimistic: true
     entity_category: config
+  # Max requested charge current
   - platform: template
     name: "Max requested charge current"
     id: yambms${yambms_id}_max_requested_charge_current
@@ -1304,6 +1328,7 @@ number:
     icon: mdi:current-dc
     optimistic: true
     entity_category: config
+  # Max requested discharge current
   - platform: template
     name: "Max requested discharge current"
     id: yambms${yambms_id}_max_requested_discharge_current
@@ -1318,6 +1343,41 @@ number:
     icon: mdi:current-dc
     optimistic: true
     entity_category: config
+  # Max. Continuous Charging Power / Standard Charging Power
+  # EVE LF280K V3 = 1P / 0.5P
+  # EVE MB31 = 0.5P / 0.5P
+  - platform: template
+    name: "Max charge C-Rate"
+    id: yambms${yambms_id}_max_charge_crate
+    device_id: yambms_yambms${yambms_id}
+    step: 0.05
+    min_value: 0.05
+    max_value: 1
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0.5
+    unit_of_measurement: C
+    icon: mdi:battery-charging
+    optimistic: true
+    entity_category: config
+  # Max. Continuous Discharging Power / Standard Discharging Power
+  # EVE LF280K V3 = 1P / 0.5P
+  # EVE MB31 = 0.5P / 0.5P
+  - platform: template
+    name: "Max discharge C-Rate"
+    id: yambms${yambms_id}_max_discharge_crate
+    device_id: yambms_yambms${yambms_id}
+    step: 0.05
+    min_value: 0.05
+    max_value: 1
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0.5
+    unit_of_measurement: C
+    icon: mdi:battery-minus
+    optimistic: true
+    entity_category: config
+  # Request Force Charge Start SoC
   - platform: template
     name: "Request Force Charge Start SoC"
     id: yambms${yambms_id}_request_force_charge_start_soc
@@ -1332,6 +1392,7 @@ number:
     icon: mdi:battery-low
     optimistic: true
     entity_category: config
+  # Request Force Charge Stop SoC
   - platform: template
     name: "Request Force Charge Stop SoC"
     id: yambms${yambms_id}_request_force_charge_stop_soc
