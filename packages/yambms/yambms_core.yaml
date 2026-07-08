@@ -278,7 +278,11 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
-  - id: yambms${yambms_id}_var_auto_ccl_soft_landing
+  - id: yambms${yambms_id}_var_auto_custom_ccl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: yambms${yambms_id}_var_auto_custom_dcl
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -959,11 +963,11 @@ interval:
               if ((charging_instruction == "Bulk") || (charging_instruction == "Float"))
               {
                 float auto_limit = std::min({
-                  id(yambms${yambms_id}_var_auto_ccl), 
-                  id(yambms${yambms_id}_var_auto_eoc), 
                   id(yambms${yambms_id}_var_auto_temperature_ccl),
-                  id(yambms${yambms_id}_var_auto_ccl_soft_landing),
+                  id(yambms${yambms_id}_var_auto_ccl),
                   id(yambms${yambms_id}_var_auto_soc_limit),
+                  id(yambms${yambms_id}_var_auto_eoc),
+                  id(yambms${yambms_id}_var_auto_custom_ccl)
                 });
 
                 requested_charge_current = round(id(yambms${yambms_id}_max_charge_current).state + auto_limit);
@@ -992,8 +996,9 @@ interval:
               if (discharging_instruction == true)
               {
                 float auto_limit = std::min({
-                  id(yambms${yambms_id}_var_auto_dcl), 
-                  id(yambms${yambms_id}_var_auto_temperature_dcl)
+                  id(yambms${yambms_id}_var_auto_temperature_dcl),
+                  id(yambms${yambms_id}_var_auto_dcl),
+                  id(yambms${yambms_id}_var_auto_custom_dcl)
                 });
 
                 requested_discharge_current = round(id(yambms${yambms_id}_max_discharge_current).state + auto_limit);
@@ -2097,20 +2102,21 @@ text_sensor:
     update_interval: never
     entity_category: diagnostic
     lambda: |-
+
       float limit_1 = id(yambms${yambms_id}_var_auto_temperature_ccl);
-      float limit_2 = id(yambms${yambms_id}_var_auto_eoc);
-      float limit_3 = id(yambms${yambms_id}_var_auto_ccl);
-      float limit_4 = id(yambms${yambms_id}_var_auto_ccl_soft_landing);
-      float limit_5 = id(yambms${yambms_id}_var_auto_soc_limit);
+      float limit_2 = id(yambms${yambms_id}_var_auto_ccl);
+      float limit_3 = id(yambms${yambms_id}_var_auto_soc_limit);
+      float limit_4 = id(yambms${yambms_id}_var_auto_eoc);
+      float limit_5 = id(yambms${yambms_id}_var_auto_custom_ccl);
 
       float min_val = std::min({limit_1, limit_2, limit_3, limit_4, limit_5});
 
       if (min_val == 0.0f) return {"No Derating"};
       if (min_val == limit_1) return {"Temperature Derating"};
-      if (min_val == limit_2) return {"EOC Derating"};
-      if (min_val == limit_3) return {"AutoCCL Derating"};
-      if (min_val == limit_4) return {"Soft Landing Derating"};
-      if (min_val == limit_5) return {"SoC Limit Derating"};
+      if (min_val == limit_2) return {"Auto CCL Derating"};
+      if (min_val == limit_3) return {"SoC Limit Derating"};
+      if (min_val == limit_4) return {"EOC Derating"};
+      if (min_val == limit_5) return {"Custom CCL Derating"};
       return {"Unknown"};
 
   # +----------------------------------------+
@@ -2126,10 +2132,12 @@ text_sensor:
     lambda: |-
       float limit_1 = id(yambms${yambms_id}_var_auto_temperature_dcl);
       float limit_2 = id(yambms${yambms_id}_var_auto_dcl);
+      float limit_3 = id(yambms${yambms_id}_var_auto_custom_dcl);
 
-      float min_val = std::min(limit_1, limit_2);
+      float min_val = std::min({limit_1, limit_2, limit_3});
 
       if (min_val == 0.0f) return {"No Derating"};
       if (min_val == limit_1) return {"Temperature Derating"};
-      if (min_val == limit_2) return {"AutoDCL Derating"};  
+      if (min_val == limit_2) return {"Auto DCL Derating"};
+      if (min_val == limit_3) return {"Custom DCL Derating"};
       return {"Unknown"};
