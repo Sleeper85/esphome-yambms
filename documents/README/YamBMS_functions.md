@@ -50,20 +50,35 @@ The `Bulk voltage` slider allows you to set the voltage used during the `Bulk`, 
 
 The `Float voltage` slider allows you to set the voltage used after charging is complete if the `Float charge enabled` switch is enabled.
 
-The `Inverter Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop. This allows you to reach the target `Bulk` or `Float` charge voltage by adding an offset.
+The `Charger Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop. This allows you to reach the target `Bulk` or `Float` charge voltage by adding an offset.
 
 ### Max Requested Current
 
 ![Image](../../images/YamBMS_Max_Requested_Current.png "Max Requested Current")
 
-
-The required `charge/discharge current` is calculated as follows :
+The requested `charge/discharge current` is calculated from **three maximum values** :
 
 1. You define a **maximum current** that can never be exceeded
-2. YamBMS calculates the **maximum current** accepted by your BMS (total of OCP values ​​* 0.9)
-3. The temperature-based current limiting function calculates the **maximum current** `based` on the **temperature**, the **battery capacity** and the **charging_rate_table** / **discharging_rate_table**. For further details see [Auto Temp-Based Current](Auto_temp-based_current.md).
+2. YamBMS calculates the **maximum current** accepted by your BMS (total of OCP values * 0.9)
+3. YamBMS calculates the **nominal current** of your battery bank based on the **battery capacity** and the **C-Rate** you have configured (default : `0.5C` for charge and discharge, as recommended by most LFP cell datasheets, e.g. EVE MB31)
 
 The **current requested** by YamBMS will be **the lowest** of these three values.
+
+This result can then be **further reduced** by the active functions acting on the CCL and DCL :
+
+**Functions acting on the CCL (charge) :**
+
+- [Auto Temp-Based Current](YamBMS_functions.md#auto-temp-based-current) : reduces the charge current according to the **temperature** and the **charging_rate_table**
+- [Auto CCL](YamBMS_functions.md#auto-ccl) : reduces the charge current when a cell approaches the BMS **OVP** threshold
+- [Auto SoC Limit](YamBMS_functions.md#auto-soc-limit) : clamps the charge current when the target **SoC** is reached
+- [Auto EOC](YamBMS_functions.md#auto-eoc) : slows down the charge so the battery reaches full charge at the chosen **time**
+
+**Functions acting on the DCL (discharge) :**
+
+- [Auto Temp-Based Current](YamBMS_functions.md#auto-temp-based-current) : reduces the discharge current according to the **temperature** and the **discharging_rate_table**
+- [Auto DCL](YamBMS_functions.md#auto-dcl) : reduces the discharge current when a cell approaches the BMS **UVP** threshold
+
+The final CCL/DCL sent to the inverter is always the **lowest** value among all these functions. The **CCL/DCL derating reason** sensor shows which function is currently limiting the current.
 
 ## Requested Values
 
@@ -71,7 +86,7 @@ The **current requested** by YamBMS will be **the lowest** of these three values
 
 These 4 sensors allow you to see what is being requested of your inverter.
 
-In the example below, we are in the `Float` phase at a voltage of `53.6V` and an `Inverter Offset V.` of `0.1V`. The `Requested Charge Voltage` is therefore `53.7V`.
+In the example below, we are in the `Float` phase at a voltage of `53.6V` and an `Charger Offset V.` of `0.1V`. The `Requested Charge Voltage` is therefore `53.7V`.
 
 The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplied by the number of cells, in this example (3V * 16).
 
@@ -100,7 +115,99 @@ Thanks to [@MrPabloUK](https://github.com/MrPabloUK) for developing `Auto CVL`, 
 
 A [reference spreadsheet](https://docs.google.com/spreadsheets/d/1UwZ94Qca-DBP5gppzKmAjbMJYZGjR4lMwZtwwQR9wWY/edit?usp=sharing) has been created that shows how the `Auto CCL & DCL` works.
 
-Thanks to [@GHswitt](https://github.com/GHswitt) for developing `Auto Float` function.
+Thanks to [@GHswitt](https://github.com/GHswitt) for developing `Auto Float`, `Auto EOC` and `Auto SoC Limit` functions.
+
+## Auto Temp-Based Current
+
+![Image](../../images/YamBMS_Auto_Temp-Based_Current.png "Auto Temp-Based Current")
+
+Lithium cells cannot safely accept the same current at all temperatures. Charging an LFP cell
+below 0°C causes **lithium plating**, a permanent and dangerous degradation, and both charging
+and discharging must be reduced or stopped at high temperature. Most BMS only offer an ON/OFF
+protection (charge allowed or blocked at a fixed threshold), which either cuts the charge
+completely or lets full current flow into a cold battery.
+
+**Auto Temp-Based Current** fills this gap : it continuously adjusts the maximum charge and
+discharge current according to the battery temperature, following two configurable
+**temperature/C-Rate tables**.
+
+This function can be disabled via the **"Temperature-based current limitation"** switch.
+
+### How it works
+
+YamBMS monitors the **temperature sensors of all connected BMS** and uses the coldest/hottest
+values to look up the allowed **C-Rate** in the tables below. The resulting factor is applied
+to the **battery capacity (Ah)**, not to the maximum charge/discharge current :
+
+> Example : 280 Ah battery at 20°C with a rate of 0.5 → 280 x 0.5 = **140 A**
+
+The resulting limit is one of the values used to calculate the final CCL/DCL : the current
+requested by YamBMS is always the **lowest** of all active limits (see
+[Max Requested Current](Max_Requested_Current.md)). When this function is the one limiting
+the current, it is displayed by the **CCL/DCL derating reason** sensor.
+
+### Configuration
+
+The two tables are defined in the substitutions of your YAML. Each line is a pair
+`{ temperature °C, C-Rate }` with a rate from `0.0` (current blocked) to `1.0` (1C).
+
+    # +-------------------------------------------------------------------------
+    # | Temperature-based current limitation
+    # | Can be disabled via the switch "Temperature-based current limitation"
+    # | This factor is applied to the battery capacity (Ah), not the current
+    # | maximum charge/discharge current. For example : 280Ah x 0.5 = 140A
+    # +-------------------------------------------------------------------------
+    # Temperature °C -> Charge Rate (0.0C to 1.0C)
+    yambms_charging_rate_table: |
+      {
+        { -0.1, 0.00 },
+        {  0.0, 0.05 },
+        {  5.0, 0.12 },
+        { 10.0, 0.30 },
+        { 20.0, 0.50 },
+        { 25.0, 0.50 },
+        { 45.0, 0.50 },
+        { 50.0, 0.50 },
+        { 55.0, 0.50 },
+        { 60.0, 0.00 }
+      }
+    # Temperature °C -> Discharge Rate (0.0C to 1.0C)
+    yambms_discharging_rate_table: |
+      {
+        {-30.0, 0.00 },
+        {-20.0, 0.50 },
+        {-10.0, 0.50 },
+        { -5.0, 0.50 },
+        {  0.0, 0.50 },
+        {  5.0, 0.50 },
+        { 45.0, 0.50 },
+        { 50.0, 0.50 },
+        { 55.0, 0.50 },
+        { 60.0, 0.00 }
+      }
+
+### Default values explained
+
+The default tables are designed for **LFP cells** and follow the typical manufacturer
+recommendations :
+
+**Charge** : no charge below freezing (`-0.1°C -> 0.00`), then a progressive ramp as the
+battery warms up — a trickle at 0°C (0.05C), increasing through 5°C and 10°C, reaching the
+nominal 0.5C at 20°C. The rate stays at 0.5C up to 55°C and charging stops at 60°C.
+The low-temperature ramp is deliberately conservative : charging a cold battery at reduced
+current also warms it up, which progressively unlocks higher rates.
+
+**Discharge** : LFP cells tolerate discharge at much lower temperatures than charge, so the
+default allows 0.5C from -20°C up to 55°C, with a cut-off below -30°C and above 60°C.
+
+### Customizing the tables
+
+- Adjust the plateau value if your cells are rated differently (e.g. 0.3C for a
+  high-capacity storage cell, 1.0C for power cells)
+- If your battery has a **self-heating** function or is installed in a heated enclosure,
+  the low-temperature charge ramp can be relaxed
+- Keep the `0.00` end points : they act as hard cut-offs at the temperature extremes and
+  are your last software protection before the BMS protections trip
 
 ## Auto CVL
 
@@ -109,33 +216,81 @@ Thanks to [@GHswitt](https://github.com/GHswitt) for developing `Auto Float` fun
 > [!IMPORTANT]
 > The `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
 
-When enabled, the `Automatic Charge Voltage Limit` feature will automatically reduce the `Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the bulk target.
-That way, the runner cell should be maintained at or near bulk (for example, 3.45v) and the balancer can start to bring up the lagging cells.
-Controlling the CVL is the preferred option according to Victron and others, but it depends on how well your inverter behaves.
-My Solis inverter is not great at CVL control, so it doesn't work well for me.
+When enabled, the `Automatic Charge Voltage Limit` function automatically reduces the
+`Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the bulk
+target. That way, the runner cell is maintained at or near bulk voltage (for example 3.45 V)
+and the balancer can start to bring up the lagging cells. It also prevents the runner cell
+from ever climbing to the `OVP` threshold.
 
-You can compare `Auto CVL` to cruise control in a car.
+Think of charging as filling a tank with water : the voltage is the **pressure** pushing the
+water in, the current is the **flow**. Where `Auto CCL` is a valve on the pipe, `Auto CVL`
+acts directly on the **pump pressure**. When the pressure inside one compartment of the tank
+(the runner cell) rises too fast, YamBMS turns the pump down so the source pressure matches
+what that compartment can accept. With the source pressure lowered, over-pressurizing the
+compartment becomes **physically impossible** — no matter how the downstream equipment
+behaves, there is simply no excess pressure left to push. This is why voltage control is
+inherently the safest way to terminate a charge, and the preferred option according to
+Victron and others.
 
-`Boost Charge V.` allows you to increase the charging voltage to charge your battery faster, the `Auto CVL` function will itself reduce the charging voltage at the end of charging so that it does not exceed the target voltage `Bulk Voltage`.
+Its effectiveness, however, depends on how well your inverter follows `CVL` commands. Some
+inverters regulate their output voltage poorly or slowly (e.g. some Solis models), in which
+case the pump doesn't respond to the command to turn down — this is where `Auto CCL`, acting
+on the valve instead, takes over as a complementary protection.
+
+`Boost Charge V.` allows you to increase the charging voltage to charge your battery faster :
+the pump is deliberately set to a higher pressure to fill the tank faster. `Auto CVL` will
+then reduce the charging voltage by itself at the end of the charge, so that the runner cell
+does not exceed the `Bulk Voltage` target — the pump pressure is automatically brought back
+down as the tank approaches full.
 
 ## Auto CCL & DCL
 
-![Image](../../images/YamBMS_Auto_CCL_DCL.png "YamBMS Auto CCL & DCL")
+![Image](../../images/YamBMS_Auto_CCL_DCL.png "YamBMS Auto CCL")
+
+### Auto CCL
 
 > [!IMPORTANT]
 > The `Auto CCL` function uses the `OVP` value of your BMS.
+
+The `Auto Charge Current Limit` function has been introduced to prevent `OVP` alarms.
+
+When enabled, `Auto CCL` automatically reduces the `Requested Charge Current (CCL)` sent to
+the inverter when a cell starts to exceed the bulk target. This should prevent the runner
+cell from reaching the max voltage cutoff — it doesn't hold the cell at bulk voltage, but
+keeps it just below the `OVP` threshold.
+
+Think of charging as filling a tank with water : the voltage is the **pressure** pushing the
+water in, the current is the **flow**. `Auto CCL` is a **valve on the pipe** : when the
+pressure inside one compartment of the tank (the runner cell) rises too fast, the valve
+progressively closes to reduce the flow — even if the pump keeps pushing at full pressure.
+Less water entering means less pressure build-up, and the compartment never reaches the
+point where the safety relief (`OVP`) would trip.
+
+Because it acts on the **current** rather than the voltage, this protection works with any
+inverter that uses `CAN/RS485` control — including those that follow `CVL` commands poorly. It is
+the perfect complement to `Auto CVL`, which acts on the pump pressure itself.
+
+### Auto DCL
+
+> [!IMPORTANT]
 > The `Auto DCL` function uses the `UVP` value of your BMS.
 
-Regarding the new `Auto Charge/Discharge Current Limit`, this features has been introduced to hopefully prevent `OVP` and `UVP` alarms.
+The `Auto Discharge Current Limit` function has been introduced to prevent `UVP` alarms.
 
-When enabled, the `Automatic Charge Current Limit` feature will automatically reduce the `Requested Charge Current (CCL)` sent to the inverter when a cell starts to exceed the bulk target.
-This should prevent the runner cell from exceeding the max voltage cutoff, but doesn't maintain it at bulk voltage - instead it should keep it just below max cell voltage.
+When enabled, `Auto DCL` automatically reduces the `Requested Discharge Current (DCL)` sent
+to the inverter when a cell approaches `UVP + 0.2 V`. This should prevent the weakest cell
+from reaching the low voltage cutoff and tripping the BMS protection.
 
-You can compare `Auto CCL` to a max speed limiter in a car.
+In the water analogy, discharging is **draining the tank** : the cell voltage is the water
+level, the discharge current is the outgoing flow. `Auto DCL` is a **valve on the drain** :
+when the level in one compartment (the weakest cell) gets close to the bottom, the valve
+progressively closes to slow down the outflow. A strong draw on a nearly empty compartment
+makes its level dip sharply (voltage sag under load) ; reducing the flow lets the level
+stabilize just above the point where the safety cutoff (`UVP`) would trip, instead of
+slamming the system to a hard stop.
 
-`Auto DCL` works the same way when a cell approaching `UVP + 0.2`.
-
-Current control should work with any inverter that uses `CAN` control.
+Because it acts on the **current** rather than the voltage, this protection works with any
+inverter that uses `CAN/RS485` control.
 
 ## Auto Float Voltage
 
@@ -261,10 +416,5 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 Useful information for troubleshooting.
 
-![Image](../../images/YamBMS_Diagnostic.png "YamBMS_Diagnostic")
-
-## YamBMS version
-
-This function lets you know if a new version of YamBMS is available, the check is done every 6 hours.
-
-![Image](../../images/YamBMS_New_version.png "YamBMS_New_version")
+![Image](../../images/YamBMS_Diagnostic_1.png "YamBMS_Diagnostic 1")
+![Image](../../images/YamBMS_Diagnostic_2.png "YamBMS_Diagnostic 2")
