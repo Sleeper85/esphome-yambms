@@ -351,8 +351,8 @@ esphome:
             id(yambms${yambms_id}_bulk_voltage).traits.set_min_value(round(cell_count * id(yambms${yambms_id}_var_cell_min_charge_v) * 10) / 10);
             id(yambms${yambms_id}_bulk_voltage).traits.set_max_value(round(cell_count * id(yambms${yambms_id}_var_cell_max_charge_v) * 10) / 10);
             // Float V.
-            id(yambms${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * (id(yambms${yambms_id}_var_cell_min_charge_v) - 0.15) * 10) / 10);
-            id(yambms${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * (id(yambms${yambms_id}_var_cell_min_charge_v) + 0.05) * 10) / 10);
+            id(yambms${yambms_id}_float_voltage).traits.set_min_value(round(cell_count * id(yambms${yambms_id}_var_cell_nominal_v) * 10) / 10);
+            id(yambms${yambms_id}_float_voltage).traits.set_max_value(round(cell_count * id(yambms${yambms_id}_var_cell_max_charge_v) * 10) / 10);
             // Rebulk V.
             id(yambms${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(yambms${yambms_id}_var_cell_nominal_v) * 10) / 10);
             id(yambms${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(yambms${yambms_id}_var_cell_min_charge_v) * 10) / 10);
