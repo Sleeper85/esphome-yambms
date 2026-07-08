@@ -253,31 +253,52 @@ views:
       - type: entities
         entities:
           - entity: sensor.yambms_demo_charging_status
-            name: Charging Status
+            name:
+              type: entity
           - entity: sensor.yambms_demo_charging_instruction
-            name: Charging Instruction
+            name:
+              type: entity
           - entity: switch.yambms_demo_float_charge_enabled
-            name: Float charge enabled
+            name:
+              type: entity
           - entity: switch.yambms_demo_eoc_timer_enabled
-            name: EOC timer enabled
+            name:
+              type: entity
           - entity: number.yambms_demo_bulk_voltage
-            name: Bulk voltage
+            name:
+              type: entity
           - entity: number.yambms_demo_float_voltage
-            name: Float voltage
+            name:
+              type: entity
           - entity: number.yambms_demo_charger_offset_v
-            name: Charger Offset V.
+            name:
+              type: entity
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#charging-settings
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Charging Settings
         show_header_toggle: false
       - type: entities
         entities:
           - entity: number.yambms_demo_rebulk_soc
-            name: Rebulk SoC
+            name:
+              type: entity
           - entity: number.yambms_demo_rebulk_v
-            name: Rebulk V.
+            name:
+              type: entity
           - entity: number.yambms_demo_rebulk_days
-            name: Rebulk Days
+            name:
+              type: entity
           - entity: switch.yambms_demo_force_bulk
-            name: Force Bulk
+            name:
+              type: entity
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#rebulk
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - ReBulk
       - type: entities
         entities:
@@ -285,23 +306,44 @@ views:
             name: Max charge current
           - entity: number.yambms_demo_max_requested_discharge_current
             name: Max discharge current
+          - entity: number.yambms_demo_max_charge_c_rate
+            name:
+              type: entity
+          - entity: number.yambms_demo_max_discharge_c_rate
+            name:
+              type: entity
           - entity: switch.yambms_demo_temperature_based_current_limitation
-            name: Temperature-based current limitation
+            name:
+              type: entity
           - entity: sensor.yambms_demo_ccl_derating_reason
-            name: CCL Derating Reason
+            name:
+              type: entity
           - entity: sensor.yambms_demo_dcl_derating_reason
-            name: DCL Derating Reason
+            name:
+              type: entity
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#max-requested-current
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Max requested current
       - type: entities
         entities:
           - entity: switch.yambms_demo_request_force_charge
-            name: Request force charge
+            name:
+              type: entity
           - entity: number.yambms_demo_request_force_charge_start_soc
-            name: Force charge Start SoC
+            name: Start SoC
           - entity: number.yambms_demo_request_force_charge_stop_soc
-            name: Force charge Stop SoC
+            name: Stop SoC
           - entity: binary_sensor.yambms_demo_requested_force_charge
-            name: Requested Force Charge
+            name:
+              type: entity
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#request-force-charge
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Request force charge
       - type: entities
         entities:
@@ -313,6 +355,11 @@ views:
             name: Requested Charge Current
           - entity: sensor.yambms_demo_requested_discharge_current
             name: Requested Discharge Current
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#requested-values
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Requested Values
   - title: Auto Functions
     cards:
@@ -322,7 +369,25 @@ views:
             name: Automatic Charge Voltage
           - entity: number.yambms_demo_auto_cvl_boost_charge_v
             name: Auto CVL Boost Charge V.
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-cvl
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Auto CVL
+      - type: entities
+        entities:
+          - entity: switch.yambms_demo_automatic_charge_current
+            name: Automatic Charge Current
+          - entity: switch.yambms_demo_automatic_discharge_current
+            name: Automatic Discharge Current
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl--dcl
+            name: README
+            icon: mdi:book-open-variant
+        title: YamBMS - Auto CCL / DCL
+        show_header_toggle: false
       - type: entities
         entities:
           - entity: select.yambms_demo_automatic_float_voltage
@@ -333,15 +398,12 @@ views:
             name: Update Interval
           - entity: number.yambms_demo_auto_float_voltage_step
             name: Voltage Step
-        title: YamBMS - Auto Float
-      - type: entities
-        entities:
-          - entity: switch.yambms_demo_automatic_charge_current
-            name: Automatic Charge Current
-          - entity: switch.yambms_demo_automatic_discharge_current
-            name: Automatic Discharge Current
-        title: YamBMS - Auto CCL / DCL
-        show_header_toggle: false
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-float-voltage
+            name: README
+            icon: mdi:book-open-variant
+        title: YamBMS - Auto Float Voltage
       - type: entities
         entities:
           - entity: switch.yambms_demo_automatic_soc_limit
@@ -354,6 +416,11 @@ views:
             name: Auto SoC Limit Mode
           - entity: sensor.yambms_demo_auto_soc_limit_status
             name: Auto SoC Limit Status
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-soc-limit
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Auto SoC Limit
       - type: entities
         entities:
@@ -375,6 +442,11 @@ views:
             name: Stop hours
           - entity: number.yambms_demo_auto_eoc_increase_stop_soc
             name: Stop SoC
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-eoc
+            name: README
+            icon: mdi:book-open-variant
         title: YamBMS - Auto EOC
   - title: Diagnostic
     cards:
