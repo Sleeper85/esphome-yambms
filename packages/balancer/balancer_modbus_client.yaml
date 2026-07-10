@@ -1,5 +1,5 @@
-# Updated : 2026.02.19
-# Version : 1.1.8
+# Updated : 2026.07.10
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -34,9 +34,8 @@ modbus_controller:
     setup_priority: -10
     address: 10${bms_id}
     update_interval: 20s
-    command_throttle: ${modbus_command_throttle}
     max_cmd_retries: 3
-    # offline_skip_updates: 5
+    offline_skip_updates: 5 # Fixed with PR #11781
     on_online:
       then:
         - logger.log: "Balancer ${bms_id} modbus server back online !"
