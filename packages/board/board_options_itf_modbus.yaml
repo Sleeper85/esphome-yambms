@@ -1,5 +1,5 @@
-# Updated : 2026.02.06
-# Version : 1.1.2
+# Updated : 2026.07.10
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -24,7 +24,7 @@ substitutions:
   modbus_baud_rate: '19200'          # 9600 / 19200 / 115200
   # Modbus
   modbus_id: '1'
-  modbus_send_wait_time: '250ms'     # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+  modbus_send_wait_time: '2000ms'    # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending (default value from ESPHome PR #11969)
   # Modbus Controller
   modbus_update_interval: '5s'       # frequency with which BMS/Shunt modbus servers are queried
   modbus_command_throttle: '0ms'     # minimum time in between 2 requests to the device
