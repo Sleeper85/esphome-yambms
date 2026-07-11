@@ -1234,6 +1234,7 @@ number:
     mode: "${yambms_input_number_mode}"
     initial_value: "${yambms_bulk_v}"
     unit_of_measurement: V
+    device_class: voltage
     icon: mdi:battery-charging
     optimistic: true
     entity_category: config
@@ -1249,6 +1250,7 @@ number:
     mode: "${yambms_input_number_mode}"
     initial_value: "${yambms_float_v}"
     unit_of_measurement: V
+    device_class: voltage
     icon: mdi:battery-charging
     optimistic: true
     entity_category: config
@@ -1264,6 +1266,7 @@ number:
     mode: "${yambms_input_number_mode}"
     initial_value: "${yambms_rebulk_v}"
     unit_of_measurement: V
+    device_class: voltage
     icon: mdi:sine-wave
     optimistic: true
     entity_category: config
@@ -1312,6 +1315,7 @@ number:
     mode: "${yambms_input_number_mode}"
     initial_value: 0.0
     unit_of_measurement: V
+    device_class: voltage
     icon: mdi:sine-wave
     optimistic: true
     entity_category: config
@@ -1327,6 +1331,7 @@ number:
     mode: "${yambms_input_number_mode}"
     initial_value: ${yambms_max_requested_charge_current}
     unit_of_measurement: A
+    device_class: current
     icon: mdi:current-dc
     optimistic: true
     entity_category: config
@@ -1342,6 +1347,7 @@ number:
     mode: "${yambms_input_number_mode}"
     initial_value: ${yambms_max_requested_discharge_current}
     unit_of_measurement: A
+    device_class: current
     icon: mdi:current-dc
     optimistic: true
     entity_category: config
