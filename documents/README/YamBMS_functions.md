@@ -52,6 +52,14 @@ The `Float voltage` slider allows you to set the voltage used after charging is 
 
 The `Charger Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop. This allows you to reach the target `Bulk` or `Float` charge voltage by adding an offset.
 
+The `Cut-Off Cell Voltage` select defines which cell voltage is used by the `Cut-Off` detection, see the [Charging logic](Charging_logic.md).
+
+- `Max Cell Voltage` (default): the end of charge depends on the **highest cell**. This is the conservative option, recommended for most installations.
+- `Average Cell Voltage`: the end of charge reflects the state of the **whole pack** (`battery voltage / cell count`), giving a more consistent charge termination voltage from one day to the next. This option can help with batteries built from unmatched cells (different internal resistances), batteries with a runner cell, or a BMS that does not report its equalizing status.
+
+> [!WARNING]
+> With `Average Cell Voltage`, the highest cell **no longer stops the charge** and can be pushed above its maximum voltage. Only use this option with the `Auto CVL` and/or `Auto CCL` enabled, the BMS OVP protection remaining the last resort. If your inverter does not respect the requested charge voltage, only the current derating is effective.
+
 ### Max Requested Current
 
 ![Image](../../images/YamBMS_Max_Requested_Current.png "Max Requested Current")

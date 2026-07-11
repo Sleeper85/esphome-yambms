@@ -1,4 +1,4 @@
-# Updated : 2026.07.11
+# Updated : 2026.07.15
 # Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -19,8 +19,14 @@
 
 substitutions:
   yambms_version: "1.7.1"
-  custom_ccl_derating_reason: 'Custom CCL Derating' 
-  custom_dcl_derating_reason: 'Custom DCL Derating' 
+  # Cut-Off Charging Logic
+  yambms_cutoff_crate: '0.05'             # (C-Rate) matches the standard charge termination of most LFP, Li-ion and LTO datasheets and is the right value for the vast majority of installations. Check your cell datasheet before changing it.
+  yambms_eoc_min_soc: '95'                # (%) minimum SoC (Max 98%) required to allow Cut-Off/EOC
+  yambms_current_deadband_crate: '0.005'  # (C-Rate) `current` below this = grey zone (sensor noise / PV starvation)
+  yambms_cell_hysteresis_v: '0.020'       # (V/cell) discharge hysteresis margin
+  # Custom CCL/DCL Derating Reason
+  custom_ccl_derating_reason: 'Custom CCL Derating'
+  custom_dcl_derating_reason: 'Custom DCL Derating'
 
 globals:
   # BMS
@@ -456,7 +462,7 @@ interval:
                 soc = round(id(yambms${yambms_id}_var_total_battery_capacity_remaining) / id(yambms${yambms_id}_var_total_battery_capacity) * 100);
 
               // SOC manipulation
-              if (id(yambms${yambms_id}_var_to_combine_bms_counter) == 0) soc = 0;      // no BMS combined => sending 0%
+              if (id(yambms${yambms_id}_var_to_combine_bms_counter) == 0) soc = 0;          // no BMS combined => sending 0%
               else if ((soc > 98) && (id(yambms${yambms_id}_var_eoc) == false)) soc = 98;   // Useful for some inverters stopping charging when SoC reaches 100%
 
               // MEAN Battery SOH
@@ -810,7 +816,8 @@ interval:
                 float cv_min = id(yambms${yambms_id}_var_cell_min_charge_v);
                 float cv_max = id(yambms${yambms_id}_var_cell_max_charge_v);
                 float current = id(yambms${yambms_id}_current).state;
-                float cutoff_resistance = ((cv_max - cv_min) / id(yambms${yambms_id}_battery_capacity).state / 0.05);
+                float cutoff_resistance = ((cv_max - cv_min) / id(yambms${yambms_id}_battery_capacity).state / ${yambms_cutoff_crate});
+                float current_deadband = (id(yambms${yambms_id}_battery_capacity).state * ${yambms_current_deadband_crate});
 
                 uint32_t ms_now = millis();
                 static uint32_t ms_cutoff = ms_now;
@@ -820,18 +827,69 @@ interval:
                 // | Cut-Off Charging Logic                        |
                 // +-----------------------------------------------+
 
-                // Charging
-                if (current >= 0)
-                {
-                  float cutoff_voltage = (max_cell_v - cutoff_resistance * current);
+                // Cut-Off Cell Voltage source :
+                // "Max Cell Voltage" (default) : conservative, the EOC depends on the highest cell.
+                //  Protects imbalanced packs but the charge termination voltage varies
+                //  with the imbalance of the day.
+                // "Average Cell Voltage" : the EOC reflects the state of the whole pack, giving a
+                //  consistent charge termination voltage. The runner cell no longer stops
+                //  the charge : cell protection MUST be ensured by Auto CVL and/or Auto CCL
+                //  with BMS OVP as last resort.
+                //  Note : if the inverter does not respect the CVL, only Auto CCL is effective.
 
-                  if (cutoff_voltage >= cv_min)    // The Cut-Off conditions are valid
+                float cutoff_cell_v = max_cell_v;
+                if (id(yambms${yambms_id}_select_cutoff_cell_voltage).current_option() == "Average Cell Voltage")
+                  cutoff_cell_v = (id(yambms${yambms_id}_total_voltage).state / id(yambms${yambms_id}_cell_count).state);
+
+                // Current deadband
+                // Current within sensor noise / PV starvation
+                if (fabs(current) < current_deadband)
+                {
+                  // "Fully charged at rest" signature
+                  // cv_min is by definition the resting voltage of a full cell.
+                  // A near-zero current with cutoff_cell_v above cv_min indicates
+                  // a full battery, the Cut-Off conditions are considered valid.
+                  if ((cutoff_cell_v >= cv_min) &&
+                      (id(yambms${yambms_id}_battery_soc).state >= ${yambms_eoc_min_soc}))             // Min. SoC gate
+                  {
                     ms_bulk = ms_now;              // Reset millis to not enter the Bulk phase
-                  else
+                  }
+
+                  // cutoff_cell_v below cv_min at near-zero current.
+                  // The battery cannot be full, the Bulk conditions are valid.
+                  else if (cutoff_cell_v < cv_min)
+                  {
                     ms_cutoff = ms_now;            // Reset millis to not enter the Cut-Off phase
+                  }
+                  // Grey zone : cutoff_cell_v >= cv_min but SoC below the gate
+                  // No conclusion can be drawn
+                  else
+                  {
+                    ms_bulk = ms_now;              // Reset millis to not enter the Bulk phase
+                    ms_cutoff = ms_now;            // Reset millis to not enter the Cut-Off phase
+                  }
                 }
+
+                // Charging
+                else if (current > 0)
+                {
+                  float cutoff_voltage = (cutoff_cell_v - cutoff_resistance * current);
+
+                  if ((cutoff_voltage >= cv_min) &&                                                    // Compensated voltage criterion
+                      (id(yambms${yambms_id}_battery_soc).state >= ${yambms_eoc_min_soc}))             // Min. SoC gate
+                  {
+                    // Cut-Off phase
+                    ms_bulk = ms_now;              // Reset millis to not enter the Bulk phase
+                  }
+                  else
+                  {
+                    // Bulk phase
+                    ms_cutoff = ms_now;            // Reset millis to not enter the Cut-Off phase
+                  }
+                }
+
                 // Discharging
-                else if (max_cell_v < cell_bulk_v - cutoff_resistance)
+                else if (cutoff_cell_v < (cell_bulk_v - ${yambms_cell_hysteresis_v}))
                 {
                   ms_cutoff = ms_now;              // Reset millis to not enter the Cut-Off phase
                 }
@@ -857,6 +915,7 @@ interval:
                   // Bulk
                   else id(yambms${yambms_id}_var_charge_status) = "Bulk";
                 }
+
                 // Cut-Off phase
                 else if (ms_now - ms_cutoff >= 10000) // 10s
                 {
@@ -882,7 +941,8 @@ interval:
                       id(yambms${yambms_id}_script_cutoff_timer).stop();
                   }
                   // Not Equalizing => Start cut-off timer
-                  // If the conditions continue to be respected the charging process will stop in 60s (default value)
+                  // If the conditions continue to be respected the charging process will stop in 180s (default value)
+                  // This duration must exceed the post-burst cell relaxation time (30-120s) to reject transient voltage readings
                   else if (!id(yambms${yambms_id}_script_cutoff_timer).is_running())
                     id(yambms${yambms_id}_script_cutoff_timer).execute();
                 }
@@ -1107,6 +1167,28 @@ script:
 
 
 
+# +--------------------------------------+
+# | select                               |
+# +--------------------------------------+
+select:
+  # Cut-Off cell voltage source
+  # "Max cell" (default) : conservative, the EOC depends on the highest cell.
+  # "Average cell" : consistent charge termination voltage. Recommended for packs
+  # with unmatched cells (different IRs), a runner cell, or a BMS that does not
+  # report its equalizing status. Requires Auto CVL and/or Auto CCL enabled
+  # (the runner cell no longer stops the charge).
+  - platform: template
+    name: "Cut-Off Cell Voltage"
+    id: yambms${yambms_id}_select_cutoff_cell_voltage
+    device_id: yambms_yambms${yambms_id}
+    options:
+      - "Max Cell Voltage"
+      - "Average Cell Voltage"
+    initial_option: "Max Cell Voltage"
+    restore_value: true
+    optimistic: true
+    icon: mdi:vector-difference
+    entity_category: config
 
 # +--------------------------------------+
 # | switch                               |
