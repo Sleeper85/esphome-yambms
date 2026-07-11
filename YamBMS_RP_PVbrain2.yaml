@@ -1,5 +1,5 @@
-# Updated : 2026.06.29
-# Version : 1.7.0
+# Updated : 2026.07.15
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -90,7 +90,7 @@ substitutions:
   # This timer can be deactivated with a switch
   yambms_eoc_timer: '30'
   # Time in seconds during which the end of charge conditions must be respected (cut-off + cells not equalizing)
-  yambms_cutoff_timer: '60'
+  yambms_cutoff_timer: '180'
   # Max. charge current : corresponds to the maximum charge current which may be requested by YamBMS.
   # The current requested will be proportional to the BMS count without ever exceeding this value.
   yambms_max_requested_charge_current: '300' # in Ampere
@@ -192,9 +192,23 @@ packages:
       # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
 
       # BUS
-      # - path: 'packages/board/board_options_itf_bus_spi.yaml' # SPI bus for MCP2515
+      # - path: 'packages/board/board_options_itf_bus_spi.yaml' # SPI bus
       # - path: 'packages/board/board_options_itf_bus_i2c.yaml' # I2C bus for SX1509 and BME280/BMP280
       # - path: 'packages/board/board_options_itf_bus_one_wire.yaml' # One wire bus for Dallas Temperature Sensor
+
+      # Modbus 1
+      # - path: 'packages/board/board_options_itf_modbus_expander.yaml'
+      #   vars:
+      #     modbus_id: '1' # can be a number or text or a mixture of both, e.g. full id = modbus_client_1
+      #     modbus_role: 'client' # client / server
+      #     modbus_uart_id: 'uart_${uart_hub_bus}_1'
+
+      # Modbus 2
+      # - path: 'packages/board/board_options_itf_modbus_expander.yaml'
+      #   vars:
+      #     modbus_id: '2' # can be a number or text or a mixture of both, e.g. full id = modbus_client_2
+      #     modbus_role: 'client' # client / server
+      #     modbus_uart_id: 'uart_${uart_hub_bus}_2'
 
       # WK2168 UART/IO Expander
       - path: 'packages/board/board_options_itf_pvbrain2_wk2168_spi.yaml'
@@ -210,7 +224,7 @@ packages:
           # to inverter = canbus_inverter_1
           canbus_node_id: 'canbus_inverter_1'
       
-      # CAN transceiver - MCP2515
+      # CAN transceiver - SPI bus and MCP2515
       # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
       #   vars:
       #     # to bms = canbus_bms_1
@@ -218,7 +232,7 @@ packages:
       #     canbus_node_id: 'canbus_inverter_1'
 
       # PSRAM octal 80Mhz
-      # - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
+      - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
 
       # Web Server
       # - path: 'packages/yambms/yambms_web_server.yaml'
@@ -279,7 +293,7 @@ packages:
   #       vars:
   #         rs485_id: '1' # Must be a number
   #         rs485_name: 'RS485 1'
-  #         rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
+  #         rs485_uart_id: 'uart_${uart_hub_bus}_3' # UART interface to which your inverter is connected
   #         rs485_uart_baud_rate: '9600'
   #         rs485_update_timeout: '10s'
   #         rs485_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
@@ -290,8 +304,8 @@ packages:
   # | >>> DEBUG ( logger level must be DEBUG )
   # +------------------------------------------------------------------------------+
 
-      - path: packages/base/device_debug_ESP32.yaml
-      # - path: packages/base/device_debug_ESP32_PSRAM.yaml
+      # - path: packages/base/device_debug_ESP32.yaml
+      - path: packages/base/device_debug_ESP32_PSRAM.yaml
         vars:
           debug_name: 'Debug'
           debug_update_interval: '5s'
