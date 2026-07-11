@@ -1,4 +1,4 @@
-# Updated : 2026.07.08
+# Updated : 2026.07.11
 # Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -19,6 +19,8 @@
 
 substitutions:
   yambms_version: "1.7.1"
+  custom_ccl_derating_reason: 'Custom CCL Derating' 
+  custom_dcl_derating_reason: 'Custom DCL Derating' 
 
 globals:
   # BMS
@@ -2177,7 +2179,7 @@ text_sensor:
       if (min_val == limit_2) return {"Auto CCL Derating"};
       if (min_val == limit_3) return {"SoC Limit Derating"};
       if (min_val == limit_4) return {"EOC Derating"};
-      if (min_val == limit_5) return {"Custom CCL Derating"};
+      if (min_val == limit_5) return {"${custom_ccl_derating_reason}"};
       return {"Unknown"};
 
   # +----------------------------------------+
@@ -2200,5 +2202,5 @@ text_sensor:
       if (min_val == 0.0f) return {"No Derating"};
       if (min_val == limit_1) return {"Temperature Derating"};
       if (min_val == limit_2) return {"Auto DCL Derating"};
-      if (min_val == limit_3) return {"Custom DCL Derating"};
+      if (min_val == limit_3) return {"${custom_dcl_derating_reason}"};
       return {"Unknown"};
