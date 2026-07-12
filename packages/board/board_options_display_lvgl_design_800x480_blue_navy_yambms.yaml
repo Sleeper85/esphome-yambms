@@ -1,0 +1,1239 @@
+# Updated : 2026.06.28
+# Version : 1.1.3
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+lvgl:
+
+  # ┌─────────────────────────────────────────────────────┐
+  # │ PAGE — BATTERY                                      │
+  # └─────────────────────────────────────────────────────┘
+
+  pages:
+    - id: page_battery
+      bg_color: ${color_bg}
+      widgets:
+
+        # ── ROW 1 : Faults Status | Battery SoC | Charge Status ────────
+
+        # Faults Status
+        - obj:
+            x: 20
+            y: 10
+            width: 245
+            height: 150
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 8
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Faults Status"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              
+              # Row 1
+              - obj:
+                  id: net_network
+                  x: 15
+                  y: 30
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "IP Network"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+              - obj:
+                  id: net_api_mqtt
+                  x: 125
+                  y: 30
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "API/MQTT"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+                            
+              # Row 2
+              - obj:
+                  id: net_can_inv
+                  x: 15
+                  y: 60
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "CAN INV"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+              - obj:
+                  id: net_rs485_inv
+                  x: 125
+                  y: 60
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "RS485 INV"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+              
+              # Row 3
+              - obj:
+                  id: bg_bms
+                  x: 15
+                  y: 90
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "BMS"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+              - obj:
+                  id: bg_shunt
+                  x: 125
+                  y: 90
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "Shunt"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+
+              # Row 4
+              - obj:
+                  id: bg_balancer
+                  x: 15
+                  y: 120
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "Balancer"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+              - obj:
+                  id: bg_alarm
+                  x: 125
+                  y: 120
+                  width: 100
+                  height: 20
+                  bg_color: ${color_4}
+                  border_width: 0
+                  radius: 4
+                  scrollbar_mode: "off"
+                  widgets:
+                    - label:
+                        width: 100%
+                        text: "Alarm"
+                        text_font: font_14
+                        text_color: ${color_bg}
+                        text_align: CENTER
+
+        # Battery SoC
+        - obj:
+            x: 275
+            y: 10
+            width: 250
+            height: 150
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 8
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Battery SoC"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+
+              # Terminal +
+              - obj:
+                  x: 60
+                  y: 30
+                  width: 10
+                  height: 5
+                  bg_color: ${color_2}
+                  border_width: 0
+                  radius: 1
+                  scrollbar_mode: "off"
+
+              # Battery
+              - obj:
+                  x: 40
+                  y: 35
+                  width: 50
+                  height: 100
+                  bg_color: ${color_3}
+                  border_width: 2
+                  border_color: ${color_2}
+                  radius: 4
+                  pad_all: 0
+                  scrollbar_mode: "off"
+                  widgets:
+                    # SoC
+                    - obj:
+                        id: battery_fill_soc
+                        x: 0
+                        y: 0
+                        width: 100%
+                        height: 0 # SoC %
+                        bg_color: ${color_6}
+                        border_width: 0
+                        radius: 2
+                        align: BOTTOM_LEFT
+                        scrollbar_mode: "off"
+              
+              # SoC text value
+              - label:
+                  id: lbl_soc_value
+                  x: 120
+                  y: 60
+                  width: 100
+                  text: "---%"
+                  text_font: font_40
+                  text_color: ${color_1}
+
+        # Requested Values to Inverter
+        - obj:
+            x: 535
+            y: 10
+            width: 245
+            height: 150
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Requested Values to Inverter"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              # CVL
+              - label:
+                  x: 15
+                  y: 30
+                  width: 50
+                  text: "CVL :"
+                  text_font: font_18
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_req_cvl
+                  x: 75
+                  y: 30
+                  width: 60
+                  text: "--.- V"
+                  text_font: font_18
+                  text_color: ${color_5}
+              # CVL instruction
+              - label:
+                  id: lbl_cvl_instruction
+                  x: 145
+                  y: 30
+                  width: 90
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_4}
+              # CCL
+              - label:
+                  x: 15
+                  y: 60
+                  width: 50
+                  text: "CCL :"
+                  text_font: font_18
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_req_ccl
+                  x: 75
+                  y: 60
+                  width: 60
+                  text: "--- A"
+                  text_font: font_18
+                  text_color: ${color_5}
+              # CCL Derating
+              - label:
+                  id: lbl_ccl_derating
+                  x: 145
+                  y: 60
+                  width: 90
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_7}
+              # DCL
+              - label:
+                  x: 15
+                  y: 90
+                  width: 50
+                  text: "DCL :"
+                  text_font: font_18
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_req_dcl
+                  x: 75
+                  y: 90
+                  width: 60
+                  text: "--- A"
+                  text_font: font_18
+                  text_color: ${color_5}
+              # DCL Derating
+              - label:
+                  id: lbl_dcl_derating
+                  x: 145
+                  y: 90
+                  width: 90
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_4}
+              # DVL
+              - label:
+                  x: 15
+                  y: 120
+                  width: 50
+                  text: "DVL :"
+                  text_font: font_18
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_req_dvl
+                  x: 75
+                  y: 120
+                  width: 60
+                  text: "--.- V"
+                  text_font: font_18
+                  text_color: ${color_5}
+              # DVL instruction
+              - label:
+                  id: lbl_dvl_instruction
+                  x: 145
+                  y: 120
+                  width: 90
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_4}
+
+        # ── ROW 2 : Voltage | Power | Current ───
+
+        # Voltage
+        - obj:
+            x: 20
+            y: 170
+            width: 245
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 8
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "VOLTAGE"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_voltage
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--.- V"
+                  text_font: font_40
+                  text_color: ${color_1}
+                  text_align: CENTER
+
+        # Power
+        - obj:
+            x: 275
+            y: 170
+            width: 250
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 8
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "POWER"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_power
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- W"
+                  text_font: font_40
+                  text_color: ${color_1}
+                  text_align: CENTER
+
+        # Current
+        - obj:
+            x: 535
+            y: 170
+            width: 245
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 8
+            pad_all: 0
+            scrollbar_mode: "off"
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "CURRENT"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_current
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- A"
+                  text_font: font_40
+                  text_color: ${color_1}
+                  text_align: CENTER
+
+        # ── ROW 3 : Capacity infos - SoH ──
+
+        # Installed Capacity
+        - obj:
+            x: 20
+            y: 270
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Installed Cap."
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_installed_cap
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- Ah"
+                  text_font: font_18
+                  text_color: ${color_1}
+                  text_align: CENTER
+
+        # Battery Capacity
+        - obj:
+            x: 208
+            y: 270
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Battery Cap."
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_battery_cap
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- Ah"
+                  text_font: font_18
+                  text_color: ${color_1}
+                  text_align: CENTER
+
+        # Capacity Remaining
+        - obj:
+            x: 396
+            y: 270
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Cap. Remaining"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_cap_remaining
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- Ah"
+                  text_font: font_18
+                  text_color: ${color_5}
+                  text_align: CENTER
+
+        # SoH
+        - obj:
+            x: 584
+            y: 270
+            width: 196
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Battery SoH"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_soh
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- %"
+                  text_font: font_18
+                  text_color: ${color_5}
+                  text_align: CENTER
+
+        # ── ROW 4 : Cell voltages + Delta + Temperatures ──
+
+        # Max Cell V.
+        - obj:
+            x: 20
+            y: 340
+            width: 178
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Max Cell V."
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_max_cell_v
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "-.--- V"
+                  text_font: font_18
+                  text_color: ${color_7}
+                  text_align: CENTER
+              - label:
+                  id: lbl_max_cell_num
+                  x: 0
+                  y: 55
+                  width: 100%
+                  text: "Cell ---"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+
+        # Min Cell V.
+        - obj:
+            x: 208
+            y: 340
+            width: 178
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Min Cell V."
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_min_cell_v
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "-.--- V"
+                  text_font: font_18
+                  text_color: ${color_4}
+                  text_align: CENTER
+              - label:
+                  id: lbl_min_cell_num
+                  x: 0
+                  y: 55
+                  width: 100%
+                  text: "Cell ---"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+
+        # Delta Cell V. + Equalizing
+        - obj:
+            x: 396
+            y: 340
+            width: 178
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Delta Cell V."
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_delta_cell
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "--- mV"
+                  text_font: font_18
+                  text_color: ${color_5}
+                  text_align: CENTER
+              - label:
+                  id: lbl_equalizing
+                  x: 0
+                  y: 55
+                  width: 100%
+                  text: "Equalizing: ---"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+
+        # Max/Min Temperature
+        - obj:
+            x: 584
+            y: 340
+            width: 196
+            height: 90
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Temperature"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_max_temp
+                  x: 0
+                  y: 30
+                  width: 97
+                  text: "↑ ---°C"
+                  text_font: font_18
+                  text_color: ${color_7}
+                  text_align: CENTER
+              - label:
+                  id: lbl_min_temp
+                  x: 97
+                  y: 30
+                  width: 97
+                  text: "↓ ---°C"
+                  text_font: font_18
+                  text_color: ${color_4}
+                  text_align: CENTER
+              - label:
+                  id: lbl_max_temp_sensor
+                  x: 0
+                  y: 55
+                  width: 97
+                  text: "Sensor ---"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_min_temp_sensor
+                  x: 97
+                  y: 55
+                  width: 97
+                  text: "Sensor ---"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+
+    # ┌─────────────────────────────────────────────────────┐
+    # │ PAGE — STATUS                                       │
+    # └─────────────────────────────────────────────────────┘
+    - id: page_status
+      bg_color: ${color_bg}
+      widgets:
+
+        # ── ROW 1 : Charging status | Charge instruction | Discharge instruction | Last Complete Charge ──
+
+        # Charging status
+        - obj:
+            x: 20
+            y: 10
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Charging status"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_charging_status
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_5}
+                  text_align: CENTER
+
+        # Charge instruction
+        - obj:
+            x: 208
+            y: 10
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Charge instruction"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_charge_instr
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_4}
+                  text_align: CENTER
+
+        # Discharge instruction
+        - obj:
+            x: 396
+            y: 10
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Discharge instruction"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_discharge_instr
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_7}
+                  text_align: CENTER
+
+        # Last complete charge
+        - obj:
+            x: 584
+            y: 10
+            width: 196
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Last Complete Charge"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_last_charge
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_1}
+                  text_align: CENTER
+
+        # ── ROW 2 : Alarm | Warning | Free 1 | Free 2 ──
+
+        # Alarm
+        - obj:
+            x: 20
+            y: 80
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Alarm"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_alarm
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_7}
+                  text_align: CENTER
+
+        # Warning
+        - obj:
+            x: 208
+            y: 80
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Warning"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_warning
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_6}
+                  text_align: CENTER
+
+        # Free_1
+        - obj:
+            x: 396
+            y: 80
+            width: 178
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Free 1"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: lbl_free_1
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_5}
+                  text_align: CENTER
+
+        # Free_2
+        - obj:
+            x: 584
+            y: 80
+            width: 196
+            height: 60
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 100%
+                  text: "Free 2"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  id: 
+                  x: 0
+                  y: 30
+                  width: 100%
+                  text: "---"
+                  text_font: font_18
+                  text_color: ${color_5}
+                  text_align: CENTER
+
+        # ── ROW 4 : BMS counters | Shunt counters | Uptime | Version ──
+
+        # BMS info panel
+        - obj:
+            x: 20
+            y: 260
+            width: 190
+            height: 170
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 188
+                  text: "BMS"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  x: 12
+                  y: 26
+                  text: "Count:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bms_count
+                  x: 160
+                  y: 26
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 48
+                  text: "Combined:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bms_combined
+                  x: 160
+                  y: 48
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 70
+                  text: "Blocking charge:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bms_blk_chg
+                  x: 160
+                  y: 70
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 92
+                  text: "Blocking discharge:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bms_blk_dchg
+                  x: 160
+                  y: 92
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 114
+                  text: "In alarm:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_bms_alarm
+                  x: 160
+                  y: 114
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_7}
+
+        # Shunt
+        - obj:
+            x: 220
+            y: 260
+            width: 190
+            height: 170
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 188
+                  text: "Shunt"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  x: 12
+                  y: 26
+                  text: "Shunt count:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_shunt_count
+                  x: 160
+                  y: 26
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 48
+                  text: "Shunt combined:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_shunt_combined
+                  x: 160
+                  y: 48
+                  text: "--"
+                  text_font: font_14
+                  text_color: ${color_1}
+
+        # System
+        - obj:
+            x: 420
+            y: 260
+            width: 360
+            height: 170
+            bg_color: ${color_panel}
+            border_width: 1
+            border_color: ${color_3}
+            radius: 6
+            widgets:
+              - label:
+                  x: 0
+                  y: 5
+                  width: 358
+                  text: "System"
+                  text_font: font_14
+                  text_color: ${color_2}
+                  text_align: CENTER
+              - label:
+                  x: 12
+                  y: 26
+                  text: "CCL Der. Reason:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_ccl_derating_reason
+                  x: 160
+                  y: 26
+                  text: "---"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 48
+                  text: "DCL Der. Reason:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_dcl_derating_reason
+                  x: 160
+                  y: 48
+                  text: "---"
+                  text_font: font_14
+                  text_color: ${color_1}
+              #
+              # one line free (y: 70)
+              #
+              - label:
+                  x: 12
+                  y: 92
+                  text: "YamBMS Uptime:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_uptime
+                  x: 160
+                  y: 92
+                  text: "---"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 114
+                  text: "ESPHome version:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_esphome_ver
+                  x: 160
+                  y: 114
+                  text: "---"
+                  text_font: font_14
+                  text_color: ${color_1}
+              - label:
+                  x: 12
+                  y: 136
+                  text: "YamBMS version:"
+                  text_font: font_14
+                  text_color: ${color_2}
+              - label:
+                  id: lbl_yambms_ver
+                  x: 160
+                  y: 136
+                  text: "---"
+                  text_font: font_14
+                  text_color: ${color_1}

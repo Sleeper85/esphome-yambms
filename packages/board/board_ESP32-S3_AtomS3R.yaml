@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.3.3
+# Updated : 2026.06.29
+# Version : 1.4.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -48,11 +48,10 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
-  display: !include board_options_display_128x128.yaml
+  no_led_control: !include board_options_no_led_control.yaml
   psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
-  board: m5stack-atoms3
   variant: esp32s3
   flash_size: 8MB
   cpu_frequency: 240MHz
@@ -64,9 +63,10 @@ esphome:
     board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
     board_upload.maximum_ram_size: 524288   # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
   on_boot:
-    then:
-      - output.turn_on:
-           id: white
+    - priority: 600
+      then:
+        - output.turn_on:
+            id: white
 
 external_components:
   # Backlight
@@ -87,17 +87,6 @@ wifi:
 logger:
   baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
   hardware_uart: USB_SERIAL_JTAG
-
-# +--------------------------------------+
-# | Inverter Heartbeat Light             |
-# +--------------------------------------+
-
-light:
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
 
 # +--------------------------------------+
 # | Atom S3R related configuration       |
@@ -131,13 +120,6 @@ output:
   - platform: lp5562
     id: white
     channel: 3
-  # Inverter Heartbeat Output (ESP32 board without LED)
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
-      #- lambda: C++ code; # action to be performed at each inverter heartbeat
 
 binary_sensor:
   # Atom S3R Button
@@ -159,19 +141,24 @@ binary_sensor:
 
 display:
   # Atom S3R display
-  # https://esphome.io/components/display/st7789v.html
-  - platform: st7789v
+  # Chipset: ST7735
+  # Resolution : 128x128px
+  # ST7735 is natively supported by mipi_spi (https://esphome.io/components/display/mipi_spi/),
+  - platform: mipi_spi
     spi_id: atom_spi_bus
     id: my_display
-    model: Custom
+    model: ST7735
     cs_pin: 14
     dc_pin: 42
     reset_pin: 48
-    height: 128
-    width: 128
-    offset_height: 2
-    offset_width: 1
-    eightbitcolor: true
+    dimensions:
+      height: 128
+      width: 128
+      offset_height: 2
+      offset_width: 1
+      pad_height: 0
+      pad_width: 0
+    invert_colors: true
+    color_depth: 8
     update_interval: ${display_update_interval}
-    data_rate: 40Mhz
-    rotation: ${display_rotation}
+    data_rate: 40MHz

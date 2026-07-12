@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.1.3
+# Updated : 2026.07.10
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# https://wiki.lilygo.cc/get_started/en/High_speed/T-Connect-Pro/T-Connect-Pro.html
+# https://lilygo.cc/en-us/products/t-connect-pro
+# https://wiki.lilygo.cc/products/t-connect-series/t-connect-pro/
+# https://github.com/Xinyuan-LilyGO/T-Connect-Pro
 
 substitutions:
   board_chip: "ESP32-S3"
@@ -36,9 +38,10 @@ substitutions:
 packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
+  no_led_control: !include board_options_no_led_control.yaml
+  psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
-  board: esp32-s3-devkitc-1
   variant: esp32s3
   flash_size: 16MB # ajust according to your ESP32-S3 version
   cpu_frequency: 240MHz
@@ -47,7 +50,7 @@ esp32:
 
 esphome:
   platformio_options:
-    board_build.flash_mode: dio             # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
 
 wifi:
   id: my_network
@@ -92,8 +95,10 @@ touchscreen:
     
 display:
   # T-Connect-Pro display
-  # https://esphome.io/components/display/ili9xxx
-  - platform: ili9xxx
+  # Chipset: ST7796
+  # Resolution : 222x480px
+  # ST7796 is natively supported by mipi_spi (https://esphome.io/components/display/mipi_spi/)
+  - platform: mipi_spi
     spi_id: lilygo_spi_bus
     id: my_display
     model: ST7796
@@ -108,23 +113,18 @@ display:
       width: 480
       offset_height: 49
       offset_width: 0
+      pad_height: 0
+      pad_width: 0
     invert_colors: true
-    color_palette: 8BIT
+    color_depth: 8
     update_interval: 10s
-    data_rate: 40Mhz
+    data_rate: 40MHz
 
 # Define a PWM output for the display backlight
 output:
   - platform: ledc
     pin: 46
     id: backlight_pwm
-    
-# ESP32 board without LED
-  - platform: template
-    id: esp_output
-    type: binary
-    write_action:
-      - logger.log: "Inverter Heartbeat Output"
 
 # Define a monochromatic, dimmable light for the backlight
 light:
@@ -133,12 +133,6 @@ light:
     name: "Display Backlight"
     id: back_light
     restore_mode: RESTORE_DEFAULT_ON
-
-  # ESP Light used to see the inverter heartbeat
-  # Internal : only specifying an id without a name will implicitly set this to true.
-  - platform: binary
-    id: esp_light
-    output: esp_output
 
 # Relay: IO8
 switch:

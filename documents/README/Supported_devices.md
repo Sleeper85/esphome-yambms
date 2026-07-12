@@ -14,6 +14,7 @@
 * `PACE` BMS (RS485)
 * `BASEN` BMS (RS485)
 * `DEYE` BMS (CAN)
+* `Ecoworthy` BMS (RS485)
 
 **Note: other BMS brands already integrated with ESPhome can be added easily.**
 
@@ -74,51 +75,39 @@ Note that merging data from multiple BMS, balancers and shunts is resource-inten
 | <img src="../../images/RS485_Transceiver_M5stack_SKU-U094_RS485_Isolated_Unit.png" width="300"> | <img src="../../images/RS485_Transceiver_isolated_high_speed_dual_board.png" width="300"> | <img src="../../images/RS485_Transceiver_Two-way_Converter.jpg" width="300"> |
 
 
-## Supported inverter
+## Supported inverters
 
 Inverters supporting CAN PYLON/Goodwe/SMA/Victron Low Voltage protocol should work, check your inverter manual to confirm.
 
 The following are confirmed and known to work:
 
-| Brand | Model | Status | Reported by | Inverter bat. mode | BMS | BMS protocol | ESP32 board | CAN name | CAN protocol | CAN transceiver | RS485 board | Multi-BMS | Remarks |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Deye | SUN-3.6K-SG03LP1-EU | Working | [@Der_Hannes](https://diysolarforum.com/members/der_hannes.16949/) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | SN65HVD230 **3.3V** | --- | no | --- |
-| Deye | SUN-5K-SG03LP1-EU | Working | [@vdiex](https://github.com/vdiex) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | no | --- |
-| Deye | SUN-5K-SG03LP1-EU | Working | [@arzaman](https://github.com/arzaman) | Lithium 00 | JK-B | BLE | Atom S3 | PYLON | PYLON 1.2 | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | --- |
-| Deye | SUN-5K-SG03LP1-EU (3) | Working | [@widget4145](https://diysolarforum.com/members/widget4145.110784/) | Lithium 00 | JK-PB (7) | RS485 | Atom S3 Lite | PYLON | PYLON 1.2 | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | RS485 (talk pin) | yes | --- |
-| Deye | SUN-6K-SG03LP1-EU | Working | [@Sleeper85](https://github.com/Sleeper85) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | TJA1051T | --- | no | --- |
-| Deye | SUN-6K-SG03LP1-EU | Working | [@Imanol82](https://diysolarforum.com/members/imanol82.122457/) | Lithium 00 | JK-PB (2) | RS485 | ETH01-EVO POE | PYLON | PYLON 1.2 | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | yes | ESP32 wired without WiFi, all ok. |
-| Deye | SUN-12K-SG04LP3-EU | Working | [@lucize](https://github.com/lucize) | Lithium 00 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | --- | no | --- |
-| Deye | SUN-12K-SG04LP3-EU | Working | [@luckylinux](https://github.com/luckylinux) | Lithium 00 | JK-B | BLE | Atom S3 Lite | PYLON | PYLON 1.2 | [CANBus Unit (CA-IS3050G)](https://docs.m5stack.com/en/unit/can) | --- | no | --- |
-| Deye | SUN-12K-SG04LP3-EU | Working | [@virus100b](https://github.com/virus100b) | Lithium 00 | JK-PB (2) | RS485 | ESP32 DevKit V1 | PYLON | PYLON 1.2 | TJA1050 | --- | yes | --- |
-| Deye | SUN-12K-SG04LP3-EU | Working | [@b1ggi](https://diysolarforum.com/members/b1ggi.120910/) | Lithium 00 | JK-PB (2) | BLE | Atom S3 Lite | PYLON | PYLON 1.2 | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | Used for Inverter Offset Setting 0.5v because of Deye bug |
-| Goodwe | 3648-ES (GW5048-ES) | Working | [@jirdol](https://github.com/jirdol) | --- | JK-B | UART | ESP32 DevKit V1 | GOODWE | PYLON + | --- | --- | no | --- |
-| Goodwe | GW5000S-BP | Working | [@Uksa007](https://github.com/Uksa007) | Goodwe LX U5.4-L | JK-B | UART | ESP32 DevKit V1 | GOODWE | PYLON + | --- | --- | no | --- |
-| Goodwe | GW5000S-BP & GW3600S-BP | Working | [@OselDusan7](https://github.com/OselDusan7) | --- | JK-B | UART | ESP32 DevKit V1 | GOODWE | PYLON + | --- | --- | no | --- |
-| Sofar | ME 3000-SP | Working | [@starman](https://diysolarforum.com/members/starman.65151/) | --- | JK-B | UART | ESP32 DevKit V1 | --- | --- | --- | --- | no | --- |
-| Sofar | HYD 5000-ES | Working | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/) | --- | JK-B | UART | ESP32 DevKit V1 | --- | --- | --- | --- | no | --- |
-| Sofar | HYD 5000-EP | Working | [@tonystrullu](https://diysolarforum.com/members/tonystrullu.91283/) | --- | JK-B | UART | ESP32 DevKit V1 | --- | --- | --- | --- | no | --- |
-| Sofar | HYD 3600-ES | Working | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) | Automatic | JK-PB (2) | BLE | Atom S3 (display) | PYLON | PYLON 1.2 | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | DIY Li-ion Growatt GBLI5001 converted. A 120 Ohm resistor had to be added on the Sofar side. Prefared over original BMS Manufacture's Management System. |
-| Growatt | SPF 5000ES | Working | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/) | CAN L52 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | --- | no | --- |
-| Growatt | SPF 5000ES | Working | [@cjdell](https://github.com/cjdell) | CAN L52 | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON 1.2 | --- | no | --- |
-| Growatt | SPF 5000ES | Working | [@cinusik](https://diysolarforum.com/members/cinusik.109738/) | CAN L52 | JK-PB (2) | BLE | Atom S3 (display) | PYLON | PYLON 1.2 | [Isolated CAN Unit (SKU:U085)](https://docs.m5stack.com/en/unit/can) | [Atomic RS485 Base (SKU:A131)](https://docs.m5stack.com/en/atom/Atomic%20RS485%20Base) | yes | Best solution for the incomplete/wrong protocols implementation on JK Inverter BMSes and some inverters. |
-| Solis | RHI-3.6K-48ES-5G | Working | [@cjdell](https://github.com/cjdell) | Pylon LV | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON + | SN65HVD230 **3.3V** | --- | no | --- |
-| Solis | S5-EH1P4.6K-L | Working | [@Baker0052](https://github.com/Baker0052) | Pylon LV | JK-B | UART | ESP32 DevKit V1 | PYLON | PYLON + | SN65HVD230 **3.3V** | --- | no | --- |
-| Solis | S5-EH1P6K-L | Working | [@MrPabloUK](https://github.com/MrPabloUK) | AoBo | JK-B | UART | ESP32 DevKit V1 | SMA | SMA | [Adafruit CAN Pal](https://learn.adafruit.com/adafruit-can-pal/overview) | --- | no | --- |
-| Solis | RHI-3.6K-48ES-5G | Working | [@MrPabloUK](https://github.com/MrPabloUK) | AoBo | JK-B | UART | ESP32 DevKit V1 | SMA | SMA | [Adafruit CAN Pal](https://learn.adafruit.com/adafruit-can-pal/overview) | --- | no | --- |
-| Solis | RHI-3K-48ES | Working | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) | AoBo | JK-B (2) | BLE | Atom S3 Lite | SMA | SMA | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | DIY Li-ion Growatt GBLI5001 converted. |
-| LuxPower | LXP SNA 5K | Working | [@shvmm](https://github.com/shvmm) | Lithium 6 | JK-B | UART | ESP32 DevKit V1 | Automatic | LuxPower| SN65HVD230 / TJA1050 | --- | no | --- |
-| LuxPower | LXP SNA 5K | Working | [@yur43](https://diysolarforum.com/members/yur43.121157/) | Lithium 6 | JK-PB (1) | RS485 | ESP32 DevKit V1 | Automatic | LuxPower | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | no | --- |
-| LuxPower | LXP-LB-US 10K | Working | [@Henny101](https://diysolarforum.com/members/henny101.67026/) | Lithium 6 | JK-PB (2) | RS485 | ESP32-S3 DevKitC-1 | Automatic | LuxPower | SN65HVD230 | [Isolated RS485 (high speed dual)](https://a.aliexpress.com/_EueIZT5) | yes | --- |
-| EG4 | 6000XP | Working | [@ChrisG](https://diysolarforum.com/members/chrisg.483/) |  Lithium 2  | JK-B (2) | BLE | ESP32 DevKit V1 / ESP32-S3 DevKitC-1 | PYLON | PYLON 1.2 |  MCP2515 | --- | yes | --- |
-| EG4 | 6000XP (2) | Working | [@SGB](https://diysolarforum.com/members/scrotpusgobblebottom.100804/) |  Lithium 6  | JK-B (1) JK-PB (1) | BLE | Atom S3 (display) | Automatic | LuxPower | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | yes | --- |
-| EG4 | 12000XP | Working | [@andrewfraley](https://github.com/andrewfraley) |  Lithium 6  | JBD | RS485 | LilyGo T-CAN485 | Automatic | LuxPower | T-CAN485 (SN65HVD231DR) | T-CAN485 (MAX13487E) | no | set UART baud to 9600 |
-| EG4 | 18kPV | Working | [@Maintman](https://diysolarforum.com/members/maintman.19007/) |  Lithium 6  | JK-B | BLE | ESP32 DevKit V1 | Automatic | LuxPower |  MCP2515 | --- | yes | Connected via Bluetooth to Victron SmartShunt. |
-| Victron | MultiPlus-II 48/10000/140 | Working | [@cali-clim](https://diysolarforum.com/members/cali-clim.54284/) | CAN-bus BMS LV (500 kbit/s) | JK-PB (2) | RS485 | Atom S3 (display) | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | yes | --- |
-| Victron | MultiPlus-II 48/10000/140 | Working | [@20after4](https://github.com/20after4) | CAN-bus BMS LV (500 kbit/s) | JBD-BMS (2) | BLE | Olimex ESP32-EVB | Automatic | Victron | SIT1050T (Integrated) | --- | yes | Works well with the integrated Ethernet and CANBus hardware |
-| Victron | Multiplus 24/1200/25-16  | Working | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) | CAN-bus BMS LV (500 kbit/s) | JK-B (1) | BLE | Atom S3 Lite | Automatic | Victron | [Atomic CAN base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | --- | no | Plugged into Cerbo Can port (must use supplied Victron terminator in the other port) |
-| MidNite Solar | MN15-12KW-AIO  | Working | [@goldserve](https://diysolarforum.com/members/goldserve.52541/) | PYLON | JK-B | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | no | Stable with Victron Smartshunt, MQTT, BLE, Neopixel LED, Display also working. |
-| MidNite Solar | MN15-12KW-AIO  | Working | [@jahyde](https://diysolarforum.com/members/jahyde.7475/) | PYLON | JK-PB | BLE | ESP32-S3 | Automatic | PYLON 1.2 | MCP2515 | --- | yes | --- |
-| SRNE | HESP48120U200-H  | Working | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) | UZE | JK-PB | RS485 | Atom S3 Lite | Automtic | PYLON V2 | [Atomic CAN Base (SKU:A103)](https://docs.m5stack.com/en/atom/Atomic%20CAN%20Base) | [Isolated RS485 Unit (SKU:U094)](https://docs.m5stack.com/en/unit/iso485) | Yes | Most of the YamBMS PYLON based protocols show same results on inverter. Inverter itself does not work when it is set to PYLON protocol, but UZE works. Incorrect temp reported on inverter |
-| Studer | XTM-4000 | Working | [@kolins-cz](https://github.com/kolins-cz) | Pylontech | JK-B | UART | ESP32-S3_XIAO | PYLON  | PYLON V2 | XL1051T | --- | no | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1) |
-| SMA | Sunny Island  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Brand | Model | Inverter bat. mode | CAN/RS485 protocol | Remarks | Reported by |
+| --- | --- | --- | --- | --- | --- |
+| Deye | SUN-3.6K-SG03LP1-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@Der_Hannes](https://diysolarforum.com/members/der_hannes.16949/) |
+| Deye | SUN-5K-SG03LP1-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@vdiex](https://github.com/vdiex), [@arzaman](https://github.com/arzaman), [@widget4145](https://diysolarforum.com/members/widget4145.110784/) |
+| Deye | SUN-6K-SG03LP1-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@Sleeper85](https://github.com/Sleeper85), [@Imanol82](https://diysolarforum.com/members/imanol82.122457/) |
+| Deye | SUN-12K-SG04LP3-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@lucize](https://github.com/lucize), [@luckylinux](https://github.com/luckylinux), [@virus100b](https://github.com/virus100b), [@b1ggi](https://diysolarforum.com/members/b1ggi.120910/) |
+| Goodwe | GW5048-ES | --- | CAN : PYLON V2 | --- | [@jirdol](https://github.com/jirdol) |
+| Goodwe | GW5000S-BP | Goodwe LX U5.4-L | CAN : PYLON V2 | --- | [@Uksa007](https://github.com/Uksa007), [@OselDusan7](https://github.com/OselDusan7) |
+| Goodwe | GW3600S-BP | --- | CAN : PYLON V2 | --- | [@OselDusan7](https://github.com/OselDusan7) |
+| Sofar | ME 3000-SP | --- | --- | --- | [@starman](https://diysolarforum.com/members/starman.65151/) |
+| Sofar | HYD 3600-ES | Automatic | CAN : PYLON 1.2 | A 120 Ohm resistor had to be added on the Sofar side. | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) |
+| Sofar | HYD 5000-ES | --- | --- | --- | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/) |
+| Sofar | HYD 5000-EP | --- | --- | --- | [@tonystrullu](https://diysolarforum.com/members/tonystrullu.91283/) |
+| Growatt | SPF 5000ES | CAN L52 | CAN : PYLON 1.2 | --- | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/), [@cjdell](https://github.com/cjdell), [@cinusik](https://diysolarforum.com/members/cinusik.109738/) |
+| Solis | RHI-3.6K-48ES-5G | Pylon LV / AoBo | CAN : PYLON V2 / SMA | CAN transceiver 3V3 required (SN65HVD230) for Pylon LV mode. | [@cjdell](https://github.com/cjdell), [@MrPabloUK](https://github.com/MrPabloUK) |
+| Solis | S5-EH1P4.6K-L | Pylon LV | CAN : PYLON V2 | CAN transceiver 3V3 required (SN65HVD230). | [@Baker0052](https://github.com/Baker0052) |
+| Solis | S5-EH1P6K-L | AoBo | CAN : SMA | --- | [@MrPabloUK](https://github.com/MrPabloUK) |
+| Solis | RHI-3K-48ES | AoBo | CAN : SMA | --- | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) |
+| LuxPower | LXP SNA 5K | Lithium 6 | CAN : LuxPower | --- | [@shvmm](https://github.com/shvmm), [@yur43](https://diysolarforum.com/members/yur43.121157/) |
+| LuxPower | LXP-LB-US 10K | Lithium 6 | CAN : LuxPower | --- | [@Henny101](https://diysolarforum.com/members/henny101.67026/) |
+| EG4 | 6000XP | Lithium 2 / Lithium 6 | CAN : PYLON 1.2 / LuxPower | --- | [@ChrisG](https://diysolarforum.com/members/chrisg.483/), [@SGB](https://diysolarforum.com/members/scrotpusgobblebottom.100804/) |
+| EG4 | 12000XP | Lithium 6 | CAN : LuxPower | --- | [@andrewfraley](https://github.com/andrewfraley) |
+| EG4 | 18kPV | Lithium 6 | CAN : LuxPower | --- | [@Maintman](https://diysolarforum.com/members/maintman.19007/) |
+| Victron | Multiplus 24/1200/25-16 | CAN-bus BMS LV (500 kbit/s) | CAN : Victron | Plugged into Cerbo CAN port (must use supplied Victron terminator in the other port). | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) |
+| Victron | MultiPlus-II 48/10000/140 | CAN-bus BMS LV (500 kbit/s) | CAN : Victron | --- | [@cali-clim](https://diysolarforum.com/members/cali-clim.54284/), [@20after4](https://github.com/20after4) |
+| MidNite Solar | MN15-12KW-AIO | PYLON | CAN : PYLON 1.2 | --- | [@goldserve](https://diysolarforum.com/members/goldserve.52541/), [@jahyde](https://diysolarforum.com/members/jahyde.7475/) |
+| SRNE | HESP48120U200-H | UZE | CAN : PYLON V2 | Most PYLON-based protocols show same results. Inverter does not work in PYLON mode, UZE works. Incorrect temp reported. | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) |
+| Studer | XTM-4000 | Pylontech | CAN : PYLON V2 | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1). | [@kolins-cz](https://github.com/kolins-cz) |
+| Schneider | XW Pro 6848 NA | Voltage Control Li-Ion | CAN : PYLON V2 | Requires enabling the CAN bus option `canbus_extended_ack:` to `true`. | [@AGDorsum](https://diysolarforum.com/members/agdorsum.29403/), [@ngustas](https://diysolarforum.com/members/ngustas.126045/) |
+| SMA | Sunny Island | --- | --- | --- | --- |

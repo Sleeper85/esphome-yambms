@@ -1,5 +1,5 @@
-# Updated : 2026.01.14
-# Version : 1.6.0
+# Updated : 2026.06.29
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,15 +42,14 @@ logger:
 ota:
   - platform: esphome
 
-# Please use the native `api` component instead of the `mqtt` section.
-# If you use Home Assistant, the native API is more lightweight.
-# If there is no HA server connected to this API, the ESP32 reboots every 15 minutes to try to resolve the problem.
-# The "reboot_timeout: 0s" option will keep your ESP32 up and running even if you lose connection to your HA server.
+# Uncomment:
+# API: to monitor entities via Home Assistant
+# MQTT: to monitor entities via another system
+# Neither: to monitor entities only via `web_server` or nothing
+
 api:
   reboot_timeout: 0s
 
-# If you don't want to use ESPHome's native API you can use MQTT instead.
-# In this case don't forget to remove the 'api:' section.
 # mqtt:
 #   broker: !secret mqtt_host
 #   username: !secret mqtt_username
@@ -61,16 +60,16 @@ api:
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # Name
-  friendly_name : 'YamBMS' # Prefix added in front of the `entity name`, also used to classify them.
-  hostname: 'yambms' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
-  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
+  # This project uses the `sub-device` function of ESPHome to prefix entity names.
+  # This allows to group entities into logical devices that appear separately in Home Assistant.
+  hostname: 'pvbrain2' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
+  friendly_name : 'PVbrain2' # Name of your board (prefix for board entities)
   # +--------------------------------------+
   # | YamBMS Settings                      |
   # +--------------------------------------+
   # Please read the cut-off charging logic README to understand how the YamBMS works
-  yambms_id: 'yambms1'
-  yambms_name: 'YamBMS 1'
+  yambms_id: '1' # Number without spaces
+  yambms_name: 'YamBMS 1' # Prefix for YamBMS entities
   yambms_update_interval: '1s'
   # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
   yambms_input_number_mode: 'slider'
@@ -141,6 +140,11 @@ substitutions:
   # +--------------------------------------+
   bms_update_interval: '3s'    # frequency at which BMS data is refreshed, going below '3s' can cause problems
   # +--------------------------------------+
+  # | Health & LED Assignment Logs         |
+  # +--------------------------------------+
+  enable_led_logging: 'false'     # Set to true to see if an led is assigned to a component correctly, logged every 60 seconds
+  enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
+  # +--------------------------------------+
   # | UART expander WK2168                 |
   # +--------------------------------------+
   uart0_baudrate: '2400'    # uart_id : uart_${uart_hub_bus}_0          WKS           {RJ45-UART0}
@@ -162,7 +166,13 @@ substitutions:
 
 packages:
 
-  device_board: !include packages/board/board_ESP32-S3_DevKitC-1_PVbrain2.yaml
+  board: !include
+    file: packages/board/board_ESP32-S3_DevKitC-1_PVbrain2.yaml
+    # vars:
+    #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+    #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
+
+
 
   # +------------------------------------------------------------------------------+
   # | >>> Board Options
@@ -176,9 +186,17 @@ packages:
   # UART 3 (uart_id: uart_esp_3)
   # uart_esp_3: !include packages/board/board_options_itf_uart_esp_3.yaml
 
-  # UART expander WK2168
-  wk2168_spi: !include packages/board/board_options_itf_wk2168_spi.yaml
-  # wk2168_i2c: !include packages/board/board_options_itf_wk2168_i2c.yaml
+  # BUS
+  # spi_bus: !include packages/board/board_options_itf_bus_spi.yaml # SPI bus for MCP2515
+  # i2c_bus: !include packages/board/board_options_itf_bus_i2c.yaml # I2C bus for SX1509 and BME280/BMP280
+  # one_wire_bus: !include packages/board/board_options_itf_bus_one_wire.yaml # One wire bus for Dallas Temperature Sensor
+
+  # WK2168 UART/IO Expander
+  wk2168_spi: !include packages/board/board_options_itf_pvbrain2_wk2168_spi.yaml
+  # wk2168_i2c: !include packages/board/board_options_itf_pvbrain2_wk2168_i2c.yaml
+
+  # SX1509 16 channel I/O Expander
+  # sx1509: !include packages/board/board_options_itf_pvbrain2_sx1509.yaml
 
   # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
   canbus_node_1: !include
@@ -207,12 +225,6 @@ packages:
 
   # Captive Portal @ 192.168.4.1
   # captive_portal: !include packages/board/board_options_captive_portal.yaml
-
-  # PVbrain2 Options
-  # bus_i2c0: !include pvbrain2/base/device_bus_i2c0.yaml # I2C bus for SX1509 and BME280/BMP280
-  # bus_spi1: !include pvbrain2/base/device_bus_spi1.yaml # SPI bus for MCP2515
-  # bus_one_wire: !include pvbrain2/base/device_bus_one_wire.yaml # One wire bus for Dallas sensor
-  # device_sx1509: !include pvbrain2/base/device_sx1509.yaml # SX1509 16 channel I/O Expander
 
 
 
@@ -244,13 +256,14 @@ packages:
   canbus1: !include
     file: packages/yambms/yambms_canbus.yaml # yambms_canbus_web_server.yaml
     vars:
-      canbus_id: 'canbus1'
+      canbus_id: '1' # Must be a number
       canbus_name: 'CANBUS 1'
       canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
-      canbus_light_id: 'esp_light'
-      # The CANBUS link will be considered down if no response from the inverter (ID 0x305) for 5s
-      # The Deye inverter sends the ACK (can_id 0x305) only when it receives the can_id 0x356
+      canbus_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
+      # CAN frames sending will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305) before the end of the `canbus_link_timer` (5s by default).
+      canbus_link_timer_enabled: 'true' # Set it to 'false' if your inverter/charger is not sending ACK (can_id 0x305) every `1s` as specified by the protocol
       canbus_link_timer: '5s'
+      canbus_extended_ack: 'false' # Set to 'true' for enable extended 29-bit IDs for the ACK can_id 0x305 (required for Schneider XW Pro)
 
 
 
@@ -261,12 +274,12 @@ packages:
   # rs485_pylon: !include
   #   file: packages/yambms/yambms_rs485_pylon.yaml # yambms_rs485_pylon_web_server.yaml
   #   vars:
-  #     rs485_id: 'rs485_1'
+  #     rs485_id: '1' # Must be a number
   #     rs485_name: 'RS485 1'
   #     rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
   #     rs485_uart_baud_rate: '9600'
-  #     rs485_update_timeout: '5s'
-
+  #     rs485_update_timeout: '10s'
+  #     rs485_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
 
 
   # +------------------------------------------------------------------------------+
@@ -286,11 +299,14 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> Config and Custom Local Packages
+  # | >>> Add your custom packages below
   # +------------------------------------------------------------------------------+
 
-  # Local Packages intended for creating custom codes
-  # or sharing settings between several main.yaml
-
-  # yambms_config: !include yambms_config.yaml
+  # Custom packages
   # yambms_custom: !include yambms_custom.yaml
+
+# +------------------------------------------------------------------------------+
+# | >>> Add your custom YAML below
+# +----- -------------------------------------------------------------------------+
+
+# Custom YAML

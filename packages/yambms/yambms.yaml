@@ -1,5 +1,5 @@
-# Updated : 2026.01.06
-# Version : 1.1.2
+# Updated : 2026.03.23
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,15 +18,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  # YamBMS
+  # YamBMS Core
   yambms_core: !include yambms_core.yaml
-  yambms_combine: !include yambms_combine.yaml
-  # YamBMS Add-on
-  yambms_auto_cvl: !include yambms_auto_cvl.yaml
-  yambms_auto_ccl: !include yambms_auto_ccl.yaml
-  yambms_auto_dcl: !include yambms_auto_dcl.yaml
-  yambms_auto_float: !include yambms_auto_float.yaml
-  yambms_auto_eoc: !include yambms_auto_eoc.yaml
-  yambms_auto_temp-based_current: !include yambms_auto_temp-based_current.yaml
+  # YamBMS Auto Functions
+  yambms_auto_1: !include yambms_auto_cvl.yaml
+  yambms_auto_2: !include yambms_auto_ccl.yaml
+  yambms_auto_3: !include yambms_auto_dcl.yaml
+  yambms_auto_4: !include yambms_auto_float.yaml
+  yambms_auto_5: !include yambms_auto_eoc.yaml
+  yambms_auto_6: !include yambms_auto_temp_ccl_dcl.yaml
+  yambms_auto_7: !include yambms_auto_soc_limit.yaml
   # Update service
   yambms_service: !include yambms_service.yaml

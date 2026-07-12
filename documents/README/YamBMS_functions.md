@@ -79,7 +79,8 @@ The `Requested Discharge Voltage` is the `UVP + 0.2` value of your BMS multiplie
 
 ![Image](../../images/YamBMS_ReBulk.png "YamBMS_ReBulk")
 
-There are two parameters to start a new `Bulk` phase. You can set a `Rebulk SoC` or a `Rebulk V.` value, only one of these conditions must be met.
+There are three parameters to start a new `Bulk` phase. You can set a `Rebulk SoC`, a `Rebulk V.` value or the `Rebulk Days` (since last full charge), only one of these conditions must be met.
+`Rebulk Days` can be disabled by setting them to `0`.
 
 If needed you can also force a `Bulk` charge with the `Force Bulk (top bal)` switch. The switch will automatically deactivate when your cells enter the `Balancing` phase.
 
@@ -182,17 +183,62 @@ The text sensor `Auto EOC Status` will show the current status of the function:
 - `Stop: Current above limit`: The required charge current is above the current charge limit.
 - `Run: Current increase stopped`: Running, but no current increase because of `Auto EOC Increase Stop Hours` or `Auto EOC Increase Stop SoC`.
 - `Run`: Working normally.
+- `Run: Auto SoC Limit xx%`: Enabled, but reduced the target capacity by the value selected for `Auto SoC Limit`.
 
 The sensor `Auto EOC Current` will show the calculated charging current. Note that it is filtered by an EWMA filter with a default 3 minute delay.
 That means that changes to the options or parameters are not immediately visible. This avoids that the `Requested Charge Current (CCL)` will fluctuate too much. It will show 0A when the function is disabled/stopped or there is no solution.
 
-The function used to calculate the required charging current is very basic. The missing battery capacity (difference between `Battery Capacity` and `Capacity Remaining`) divided by the remaining hours. It will be updated every minute, but afterwards filtered before it is used for `Requested Charge Current (CCL)`. That means it will adapt, but not take into account any special circumstances. For example if `Auto CCL` is enabled and required, the charge current may further be limited by `Auto CCL`. The target time may then not be reached exactly. To account for this, the parameter `Auto EOC Correction` can be used to increase the overall current a little to compensate for the lower end current.
+The function used to calculate the required charging current is very basic. The missing battery capacity (difference between `Battery Capacity` and `Capacity Remaining`) divided by the remaining hours. If `Auto SoC Limit` is active,
+the configured limit value will be used to calculate the target capacity. It will be updated every minute, but afterwards filtered before it is used for `Requested Charge Current (CCL)`. That means it will adapt, but not take into account any special circumstances. For example if `Auto CCL` is enabled and required, the charge current may further be limited by `Auto CCL`. The target time may then not be reached exactly. To account for this, the parameter `Auto EOC Correction` can be used to increase the overall current a little to compensate for the lower end current.
 
 Here is an example when the target time is set to 18:00. Starting at 00:00, the required current increases as the battery is discharged. When the battery starts charging as the sun is up, the required current stabilizes around 14A.
 The current is increased at the end as it does not exactly hit its required charge, but at 17:30, the required current is stable because the parameter `Auto EOC Increase Stop Hours` was set to 0.5 hours, so it will not be increased anymore.
 At about 18:08 the battery is 100% after a short balancing period.
 
 ![Image](../../images/YamBMS_Auto_EOC_Graph.png "YamBMS Auto EOC Graph")
+
+
+## Auto SoC Limit
+
+![Image](../../images/YamBMS_Auto_SoC_Limit.png "YamBMS Auto SoC Limit")
+
+When to use: You want to charge your battery up to a specific SoC value.
+
+This function allows to set a target SoC when charging. Upon reaching this limit, it can either switch to `Float`, limit the `Requested Charge Current (CCL)` or both.
+
+There are some configuration options to adjust the behaviour:
+
+- `Automatic SoC Limit`: This switch enables or disables the function.
+- `Auto SoC Limit`: The SoC limit value.
+- `Auto SoC Limit Mode`: The mode to use when the limit is reached.
+- `Auto SoC Hysteresis`: Configurable hysteresis value when to stop limiting `Requested Charge Current (CCL)`.
+- `Auto SoC Limit CCL`: The value that will be used for `Requested Charge Current (CCL)` when the limit is reached and `Auto SoC Limit` is set to `CCL` or `Float + CCL`.
+
+The text sensor `Auto SoC Limit Status` will show the current status of the function:
+- `Stop: Disabled`: Function is disabled.
+- `Stop: Force Bulk active`: The `Force Bulk` switch is enabled, this function will not be enabled
+- `Stop: Rebulk Days active`: `Rebulk Days` is `> 0` and last full charge was longer ago than the specified number of days, this function will not be enabled.
+- `Stop: Not in Bulk/Float`: Charging status is not `Bulk` or `Float`, this function will not be enabled during `Cut-Off` or `Balancing`.
+- `Stop: SoC limit reached`: The configured `SoC` limit was reached.
+- `Wait: Reactivating at xx%`: The configured `SoC` limit was reached, now it waits until the SoC goes down to `Auto SoC Limit` - `Auto SoC Hysteresis`.
+- `Run`: Function enabled, `SoC` limit not reached.
+
+Modes:
+- `Float`: Will set the charging mode from `Bulk` to `Float`. If already at `Float`, nothing will happen.
+- `CCL`: Limits the `Requested Charge Current (CCL)` to the value set by `Auto SoC Limit CCL`. The limit will be removed once the `SoC` is below `Auto SoC Limit` - `Auto SoC Hysteresis`.
+- `Float + CCL`: Will use both previously described methods. However while the `Requested Charge Current (CCL)` will be removed, the charging mode will not be reset to `Bulk`. For this, `Rebulk SoC` is available.
+
+Note: Some inverters may not like `0A` for `Requested Charge Current (CCL)`. `Auto SoC Limit CCL` allows to set a small value to effectively limit the charging process.
+
+Example: 
+- `Auto SoC Limit` is set to `80%`
+- `Auto SoC Limit Mode` is set to `CCL`
+- `Auto SoC Hysteresis` is set to `5%`
+
+The current `SoC` is `70%`. When it reaches `80%` during charging, `Requested Charge Current (CCL)` is set to `Auto SoC Limit CCL`.
+Afterwards the battery is then discharged, however `Requested Charge Current (CCL)` will stay at `Auto SoC Limit CCL` until `SoC` reaches 
+`Auto SoC Limit` - `Auto SoC Hysteresis` = `80%` - `5%` = `75%`. Without this, the `SoC` would oscillate between
+`79%` and `80%`, stressing components unnecessary.
 
 
 ## Inverter Heartbeat Monitoring

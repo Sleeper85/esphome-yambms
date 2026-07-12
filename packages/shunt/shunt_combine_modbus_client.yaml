@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.6
+# Updated : 2026.07.10
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -26,14 +26,13 @@ packages:
 # +--------------------------------------+
 
 modbus_controller:
-  - id: modbus_controller20${shunt_id}
-    modbus_id: ${modbus_id}
+  - id: modbus_controller_shunt${shunt_id}
+    modbus_id: modbus_client_${modbus_id}
     setup_priority: -10
     address: 20${shunt_id}
     update_interval: ${modbus_update_interval}
-    command_throttle: ${modbus_command_throttle}
     max_cmd_retries: 3
-    # offline_skip_updates: 5
+    offline_skip_updates: 5 # Fixed with PR #11781
     on_online:
       then:
         - logger.log: "Shunt ${shunt_id} modbus server back online !"
@@ -41,6 +40,9 @@ modbus_controller:
       then:
         - logger.log: "Shunt ${shunt_id} modbus server goes offline !"
         - lambda: id(shunt${shunt_id}_online_status).publish_state(false);
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_SHUNT}, ${shunt_id}, 1);
 
 # +--------------------------------------+
 # | Component entities                   |
@@ -49,17 +51,23 @@ modbus_controller:
 binary_sensor:
   # online_status
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
+    modbus_controller_id: modbus_controller_shunt${shunt_id}
     id: shunt${shunt_id}_online_status
     device_id: shunt_${shunt_id}
     name: "Online status"
+    trigger_on_initial_state: true
     register_type: read
     address: 1
+    on_state:
+      then:
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_SHUNT}, ${shunt_id}, !x);
 
 sensor:
   # total_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
+    modbus_controller_id: modbus_controller_shunt${shunt_id}
     id: shunt${shunt_id}_voltage
     device_id: shunt_${shunt_id}
     name: "Voltage"
@@ -71,12 +79,16 @@ sensor:
     device_class: voltage
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
+    modbus_controller_id: modbus_controller_shunt${shunt_id}
     id: shunt${shunt_id}_current
     device_id: shunt_${shunt_id}
     name: "Current"
@@ -88,12 +100,16 @@ sensor:
     device_class: current
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: -500
+          max_value: 500
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
+    modbus_controller_id: modbus_controller_shunt${shunt_id}
     id: shunt${shunt_id}_power
     device_id: shunt_${shunt_id}
     name: "Power"
@@ -105,12 +121,16 @@ sensor:
     device_class: power
     filters:
       - multiply: 0.001
+      - clamp:
+          min_value: -10000
+          max_value: 10000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # state_of_charge
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
+    modbus_controller_id: modbus_controller_shunt${shunt_id}
     id: shunt${shunt_id}_soc
     device_id: shunt_${shunt_id}
     name: "State of Charge"
@@ -122,40 +142,11 @@ sensor:
     device_class: battery
     filters:
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
-  # charging_power
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
-    id: shunt${shunt_id}_charging_power
-    device_id: shunt_${shunt_id}
-    name: "Charging Power"
-    register_type: read
-    address: 9
-    value_type: U_DWORD
-    accuracy_decimals: 2
-    unit_of_measurement: W
-    device_class: power
-    filters:
-      - multiply: 0.001
-      - or:
-        - throttle: 10s
-        - delta: 0.01
-  # discharging_power
-  - platform: modbus_controller
-    modbus_controller_id: modbus_controller20${shunt_id}
-    id: shunt${shunt_id}_discharging_power
-    device_id: shunt_${shunt_id}
-    name: "Discharging Power"
-    register_type: read
-    address: 11
-    value_type: U_DWORD
-    accuracy_decimals: 2
-    unit_of_measurement: W
-    device_class: power
-    filters:
-      - multiply: 0.001
-      - or:
-        - throttle: 10s
-        - delta: 0.01
+

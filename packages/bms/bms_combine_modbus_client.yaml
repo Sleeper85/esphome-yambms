@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.2.5
+# Updated : 2026.07.10
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -31,14 +31,13 @@ packages:
 # +--------------------------------------+
 
 modbus_controller:
-  - id: modbus_controller${bms_id}
-    modbus_id: ${modbus_id}
+  - id: modbus_controller_bms${bms_id}
+    modbus_id: modbus_client_${modbus_id}
     setup_priority: -10
     address: ${bms_id}
     update_interval: ${modbus_update_interval}
-    command_throttle: ${modbus_command_throttle}
     max_cmd_retries: 3
-    # offline_skip_updates: 5
+    offline_skip_updates: 5 # Fixed with PR #11781
     on_online:
       then:
         - logger.log: "BMS ${bms_id} modbus server back online !"
@@ -74,6 +73,9 @@ modbus_controller:
             id(bms${bms_id}_charging_power).publish_state(0);
             id(bms${bms_id}_discharging_power).publish_state(0);
             id(bms${bms_id}_battery_soh).publish_state(0);
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BMS}, ${bms_id}, 1);
 
 # +--------------------------------------+
 # | Component entities                   |
@@ -82,15 +84,22 @@ modbus_controller:
 binary_sensor:
   # online_status
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_online_status
     device_id: bms_${bms_id}
     name: "Online status"
+    trigger_on_initial_state: true
     register_type: read
     address: 1
+    on_state:
+      then:
+        - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
+              
   # charging_allowed
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_allowed
     device_id: bms_${bms_id}
     name: "Charging allowed"
@@ -99,7 +108,7 @@ binary_sensor:
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # discharging_allowed
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_discharging_allowed
     device_id: bms_${bms_id}
     name: "Discharging allowed"
@@ -108,7 +117,7 @@ binary_sensor:
     lambda: if (!id(bms${bms_id}_online_status).state) return false; else return x;
   # equalizing
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_equalizing
     device_id: bms_${bms_id}
     name: "balancing"
@@ -120,7 +129,7 @@ binary_sensor:
 sensor:
   # total_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_total_voltage
     device_id: bms_${bms_id}
     name: "Total Voltage"
@@ -133,12 +142,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_current
     device_id: bms_${bms_id}
     name: "Current"
@@ -151,12 +164,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: -1000
+          max_value: 1000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_power
     device_id: bms_${bms_id}
     name: "Power"
@@ -169,12 +186,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: -20000
+          max_value: 20000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # battery_soc
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_soc
     device_id: bms_${bms_id}
     name: "Battery SoC"
@@ -187,12 +208,16 @@ sensor:
     filters:
       - lambda: if(!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # battery_capacity
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_capacity
     device_id: bms_${bms_id}
     name: "Battery Capacity"
@@ -205,12 +230,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 5000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # battery_capacity_remaining
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_capacity_remaining
     device_id: bms_${bms_id}
     name: "Battery Capacity Remaining"
@@ -223,12 +252,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 5000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # charging_cycles
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_cycles
     device_id: bms_${bms_id}
     name: "charging cycles"
@@ -240,12 +273,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 20000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # max_charge_current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_charge_current
     device_id: bms_${bms_id}
     name: "Max Charge Current"
@@ -258,12 +295,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 1000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # max_discharge_current
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_discharge_current
     device_id: bms_${bms_id}
     name: "Max Discharge Current"
@@ -276,12 +317,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 1000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # max_cell_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_cell_voltage
     device_id: bms_${bms_id}
     name: "Max Cell Voltage"
@@ -294,12 +339,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
   # max_voltage_cell
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_voltage_cell
     device_id: bms_${bms_id}
     name: "Max Voltage Cell"
@@ -311,12 +360,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 32
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # min_cell_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_cell_voltage
     device_id: bms_${bms_id}
     name: "Min Cell Voltage"
@@ -329,12 +382,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
   # min_voltage_cell
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_voltage_cell
     device_id: bms_${bms_id}
     name: "Min Voltage Cell"
@@ -346,12 +403,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 32
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # min_temperature
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_temperature
     device_id: bms_${bms_id}
     name: "Min temperature"
@@ -364,12 +425,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.1
+      - clamp:
+          min_value: -50
+          max_value: 125
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.1
   # min_temperature_sensor
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_min_temperature_sensor
     device_id: bms_${bms_id}
     name: "Min temperature sensor"
@@ -381,12 +446,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 1699
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # max_temperature
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_temperature
     device_id: bms_${bms_id}
     name: "Max temperature"
@@ -399,12 +468,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.1
+      - clamp:
+          min_value: -50
+          max_value: 125
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.1
   # max_temperature_sensor
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_max_temperature_sensor
     device_id: bms_${bms_id}
     name: "Max temperature sensor"
@@ -416,12 +489,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 1699
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
   # cell_ovp
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_cell_ovp
     device_id: bms_${bms_id}
     name: "Cell OVP"
@@ -434,12 +511,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
   # cell_uvp
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_cell_uvp
     device_id: bms_${bms_id}
     name: "Cell UVP"
@@ -452,12 +533,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
   # balance_trigger_voltage
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_bms_balance_trigger_voltage
     device_id: bms_${bms_id}
     name: "balance trigger voltage"
@@ -471,12 +556,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 5
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.001
   # errors_bitmask (16bits)
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_yambms_errors_bitmask
     device_id: bms_${bms_id}
     name: "YamBMS Errors Bitmask"
@@ -493,7 +582,7 @@ sensor:
         - delta: 1
   # charging_power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     name: "Charging Power"
@@ -506,12 +595,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 20000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # discharging_power
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     name: "Discharging Power"
@@ -524,12 +617,16 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 0.001
+      - clamp:
+          min_value: 0
+          max_value: 20000
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 0.01
   # battery_soh
   - platform: modbus_controller
-    modbus_controller_id: modbus_controller${bms_id}
+    modbus_controller_id: modbus_controller_bms${bms_id}
     id: bms${bms_id}_battery_soh
     device_id: bms_${bms_id}
     name: "Battery SoH"
@@ -542,6 +639,10 @@ sensor:
     filters:
       - lambda: if (!id(bms${bms_id}_online_status).state) return 0; else return x;
       - multiply: 1
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
       - or:
         - throttle: 10s
         - delta: 1
