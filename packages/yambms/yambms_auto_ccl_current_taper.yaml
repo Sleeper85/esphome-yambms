@@ -39,9 +39,9 @@ esphome:
 
 switch:
   - platform: template
-    id: yambms${yambms_id}_switch_current_taper
+    id: yambms${yambms_id}_switch_auto_ccl_ct
     device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL Current Taper"
+    name: "Auto CCL CT"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
@@ -49,7 +49,7 @@ switch:
 number:
   # Knee / activation voltage (pack)
   - platform: template
-    id: yambms${yambms_id}_number_ct_knee_v
+    id: yambms${yambms_id}_number_auto_ccl_ct_knee_v
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Knee Voltage"
     unit_of_measurement: V
@@ -66,7 +66,7 @@ number:
 
   # Knee / activation C-rate (× capacity → CCL at knee)
   - platform: template
-    id: yambms${yambms_id}_number_ct_knee_c_rate
+    id: yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Knee C-Rate"
     unit_of_measurement: "C"
@@ -82,7 +82,7 @@ number:
 
   # Bulk / end-of-curve C-rate (× capacity → CCL at bulk)
   - platform: template
-    id: yambms${yambms_id}_number_ct_bulk_c_rate
+    id: yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Bulk C-Rate"
     unit_of_measurement: "C"
@@ -98,7 +98,7 @@ number:
 
   # Curve shape: 1=linear, >1=quicker drop then longer tail
   - platform: template
-    id: yambms${yambms_id}_number_ct_curve_exp
+    id: yambms${yambms_id}_number_auto_ccl_ct_curve_exp
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Curve Exp"
     min_value: 0.8
@@ -112,13 +112,13 @@ number:
     icon: mdi:chart-bell-curve
 
 sensor:
-  # Pack V for taper math — 5-sample SMA (~5s at 1 Hz); keeps CCL from amplifying raw V noise
+  # Pack V for taper math — 8-sample SMA; keeps CCL from amplifying raw V noise
   # If it’s twitchy, increase window_size; if too sluggish, lower it.
   - platform: copy
     source_id: yambms${yambms_id}_total_voltage
-    id: yambms${yambms_id}_ct_voltage
+    id: yambms${yambms_id}_auto_ccl_ct_voltage
     device_id: yambms_yambms${yambms_id}
-    name: "Current Taper Voltage"
+    name: "Auto CCL CT Voltage"
     accuracy_decimals: 3
     entity_category: diagnostic
     icon: mdi:sine-wave
@@ -128,8 +128,8 @@ sensor:
           send_every: 1
 
   - platform: template
-    name: "Current Taper Delta"
-    id: yambms${yambms_id}_current_taper_delta
+    name: "Auto CCL CT Delta"
+    id: yambms${yambms_id}_auto_ccl_ct_delta
     device_id: yambms_yambms${yambms_id}
     unit_of_measurement: A
     accuracy_decimals: 0
@@ -152,7 +152,7 @@ sensor:
     icon: mdi:current-dc
     lambda: |-
       return roundf(id(yambms${yambms_id}_battery_capacity).state
-                  * id(yambms${yambms_id}_number_ct_knee_c_rate).state);
+                  * id(yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate).state);
 
   - platform: template
     name: "Auto CCL CT Bulk Amps"
@@ -167,7 +167,7 @@ sensor:
     icon: mdi:current-dc
     lambda: |-
       return roundf(id(yambms${yambms_id}_battery_capacity).state
-                  * id(yambms${yambms_id}_number_ct_bulk_c_rate).state);
+                  * id(yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate).state);
 
 interval:
   - interval: ${yambms_update_interval}
@@ -191,10 +191,10 @@ interval:
           //--------------------------------------------------------------------
           // Gate #2: Feature enabled?
           //--------------------------------------------------------------------
-          if (!id(yambms${yambms_id}_switch_current_taper).state) {
+          if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state) {
             active = false;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
-            id(yambms${yambms_id}_current_taper_delta).publish_state(0.0f);
+            id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -204,16 +204,16 @@ interval:
           //--------------------------------------------------------------------
           const float cap_ah    = id(yambms${yambms_id}_battery_capacity).state;
           const float I_max     = id(yambms${yambms_id}_max_charge_current).state;
-          const float knee_c    = id(yambms${yambms_id}_number_ct_knee_c_rate).state;
-          const float bulk_c    = id(yambms${yambms_id}_number_ct_bulk_c_rate).state;
-          const float curve_exp = id(yambms${yambms_id}_number_ct_curve_exp).state;
+          const float knee_c    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate).state;
+          const float bulk_c    = id(yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate).state;
+          const float curve_exp = id(yambms${yambms_id}_number_auto_ccl_ct_curve_exp).state;
           const float I_knee    = cap_ah * knee_c;
           const float I_bulk    = cap_ah * bulk_c;
-          const float V_knee    = id(yambms${yambms_id}_number_ct_knee_v).state;
+          const float V_knee    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;
           const float V_bulk    = id(yambms${yambms_id}_bulk_voltage).state;
           // Prefer SMA pack V; fall back to raw until the filter has a sample
-          const float V_pack    = id(yambms${yambms_id}_ct_voltage).has_state()
-              ? id(yambms${yambms_id}_ct_voltage).state
+          const float V_pack    = id(yambms${yambms_id}_auto_ccl_ct_voltage).has_state()
+              ? id(yambms${yambms_id}_auto_ccl_ct_voltage).state
               : id(yambms${yambms_id}_total_voltage).state;
           const float V_release = id(yambms${yambms_id}_rebulk_voltage).state;
           const bool  eoc_done  = id(yambms${yambms_id}_var_eoc);
@@ -249,7 +249,7 @@ interval:
           }
 
           id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
-          id(yambms${yambms_id}_current_taper_delta).publish_state(delta);
+          id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;
