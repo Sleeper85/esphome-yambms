@@ -1,5 +1,5 @@
 # Updated : 2026.07.14
-# Version : 1.2.1
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,10 +22,13 @@ substitutions:
   # | Use the settings below with caution  |
   # +--------------------------------------+
   # Alpha value for the exponential moving average filter.
-  required_charge_current_alpha: '0.25'
+  # The required charge current is now smoothed at the source by coulomb counting
+  # (see the interval lambda), so this output filter can be relaxed for a faster
+  # response. Increase the delay / lower the alpha again if the current still fluctuates.
+  required_charge_current_alpha: '0.5'
   # Filter delay in minutes. The charge current will not be updated more often than this value.
   # This is to prevent the charge current from fluctuating too much.
-  required_charge_current_filter_delay: '3'
+  required_charge_current_filter_delay: '2'
 
 esphome:
   on_boot:
@@ -298,8 +301,35 @@ interval:
             }
           }
 
+          // +-----------------------------------------------+
+          // | Smooth capacity_remaining (coulomb counting)  |
+          // +-----------------------------------------------+
+          // The BMS reports remaining capacity in ~1% SoC steps, which makes the required charge
+          // current sawtooth: the numerator (capacity_required) is flat between steps while
+          // hours_left keeps shrinking, so the current ramps up and then drops at each 1% tick.
+          // Integrate the measured charge current between BMS steps to interpolate a smooth
+          // remaining capacity, bounded to one reporting step above the BMS value so the estimate
+          // can never drift more than ~1% from the truth.
+          const float bms_remaining      = id(yambms${yambms_id}_battery_capacity_remaining).state;
+          const float nameplate_capacity = id(yambms${yambms_id}_battery_capacity).state;
+          static float    est_remaining = NAN;
+          static uint32_t est_last_ms   = 0;
+
+          const float est_dt_h = (current_ms - est_last_ms) / 3600000.0f;
+          if (std::isnan(est_remaining) || (est_remaining < bms_remaining) || (est_dt_h > 0.05f)) {
+            // First run, BMS advanced past our estimate, or a long gap (disabled/float): re-anchor.
+            est_remaining = bms_remaining;
+          } else {
+            const float meas_current = id(yambms${yambms_id}_current).has_state()
+                ? id(yambms${yambms_id}_current).state : 0.0f;
+            if (meas_current > 0.0f) est_remaining += meas_current * est_dt_h;
+            const float step = nameplate_capacity / 100.0f;   // one ~1% reporting step
+            if (est_remaining > bms_remaining + step) est_remaining = bms_remaining + step;
+          }
+          est_last_ms = current_ms;
+
           // Calculate missing capacity
-          auto capacity_required = battery_capacity - id(yambms${yambms_id}_battery_capacity_remaining).state;
+          auto capacity_required = battery_capacity - est_remaining;
           if (capacity_required < 0) {
             capacity_required = 0;
           }
