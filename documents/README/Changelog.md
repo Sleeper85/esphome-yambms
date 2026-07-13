@@ -6,6 +6,30 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+* YamBMS 1.7.0 :
+  * Partial rewrite of `yambms_core` and merging of C++ code into a single lambda in several stages with increased datas control.
+  * Added LVGL display dashboard for Waveshare Touch-LCD 4.3" and 7" (Blue Navy 800x480 design)
+  * Fixed [issue 10](https://github.com/Sleeper85/esphome-yambms/issues/10) Sending CAN bus data before the end of the combination process
+  * Fixed [issue 154](https://github.com/Sleeper85/esphome-yambms/issues/154) Add `Enerkey Balancers` balance stop diff voltage setting (register 0x1A)
+  * Fixed [issue 160](https://github.com/Sleeper85/esphome-yambms/issues/160) The SOH sensor is interpreted as a battery percentage
+  * Fixed [issue 182](https://github.com/Sleeper85/esphome-yambms/issues/182) Compliance of Auto functions for YamBMS 1.7.0
+  * Fixed [issue 268](https://github.com/Sleeper85/esphome-yambms/issues/268) [Add an option] The inverter is not sending ACK CAN ID 0x305
+  * Fixed [issue 282](https://github.com/Sleeper85/esphome-yambms/issues/282) JK errors_bitmask has been removed
+  * Merged [PR 281](https://github.com/Sleeper85/esphome-yambms/pull/281) Add WS Touch-LCD-4.3B board 
+  * Merged [PR 261](https://github.com/Sleeper85/esphome-yambms/pull/261) Add LilyGo T-Connect Pro Lite board (without screen)
+  * Merged [PR 259](https://github.com/Sleeper85/esphome-yambms/pull/259) Add support for Rebulk Days
+  * Merged [PR 258](https://github.com/Sleeper85/esphome-yambms/pull/258) Auto EOC: Factor in Auto SoC Limit for battery capacity calculation
+  * Merged [PR 255](https://github.com/Sleeper85/esphome-yambms/pull/255) Add support for Auto SoC Limit
+  * Merged [PR 236](https://github.com/Sleeper85/esphome-yambms/pull/236) Switch to VictronMPPT-ESPHOME fork
+  * Merged [PR 235](https://github.com/Sleeper85/esphome-yambms/pull/235) Basen: Add "Enable communication" switch
+  * Merged [PR 200](https://github.com/Sleeper85/esphome-yambms/pull/200) Add M5Stack Tab5 with LVGL display
+  * Merged [PR 199](https://github.com/Sleeper85/esphome-yambms/pull/199) Add Ecoworthy BMS integration for YamBMS
+  * Merged [PR 194](https://github.com/Sleeper85/esphome-yambms/pull/194) Component Fault Registry & Advanced LED Control
+  * Merged [PR 178](https://github.com/Sleeper85/esphome-yambms/pull/178) Basen BMS: Add heating control
+  * Merged [PR 170](https://github.com/Sleeper85/esphome-yambms/pull/170) Add Freenove S3 board
+  * Merged [PR 162](https://github.com/Sleeper85/esphome-yambms/pull/162) PACE Sensor Fixes
+  * Merged [PR 158](https://github.com/Sleeper85/esphome-yambms/pull/158) Automatically disable shunt when connected BMSs are going offline
+
 * YamBMS 1.6.0 :
   * New dashboards `1.6.0`
   * Added `iBMS V3.3` board

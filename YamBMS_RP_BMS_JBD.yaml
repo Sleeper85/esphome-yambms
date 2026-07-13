@@ -1,5 +1,5 @@
-# Updated : 2026.02.19
-# Version : 1.
+# Updated : 2026.06.29
+# Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -60,16 +60,16 @@ api:
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # Name
-  friendly_name : 'YamBMS' # Prefix added in front of the `entity name`, also used to classify them.
-  hostname: 'yambms' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
-  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
+  # This project uses the `sub-device` function of ESPHome to prefix entity names.
+  # This allows to group entities into logical devices that appear separately in Home Assistant.
+  hostname: 'yambms' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
+  friendly_name : 'YamBMS' # Name of your board (prefix for board entities)
   # +--------------------------------------+
   # | YamBMS Settings                      |
   # +--------------------------------------+
   # Please read the cut-off charging logic README to understand how the YamBMS works
-  yambms_id: 'yambms1'
-  yambms_name: 'YamBMS 1'
+  yambms_id: '1' # Number without spaces
+  yambms_name: 'YamBMS 1' # Prefix for YamBMS entities
   yambms_update_interval: '1s'
   # Input numbers can be displayed as a slider or an input box, options are 'slider' or 'box'.
   yambms_input_number_mode: 'slider'
@@ -198,9 +198,10 @@ packages:
   # | >>> Uncomment the display that corresponds to your board
   # +------------------------------------------------------------------------------+
 
-      # - path: 'packages/board/board_options_display_128x128.yaml' # AtomS3 / AtomS3R display
-      # - path: 'packages/board/board_options_display_480x222.yaml' # LilyGo T-Connect Pro display
-      # - path: 'packages/board/board_options_display_lvgl_800x480_basic_blue_esphome.yaml' # WS Touch LCD 4.3" and 7"
+      # - path: 'packages/board/board_options_display_128x128.yaml'                                # AtomS3 / AtomS3R
+      # - path: 'packages/board/board_options_display_480x222.yaml'                                # LilyGo T-Connect Pro
+      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml' # WS Touch LCD 4.3" and 7"
+      # - path: 'packages/board/board_options_display_lvgl_package_1280x720_Tab5_esphome.yaml'     # M5Stack Tab5
       
       #   vars:
       #     display_auto_next_page_interval: '5s'
@@ -325,8 +326,8 @@ packages:
           canbus_name: 'CANBUS 1'
           canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
           canbus_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
-          # The CAN bus link will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305)
-          # before the end of the `canbus_link_timer` (5s by default).
+          # CAN frames sending will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305) before the end of the `canbus_link_timer` (5s by default).
+          canbus_link_timer_enabled: 'true' # Set it to 'false' if your inverter/charger is not sending ACK (can_id 0x305) every `1s` as specified by the protocol
           canbus_link_timer: '5s'
           canbus_extended_ack: 'false' # Set to 'true' for enable extended 29-bit IDs (required for Schneider XW Pro)
 
@@ -342,7 +343,7 @@ packages:
   #         rs485_name: 'RS485 1'
   #         rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
   #         rs485_uart_baud_rate: '9600'
-  #         rs485_update_timeout: '5s'
+  #         rs485_update_timeout: '10s'
   #         rs485_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
 
 
@@ -363,11 +364,14 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> Config and Custom Local Packages
+  # | >>> Add your custom packages below
   # +------------------------------------------------------------------------------+
 
-  # Local Packages intended for creating custom codes
-  # or sharing settings between several main.yaml
-
-  # yambms_config: !include yambms_config.yaml
+  # Custom packages
   # yambms_custom: !include yambms_custom.yaml
+
+# +------------------------------------------------------------------------------+
+# | >>> Add your custom YAML below
+# +----- -------------------------------------------------------------------------+
+
+# Custom YAML

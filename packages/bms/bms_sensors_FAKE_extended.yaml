@@ -1,5 +1,5 @@
-# Updated : 2026.02.11
-# Version : 1.1.1
+# Updated : 2026.03.03
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,7 +43,7 @@ number:
     name: "Current number"
     mode: box
     step: 1
-    min_value: 0
+    min_value: -1000
     max_value: 1000
     restore_value: true
     initial_value: ${bms_current}

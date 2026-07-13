@@ -1,5 +1,5 @@
-# Updated : 2026.02.22
-# Version : 1.1.6
+# Updated : 2026.06.27
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,8 +29,8 @@ esphome:
     - priority: -100.0
       then:
         - lambda: |-
-            id(${yambms_id}_var_auto_ccl_functions_count)++;
-            id(${yambms_id}_var_auto_dcl_functions_count)++;
+            id(yambms${yambms_id}_var_auto_ccl_functions_count)++;
+            id(yambms${yambms_id}_var_auto_dcl_functions_count)++;
 
 globals:
   - id: charging_table
@@ -43,8 +43,9 @@ globals:
 
 switch:
   - platform: template
-    name: "${name} ${yambms_name} Temperature-based Current Limitation"
-    id: ${yambms_id}_switch_temperature_based_current_limitation
+    name: "Temperature-based Current Limitation"
+    id: yambms${yambms_id}_switch_temperature_based_current_limitation
+    device_id: yambms_yambms${yambms_id}
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
     entity_category: config
@@ -56,34 +57,34 @@ interval:
       # | Auto Temperature CCL                     |
       # +------------------------------------------+
       - lambda: |-
-          int cc_step = id(${yambms_id}_var_charge_current_step);
-          if (cc_step >= 1 && cc_step < id(${yambms_id}_var_auto_ccl_functions_count) + 1)
+          int cc_step = id(yambms${yambms_id}_var_charge_current_step);
+          if (cc_step >= 1 && cc_step < id(yambms${yambms_id}_var_auto_ccl_functions_count) + 1)
           {
             ESP_LOGD("yambms_debug", "Entering Auto Temp. CCL...");
 
             // Configuration
             auto& rate_table   = id(charging_table);
-            float max_current  = id(${yambms_id}_max_charge_current).state;
-            auto& output_id    = id(${yambms_id}_var_auto_temperature_ccl);
+            float max_current  = id(yambms${yambms_id}_max_charge_current).state;
+            auto& output_id    = id(yambms${yambms_id}_var_auto_temperature_ccl);
             float alpha        = 0.05f;
 
             // Check switch enabled
-            if (!id(${yambms_id}_switch_temperature_based_current_limitation).state) {
+            if (!id(yambms${yambms_id}_switch_temperature_based_current_limitation).state) {
               output_id = 0.0f;
-              id(${yambms_id}_var_charge_current_step)++;
+              id(yambms${yambms_id}_var_charge_current_step)++;
               ESP_LOGD("yambms_debug", "Auto Temp. CCL : Disabled => Exit");
               return;
             }
 
             // Define raw inputs
-            float raw_min = id(${yambms_id}_min_temperature).state;
-            float raw_max = id(${yambms_id}_max_temperature).state;
-            float batt_capacity = id(${yambms_id}_battery_capacity).state;
+            float raw_min = id(yambms${yambms_id}_min_temperature).state;
+            float raw_max = id(yambms${yambms_id}_max_temperature).state;
+            float batt_capacity = id(yambms${yambms_id}_battery_capacity).state;
 
             // Exit if critical data is missing
             if (isnan(raw_min) || isnan(raw_max) || isnan(batt_capacity) || batt_capacity <= 0.0f) {
               output_id = 0.0f;
-              id(${yambms_id}_var_charge_current_step)++;
+              id(yambms${yambms_id}_var_charge_current_step)++;
               ESP_LOGD("yambms_debug", "Auto Temp. CCL : Critical data is missing => Exit");
               return;
             }
@@ -128,41 +129,41 @@ interval:
 
             // Update global
             output_id = delta;
-            id(${yambms_id}_var_charge_current_step)++;
+            id(yambms${yambms_id}_var_charge_current_step)++;
           }
 
       # +------------------------------------------+
       # | Auto Temperature DCL                     |
       # +------------------------------------------+
       - lambda: |-
-          int dc_step = id(${yambms_id}_var_discharge_current_step);
-          if (dc_step >= 1 && dc_step < id(${yambms_id}_var_auto_dcl_functions_count) + 1)
+          int dc_step = id(yambms${yambms_id}_var_discharge_current_step);
+          if (dc_step >= 1 && dc_step < id(yambms${yambms_id}_var_auto_dcl_functions_count) + 1)
           {
             ESP_LOGD("yambms_debug", "Entering Auto Temp. DCL...");
 
             // Configuration
             auto& rate_table   = id(discharging_table);
-            float max_current  = id(${yambms_id}_max_discharge_current).state;
-            auto& output_id    = id(${yambms_id}_var_auto_temperature_dcl);
+            float max_current  = id(yambms${yambms_id}_max_discharge_current).state;
+            auto& output_id    = id(yambms${yambms_id}_var_auto_temperature_dcl);
             float alpha        = 0.05f;
 
             // Check switch enabled
-            if (!id(${yambms_id}_switch_temperature_based_current_limitation).state) {
+            if (!id(yambms${yambms_id}_switch_temperature_based_current_limitation).state) {
               output_id = 0.0f;
-              id(${yambms_id}_var_discharge_current_step)++;
+              id(yambms${yambms_id}_var_discharge_current_step)++;
               ESP_LOGD("yambms_debug", "Auto Temp. DCL : Disabled => Exit");
               return;
             }
 
             // Define raw inputs
-            float raw_min = id(${yambms_id}_min_temperature).state;
-            float raw_max = id(${yambms_id}_max_temperature).state;
-            float batt_capacity = id(${yambms_id}_battery_capacity).state;
+            float raw_min = id(yambms${yambms_id}_min_temperature).state;
+            float raw_max = id(yambms${yambms_id}_max_temperature).state;
+            float batt_capacity = id(yambms${yambms_id}_battery_capacity).state;
 
             // Exit if critical data is missing
             if (isnan(raw_min) || isnan(raw_max) || isnan(batt_capacity) || batt_capacity <= 0.0f) {
               output_id = 0.0f;
-              id(${yambms_id}_var_discharge_current_step)++;
+              id(yambms${yambms_id}_var_discharge_current_step)++;
               ESP_LOGD("yambms_debug", "Auto Temp. DCL : Critical data is missing => Exit");
               return;
             }
@@ -207,5 +208,5 @@ interval:
 
             // Update global
             output_id = delta;
-            id(${yambms_id}_var_discharge_current_step)++;
+            id(yambms${yambms_id}_var_discharge_current_step)++;
           }

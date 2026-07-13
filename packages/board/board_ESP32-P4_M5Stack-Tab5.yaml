@@ -1,7 +1,6 @@
-# Updated  : 2026.02.20
-# Version  : 1.1.2
+# Updated  : 2026.06.28
+# Version  : 1.1.3
 # GitHub   : https://github.com/Sleeper85/esphome-yambms
-# ESPHome  : 2026.2.1
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -169,7 +168,7 @@ esp_ldo:
 switch:
   - platform: gpio
     id: wifi_power
-    name: ${name} WiFi Power
+    name: WiFi Power
     pin:
       pi4ioe5v6408: pi4ioe2
       number: 0
@@ -183,7 +182,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
   - platform: gpio
     id: speaker_enable
-    name: ${name} Speaker Enable
+    name: Speaker Enable
     pin:
       pi4ioe5v6408: pi4ioe1
       number: 1
@@ -191,7 +190,7 @@ switch:
     entity_category: config
   - platform: gpio
     id: external_5v_power
-    name: ${name} External 5V Power
+    name: External 5V Power
     pin:
       pi4ioe5v6408: pi4ioe1
       number: 2
@@ -199,7 +198,7 @@ switch:
     entity_category: config
   - platform: gpio
     id: usb_5v_power
-    name: ${name} USB Power
+    name: USB Power
     pin:
       pi4ioe5v6408: pi4ioe2
       number: 3
@@ -207,7 +206,7 @@ switch:
     entity_category: config
   - platform: gpio
     id: quick_charge
-    name: ${name} Quick Charge
+    name: Quick Charge
     pin:
       pi4ioe5v6408: pi4ioe2
       number: 5
@@ -216,7 +215,7 @@ switch:
     entity_category: config
   - platform: gpio
     id: charge_enable
-    name: ${name} Charge Enable
+    name: Charge Enable
     pin:
       pi4ioe5v6408: pi4ioe2
       number: 7
@@ -230,7 +229,7 @@ switch:
 binary_sensor:
   - platform: gpio
     id: charging_status
-    name: ${name} Charging Status
+    name: Charging Status
     pin:
       pi4ioe5v6408: pi4ioe2
       number: 6
@@ -238,7 +237,7 @@ binary_sensor:
     entity_category: diagnostic
   - platform: gpio
     id: headphone_detect
-    name: ${name} Headphone Detect
+    name: Headphone Detect
     pin:
       pi4ioe5v6408: pi4ioe1
       number: 7
@@ -255,9 +254,9 @@ sensor:
     max_current: 8.192A
     shunt_resistance: 0.005ohm
     bus_voltage:
-      name: ${name} Battery Voltage
+      name: Battery Voltage
     current:
-      name: ${name} Battery Current
+      name: Battery Current
 
 # +--------------------------------------+
 # | WiFi Antenna Selection               |
@@ -266,7 +265,7 @@ sensor:
 select:
   - platform: template
     id: wifi_antenna_select
-    name: ${name} WiFi Antenna
+    name: WiFi Antenna
     options:
       - "Internal"
       - "External"
@@ -286,7 +285,7 @@ select:
 
 # number:
 #   - platform: template
-#     name: ${name} Screen Timeout
+#     name: Screen Timeout
 #     optimistic: true
 #     id: display_timeout
 #     unit_of_measurement: "s"
@@ -328,17 +327,18 @@ touchscreen:
     id: my_touchscreen
     interrupt_pin: 23
     update_interval: never
-    transform:
-      swap_xy: true
-      mirror_y: true
+    # No transform here: rotation is handled in the lvgl: config (rotation: 90),
+    # and ESPHome 2026.6 LVGL auto-transforms touch coords via rotate_coordinates().
+    # Adding swap_xy/mirror here would double-rotate. Calibration is in panel-native
+    # (unrotated) orientation: x over 0..720 (width), y over 0..1280 (height).
     reset_pin:
       pi4ioe5v6408: pi4ioe1
       number: 5
     calibration:
-      y_min: 0
-      y_max: 720
       x_min: 0
-      x_max: 1280
+      x_max: 720
+      y_min: 0
+      y_max: 1280
 
 # +--------------------------------------+
 # | Display (MIPI DSI 1280x720)          |
@@ -347,11 +347,12 @@ touchscreen:
 display:
   - platform: mipi_dsi
     id: my_display
-    rotation: 90
+    model: M5Stack-Tab5
+    # rotation is set in the lvgl: config, not here — ESPHome 2026.6+ rejects
+    # 'rotation' under display when LVGL is used.
     dimensions:
       height: 1280
       width: 720
-    model: M5Stack-Tab5
     reset_pin:
       pi4ioe5v6408: pi4ioe1
       number: 4
@@ -363,7 +364,7 @@ display:
 light:
   - platform: monochromatic
     output: backlight_pwm
-    name: ${name} Display Backlight
+    name: Display Backlight
     id: backlight
     restore_mode: ALWAYS_ON
     default_transition_length: 250ms

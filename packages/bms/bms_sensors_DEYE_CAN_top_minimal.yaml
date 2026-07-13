@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.5
+# Updated : 2026.02.23
+# Version : 1.1.6
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+esphome:
+  # sub device
+  devices:
+    - id: deye_${deye_id}
+      name: "${deye_name}"
 
 globals:
   - id: deye${deye_id}_send_flag
@@ -90,6 +96,9 @@ sensor:
     device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
+    filters:
+      - round: 2
+      - throttle: ${bms_update_interval}
 
   # Discharge voltage
   - platform: template
@@ -100,6 +109,9 @@ sensor:
     device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
+    filters:
+      - round: 2
+      - throttle: ${bms_update_interval}
 
   # Maximum charging current
   - platform: template
@@ -111,6 +123,7 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
     filters:
+      - round: 0
       - or:
         - throttle: 30s
         - delta: 10
@@ -125,10 +138,10 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 0
     filters:
+      - round: 0
       - or:
         - throttle: 30s
         - delta: 10
-
 
   # SOC
   - platform: template
@@ -139,6 +152,8 @@ sensor:
     id: deye${deye_id}_state_of_charge
     device_id: deye_${deye_id}
     name: "battery SoC"
+    filters:
+      - throttle: ${bms_update_interval}
 
   # SOH
   - platform: template
@@ -149,6 +164,8 @@ sensor:
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
 
   # Errors bitmask
   - platform: template
@@ -207,3 +224,5 @@ sensor:
     device_class: 'energy'
     state_class: 'total_increasing'
     accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}

@@ -1,0 +1,146 @@
+# Updated : 2026.06.28
+# Version : 1.2.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3B
+
+substitutions:
+  board_chip: "ESP32-S3"
+  board_name: "WS Touch LCD 4.3B"
+  # Interfaces GPIOs
+  # uart_esp_1               RS485 port
+  tx_pin_1: '44'
+  rx_pin_1: '43'
+  # canbus_esp32_can         CAN port
+  tx_pin_4: '15'
+  rx_pin_4: '16'
+  # I²C bus                  I²C port and Touch screen
+  i2c_sda: '8'
+  i2c_scl: '9'
+  # SPI bus SD card
+  spi_mosi_pin: '11'
+  spi_clk_pin: '12'
+  spi_miso_pin: '13'
+  cs_pin: '4' # ch422g_hub
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  no_led_control: !include board_options_no_led_control.yaml
+
+esp32:
+  variant: esp32s3
+  flash_size: 16MB
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+      CONFIG_ESPTOOLPY_FLASHSIZE_16MB: y
+
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio # use Dual IO (dio) instead of Quad IO (qio) to prevent boot loop after flashing
+    board_upload.maximum_ram_size: 524288 # total size of the internal RAM in bits, it's the same for all ESP32-S3 ( 512KB )
+
+# PSRAM activation with default options
+psram:
+  mode: octal
+  speed: 80MHz
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  reboot_timeout: 0s
+
+logger:
+  baud_rate: 0 # frees the 3rd UART and avoids some bugs like "WK2168 with canbus" or "BLE client with RS485 modbus"
+  hardware_uart: UART0 # UART0 / USB_SERIAL_JTAG
+
+# +----------------------------------------+
+# | S3 Touch-LCD-4.3B related configuration |
+# +----------------------------------------+
+
+output:
+  # Backlight output
+  - platform: gpio
+    id: backlight_output
+    pin:
+      ch422g: ch422g_hub
+      number: 2
+      mode:
+        output: true
+      inverted: false
+
+# I/O Expander
+# https://esphome.io/components/ch422g.html
+ch422g:
+  - id: ch422g_hub
+
+# I²C bus
+i2c:
+  sda: ${i2c_sda}
+  scl: ${i2c_scl}
+  scan: True
+
+# +--------------------------------------+
+# | Touch Screen (I²C bus)               |
+# +--------------------------------------+
+# | has_gt911_5d = i2c.probe_device(0x5d);
+# | has_gt911_14 = i2c.probe_device(0x14);
+# +--------------------------------------+
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    update_interval: 16ms
+    interrupt_pin: 4
+    reset_pin:
+      ch422g: ch422g_hub
+      number: 1
+    # on_touch:
+    #   - lambda: |-
+    #         ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #             touch.x,
+    #             touch.y,
+    #             touch.x_raw,
+    #             touch.y_raw
+    #             );
+
+# +--------------------------------------+
+# | Backlight                            |
+# +--------------------------------------+
+light:
+  # Backlight
+  - platform: binary
+    id: backlight
+    output: backlight_output
+    restore_mode: ALWAYS_ON
+
+# +--------------------------------------+
+# | Display (LCD 800×480)                |
+# +--------------------------------------+
+display:
+  - platform: mipi_rgb
+    id: my_display
+    model: ESP32-S3-TOUCH-LCD-4.3
+    update_interval: never
+    auto_clear_enabled: false

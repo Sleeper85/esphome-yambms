@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.3.4
+# Updated : 2026.06.22
+# Version : 1.3.7
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -163,10 +163,9 @@ sensor:
       id: bms${bms_id}_discharging_power
       device_id: bms_${bms_id}
       name: "discharging power"
-    power_tube_temperature:
-      id: bms${bms_id}_power_tube_temperature
+    mosfet_temperature:
       device_id: bms_${bms_id}
-      name: "power tube temperature"
+      name: "mosfet temperature"
     temperature_sensor_1:
       id: bms${bms_id}_temperature_sensor_1
       device_id: bms_${bms_id}
@@ -183,10 +182,10 @@ sensor:
       id: bms${bms_id}_capacity_remaining_ah
       device_id: bms_${bms_id}
       # name: "capacity remaining"
-    total_battery_capacity_setting:
+    full_charge_capacity:
       id: bms${bms_id}_battery_capacity
       device_id: bms_${bms_id}
-      name: "total battery capacity setting"
+      name: "full charge capacity"
     charging_cycles:
       id: bms${bms_id}_charging_cycles_raw
       device_id: bms_${bms_id}
@@ -198,22 +197,43 @@ sensor:
     balancing_current:
       device_id: bms_${bms_id}
       name: "balancing current"
-    errors_bitmask:
-      id: bms${bms_id}_errors_bitmask
-      device_id: bms_${bms_id}
-      name: "errors bitmask"
+
+  # FAKE errors_bitmask
+  # Alarm management is not supported at this time
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_errors_bitmask
+    device_id: bms_${bms_id}
+    update_interval: ${bms_update_interval}
+    accuracy_decimals: 0
+    icon: mdi:alert-circle-outline
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return 0;
 
 text_sensor:
   - platform: jk_bms_ble
     jk_bms_ble_id: jk_bms_ble${bms_id}
     errors:
+      device_id: bms_${bms_id}
       name: "errors"
+    errors_bitmask_hex:
       device_id: bms_${bms_id}
-      entity_category: diagnostic
+      name: "errors bitmask hex"
+    balancer_status:
+      device_id: bms_${bms_id}
+      name: "balancer status"
     total_runtime_formatted:
-      name: "total runtime formatted"
       device_id: bms_${bms_id}
-      entity_category: diagnostic
+      name: "total runtime formatted"
+    software_version:
+      device_id: bms_${bms_id}
+      name: "software version"
+    hardware_version:
+      device_id: bms_${bms_id}
+      name: "hardware version"
 
 number:
   - platform: jk_bms_ble
@@ -249,10 +269,10 @@ number:
       id: bms${bms_id}_max_discharge_current
       device_id: bms_${bms_id}
       name: "max discharge current"
-    balance_starting_voltage:
+    balancing_start_voltage:
       id: bms${bms_id}_balance_starting_voltage
       device_id: bms_${bms_id}
-      name: "balance starting voltage"
+      name: "balancing start voltage"
     balance_trigger_voltage:
       id: bms${bms_id}_bms_balance_trigger_voltage
       device_id: bms_${bms_id}

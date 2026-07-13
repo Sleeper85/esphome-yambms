@@ -1,0 +1,508 @@
+# Updated  : 2026.06.28
+# Version : 1.1.1
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +---------------------------------------------------------+
+# | YamBMS ESPHome Sensors → LVGL bindings                  |
+# +---------------------------------------------------------+
+
+sensor:
+
+  - platform: template
+    id: !extend yambms${yambms_id}_total_voltage
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_voltage
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.1f V", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_current
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_current
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f A", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_power
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_power
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f W", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_installed_battery_capacity
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_installed_cap
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f Ah", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_battery_capacity
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_battery_cap
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f Ah", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_battery_capacity_remaining
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_cap_remaining
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f Ah", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_battery_soc
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_soc_value
+          text: !lambda 'return to_string((int)x) + "%";'
+      - lvgl.obj.update:
+          id: battery_fill_soc
+          height: !lambda 'return (int)x;'
+          bg_color: !lambda |-
+            if (x > 80) return lv_color_hex(${color_5}); // green
+            if (x > 20) return lv_color_hex(${color_6}); // yellow
+            return lv_color_hex(${color_7});             // red
+
+  - platform: template
+    id: !extend yambms${yambms_id}_battery_soh
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_soh
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f %%", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_max_cell_voltage
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_max_cell_v
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.3f V", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_max_voltage_cell
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_max_cell_num
+          text: !lambda 'return "Cell " + to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_min_cell_voltage
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_min_cell_v
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.3f V", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_min_voltage_cell
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_min_cell_num
+          text: !lambda 'return "Cell " + to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_delta_cell_voltage
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_delta_cell
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f mV", x * 1000); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_max_temperature
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_max_temp
+          text: !lambda 'char buf[12]; snprintf(buf, 12, "↑ %.1f°C", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_max_temperature_sensor
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_max_temp_sensor
+          text: !lambda 'return "Sensor " + to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_min_temperature
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_min_temp
+          text: !lambda 'char buf[12]; snprintf(buf, 12, "↓ %.1f°C", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_min_temperature_sensor
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_min_temp_sensor
+          text: !lambda 'return "Sensor " + to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_bms_count
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_bms_count
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_bms_combined
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_bms_combined
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_bms_blocking_charge
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_bms_blk_chg
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_bms_blocking_discharge
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_bms_blk_dchg
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_errors_bitmask_counter
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_bms_alarm
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_shunt_count
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_shunt_count
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_shunt_combined
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_shunt_combined
+          text: !lambda 'return to_string((int)x);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_requested_charge_voltage
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_req_cvl
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.1f V", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_requested_charge_current
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_req_ccl
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f A", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_requested_discharge_voltage
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_req_dvl
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.1f V", x); return buf;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_requested_discharge_current
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_req_dcl
+          text: !lambda 'char buf[16]; snprintf(buf, 16, "%.0f A", x); return buf;'
+
+text_sensor:
+
+  - platform: template
+    id: !extend yambms${yambms_id}_charging_status
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_charging_status
+          text: !lambda 'return x;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_eoc_timestamp_human
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_last_charge
+          text: !lambda 'return x;'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_alarm
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_alarm
+          text: !lambda 'return x;'
+      - lambda: |-
+          // Update bg_alarm based on alarm and warning status
+          lv_color_t color;
+          
+          if (x != "NoAlarm" && x != "Warning") {
+            color = lv_color_hex(${color_7});  // red if alarm
+          } else if (id(yambms${yambms_id}_warning).state != "NoAlarm") {
+            color = lv_color_hex(${color_6});  // yellow if warning
+          } else {
+            color = lv_color_hex(${color_5});  // green if all OK
+          }
+          
+          lv_obj_set_style_bg_color(id(bg_alarm), color, 0);
+
+  - platform: template
+    id: !extend yambms${yambms_id}_warning
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_warning
+          text: !lambda 'return x;'
+      - lambda: |-
+          // Update bg_alarm based on alarm and warning status
+          lv_color_t color;
+          auto alarm = id(yambms${yambms_id}_alarm).state;
+          if (alarm != "NoAlarm" && alarm != "Warning") {
+            color = lv_color_hex(${color_7});  // red if alarm
+          } else if (x != "NoAlarm") {
+            color = lv_color_hex(${color_6});  // yellow if warning
+          } else {
+            color = lv_color_hex(${color_5});  // green if all OK
+          }
+          
+          lv_obj_set_style_bg_color(id(bg_alarm), color, 0);
+
+  - platform: template
+    id: !extend yambms${yambms_id}_charging_instruction
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_charge_instr
+          text: !lambda 'return x;'
+          text_color: !lambda |-
+            if (x == "Stop") {
+              return lv_color_hex(${color_7});  // red
+            } else {
+              return lv_color_hex(${color_4});  // light blue
+            }
+      - lvgl.label.update:
+          id: lbl_cvl_instruction
+          text: !lambda 'return x;'
+          text_color: !lambda |-
+            if (x == "Stop") {
+              return lv_color_hex(${color_7});  // red
+            } else {
+              return lv_color_hex(${color_4});  // light blue
+            }
+
+  - platform: template
+    id: !extend yambms${yambms_id}_ccl_derating_reason
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_ccl_derating_reason
+          text: !lambda 'return x;'
+      - lvgl.label.update:
+          id: lbl_ccl_derating
+          text: !lambda |-
+            if (x == "No Derating") {
+              return std::string("No Der.");
+            } else {
+              return std::string("Derating");
+            }
+          text_color: !lambda |-
+            if (x == "No Derating") {
+              return lv_color_hex(${color_4});  // light blue
+            } else {
+              return lv_color_hex(${color_7});  // red
+            }
+
+  - platform: template
+    id: !extend yambms${yambms_id}_dcl_derating_reason
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_dcl_derating_reason
+          text: !lambda 'return x;'
+      - lvgl.label.update:
+          id: lbl_dcl_derating
+          text: !lambda |-
+            if (x == "No Derating") {
+              return std::string("No Der.");
+            } else {
+              return std::string("Derating");
+            }
+          text_color: !lambda |-
+            if (x == "No Derating") {
+              return lv_color_hex(${color_4});  // light blue
+            } else {
+              return lv_color_hex(${color_7});  // red
+            }
+
+  - platform: template
+    id: !extend esp32_uptime
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_uptime
+          text: !lambda 'return x;'
+
+  - platform: version
+    id: !extend esp32_esphome_version
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_esphome_ver
+          text: !lambda 'return x.substr(0, 8);'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_running_version
+    on_value:
+      then:
+      - lvgl.label.update:
+          id: lbl_yambms_ver
+          text: !lambda 'return x;'
+
+
+  - platform: template
+    id: !extend sys_fault_data
+    on_value:
+      then:
+      - lambda: |-
+          // Parse JSON array: [[0],[0,0,0],[0],[],[0],[],[0],...]
+          // Index: 0=API/MQTT, 1=BMS, 2=CAN, 3=RS485, 4=Shunt, 5=Bal, 6=Net
+          
+          // Manual parsing since root is an array
+          if (x.empty() || x[0] != '[') {
+            ESP_LOGE("fault", "Invalid JSON format");
+            return;
+          }
+          
+          // Helper to count faults in a device array
+          auto count_faults = [](const std::string& json_str, int dev_idx) -> std::pair<int, int> {
+            // Returns {nok_count, total_count}
+            // Very simple parser - looks for [X,Y,Z] at device index
+            
+            int bracket_count = 0;
+            int current_dev = -1;
+            int nok = 0;
+            int total = 0;
+            bool in_array = false;
+            
+            for (size_t i = 0; i < json_str.length(); i++) {
+              if (json_str[i] == '[') {
+                bracket_count++;
+                if (bracket_count == 2) {
+                  current_dev++;
+                  in_array = true;
+                  nok = 0;
+                  total = 0;
+                }
+              } else if (json_str[i] == ']') {
+                bracket_count--;
+                if (bracket_count == 1 && in_array && current_dev == dev_idx) {
+                  return {nok, total};
+                }
+                in_array = false;
+              } else if (in_array && current_dev == dev_idx && (json_str[i] == '0' || json_str[i] == '1')) {
+                total++;
+                if (json_str[i] == '1') nok++;
+              }
+            }
+            
+            return {-1, 0}; // device not found or empty
+          };
+          
+          // Helper to determine color based on status
+          auto get_status_color = [](int nok, int total) -> lv_color_t {
+            if (nok == -1 || total == 0) {
+              return lv_color_hex(${color_4}); // light blue = absent
+            } else if (nok > 0) {
+              return lv_color_hex(${color_7}); // red = NOK
+            } else {
+              return lv_color_hex(${color_5}); // green = OK
+            }
+          };
+          
+          // Update single device status
+          auto update_device = [&](lv_obj_t* obj, int idx) {
+            auto [nok, total] = count_faults(x, idx);
+            lv_color_t color = get_status_color(nok, total);
+            lv_obj_set_style_bg_color(obj, color, 0);
+          };
+          
+          // Update all fault status widgets
+          update_device(id(net_network), 6);      // Network
+          update_device(id(net_api_mqtt), 0);     // API/MQTT
+          update_device(id(net_can_inv), 2);      // CAN->INV
+          update_device(id(net_rs485_inv), 3);    // RS485->INV
+          update_device(id(bg_bms), 1);           // BMS
+          update_device(id(bg_shunt), 4);         // Shunt
+          update_device(id(bg_balancer), 5);      // Balancer
+
+binary_sensor:
+  - platform: template
+    id: !extend yambms${yambms_id}_equalizing
+    trigger_on_initial_state: true
+    on_state:
+      then:
+      - lvgl.label.update:
+          id: lbl_equalizing
+          text: !lambda 'return std::string("Equalizing: ") + (x ? "ON" : "OFF");'
+          text_color: !lambda 'return x ? lv_color_hex(${color_6}) : lv_color_hex(${color_2});'
+
+  - platform: template
+    id: !extend yambms${yambms_id}_discharging_instruction
+    trigger_on_initial_state: true
+    on_state:
+      then:
+      - lvgl.label.update:
+          id: lbl_discharge_instr
+          text: !lambda 'return std::string(x ? "Allowed" : "Blocked");'
+          text_color: !lambda 'return x ? lv_color_hex(${color_4}) : lv_color_hex(${color_7});'
+      - lvgl.label.update:
+          id: lbl_dvl_instruction
+          text: !lambda 'return std::string(x ? "Allowed" : "Blocked");'
+          text_color: !lambda 'return x ? lv_color_hex(${color_4}) : lv_color_hex(${color_7});'

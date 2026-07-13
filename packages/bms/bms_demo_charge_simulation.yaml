@@ -1,5 +1,5 @@
-# Updated : 2026.02.11
-# Version : 1.1.1
+# Updated : 2026.06.29
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,7 +43,8 @@ switch:
   # DEMO switch
   - platform: template
     id: bms${bms_id}_switch_demo_charge_simulation
-    name: "BMS ${bms_id} DEMO charge simulation"
+    device_id: bms_${bms_id}
+    name: "DEMO charge simulation"
     restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
     on_state:
@@ -56,8 +57,8 @@ interval:
     then:
       - lambda: |-
           // Vars
-          float cell_count = id(${yambms_id}_cell_count).state;
-          float requested_cvl = id(${yambms_id}_requested_charge_voltage).state;
+          float cell_count = id(yambms${yambms_id}_cell_count).state;
+          float requested_cvl = id(yambms${yambms_id}_requested_charge_voltage).state;
           const int step_sec = 10; // step duration in seconds
           static int seconds = 0;
 
@@ -67,13 +68,13 @@ interval:
             seconds = 0; // New Cycle
 
           // Exit condition
-          if (id(${yambms_id}_var_initialized) == false) return;
+          if (id(yambms${yambms_id}_var_initialized) == false) return;
           if (id(bms${bms_id}_online_status).state == false) return;
           if (id(bms${bms_id}_switch_demo_charge_simulation).state == false) return;
 
           // YamBMS Setup
-          id(${yambms_id}_bulk_voltage).publish_state(3.45 * cell_count);
-          id(${yambms_id}_float_voltage).publish_state(3.35 * cell_count);
+          id(yambms${yambms_id}_bulk_voltage).publish_state(3.45 * cell_count);
+          id(yambms${yambms_id}_float_voltage).publish_state(3.35 * cell_count);
           
           // BMS Setup
           id(bms${bms_id}_battery_capacity).publish_state(${battery_capacity});
@@ -93,7 +94,7 @@ interval:
 
           if (seconds <= 1 * step_sec) {
             // Step 1 : 95% (10sec)
-            id(${yambms_id}_var_charge_status) = "Bulk";
+            id(yambms${yambms_id}_var_charge_status) = "Bulk";
             id(bms${bms_id}_state_of_charge).publish_state(95);
             id(bms${bms_id}_current).publish_state(20);
             id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - 0.1 - ${delta_cell_voltage});
@@ -134,7 +135,7 @@ interval:
             id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count - ${delta_cell_voltage});
             id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count);
           }
-          else if (id(${yambms_id}_var_charge_status) == "Float") {
+          else if (id(yambms${yambms_id}_var_charge_status) == "Float") {
             // Step 7 : Float
             id(bms${bms_id}_state_of_charge).publish_state(100);
             id(bms${bms_id}_current).publish_state(0);

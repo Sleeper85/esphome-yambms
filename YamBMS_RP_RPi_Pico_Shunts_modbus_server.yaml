@@ -1,4 +1,4 @@
-# Updated : 2026.02.16
+# Updated : 2026.06.29
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -33,10 +33,10 @@ logger:
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # Name
-  friendly_name : 'YamBMS' # Prefix added in front of the `entity name`, also used to classify them.
-  hostname: 'yambms' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
-  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
+  # This project uses the `sub-device` function of ESPHome to prefix entity names.
+  # This allows to group entities into logical devices that appear separately in Home Assistant.
+  hostname: 'yambms' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
+  friendly_name : 'YamBMS' # Name of your board (prefix for board entities)
   # +--------------------------------------+
   # | Shunt Settings                       |
   # +--------------------------------------+

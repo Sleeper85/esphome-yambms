@@ -1,5 +1,5 @@
-# Updated : 2026.02.22
-# Version : 2.4.7
+# Updated : 2026.06.27
+# Version : 2.4.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,16 +19,18 @@
 
 switch:
   - platform: template
-    name: ${name} ${yambms_name} Automatic Charge Voltage
-    id: ${yambms_id}_switch_auto_cvl
+    name: "Automatic Charge Voltage"
+    id: yambms${yambms_id}_switch_auto_cvl
+    device_id: yambms_yambms${yambms_id}
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
 
 number:
   - platform: template
-    name: "${name} ${yambms_name} Auto CVL Kp Term"
-    id: "${yambms_id}_auto_cvl_kp"
+    name: "Auto CVL Kp Term"
+    id: yambms${yambms_id}_auto_cvl_kp
+    device_id: yambms_yambms${yambms_id}
     step: 0.005
     min_value: 0
     max_value: 1
@@ -41,8 +43,9 @@ number:
   # The higher the setting, the faster the correcting response. Too high a value will cause oscillation.
 
   - platform: template
-    name: "${name} ${yambms_name} Auto CVL Ki Term"
-    id: "${yambms_id}_auto_cvl_ki"
+    name: "Auto CVL Ki Term"
+    id: yambms${yambms_id}_auto_cvl_ki
+    device_id: yambms_yambms${yambms_id}
     step: 0.05
     min_value: 0
     max_value: 5
@@ -55,8 +58,9 @@ number:
   # The higher the setting, the more the correction response will be increased over time. Too high a value will cause oscillation.
 
   - platform: template
-    name: "${name} ${yambms_name} Auto CVL Boost Charge V."
-    id: "${yambms_id}_auto_cvl_boost_charge_v"
+    name: "Auto CVL Boost Charge V."
+    id: yambms${yambms_id}_auto_cvl_boost_charge_v
+    device_id: yambms_yambms${yambms_id}
     step: 0.1
     min_value: 0
     max_value: 3
@@ -73,7 +77,6 @@ sensor:
   # | Auto Charge Voltage Control          |
   # +--------------------------------------+
   - platform: template
-    name: ${name} ${yambms_name} Auto Charge Voltage
     id: auto_cvl
     update_interval: 1s # must have the same value as the "dt" variable in the lamda below
     unit_of_measurement: V
@@ -86,16 +89,16 @@ sensor:
 
       static float integral = 0.0;                                             // Integral term initialization
       static float prev_integral = 0.0;                                        // Prior Integral term initialization
-      float cell_count = id(${yambms_id}_cell_count).state;
-      float bulk_voltage = id(${yambms_id}_bulk_voltage).state;
-      float balance_delta = id(${yambms_id}_balance_trigger_voltage).state;
-      float max_cell_v = id(${yambms_id}_max_cell_voltage).state;
-      float min_CVL = id(${yambms_id}_float_voltage).state;                    // Minimum CVL
+      float cell_count = id(yambms${yambms_id}_cell_count).state;
+      float bulk_voltage = id(yambms${yambms_id}_bulk_voltage).state;
+      float balance_delta = id(yambms${yambms_id}_balance_trigger_voltage).state;
+      float max_cell_v = id(yambms${yambms_id}_max_cell_voltage).state;
+      float min_CVL = id(yambms${yambms_id}_float_voltage).state;                    // Minimum CVL
       float CVL = bulk_voltage;                                                // Starting CVL
       float CVL_orig = bulk_voltage;                                           // Starting CVL snapshot
 
-      float kp = id(${yambms_id}_auto_cvl_kp).state;                           // Proportional gain, adjust as needed
-      float ki = id(${yambms_id}_auto_cvl_ki).state;                           // Integral gain, adjust as needed
+      float kp = id(yambms${yambms_id}_auto_cvl_kp).state;                           // Proportional gain, adjust as needed
+      float ki = id(yambms${yambms_id}_auto_cvl_ki).state;                           // Integral gain, adjust as needed
       float dt = 1.0;                                                          // Time step, adjust based on update_interval
       float error = 0.0;                                                       // Starting error
       float output = 0.0;                                                      // Starting output
@@ -103,17 +106,17 @@ sensor:
       // Check if values are available, if not return bulk voltage as CVL
       if (isnan(cell_count) || isnan(bulk_voltage) || isnan(balance_delta) || isnan(max_cell_v) ||
           isnan(min_CVL) || cell_count <= 0) {
-        id(${yambms_id}_var_auto_cvl) = 0.0;
+        id(yambms${yambms_id}_var_auto_cvl) = 0.0;
         return bulk_voltage;
       }
 
-      float max_CVL = bulk_voltage + id(${yambms_id}_auto_cvl_boost_charge_v).state;  // Maximum CVL
+      float max_CVL = bulk_voltage + id(yambms${yambms_id}_auto_cvl_boost_charge_v).state;  // Maximum CVL
       float cell_bulk_v = (bulk_voltage / cell_count);
       float max_allowed_voltage = cell_bulk_v + balance_delta;
 
       // Check feature enabled
-      if (!id(${yambms_id}_switch_auto_cvl).state){
-        id(${yambms_id}_var_auto_cvl) = 0.0;
+      if (!id(yambms${yambms_id}_switch_auto_cvl).state){
+        id(yambms${yambms_id}_var_auto_cvl) = 0.0;
         prev_integral = 0.0;
         return bulk_voltage;
       } else {
@@ -145,6 +148,6 @@ sensor:
         else {
           prev_integral = integral;
         }
-        id(${yambms_id}_var_auto_cvl) = CVL - CVL_orig;
+        id(yambms${yambms_id}_var_auto_cvl) = CVL - CVL_orig;
         return CVL - CVL_orig;
       }

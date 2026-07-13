@@ -18,6 +18,11 @@
 > You don't have to import a shunt or balancer but you must import at least `one BMS`.
 > You can mix different `BMS` models, the only condition is that the `bms_id` are numbered in order starting from `1` !
 
+> [!IMPORTANT]
+> YamBMS only allows data merging from your **parallel-connected BMS units** !
+> YamBMS **does not work with serial-connected BMS units** !
+> YamBMS is not tied to a particular voltage, you can define the number of cells in series in your battery.
+
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
 > YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your `BMS`.
@@ -76,10 +81,11 @@ Currently only available for a resolution of **800x480**.
 
 The display can retrieve information in two different ways :
 
-* **ESPHome version**: LVGL code executed on the **YamBMS node***
-  * Package to be imported => [board_options_display_lvgl_800x480_basic_blue_esphome.yaml](packages/board/board_options_display_lvgl_800x480_basic_blue_esphome.yaml)
-* **HA version**: LVGL code executed on a **standalone node*** with informations coming from `Home Assistant` (only requires a WiFi connection)
+* **HA version (recommended)**: LVGL code executed on a **standalone node*** with informations coming from `Home Assistant` (only requires a WiFi connection)
   * Example => [YamBMS_RP_HA_Display.yaml](YamBMS_RP_HA_Display.yaml)
+* **ESPHome version**: LVGL code executed on the **YamBMS node***
+  * Package to be imported => [board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml](packages/board/board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml)
+
 
 ![Image](images/YamBMS_Display.png "YamBMS Display")
 
@@ -154,7 +160,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2026.1.5 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2026.6.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)

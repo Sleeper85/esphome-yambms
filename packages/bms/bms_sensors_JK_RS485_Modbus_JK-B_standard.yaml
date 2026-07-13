@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.11
+# Updated : 2026.03.15
+# Version : 1.2.3
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -191,6 +191,8 @@ sensor:
     battery_total_runtime:
       device_id: bms_${bms_id}
       name: "battery total runtime"
+      filters:
+        - throttle: 60s
     balancing_current:
       device_id: bms_${bms_id}
       name: "balancing current"

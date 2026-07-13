@@ -1,0 +1,379 @@
+# Updated : 2026.06.29
+# Version : 1.1.5
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +---------------------------------------------------------+
+# | Boot: initialize Solar and Home dots                    |
+# +---------------------------------------------------------+
+
+esphome:
+  on_boot:
+    priority: -200
+    then:
+      - lambda: |-
+          // Dots hidden by default
+          lv_obj_add_flag(id(dot_solar), LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(id(dot_home),  LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(id(dot_grid),  LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(id(dot_bat),   LV_OBJ_FLAG_HIDDEN);
+
+interval:
+  - interval: 30s
+    then:
+      - lambda: |-
+          auto t = id(my_time).now();
+          if (t.is_valid())
+          {
+            const char* days[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+            char buf_date[20];
+            snprintf(buf_date, 20, "%s %d", days[t.day_of_week - 1], t.day_of_month);
+            lv_label_set_text(id(lbl_date), buf_date);
+
+            char buf_time[6];
+            snprintf(buf_time, 6, "%02d:%02d", t.hour, t.minute);
+            lv_label_set_text(id(lbl_clock), buf_time);
+          }
+
+# +---------------------------------------------------------+
+# | Sensor bindings                                         |
+# +---------------------------------------------------------+
+
+sensor:
+
+  # ── PV ────────────────────────────────────────────────────
+  - platform: homeassistant
+    entity_id: sensor.${pv_power}
+    id: ha_pv_power
+    on_value:
+      then:
+        - lambda: |-
+            static uint32_t last_dur_solar = 0;
+
+            char b[16]; snprintf(b, 16, "%.0f W", x);
+            lv_label_set_text(id(lbl_pv_now), b);
+
+            if (x < 1) {
+              lv_obj_add_flag(id(dot_solar), LV_OBJ_FLAG_HIDDEN);
+              last_dur_solar = 0;
+            } else {
+              lv_obj_clear_flag(id(dot_solar), LV_OBJ_FLAG_HIDDEN);
+              float ratio = std::min(x / (float)${anim_pv_power_max}, 1.0f);
+              uint32_t dur = (uint32_t)(${anim_duration_max} - ratio * (${anim_duration_max} - ${anim_duration_min}));
+
+              bool speed_changed = (abs((int32_t)dur - (int32_t)last_dur_solar) > 200);
+
+              if (speed_changed) {
+                last_dur_solar = dur;
+                lv_anim_exec_xcb_t cb = [](void* obj, int32_t v){ lv_obj_set_y((lv_obj_t*)obj, v); };
+                lv_anim_del(id(dot_solar), NULL);
+                lv_anim_t a; lv_anim_init(&a);
+                lv_anim_set_var(&a, id(dot_solar));
+                lv_anim_set_exec_cb(&a, cb);
+                lv_anim_set_values(&a, 106, 186);
+                lv_anim_set_time(&a, dur);
+                lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+                lv_anim_set_repeat_delay(&a, 0);
+                lv_anim_start(&a);
+              }
+            }
+
+  - platform: homeassistant
+    entity_id: sensor.${pv_energy_today}
+    id: ha_pv_energy_today
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_pv_today
+            text: !lambda 'char b[20]; snprintf(b,20,"Today: %.2f kWh",x); return b;'
+
+  # ── GRID ──────────────────────────────────────────────────
+  # Single signed sensor: positive = import, negative = export
+  - platform: homeassistant
+    entity_id: sensor.${grid_power}
+    id: ha_grid_power
+    on_value:
+      then:
+        - lambda: |-
+            static uint32_t last_dur_grid = 0;
+            static bool last_is_import_grid = true;
+
+            char bn[16]; snprintf(bn, 16, "%.0f W", x);
+            lv_label_set_text(id(lbl_grid_net_now), bn);
+
+            lv_color_t nc = (x > 10) ? lv_color_hex(0xe17055)
+                          : (x < -10) ? lv_color_hex(0x00b894)
+                          : lv_color_hex(0xffffff);
+            lv_obj_set_style_text_color(id(lbl_grid_net_now), nc, 0);
+
+            float power = std::abs(x);
+            bool is_import = (x >= 0);
+
+            if (power < 1) {
+              lv_obj_add_flag(id(dot_grid), LV_OBJ_FLAG_HIDDEN);
+              last_dur_grid = 0;
+            } else {
+              lv_obj_clear_flag(id(dot_grid), LV_OBJ_FLAG_HIDDEN);
+              float ratio = std::min(power / (float)${anim_grid_power_max}, 1.0f);
+              uint32_t dur = (uint32_t)(${anim_duration_max} - ratio * (${anim_duration_max} - ${anim_duration_min}));
+
+              bool direction_changed = (is_import != last_is_import_grid);
+              bool speed_changed = (abs((int32_t)dur - (int32_t)last_dur_grid) > 200);
+
+              if (direction_changed || speed_changed) {
+                last_dur_grid = dur;
+                last_is_import_grid = is_import;
+                // Import: left→right (232→395), Export: right→left (395→232)
+                int32_t from_x = is_import ? 232 : 395;
+                int32_t to_x   = is_import ? 395 : 232;
+                lv_anim_exec_xcb_t cb = [](void* obj, int32_t v){ lv_obj_set_x((lv_obj_t*)obj, v); };
+                lv_anim_del(id(dot_grid), NULL);
+                lv_anim_t a; lv_anim_init(&a);
+                lv_anim_set_var(&a, id(dot_grid));
+                lv_anim_set_exec_cb(&a, cb);
+                lv_anim_set_values(&a, from_x, to_x);
+                lv_anim_set_time(&a, dur);
+                lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+                lv_anim_set_repeat_delay(&a, 0);
+                lv_anim_start(&a);
+              }
+            }
+
+  - platform: homeassistant
+    entity_id: sensor.${grid_voltage}
+    id: ha_grid_voltage
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_grid_voltage
+            text: !lambda 'char b[12]; snprintf(b,12,"%.0f V",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${grid_frequency}
+    id: ha_grid_frequency
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_grid_frequency
+            text: !lambda 'char b[12]; snprintf(b,12,"%.1f Hz",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${grid_import_today}
+    id: ha_grid_import_today
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_grid_import_today
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${grid_export_today}
+    id: ha_grid_export_today
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_grid_export_today
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  # ── BATTERY ───────────────────────────────────────────────
+  - platform: homeassistant
+    entity_id: sensor.${bat_soc}
+    id: ha_bat_soc
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bat_soc
+            text: !lambda 'char b[8]; snprintf(b,8,"%.0f %%",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${bat_voltage}
+    id: ha_bat_voltage
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bat_voltage
+            text: !lambda 'char b[12]; snprintf(b,12,"%.1f V",x); return b;'
+        - lambda: |-
+            // Cell voltage = pack voltage / cell count
+            float cell_count = id(ha_bat_cell_count).state;
+            if (cell_count > 0) {
+              float vpc = x / cell_count;
+              char b[12]; snprintf(b, 12, "%.2f Vpc", vpc);
+              lv_label_set_text(id(lbl_cell_voltage), b);
+            }
+
+  - platform: homeassistant
+    entity_id: sensor.${bat_cell_count}
+    id: ha_bat_cell_count
+    on_value:
+      then:
+        - lambda: |-
+            float voltage = id(ha_bat_voltage).state;
+            if (x > 0) {
+              float vpc = voltage / x;
+              char b[12]; snprintf(b, 12, "%.2f Vpc", vpc);
+              lv_label_set_text(id(lbl_cell_voltage), b);
+            }
+
+  # Single signed sensor: positive = charge, negative = discharge
+  - platform: homeassistant
+    entity_id: sensor.${bat_power}
+    id: ha_bat_power
+    on_value:
+      then:
+        - lambda: |-
+            static uint32_t last_dur_bat = 0;
+            static bool last_is_charge_bat = true;
+
+            char b[16]; snprintf(b, 16, "%.0f W", x);
+            lv_label_set_text(id(lbl_bat_power), b);
+
+            float power = std::abs(x);
+            bool is_charge = (x >= 0);
+
+            if (power < 1) {
+              lv_obj_add_flag(id(dot_bat), LV_OBJ_FLAG_HIDDEN);
+              last_dur_bat = 0;
+            } else {
+              lv_obj_clear_flag(id(dot_bat), LV_OBJ_FLAG_HIDDEN);
+              float ratio = std::min(power / (float)${anim_battery_power_max}, 1.0f);
+              uint32_t dur = (uint32_t)(${anim_duration_max} - ratio * (${anim_duration_max} - ${anim_duration_min}));
+
+              bool direction_changed = (is_charge != last_is_charge_bat);
+              bool speed_changed = (abs((int32_t)dur - (int32_t)last_dur_bat) > 200);
+
+              if (direction_changed || speed_changed) {
+                last_dur_bat = dur;
+                last_is_charge_bat = is_charge;
+                // Charge: junction→battery (left→right 395→562)
+                // Discharge: battery→junction (right→left 562→395)
+                int32_t from_x = is_charge ? 395 : 562;
+                int32_t to_x   = is_charge ? 562 : 395;
+                lv_anim_exec_xcb_t cb = [](void* obj, int32_t v){ lv_obj_set_x((lv_obj_t*)obj, v); };
+                lv_anim_del(id(dot_bat), NULL);
+                lv_anim_t a; lv_anim_init(&a);
+                lv_anim_set_var(&a, id(dot_bat));
+                lv_anim_set_exec_cb(&a, cb);
+                lv_anim_set_values(&a, from_x, to_x);
+                lv_anim_set_time(&a, dur);
+                lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+                lv_anim_set_repeat_delay(&a, 0);
+                lv_anim_start(&a);
+              }
+            }
+
+  - platform: homeassistant
+    entity_id: sensor.${bat_charge_today}
+    id: ha_bat_charge_today
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bat_charge_today
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${bat_discharge_today}
+    id: ha_bat_discharge_today
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bat_discharge_today
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  # ── HOME ──────────────────────────────────────────────────
+  - platform: homeassistant
+    entity_id: sensor.${home_power}
+    id: ha_home_power
+    on_value:
+      then:
+        - lambda: |-
+            static uint32_t last_dur_home = 0;
+
+            char b[16]; snprintf(b, 16, "%.0f W", x);
+            lv_label_set_text(id(lbl_home_now), b);
+
+            if (x < 1) {
+              lv_obj_add_flag(id(dot_home), LV_OBJ_FLAG_HIDDEN);
+              last_dur_home = 0;
+            } else {
+              lv_obj_clear_flag(id(dot_home), LV_OBJ_FLAG_HIDDEN);
+              float ratio = std::min(x / (float)${anim_home_power_max}, 1.0f);
+              uint32_t dur = (uint32_t)(${anim_duration_max} - ratio * (${anim_duration_max} - ${anim_duration_min}));
+
+              bool speed_changed = (abs((int32_t)dur - (int32_t)last_dur_home) > 200);
+
+              if (speed_changed) {
+                last_dur_home = dur;
+                lv_anim_exec_xcb_t cb = [](void* obj, int32_t v){ lv_obj_set_y((lv_obj_t*)obj, v); };
+                lv_anim_del(id(dot_home), NULL);
+                lv_anim_t a; lv_anim_init(&a);
+                lv_anim_set_var(&a, id(dot_home));
+                lv_anim_set_exec_cb(&a, cb);
+                lv_anim_set_values(&a, 186, 272);
+                lv_anim_set_time(&a, dur);
+                lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+                lv_anim_set_repeat_delay(&a, 0);
+                lv_anim_start(&a);
+              }
+            }
+
+  - platform: homeassistant
+    entity_id: sensor.${home_daily_energy_total}
+    id: ha_home_daily_energy_total
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_home_daily_energy_total
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${home_daily_energy_solar}
+    id: ha_home_daily_energy_solar
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_home_daily_energy_solar
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${home_daily_energy_grid}
+    id: ha_home_daily_energy_grid
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_home_daily_energy_grid
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  - platform: homeassistant
+    entity_id: sensor.${home_daily_energy_battery}
+    id: ha_home_daily_energy_battery
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_home_daily_energy_bat
+            text: !lambda 'char b[16]; snprintf(b,16,"%.2f kWh",x); return b;'
+
+  # ── BATTERY CHARGING PHASE ────────────────────────────────
+text_sensor:
+  - platform: homeassistant
+    entity_id: sensor.${bat_charging_phase}
+    id: ha_bat_charging_phase
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bat_charging_phase
+            text: !lambda 'return x;'

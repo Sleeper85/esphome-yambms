@@ -1,5 +1,5 @@
-# Updated : 2026.02.15
-# Version : 1.1.6
+# Updated : 2026.07.10
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# https://wiki.lilygo.cc/get_started/en/High_speed/T-Connect-Pro/T-Connect-Pro.html
+# https://lilygo.cc/en-us/products/t-connect-pro
+# https://wiki.lilygo.cc/products/t-connect-series/t-connect-pro/
+# https://github.com/Xinyuan-LilyGO/T-Connect-Pro
 
 substitutions:
   board_chip: "ESP32-S3"
@@ -37,6 +39,7 @@ packages:
   device_base: !include ../base/device_base.yaml
   device_base_wifi: !include ../base/device_base_wifi.yaml
   no_led_control: !include board_options_no_led_control.yaml
+  psram: !include board_options_PSRAM_octal_80Mhz.yaml
 
 esp32:
   variant: esp32s3
@@ -92,8 +95,10 @@ touchscreen:
     
 display:
   # T-Connect-Pro display
-  # https://esphome.io/components/display/ili9xxx
-  - platform: ili9xxx
+  # Chipset: ST7796
+  # Resolution : 222x480px
+  # ST7796 is natively supported by mipi_spi (https://esphome.io/components/display/mipi_spi/)
+  - platform: mipi_spi
     spi_id: lilygo_spi_bus
     id: my_display
     model: ST7796
@@ -108,10 +113,12 @@ display:
       width: 480
       offset_height: 49
       offset_width: 0
+      pad_height: 0
+      pad_width: 0
     invert_colors: true
-    color_palette: 8BIT
+    color_depth: 8
     update_interval: 10s
-    data_rate: 40Mhz
+    data_rate: 40MHz
 
 # Define a PWM output for the display backlight
 output:

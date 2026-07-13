@@ -1,4 +1,4 @@
-# Updated : 2026.02.27
+# Updated : 2026.06.29
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -50,11 +50,10 @@ api: # This YAML only works with the API
 # | Global Settings                      |
 # +--------------------------------------+
 substitutions:
-  # Name
-  friendly_name : 'YamBMS Display' # Prefix added in front of the `entity name`, also used to classify them.
-  hostname: 'yambms-display' # Name of your ESP32 registered on the IP network (DNS name, must be unique).
-
-
+  # This project uses the `sub-device` function of ESPHome to prefix entity names.
+  # This allows to group entities into logical devices that appear separately in Home Assistant.
+  hostname: 'yambms-display' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
+  friendly_name : 'YamBMS Display' # Name of your board (prefix for board entities)
 
 # +--------------------------------------+
 # | Packages                             |
@@ -83,12 +82,51 @@ packages:
   # | >>> Uncomment the display that corresponds to your board
   # +------------------------------------------------------------------------------+
 
-      - path: 'packages/board/board_options_display_lvgl_800x480_basic_blue_ha.yaml' # 800x480 basic blue display
-      # - path: 'packages/board/board_options_display_lvgl_1280x720_Tab5_ha.yaml' # 1280x720 Tab5 display
-        vars:
-          # Generally, the friendly_name of your YamBMS node is in lowercase; spaces are replaced by underscores.
-          entity_prefix: 'yambms' # 'yambms' by default
+      - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_yambms.yaml'   # 800x480 Blue Navy display - YamBMS pages
+      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml'   # 800x480 Blue Navy display - Overview + YamBMS pages  
+      # - path: 'packages/board/board_options_display_lvgl_package_1280x720_Tab5_ha.yaml'            # 1280x720 Tab5 display
 
+        vars:
+          # Variables required for all display YAMLs
+          device_name: 'yambms'   # The friendly_name of your YamBMS node is in lowercase; spaces are replaced by underscores
+          yambms_name: 'yambms_1' # The yambms_name of your YamBMS node is in lowercase; spaces are replaced by underscores
+
+          # +------------------------------------------------------------------------------+
+          # | >>> Uncomment the variables below to use the following YAMLs :
+          # | >>> board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml
+          # +------------------------------------------------------------------------------+
+
+          # Overview page inputs
+
+          # pv_power:                  your_pv_power
+          # pv_energy_today:           your_pv_energy_today
+          # grid_power:                your_grid_power           # positive = import, negative = export
+          # grid_voltage:              your_grid_voltage
+          # grid_frequency:            your_grid_frequency
+          # grid_import_today:         your_grid_import_today
+          # grid_export_today:         your_grid_export_today
+          # bat_power:                 yambms_1_power            # positive = charge, negative = discharge
+          # bat_soc:                   yambms_1_battery_soc
+          # bat_voltage:               yambms_1_total_voltage
+          # bat_cell_count:            yambms_1_cell_count
+          # bat_charging_phase:        yambms_1_charging_status
+          # bat_charge_today:          yambms_1_daily_charging_energy
+          # bat_discharge_today:       yambms_1_daily_discharging_energy
+          # home_power:                your_home_power
+          # home_daily_energy_total:   your_home_daily_energy_total
+          # home_daily_energy_solar:   your_home_daily_energy_solar
+          # home_daily_energy_grid:    your_home_daily_energy_grid
+          # home_daily_energy_battery: yambms_1_daily_discharging_energy
+
+          # Overview page animation
+          # Max power = dot max speed
+          
+          # anim_pv_power_max:         8000
+          # anim_grid_power_max:       6000
+          # anim_battery_power_max:    6000
+          # anim_home_power_max:       6000
+          # anim_duration_min:         800  # ms at max power
+          # anim_duration_max:         4000 # ms at nul power
 
 
   # +------------------------------------------------------------------------------+
@@ -153,7 +191,14 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> Config and Custom Local Packages
+  # | >>> Add your custom packages below
   # +------------------------------------------------------------------------------+
 
-  # Add your packages or YAML below
+  # Custom packages
+  # yambms_custom: !include yambms_custom.yaml
+
+# +------------------------------------------------------------------------------+
+# | >>> Add your custom YAML below
+# +----- -------------------------------------------------------------------------+
+
+# Custom YAML

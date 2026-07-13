@@ -1,4 +1,4 @@
-# Updated : 2026.02.01
+# Updated : 2026.06.27
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -37,7 +37,7 @@ esphome:
     - priority: 600
       then:
         # Shunt counter (total)
-        - lambda: id(${yambms_id}_var_shunt_counter) += 1;
+        - lambda: id(yambms${yambms_id}_var_shunt_counter) += 1;
 
 switch:
   # Combine enable/disable Switch
@@ -89,7 +89,7 @@ interval:
           // | STEP 1 - Shunt combiner                       |
           // +-----------------------------------------------+
           // Shunt number to combine ?
-          if (id(${yambms_id}_var_to_combine_shunt_number) == ${shunt_id})
+          if (id(yambms${yambms_id}_var_to_combine_shunt_number) == ${shunt_id})
           {
             // The Shunt can be combined ?
             if (id(shunt${shunt_id}_can_be_combined).state)
@@ -103,13 +103,13 @@ interval:
                 if (!bms_id) continue;
 
                 // Ignore BMS that we've not seen online yet
-                if ((id(${yambms_id}_var_bms_seen_online_bitmask) & (1 << (bms_id - 1))) == 0)
+                if ((id(yambms${yambms_id}_var_bms_seen_online_bitmask) & (1 << (bms_id - 1))) == 0)
                 {
                   continue;
                 }
 
                 // Check if BMS is online
-                if ((id(${yambms_id}_var_bms_online_bitmask) & (1 << (bms_id - 1))) == 0)
+                if ((id(yambms${yambms_id}_var_bms_online_bitmask) & (1 << (bms_id - 1))) == 0)
                 {
                   bms_offline = bms_id;
                   break;
@@ -129,10 +129,10 @@ interval:
               if (id(shunt${shunt_id}_combined) == false)
               {
                 // To combine shunt counter
-                id(${yambms_id}_var_to_combine_shunt_counter) += 1;
+                id(yambms${yambms_id}_var_to_combine_shunt_counter) += 1;
 
                 // Shunt use (replace BMS infos)
-                id(${yambms_id}_var_shunt_use) = true;
+                id(yambms${yambms_id}_var_shunt_use) = true;
 
                 // Combined
                 id(shunt${shunt_id}_combined) = true;
@@ -143,13 +143,13 @@ interval:
               // +-----------------------------------------------+
 
               // TOTAL voltage
-              id(${yambms_id}_var_shunt_total_voltage) += id(shunt${shunt_id}_voltage).state;
+              id(yambms${yambms_id}_var_shunt_total_voltage) += id(shunt${shunt_id}_voltage).state;
               // TOTAL current
-              id(${yambms_id}_var_shunt_total_current) += id(shunt${shunt_id}_current).state;
+              id(yambms${yambms_id}_var_shunt_total_current) += id(shunt${shunt_id}_current).state;
               // TOTAL power
-              id(${yambms_id}_var_shunt_total_power) += id(shunt${shunt_id}_power).state;
+              id(yambms${yambms_id}_var_shunt_total_power) += id(shunt${shunt_id}_power).state;
               // TOTAL soc
-              id(${yambms_id}_var_shunt_total_soc) += id(shunt${shunt_id}_soc).state;
+              id(yambms${yambms_id}_var_shunt_total_soc) += id(shunt${shunt_id}_soc).state;
 
             }
 
@@ -159,15 +159,15 @@ interval:
             else if (id(shunt${shunt_id}_combined) == true)
             {
               // To combine shunt counter
-              id(${yambms_id}_var_to_combine_shunt_counter) -= 1;
+              id(yambms${yambms_id}_var_to_combine_shunt_counter) -= 1;
 
               // Shunt use (replace BMS infos)
-              if (id(${yambms_id}_var_to_combine_shunt_counter) == 0) id(${yambms_id}_var_shunt_use) = false;
+              if (id(yambms${yambms_id}_var_to_combine_shunt_counter) == 0) id(yambms${yambms_id}_var_shunt_use) = false;
 
               // Uncombined
               id(shunt${shunt_id}_combined) = false;
             }
 
             // Increment the counter for next Shunt processing
-            id(${yambms_id}_var_to_combine_shunt_number)++;
+            id(yambms${yambms_id}_var_to_combine_shunt_number)++;
           }

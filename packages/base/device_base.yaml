@@ -1,5 +1,5 @@
-# Updated : 2026.02.18
-# Version : 1.2.6
+# Updated : 2026.03.23
+# Version : 1.2.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -69,13 +69,6 @@ binary_sensor:
         - lambda: |-
             // Pass the current state to the update function
             id(global_update_fault)(${CAT_SYSTEM}, ${board_fault_device_id}, !x);
-
-  # Inverter communication status (CANBUS / RS485)
-  - platform: template
-    name: Inverter communication status
-    id: inverter_com_status
-    entity_category: diagnostic
-    trigger_on_initial_state: true
 
 sensor:
   # https://esphome.io/components/sensor/uptime

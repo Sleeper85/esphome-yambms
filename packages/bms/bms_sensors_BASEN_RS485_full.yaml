@@ -1,5 +1,5 @@
-# Updated : 2026.02.16
-# Version : 1.1.13
+# Updated : 2026.03.15
+# Version : 1.2.5
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -126,37 +126,41 @@ sensor:
       device_id: bms_${bms_id}
       name: "temperature sensor 1"
       filters:
-        - exponential_moving_average:
-            alpha: 0.1
-            send_every: 4
-        - delta: 1
+        - median:
+            window_size: 25
+            send_every: 12
+            send_first_at: 3
+        - delta: 0.5
     temperature2:
       id: bms${bms_id}_temperature_sensor_2
       device_id: bms_${bms_id}
       name: "temperature sensor 2"
       filters:
-        - exponential_moving_average:
-            alpha: 0.1
-            send_every: 4
-        - delta: 1
+        - median:
+            window_size: 25
+            send_every: 12
+            send_first_at: 3
+        - delta: 0.5
     temperature3:
       id: bms${bms_id}_temperature_sensor_3
       device_id: bms_${bms_id}
       name: "temperature sensor 3"
       filters:
-        - exponential_moving_average:
-            alpha: 0.1
-            send_every: 4
-        - delta: 1
+        - median:
+            window_size: 25
+            send_every: 12
+            send_first_at: 3
+        - delta: 0.5
     temperature4: 
       id: bms${bms_id}_temperature_sensor_4
       device_id: bms_${bms_id}
       name: "temperature sensor 4"
       filters:
-        - exponential_moving_average:
-            alpha: 0.1
-            send_every: 4
-        - delta: 1
+        - median:
+            window_size: 25
+            send_every: 12
+            send_first_at: 3
+        - delta: 0.5
     temperature_mos:
       device_id: bms_${bms_id}
       name: "temperature MOSFET"
@@ -167,6 +171,10 @@ sensor:
       id: bms${bms_id}_average_cell_voltage
       device_id: bms_${bms_id}
       name: "cell average voltage"
+      filters:
+        - throttle_average: 20s
+        - round: 3
+        - delta: 0.0015
     min_cell_voltage:
       id: bms${bms_id}_min_cell_voltage
       device_id: bms_${bms_id}
@@ -187,54 +195,90 @@ sensor:
       id: bms${bms_id}_delta_voltage_cell
       device_id: bms_${bms_id}
       name: "cell delta voltage"
+      filters:
+        - throttle_average: 20s
+        - round: 3
+        - delta: 0.0015
     cell_voltage_01:
       device_id: bms_${bms_id}
       name: "cell voltage 01"
+      filters:
+        - delta: 0.0015
     cell_voltage_02:
       device_id: bms_${bms_id}
       name: "cell voltage 02"
+      filters:
+        - delta: 0.0015
     cell_voltage_03:
       device_id: bms_${bms_id}
       name: "cell voltage 03"
+      filters:
+        - delta: 0.0015
     cell_voltage_04:
       device_id: bms_${bms_id}
       name: "cell voltage 04"
+      filters:
+        - delta: 0.0015
     cell_voltage_05:
       device_id: bms_${bms_id}
       name: "cell voltage 05"
+      filters:
+        - delta: 0.0015
     cell_voltage_06:
       device_id: bms_${bms_id}
       name: "cell voltage 06"
+      filters:
+        - delta: 0.0015
     cell_voltage_07:
       device_id: bms_${bms_id}
       name: "cell voltage 07"
+      filters:
+        - delta: 0.0015
     cell_voltage_08:
       device_id: bms_${bms_id}
       name: "cell voltage 08"
+      filters:
+        - delta: 0.0015
     cell_voltage_09:
       device_id: bms_${bms_id}
       name: "cell voltage 09"
+      filters:
+        - delta: 0.0015
     cell_voltage_10:
       device_id: bms_${bms_id}
       name: "cell voltage 10"
+      filters:
+        - delta: 0.0015
     cell_voltage_11:
       device_id: bms_${bms_id}
       name: "cell voltage 11"
+      filters:
+        - delta: 0.0015
     cell_voltage_12:
       device_id: bms_${bms_id}
       name: "cell voltage 12"
+      filters:
+        - delta: 0.0015
     cell_voltage_13:
       device_id: bms_${bms_id}
       name: "cell voltage 13"
+      filters:
+        - delta: 0.0015
     cell_voltage_14:
       device_id: bms_${bms_id}
       name: "cell voltage 14"
+      filters:
+        - delta: 0.0015
     cell_voltage_15:
       device_id: bms_${bms_id}
       name: "cell voltage 15"
+      filters:
+        - delta: 0.0015
     cell_voltage_16:
       device_id: bms_${bms_id}
       name: "cell voltage 16"
+      filters:
+        - delta: 0.0015
 
     # Protection parameters
     CELL_OV_Start:

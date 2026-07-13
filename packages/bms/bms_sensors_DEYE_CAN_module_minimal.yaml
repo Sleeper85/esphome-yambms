@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.10
+# Updated : 2026.02.21
+# Version : 1.2.2
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -166,9 +166,12 @@ sensor:
     state_class: 'measurement'
     accuracy_decimals: 2
     filters:
-    - timeout:
-        timeout: 60s
-        value: !lambda return 0;
+      - timeout:
+          timeout: 60s
+          value: !lambda return 0;
+      - throttle_average: ${bms_update_interval}
+      - round: 2
+      - delta: 0.01
 
   # Current
   - platform: template
@@ -179,6 +182,10 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 1
+    filters:
+      - throttle_average: ${bms_update_interval}
+      - round: 1
+      - delta: 0.1
 
   # Battery power (calculated)
   - platform: template
@@ -191,6 +198,10 @@ sensor:
     accuracy_decimals: 0
     lambda: |-
       return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
+    filters:
+      - throttle_average: ${bms_update_interval}
+      - round: 0
+      - delta: 1
 
   # Charging power: Calculated from voltage and current
   - platform: template
@@ -204,6 +215,10 @@ sensor:
     lambda: |-
       if (id(bms${bms_id}_current).state > 0) return id(bms${bms_id}_total_voltage).state * id(bms${bms_id}_current).state;
       else return 0;
+    filters:
+      - throttle_average: ${bms_update_interval}
+      - round: 0
+      - delta: 1
 
   # Discharging power: Calculated from voltage and current
   - platform: template
@@ -217,6 +232,10 @@ sensor:
     lambda: |-
       if (id(bms${bms_id}_current).state < 0) return id(bms${bms_id}_total_voltage).state * -id(bms${bms_id}_current).state;
       else return 0;
+    filters:
+      - throttle_average: ${bms_update_interval}
+      - round: 0
+      - delta: 1
 
   # SoC
   - platform: template
@@ -227,6 +246,9 @@ sensor:
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 1
+    filters:
+      - round: 1
+      - throttle: ${bms_update_interval}
 
   # Battery capacity
   - platform: template
@@ -241,22 +263,25 @@ sensor:
       uint8_t module_count = id(deye${deye_id}_module_amount).state;
       if (module_count < 1) module_count = 1;
       return id(deye${deye_id}_battery_capacity).state / module_count;
+    filters:
+      - throttle: ${bms_update_interval}
 
-  # Remaining capacity: Calculated from capacity and SoC
+  # Remaining capacity - Calculated from SoC and battery capacity
   - platform: template
+    # name: "battery capacity remaining"
+    id: bms${bms_id}_capacity_remaining_ah
+    device_id: bms_${bms_id}
     unit_of_measurement: 'Ah'
     device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 0
-    id: bms${bms_id}_capacity_remaining_ah
-    device_id: bms_${bms_id}
-    # name: "battery capacity remaining"
-    lambda: |-
-      return (id(bms${bms_id}_state_of_charge).state * id(bms${bms_id}_battery_capacity).state) / 100;
     filters:
       - or:
-        - throttle: 10s
+        - throttle: ${bms_update_interval}
         - delta: 1
+      - round: 0
+    lambda: |-
+      return (id(bms${bms_id}_state_of_charge).state * id(bms${bms_id}_battery_capacity).state) / 100;
 
   # Charging cycles
   - platform: template
@@ -275,7 +300,6 @@ sensor:
     # name: "charging cycle capacity"
     id: "bms${bms_id}_cycle_capacity_raw"
     device_id: bms_${bms_id}
-    update_interval: ${bms_update_interval}
     unit_of_measurement: Ah
     state_class: 'measurement'
     accuracy_decimals: 0
@@ -296,6 +320,8 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
 
   # Max. discharge current
   - platform: template
@@ -306,6 +332,8 @@ sensor:
     device_class: 'current'
     state_class: 'measurement'
     accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
 
   # Max. cell voltage
   - platform: template
@@ -316,6 +344,10 @@ sensor:
     device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 3
+    filters:
+      - throttle_average: 20s
+      - round: 3
+      - delta: 0.0015
 
   # Max. voltage cell: Only with InterCAN enabled
   - platform: template
@@ -324,8 +356,7 @@ sensor:
     id: bms${bms_id}_max_voltage_cell
     device_id: bms_${bms_id}
     name: "cell voltage max cell number"
-    filters:
-      - lambda: return 0;
+    lambda: return 0;
 
   # Min. cell voltage
   - platform: template
@@ -339,6 +370,10 @@ sensor:
     on_value:
       then:
         - component.update: bms${bms_id}_imbalance
+    filters:
+      - throttle_average: 20s
+      - round: 3
+      - delta: 0.0015
 
   # Min. voltage cell: Only with InterCAN enabled
   - platform: template
@@ -347,8 +382,7 @@ sensor:
     id: bms${bms_id}_min_voltage_cell
     device_id: bms_${bms_id}
     name: "cell voltage min cell number"
-    filters:
-      - lambda: return 0;
+    lambda: return 0;
 
   # Min. temperature
   - platform: template
@@ -358,18 +392,26 @@ sensor:
     unit_of_measurement: '°C'
     device_class: 'temperature'
     state_class: 'measurement'
-    accuracy_decimals: 1
+    accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
+      - median:
+          window_size: 25
+          send_every: 12
+          send_first_at: 3
+      - delta: 0.5
 
   # Min. temperature sensor (fixed)
   - platform: template
     id: bms${bms_id}_min_temperature_sensor
     device_id: bms_${bms_id}
     name: "min temperature sensor"
-    update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
     lambda: |-
       return (1 + ${bms_id} * 100 + ${deye_module_id}1);
+    filters:
+      - throttle: ${bms_update_interval}
 
   # Max. temperature
   - platform: template
@@ -379,22 +421,31 @@ sensor:
     unit_of_measurement: '°C'
     device_class: 'temperature'
     state_class: 'measurement'
-    accuracy_decimals: 1
-
+    accuracy_decimals: 0
+    filters:
+      - throttle: ${bms_update_interval}
+      - median:
+          window_size: 25
+          send_every: 12
+          send_first_at: 3
+      - delta: 0.5
+  
   # Max. temperature sensor (fixed)
   - platform: template
     id: bms${bms_id}_max_temperature_sensor
     device_id: bms_${bms_id}
     name: "max temperature sensor"
-    update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     icon: mdi:numeric
     lambda: |-
       return (1 + ${bms_id} * 100 + ${deye_module_id}1);
+    filters:
+      - throttle: ${bms_update_interval}
 
   # Cell OVP: Unsupported
   - platform: template
     unit_of_measurement: 'V'
+    device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
     id: bms${bms_id}_cell_ovp
@@ -406,6 +457,7 @@ sensor:
   # Cell UVP: Unsupported
   - platform: template
     unit_of_measurement: 'V'
+    device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
     id: bms${bms_id}_cell_uvp
@@ -417,6 +469,7 @@ sensor:
   # Cell balance trigger voltage: Unsupported
   - platform: template
     unit_of_measurement: 'V'
+    device_class: 'voltage'
     state_class: 'measurement'
     accuracy_decimals: 2
     id: bms${bms_id}_bms_balance_trigger_voltage
@@ -445,6 +498,8 @@ sensor:
     accuracy_decimals: 0
     lambda: |-
       return ((id(bms${bms_id}_max_cell_voltage).state - id(bms${bms_id}_min_cell_voltage).state)) * 1000;
+    filters:
+      - throttle_average: ${bms_update_interval}
 
   - platform: template
     name: "charged"
@@ -453,9 +508,10 @@ sensor:
     unit_of_measurement: 'kWh'
     device_class: 'energy'
     state_class: 'total_increasing'
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-      - throttle: 1s
+      - round: 1
+      - throttle: ${bms_update_interval}
 
   - platform: template
     name: "discharged"
@@ -464,9 +520,10 @@ sensor:
     unit_of_measurement: 'kWh'
     device_class: 'energy'
     state_class: 'total_increasing'
-    accuracy_decimals: 3
+    accuracy_decimals: 1
     filters:
-      - throttle: 1s
+      - round: 1
+      - throttle: ${bms_update_interval}
 
 text_sensor:
   - platform: template

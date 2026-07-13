@@ -1,5 +1,5 @@
-# Updated : 2026.02.18
-# Version : 1.2.0
+# Updated : 2026.06.28
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -162,54 +162,10 @@ light:
 # +--------------------------------------+
 # | Display (LCD 800×480)                |
 # +--------------------------------------+
+
 display:
-  - platform: rpi_dpi_rgb
+  - platform: mipi_rgb
     id: my_display
-    auto_clear_enabled: false
+    model: ESP32-S3-TOUCH-LCD-7-800X480
     update_interval: never
-    color_order: RGB
-    pclk_frequency: 14MHz
-    dimensions:
-      width: 800
-      height: 480
-    de_pin:
-      number: 5
-    reset_pin:
-      ch422g: ch422g_hub
-      number: 3
-    # enable_pin:
-    #   ch422g: ch422g_hub
-    #   number: 2
-    hsync_pin:
-      number: 46
-      ignore_strapping_warning: true
-    vsync_pin:
-      number: 3
-      ignore_strapping_warning: true
-    pclk_pin: 7
-    hsync_back_porch: 10  # 30
-    hsync_front_porch: 20 # 210
-    hsync_pulse_width: 10 # 30
-    vsync_back_porch: 10  # 4
-    vsync_front_porch: 10 # 4
-    vsync_pulse_width: 10 # 4
-    data_pins:
-      red:
-        - 1         #r3
-        - 2         #r4
-        - 42        #r5
-        - 41        #r6
-        - 40        #r7
-      blue:
-        - 14        #b3
-        - 38        #b4
-        - 18        #b5
-        - 17        #b6
-        - 10        #b7
-      green:
-        - 39        #g2
-        - 0         #g3
-        - 45        #g4
-        - 48        #g5
-        - 47        #g6
-        - 21        #g7
+    auto_clear_enabled: false
