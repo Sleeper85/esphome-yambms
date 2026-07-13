@@ -97,13 +97,14 @@ number:
     icon: mdi:current-dc
 
   # Curve shape: 1=linear, >1=quicker drop then longer tail
+  # Range a bit past "sensible" so the HA curve chart can demo extremes (~0.3 late cliff, ~2.5 early cliff)
   - platform: template
     id: yambms${yambms_id}_number_auto_ccl_ct_curve_exp
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Curve Exp"
-    min_value: 0.8
-    max_value: 1.2
-    step: 0.05
+    min_value: 0.5
+    max_value: 2.0
+    step: 0.1
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
