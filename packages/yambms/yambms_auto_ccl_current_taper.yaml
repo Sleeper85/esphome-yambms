@@ -54,8 +54,8 @@ number:
     name: "Auto CCL CT Knee Voltage"
     unit_of_measurement: V
     device_class: voltage
-    min_value: 54.2
     max_value: 56.0
+    min_value: 54.2
     step: 0.1
     mode: ${yambms_input_number_mode}
     restore_value: true
@@ -70,8 +70,8 @@ number:
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Knee C-Rate"
     unit_of_measurement: "C"
-    min_value: 0.05
     max_value: 0.5
+    min_value: 0.05
     step: 0.005
     mode: ${yambms_input_number_mode}
     restore_value: true
@@ -86,8 +86,8 @@ number:
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Bulk C-Rate"
     unit_of_measurement: "C"
-    min_value: 0.005
     max_value: 0.1
+    min_value: 0.0
     step: 0.005
     mode: ${yambms_input_number_mode}
     restore_value: true
@@ -102,8 +102,8 @@ number:
     id: yambms${yambms_id}_number_auto_ccl_ct_curve_exp
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Curve Exp"
-    min_value: 0.5
     max_value: 2.0
+    min_value: 0.5
     step: 0.1
     mode: ${yambms_input_number_mode}
     restore_value: true
