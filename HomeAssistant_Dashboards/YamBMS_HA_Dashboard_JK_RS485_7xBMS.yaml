@@ -258,7 +258,7 @@ views:
                 </tr>
                 </table>
           - type: heading
-            heading: YamBMS - 
+            heading: YamBMS - Diagnostic
             heading_style: title
           - type: markdown
             content: |2
