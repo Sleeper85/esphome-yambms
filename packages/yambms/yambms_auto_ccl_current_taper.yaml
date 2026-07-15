@@ -31,10 +31,6 @@
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #--------------------------------------------------------------------------------------------
 
-substitutions:
-  # Post-bulk CCL floor (A). Sudden drop at first bulk touch; non-zero so inverters that ignore 0 A still see a limit.
-  auto_ccl_ct_post_bulk_amps: '2'
-
 esphome:
   on_boot:
     - priority: -100.0
@@ -98,6 +94,23 @@ number:
     restore_value: true
     optimistic: true
     initial_value: 0.03
+    entity_category: config
+    icon: mdi:current-dc
+
+  # Post-bulk CCL floor (A). Sudden drop at first bulk touch; non-zero so inverters that ignore 0 A still see a limit.
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_post_bulk_a
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Post Bulk Amps"
+    unit_of_measurement: A
+    device_class: current
+    min_value: 0
+    max_value: 50
+    step: 1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 2
     entity_category: config
     icon: mdi:current-dc
 
@@ -217,7 +230,7 @@ interval:
           const float curve_exp = id(yambms${yambms_id}_number_auto_ccl_ct_curve_exp).state;
           const float I_knee    = cap_ah * knee_c;
           const float I_bulk    = cap_ah * bulk_c;
-          const float I_post    = ${auto_ccl_ct_post_bulk_amps};            // CCL after bulk (hand Cut-Off the win)
+          const float I_post    = id(yambms${yambms_id}_number_auto_ccl_ct_post_bulk_a).state;  // CCL after bulk
           const float V_knee    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;
           const float V_bulk    = id(yambms${yambms_id}_bulk_voltage).state;
           // Prefer SMA pack V; fall back to raw until the filter has a sample
