@@ -164,6 +164,7 @@ Configuration options:
 - `Auto CCL CT Knee Voltage`: Pack voltage where tapering starts (default `54.4V`).
 - `Auto CCL CT Knee C-Rate`: C-rate at the knee; multiplied by `Battery Capacity` for the starting CCL (default `0.125C`).
 - `Auto CCL CT Bulk C-Rate`: C-rate at bulk (default `0.03C`).
+- 'Auto CCL CT Post-Bulk Amps': Amps after bulk reached (default 2A).
 - `Auto CCL CT Curve Exp`: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (default `1.0`).
 
 Diagnostic sensors:
