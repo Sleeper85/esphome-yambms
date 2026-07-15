@@ -392,6 +392,8 @@ views:
             name: Bulk C-Rate
           - entity: sensor.yambms_demo_auto_ccl_ct_bulk_amps
             name: Bulk Amps
+          - entity: number.yambms_auto_ccl_ct_post_bulk_amps
+            name: Post-bulk Amps
           - entity: number.yambms_demo_auto_ccl_ct_curve_exp
             name: Curve Exponent
           - type: weblink
