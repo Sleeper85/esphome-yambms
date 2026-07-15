@@ -426,6 +426,49 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ![Image](../../images/YamBMS_CANBUS_Status.png "YamBMS_CANBUS_Status")
 
+## Auto CCL Current Taper
+
+When to use: Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and stays from rising much above it.
+
+For undershoot, raise `Inverter Offset V.` enough that the inverter keeps charging until pack voltage can reach bulk. Current Taper then limits current so voltage does not climb past bulk once you get there.
+
+This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage (default `54.4V`) to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero.
+
+By default the taper is linear with pack voltage. `Auto CCL CT Curve Exp` changes the shape: higher values taper faster early and leave a longer tail; lower values delay the taper and drop more sharply near bulk. Linear or near-linear usually works best.
+
+> [!IMPORTANT]
+> Unlike stock `Auto CCL` (max cell vs BMS `OVP`), Current Taper uses **pack voltage** vs a user knee and YamBMS `Bulk voltage`.
+
+Behaviour:
+
+1. Below `Auto CCL CT Knee Voltage`: no reduction (inactive).
+2. From knee to bulk: CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
+3. At first bulk touch: CCL drops to `Auto CCL CT Post Bulk Amps` (default `2A`) so charging does not keep pushing past bulk; a non-zero floor is used because some inverters ignore `0A`.
+4. After `Cut-Off` / EOC: CCL goes to `0A`.
+5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
+
+Configuration options:
+
+- `Auto CCL CT`: Enables or disables the function.
+- `Auto CCL CT Knee Voltage`: Pack voltage where tapering starts (default `54.4V`).
+- `Auto CCL CT Knee C-Rate`: C-rate at the knee; multiplied by `Battery Capacity` for the starting CCL (default `0.125C`).
+- `Auto CCL CT Bulk C-Rate`: C-rate at bulk (default `0.03C`).
+- `Auto CCL CT Post Bulk Amps`: CCL after first bulk touch (default `2A`).
+- `Auto CCL CT Curve Exp`: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (default `1.0`).
+
+Diagnostic sensors:
+
+- `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
+- `Auto CCL CT Knee Amps` / `Auto CCL CT Bulk Amps`: Capacity × C-rate targets.
+- `Auto CCL CT Delta`: Pipeline reduction applied (≤ `0A`).
+
+Notes:
+
+- Requires a correct `Battery Capacity`.
+- Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
+- Pair with `Inverter Offset V.` when the inverter undershoots bulk without an offset. If you taper CCL toward near zero, an offset is usually needed as well.
+- If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
+
 ## Diagnostic
 
 Useful information for troubleshooting.
