@@ -81,15 +81,28 @@ Currently only available for a resolution of **800x480**.
 
 The display can retrieve information in two different ways :
 
-* **HA version (recommended)**: LVGL code executed on a **standalone node*** with informations coming from `Home Assistant` (only requires a WiFi connection)
-  * Example => [YamBMS_RP_HA_Display.yaml](YamBMS_RP_HA_Display.yaml)
-* **ESPHome version**: LVGL code executed on the **YamBMS node***
-  * Package to be imported => [board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml](packages/board/board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml)
+| HA version (recommended) | ESPHome version |
+| --- | --- |
+| LVGL code executed on a **standalone MCU*** with informations coming from `Home Assistant` (only requires a WiFi connection). This does not overload your **YamBMS MCU***, which already has enough work to do. **Use this YAML =>** [YamBMS_RP_HA_Display.yaml](YamBMS_RP_HA_Display.yaml) | LVGL code executed on the **YamBMS MCU***. In this case, in addition to merging the datas from the `BMS`/`Balancer`/`Shunt` and managing communication with your `inverter`/`charger`, your **YamBMS MCU*** will be overloaded with executing the LVGL display. |
 
+_MCU = an ESP32 / ESP32-S3 / ESP32-P4 / ..._
+
+### YamBMS display
+
+* HA version => [board_options_display_lvgl_package_800x480_blue_navy_ha_yambms.yaml](packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_yambms.yaml)
+* ESPHome version => [board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml](packages/board/board_options_display_lvgl_package_800x480_blue_navy_esphome.yaml)
 
 ![Image](images/YamBMS_Display.png "YamBMS Display")
 
-_node = an ESP32 / ESP32-S3 / ESP32-P4 / ..._
+### YamBMS + Overview display
+
+> [!IMPORTANT]
+> You will need to provide datas (non-YamBMS sensors) coming from your `inverter` / `charger`.
+
+* HA version => [board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml](packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml)
+
+
+![Image](images/YamBMS_Display_Overview.png "YamBMS Display Overview")
 
 ## Hardware highlighted
 
