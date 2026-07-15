@@ -405,6 +405,34 @@ views:
             name: Automatic Charge Current
           - entity: switch.yambms_1_automatic_discharge_current
             name: Automatic Discharge Current
+
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: YamBMS Auto CCL - Current Taper
+            show_header_toggle: false
+            entities:
+              - entity: switch.yambms_1_auto_ccl_ct
+                name: Current Taper
+              - entity: number.yambms_1_auto_ccl_ct_knee_voltage
+                name: Knee Voltage
+              - entity: number.yambms_1_auto_ccl_ct_knee_c_rate
+                name: Knee C-Rate
+              - entity: sensor.yambms_1_auto_ccl_ct_knee_amps
+                name: Knee Amps
+              - entity: number.yambms_1_auto_ccl_ct_bulk_c_rate
+                name: Bulk C-Rate
+              - entity: sensor.yambms_1_auto_ccl_ct_bulk_amps
+                name: Bulk Amps
+              - entity: number.yambms_1_auto_ccl_ct_curve_exp
+                name: Curve Exponent
+              - type: weblink
+                name: Auto CCL Current Taper docs
+                url: https://github.com/Sleeper85/esphome-yambms/blob/dev/documents/README/YamBMS_functions.md#auto-ccl-current-taper
+                icon: mdi:book-open-page-variant
+                new_tab: true        
+
+        
         title: YamBMS - Auto CCL / DCL
         show_header_toggle: false
       - type: entities
