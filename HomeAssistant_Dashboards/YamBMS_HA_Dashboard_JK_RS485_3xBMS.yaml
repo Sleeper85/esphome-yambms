@@ -537,10 +537,10 @@ views:
           - entity: number.yambms_1_auto_ccl_ct_curve_exp
             name: Curve Exponent
           - type: weblink
-            name: Auto CCL Current Taper docs
-            url: https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper
-            icon: mdi:book-open-page-variant
-            new_tab: true
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper
+            name: README
+            icon: mdi:book-open-variant
   - title: Diagnostic
     cards:
       - type: entity-filter
