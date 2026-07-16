@@ -22,7 +22,7 @@
 #
 # Purpose:
 #   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
-#   to post-bulk amps so Cut-Off can complete (CVL is not trusted). Zero after cutoff (var_eoc).
+#   to balance current. Zero after EOC (var_eoc).
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
@@ -97,11 +97,11 @@ number:
     entity_category: config
     icon: mdi:current-dc
 
-  # Post-bulk CCL floor (A). Sudden drop at first bulk touch; non-zero so inverters that ignore 0 A still see a limit.
+  # Balance current (A) while latched at bulk. Non-zero so inverters that ignore 0 A still see a limit.
   - platform: template
-    id: yambms${yambms_id}_number_auto_ccl_ct_post_bulk_a
+    id: yambms${yambms_id}_number_auto_ccl_ct_balance_a
     device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Post Bulk Amps"
+    name: "Auto CCL CT Balance Current"
     unit_of_measurement: A
     device_class: current
     min_value: 0
@@ -230,7 +230,7 @@ interval:
           const float curve_exp = id(yambms${yambms_id}_number_auto_ccl_ct_curve_exp).state;
           const float I_knee    = cap_ah * knee_c;
           const float I_bulk    = cap_ah * bulk_c;
-          const float I_post    = id(yambms${yambms_id}_number_auto_ccl_ct_post_bulk_a).state;  // CCL after bulk
+          const float I_balance = id(yambms${yambms_id}_number_auto_ccl_ct_balance_a).state;  // CCL while latched at bulk
           const float V_knee    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;
           const float V_bulk    = id(yambms${yambms_id}_bulk_voltage).state;
           // Prefer SMA pack V; fall back to raw until the filter has a sample
@@ -254,7 +254,7 @@ interval:
             active = false;
             bulk_latched = false;
           } else if (active && !bulk_latched && V_pack >= V_bulk) {
-            bulk_latched = true;                                            // sudden drop to I_post
+            bulk_latched = true;                                            // sudden drop to I_balance
           }
 
           //--------------------------------------------------------------------
@@ -262,9 +262,9 @@ interval:
           //--------------------------------------------------------------------
           if (active) {
             if (eoc_done) {
-              I_target = 0.0f;                                              // cutoff complete
+              I_target = 0.0f;                                              // EOC → CCL = 0
             } else if (bulk_latched) {
-              I_target = I_post;                                            // post-bulk floor (not 0 — some inverters ignore 0 A)
+              I_target = I_balance;                                         // at bulk → balance current
             } else {
               float p = (V_pack - V_knee) / (V_bulk - V_knee);              // 0 at knee → 1 at bulk
               p = fmaxf(0.0f, fminf(p, 1.0f));                              // below knee (hyst band): hold I_anchor
