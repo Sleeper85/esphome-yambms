@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.2.0
+# Updated : 2026.07.14
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,10 +22,13 @@ substitutions:
   # | Use the settings below with caution  |
   # +--------------------------------------+
   # Alpha value for the exponential moving average filter.
-  required_charge_current_alpha: '0.25'
+  # The required charge current is now smoothed at the source by coulomb counting
+  # (see the interval lambda), so this output filter can be relaxed for a faster
+  # response. Increase the delay / lower the alpha again if the current still fluctuates.
+  required_charge_current_alpha: '0.5'
   # Filter delay in minutes. The charge current will not be updated more often than this value.
   # This is to prevent the charge current from fluctuating too much.
-  required_charge_current_filter_delay: '3'
+  required_charge_current_filter_delay: '2'
 
 esphome:
   on_boot:
@@ -125,7 +128,11 @@ number:
     device_id: yambms_yambms${yambms_id}
     step: 1
     min_value: 50
-    max_value: 100
+    # Limited to 98% because the published Battery SoC is clamped to 98% until end-of-charge
+    # (see the SoC manipulation in yambms_core.yaml). A threshold of 99-100% would therefore
+    # never be reached before end-of-charge, so this stop condition would silently never
+    # trigger. Capping at 98% keeps the behaviour equal for BMS and shunt based SoC.
+    max_value: 98
     restore_value: true
     mode: "${yambms_input_number_mode}"
     initial_value: 97
@@ -238,14 +245,6 @@ interval:
           // Calculate hours left until target time
           const float hours_left = (target_time.timestamp - current_time.timestamp) / 3600.0;
 
-          if (hours_left <= 0) {
-            id(yambms${yambms_id}_var_auto_eoc) = 0;
-            id(yambms${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
-            id(yambms${yambms_id}_auto_eoc_status).publish_state("Stop: Target time passed");
-            id(yambms${yambms_id}_var_charge_current_step)++;
-            return;
-          }
-
           // Check if we stop increasing the charge current
           bool stop_increasing = false;
           if (id(yambms${yambms_id}_battery_soc).has_state() && (id(yambms${yambms_id}_battery_soc).state >= id(yambms${yambms_id}_auto_eoc_stop_soc).state)) {
@@ -254,6 +253,32 @@ interval:
           } else if (hours_left <= id(yambms${yambms_id}_auto_eoc_stop_hours).state) {
             ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, hours left is below threshold");
             stop_increasing = true;
+          }
+
+          // Determine if there is a previously limited current we can hold onto. This is used to
+          // keep charging gently instead of releasing the limit (which spikes the current to
+          // maximum) once the model has nothing left to compute.
+          const bool has_hold_current =
+              id(yambms${yambms_id}_auto_eoc_charging_current_filtered).has_state() &&
+              !std::isnan(id(yambms${yambms_id}_auto_eoc_charging_current_filtered).state) &&
+              (id(yambms${yambms_id}_auto_eoc_charging_current_filtered).state > 0.0f);
+
+          // Check if the time is up
+          bool grace_period = false;
+          if (hours_left <= 0) {
+            // Time is up. Allow a one hour grace period during which the last limited current is
+            // held, so a battery that has not quite finished charges gently instead of spiking to
+            // maximum. If more than one hour has passed, or there is no current to hold, we stop.
+            if ((hours_left < -1.0) || !has_hold_current) {
+              id(yambms${yambms_id}_var_auto_eoc) = 0;
+              id(yambms${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
+              id(yambms${yambms_id}_auto_eoc_status).publish_state("Stop: Target time passed");
+              id(yambms${yambms_id}_var_charge_current_step)++;
+              return;
+            } else {
+              grace_period = true;
+              ESP_LOGD("yambms_auto_eoc", "Target time passed, holding current for grace period");
+            }
           }
 
           // Get battery capacity
@@ -276,8 +301,35 @@ interval:
             }
           }
 
+          // +-----------------------------------------------+
+          // | Smooth capacity_remaining (coulomb counting)  |
+          // +-----------------------------------------------+
+          // The BMS reports remaining capacity in ~1% SoC steps, which makes the required charge
+          // current sawtooth: the numerator (capacity_required) is flat between steps while
+          // hours_left keeps shrinking, so the current ramps up and then drops at each 1% tick.
+          // Integrate the measured charge current between BMS steps to interpolate a smooth
+          // remaining capacity, bounded to one reporting step above the BMS value so the estimate
+          // can never drift more than ~1% from the truth.
+          const float bms_remaining      = id(yambms${yambms_id}_battery_capacity_remaining).state;
+          const float nameplate_capacity = id(yambms${yambms_id}_battery_capacity).state;
+          static float    est_remaining = NAN;
+          static uint32_t est_last_ms   = 0;
+
+          const float est_dt_h = (current_ms - est_last_ms) / 3600000.0f;
+          if (std::isnan(est_remaining) || (est_remaining < bms_remaining) || (est_dt_h > 0.05f)) {
+            // First run, BMS advanced past our estimate, or a long gap (disabled/float): re-anchor.
+            est_remaining = bms_remaining;
+          } else {
+            const float meas_current = id(yambms${yambms_id}_current).has_state()
+                ? id(yambms${yambms_id}_current).state : 0.0f;
+            if (meas_current > 0.0f) est_remaining += meas_current * est_dt_h;
+            const float step = nameplate_capacity / 100.0f;   // one ~1% reporting step
+            if (est_remaining > bms_remaining + step) est_remaining = bms_remaining + step;
+          }
+          est_last_ms = current_ms;
+
           // Calculate missing capacity
-          auto capacity_required = battery_capacity - id(yambms${yambms_id}_battery_capacity_remaining).state;
+          auto capacity_required = battery_capacity - est_remaining;
           if (capacity_required < 0) {
             capacity_required = 0;
           }
@@ -290,17 +342,33 @@ interval:
 
           float charge_current = round(id(yambms${yambms_id}_max_charge_current).state + auto_limit);
 
-          // Calculate required charge current
-          float required_charge_current = capacity_required / hours_left;
+          // Decide whether to hold the last limited current instead of computing a new target.
+          // This applies during the grace period (target time passed, hours_left is negative) and
+          // when the battery has already reached the target capacity (nothing left to add). In both
+          // cases deriving the current from the model yields zero/negative and would release the
+          // limit, spiking the current to maximum, so we hold the last filtered value instead.
+          const bool hold_current = grace_period || (capacity_required <= 0.0f);
 
-          // Apply charge current correction factor
-          const float correction_factor = (id(yambms${yambms_id}_auto_eoc_correction).state / 100.0) + 1.0;
-          required_charge_current *= correction_factor;
+          float required_charge_current;
+          if (hold_current) {
+            required_charge_current = has_hold_current
+                ? id(yambms${yambms_id}_auto_eoc_charging_current_filtered).state
+                : 0.0f;
+          } else {
+            required_charge_current = capacity_required / hours_left;
 
-          // If the required charge current higher than the maximum charge current, return 0 to indicate
-          // that there is no solution
+            // Apply charge current correction factor
+            const float correction_factor = (id(yambms${yambms_id}_auto_eoc_correction).state / 100.0) + 1.0;
+            required_charge_current *= correction_factor;
+          }
+
+          // If the required charge current is higher than the maximum charge current there is no
+          // solution, so release the limit and charge at maximum to catch up. But only do this while
+          // we are still allowed to increase the current: once stop_increasing is active (near the
+          // target time or high SoC) the required current explodes as hours_left approaches 0, and
+          // releasing here would spike the current to maximum. In that case we hold instead (below).
           float return_value = 0;
-          if (required_charge_current >= charge_current) {
+          if ((required_charge_current >= charge_current) && !stop_increasing) {
             required_charge_current = 0;
             return_value = NAN;
             id(yambms${yambms_id}_auto_eoc_status).publish_state("Stop: Current above limit");
@@ -312,21 +380,33 @@ interval:
             if (id(yambms${yambms_id}_auto_eoc_charging_current_filtered).has_state()) {
               const float filtered_charge_current = id(yambms${yambms_id}_auto_eoc_charging_current_filtered).state;
 
+              std::string status_string;
               // Check if current is increasing and we should stop
               if (stop_increasing && (required_charge_current > filtered_charge_current)) {
                 // Return previous filtered charge current
                 return_value = filtered_charge_current;
-                id(yambms${yambms_id}_auto_eoc_status).publish_state("Run: Current increase stopped");
+                status_string = "Run: Current increase stopped";
               } else if (auto_soc_limit) {
                 // Update status to running with Auto SoC Limit
-                id(yambms${yambms_id}_auto_eoc_status).publish_state("Run: Auto SoC Limit " + std::to_string(auto_soc_limit) + "%");
+                status_string = "Run: Auto SoC Limit " + std::to_string(auto_soc_limit) + "%";
               } else {
                 // Update status to running
-                id(yambms${yambms_id}_auto_eoc_status).publish_state("Run");
+                status_string = "Run";
               }
+
+              if (grace_period) {
+                status_string += " (Grace period)";
+              }
+              id(yambms${yambms_id}_auto_eoc_status).publish_state(status_string);
 
               // Use filtered charge current for calculations
               required_charge_current = filtered_charge_current;
+            } else if (required_charge_current >= charge_current) {
+              // No filtered value to hold onto and no solution: release the limit cleanly
+              // instead of feeding an out-of-range value into the filter.
+              required_charge_current = 0;
+              return_value = NAN;
+              id(yambms${yambms_id}_auto_eoc_status).publish_state("Stop: Current above limit");
             }
           }
 
