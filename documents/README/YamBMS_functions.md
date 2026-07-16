@@ -443,8 +443,8 @@ Behaviour:
 
 1. Below `Auto CCL CT Knee Voltage`: no reduction (inactive).
 2. From knee to bulk: CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
-3. At first bulk touch: CCL drops to `Auto CCL CT Post Bulk Amps` (default `2A`) so charging does not keep pushing past bulk; a non-zero floor is used because some inverters ignore `0A`.
-4. After `Cut-Off` / EOC: CCL goes to `0A`.
+3. At first bulk touch: CCL drops to `Auto CCL CT Balance Current` (default `2A`) and holds there so pack voltage does not keep climbing; a non-zero value is used because some inverters ignore `0A`.
+4. After EOC (`var_eoc`): CCL goes to `0A`.
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 Configuration options:
@@ -453,7 +453,7 @@ Configuration options:
 - `Auto CCL CT Knee Voltage`: Pack voltage where tapering starts (default `54.4V`).
 - `Auto CCL CT Knee C-Rate`: C-rate at the knee; multiplied by `Battery Capacity` for the starting CCL (default `0.125C`).
 - `Auto CCL CT Bulk C-Rate`: C-rate at bulk (default `0.03C`).
-- `Auto CCL CT Post Bulk Amps`: CCL after first bulk touch (default `2A`).
+- `Auto CCL CT Balance Current`: CCL while latched at bulk (default `2A`).
 - `Auto CCL CT Curve Exp`: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (default `1.0`).
 
 Diagnostic sensors:
