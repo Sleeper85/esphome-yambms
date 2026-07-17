@@ -449,20 +449,37 @@ Behaviour:
 
 If `Knee Voltage` is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
 
+### Simulate Equalizing
+
+Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open for cell balancing. Current Taper can optionally **simulate Equalizing** using the standard BMS external-balancer override on `bms${yambms_ct_eq_bms_id}` (default BMS `1`):
+
+1. `Auto CCL CT Sim Equalizing`: when pack voltage reaches `Bulk − Sim Eq Offset` (default `0.05V`), assert Equalizing for `Sim Eq Hold` minutes (default `15`). Re-arms after voltage falls `0.05V` below that threshold.
+2. `Auto CCL CT Force Equalizing`: manual / Home Assistant automation force (e.g. once a week). While on, Equalizing stays asserted.
+
+While simulated Equalizing is active, YamBMS bank **Equalizing state** is true, so Cut-Off holds CVL (cut-off timer paused) the same way it would for a real balancer report. The override is released when inactive so a real external balancer on that BMS is not permanently masked.
+
+> [!NOTE]
+> Keep the **EOC timer** longer than `Sim Eq Hold` (or disable it) if you want the full hold window. This only signals Equalizing — it does not move charge between cells.
+
 Configuration options:
 
-- `Auto CCL CT`: Enables or disables the function.
+- `Auto CCL CT`: Enables or disables the taper function.
 - `Auto CCL CT Knee Voltage`: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
 - `Auto CCL CT Knee C-Rate`: C-rate at the knee; multiplied by `Battery Capacity` for the starting CCL (default `0.125C`).
 - `Auto CCL CT Bulk C-Rate`: C-rate at bulk (default `0.03C`).
 - `Auto CCL CT Balance Current`: CCL while latched at bulk (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
 - `Auto CCL CT Curve Exp`: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (range `0.5`–`2.0`, default `1.0`).
+- `Auto CCL CT Sim Equalizing`: Enables automatic Equalizing near bulk.
+- `Auto CCL CT Force Equalizing`: Forces Equalizing while on (automation-friendly).
+- `Auto CCL CT Sim Eq Offset`: Volts below `Bulk` where auto Equalizing starts (default `0.05V`).
+- `Auto CCL CT Sim Eq Hold`: Minutes to hold auto Equalizing (default `15`).
 
 Diagnostic sensors:
 
 - `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
 - `Auto CCL CT Knee Amps` / `Auto CCL CT Bulk Amps`: Capacity × C-rate targets.
 - `Auto CCL CT Delta`: Pipeline reduction applied (≤ `0A`).
+- `Auto CCL CT Sim Eq Active`: True while simulated / forced Equalizing is asserted.
 
 Notes:
 
@@ -471,6 +488,7 @@ Notes:
 - Pair with `Inverter Offset V.` when the inverter undershoots bulk without an offset. If you taper CCL toward near zero, an offset is usually needed as well.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - With Float enabled: after EOC, Current Taper holds CCL at `0A` while `var_eoc` is true and the session is still active, so Float cannot deliver current until pack voltage falls below `knee − 0.2V`. That is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
+- Optional substitution `yambms_ct_eq_bms_id` (default `1`) selects which BMS receives the Equalizing override.
 
 ## Diagnostic
 

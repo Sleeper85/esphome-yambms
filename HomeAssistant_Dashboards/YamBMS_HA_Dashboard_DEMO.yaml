@@ -471,6 +471,16 @@ views:
             name: Balance Current
           - entity: number.yambms_demo_auto_ccl_ct_curve_exp
             name: Curve Exponent
+          - entity: switch.yambms_demo_auto_ccl_ct_sim_equalizing
+            name: Sim Equalizing
+          - entity: switch.yambms_demo_auto_ccl_ct_force_equalizing
+            name: Force Equalizing
+          - entity: number.yambms_demo_auto_ccl_ct_sim_eq_offset
+            name: Sim Eq Offset
+          - entity: number.yambms_demo_auto_ccl_ct_sim_eq_hold
+            name: Sim Eq Hold
+          - entity: binary_sensor.yambms_demo_auto_ccl_ct_sim_eq_active
+            name: Sim Eq Active
           - type: weblink
             url: >-
               https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper
