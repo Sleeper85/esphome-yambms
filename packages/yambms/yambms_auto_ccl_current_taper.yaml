@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.3.2
+# Version : 1.3.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -44,6 +44,15 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+  # Diagnostic readouts (always defined; 0 when session inactive)
+  - id: yambms${yambms_id}_var_auto_ccl_ct_delta_a
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v
+    type: float
+    restore_value: no
+    initial_value: '0.0'
 
 esphome:
   on_boot:
@@ -52,7 +61,6 @@ esphome:
       then:
         - lambda: |-
             id(yambms${yambms_id}_var_auto_ccl_functions_count)++;   // Registration
-
     # Knee Voltage limits based on cell count and battery chemistry
     # Priority 550 : runs right after the YamBMS chemistry block (600)
     # which sets the var_cell_* globals used below.
@@ -200,16 +208,18 @@ sensor:
           window_size: 10
           send_every: 1
 
+  # CCL reduction in amps (≤ 0 when tapering; 0 when inactive — not a voltage)
   - platform: template
     name: "Auto CCL CT Delta"
     id: yambms${yambms_id}_auto_ccl_ct_delta
     device_id: yambms_yambms${yambms_id}
     unit_of_measurement: A
+    device_class: current
     accuracy_decimals: 0
-    update_interval: never
+    update_interval: ${yambms_update_interval}
     entity_category: diagnostic
     icon: mdi:current-dc
-    lambda: 'return id(yambms${yambms_id}_var_auto_custom_ccl);'
+    lambda: 'return id(yambms${yambms_id}_var_auto_ccl_ct_delta_a);'
 
   # Applied Charging Offset on Bulk CVL (0 or +offset). Diagnostic / custom dashboards — not a config entity.
   - platform: template
@@ -219,10 +229,10 @@ sensor:
     unit_of_measurement: V
     device_class: voltage
     accuracy_decimals: 1
-    update_interval: never
+    update_interval: ${yambms_update_interval}
     entity_category: diagnostic
     icon: mdi:sine-wave
-    lambda: 'return id(yambms${yambms_id}_var_auto_custom_cvl);'
+    lambda: 'return id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v);'
 
   # C-rate × capacity
   - platform: template
@@ -272,6 +282,14 @@ interval:
           const int cc_step = id(yambms${yambms_id}_var_charge_current_step);
           const int n_funcs = id(yambms${yambms_id}_var_auto_ccl_functions_count);
           if (cc_step < 1 || cc_step > n_funcs) {
+            // Not our pipeline turn — still keep diagnostics at 0 when inactive
+            if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state || !active) {
+              active = false;
+              bulk_latched = false;
+              id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
+              id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
+              id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
+            }
             return;
           }
 
@@ -284,8 +302,8 @@ interval:
             id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
-            id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
-            id(yambms${yambms_id}_auto_ccl_ct_cvl_offset).publish_state(0.0f);
+            id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
+            id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -323,8 +341,8 @@ interval:
             id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
-            id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
-            id(yambms${yambms_id}_auto_ccl_ct_cvl_offset).publish_state(0.0f);
+            id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
+            id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -368,10 +386,13 @@ interval:
               I_target = I_end + (I_anchor - I_end) * curve;                // curve ends at I_end at bulk
             }
             delta = fminf(0.0f, I_target - I_max);
+          } else {
+            delta = 0.0f;
+            I_target = I_max;
           }
 
           id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
-          id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
+          id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = delta;
 
           //--------------------------------------------------------------------
           // Bulk CVL: add Charging Offset while active, before bulk
@@ -382,7 +403,7 @@ interval:
             cvl_delta = id(yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v).state;
           }
           id(yambms${yambms_id}_var_auto_custom_cvl) = cvl_delta;
-          id(yambms${yambms_id}_auto_ccl_ct_cvl_offset).publish_state(cvl_delta);
+          id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = cvl_delta;
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;
