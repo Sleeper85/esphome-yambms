@@ -459,10 +459,14 @@ views:
             name: Sim Equalizing
           - entity: switch.sim_equalizing_1_force_equalizing
             name: Force Equalizing
-          - entity: number.sim_equalizing_1_sim_eq_offset
-            name: Sim Eq Offset
-          - entity: number.sim_equalizing_1_sim_eq_hold
-            name: Sim Eq Hold
+          - entity: number.sim_equalizing_1_balance_starting_voltage
+            name: Start Balance V
+          - entity: number.sim_equalizing_1_balance_sleep_voltage
+            name: Stop Balance V
+          - entity: number.sim_equalizing_1_balance_trigger_voltage
+            name: Start Delta V
+          - entity: number.sim_equalizing_1_balance_stop_diff_voltage
+            name: Stop Delta V
           - entity: binary_sensor.sim_equalizing_1_sim_eq_active
             name: Sim Eq Active
           - type: weblink

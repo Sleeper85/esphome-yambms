@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.0.3
+# Version : 1.1.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,9 +21,10 @@
 # Simulate Equalizing (virtual balancer)
 #
 # Purpose:
-#   Assert YamBMS Equalizing via the BMS external-balancer override so Cut-Off holds
-#   CVL while cells balance. Cooperates with a real balancer on the same bms_id:
-#   Equalizing = (real balancer balancing) OR (sim auto/force).
+#   Infer Equalizing for a BMS that balances but never reports a balancing flag.
+#   Uses the same threshold names as Enerkey/Heltec/JK balancers, driven by this
+#   BMS's max/min cell voltage. Cooperates with a real balancer on the same bms_id:
+#   Equalizing = (real balancer balancing) OR (inferred / force).
 #
 # Include (one BMS id — YamBMS BMS ids start at 1):
 #   sim_equalizing: !include
@@ -32,8 +33,10 @@
 #       bms_id: '1'
 #       sim_eq_name: 'Sim Equalizing 1'
 #
-# Requires balancer${bms_id}_equalizing and balancer${bms_id}_online_status
-# (from Enerkey/Heltec/modbus balancer package, or balancer_equalizing_stub.yaml).
+# Requires:
+#   - bms${bms_id}_max_cell_voltage / _min_cell_voltage
+#   - balancer${bms_id}_equalizing and balancer${bms_id}_online_status
+#     (Enerkey/Heltec/modbus balancer package, or balancer_equalizing_stub.yaml)
 #
 # IDs use sim_eq_${bms_id} / sim_eq${bms_id}_* so they do not collide with
 # balancer_${bms_id} used by real balancer packages.
@@ -41,6 +44,7 @@
 # Contract:
 #   - Merges into: bms${bms_id}_var_ext_balancer_online / _equalizing every tick
 #   - Never clears online/equalizing out from under a live real balancer
+#   - Charge-end ceiling while Equalizing holds Cut-Off open: YamBMS EOC timer
 #--------------------------------------------------------------------------------------------
 
 esphome:
@@ -49,7 +53,7 @@ esphome:
       name: "${sim_eq_name}"
 
 switch:
-  # Auto: assert Equalizing when pack reaches Bulk − offset, hold for N minutes
+  # Auto: infer Equalizing from this BMS's cell voltage + delta vs thresholds
   - platform: template
     id: sim_eq${bms_id}_switch_sim_eq
     device_id: sim_eq_${bms_id}
@@ -68,36 +72,73 @@ switch:
     entity_category: config
 
 number:
+  # Enter when max cell >= this (Enerkey: Balance Starting Voltage)
   - platform: template
-    id: sim_eq${bms_id}_number_sim_eq_offset_v
+    id: sim_eq${bms_id}_balance_starting_voltage
     device_id: sim_eq_${bms_id}
-    name: "Sim Eq Offset"
+    name: "Balance Starting Voltage"
     unit_of_measurement: V
     device_class: voltage
-    min_value: 0.0
-    max_value: 0.5
-    step: 0.01
+    min_value: 2.0
+    max_value: 4.5
+    step: 0.001
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 0.05
+    initial_value: 3.400
+    entity_category: config
+    icon: mdi:battery-arrow-up
+
+  # Exit when max cell < this (Enerkey: Balance Sleep Voltage)
+  - platform: template
+    id: sim_eq${bms_id}_balance_sleep_voltage
+    device_id: sim_eq_${bms_id}
+    name: "Balance Sleep Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 2.0
+    max_value: 4.5
+    step: 0.001
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 3.200
+    entity_category: config
+    icon: mdi:battery-arrow-down
+
+  # Enter when (max − min) >= this (Enerkey: Balance Trigger Voltage)
+  - platform: template
+    id: sim_eq${bms_id}_balance_trigger_voltage
+    device_id: sim_eq_${bms_id}
+    name: "Balance Trigger Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0.001
+    max_value: 0.500
+    step: 0.001
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.015
     entity_category: config
     icon: mdi:delta
 
+  # Exit when (max − min) <= this (Enerkey: Balance Stop Diff Voltage)
   - platform: template
-    id: sim_eq${bms_id}_number_sim_eq_hold_min
+    id: sim_eq${bms_id}_balance_stop_diff_voltage
     device_id: sim_eq_${bms_id}
-    name: "Sim Eq Hold"
-    unit_of_measurement: min
-    min_value: 1
-    max_value: 120
-    step: 1
+    name: "Balance Stop Diff Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0.001
+    max_value: 0.500
+    step: 0.001
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 15
+    initial_value: 0.005
     entity_category: config
-    icon: mdi:timer-outline
+    icon: mdi:delta
 
 binary_sensor:
   - platform: template
@@ -111,19 +152,17 @@ interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
-          static bool auto_active = false;
-          static bool armed = true;          // re-arm after voltage falls below threshold
-          static uint32_t t0 = 0;
+          static bool inferred = false;
 
           const bool sim_en = id(sim_eq${bms_id}_switch_sim_eq).state;
           const bool force  = id(sim_eq${bms_id}_switch_force_eq).state;
-          const float V_pack = id(yambms${yambms_id}_total_voltage).state;
-          const float V_bulk = id(yambms${yambms_id}_bulk_voltage).state;
-          const float offset = id(sim_eq${bms_id}_number_sim_eq_offset_v).state;
-          const uint32_t hold_ms =
-              (uint32_t)(id(sim_eq${bms_id}_number_sim_eq_hold_min).state * 60000.0f);
-          const float thresh = V_bulk - offset;
-          constexpr float rearm_hyst = 0.05f;
+
+          const float max_cell = id(bms${bms_id}_max_cell_voltage).state;
+          const float min_cell = id(bms${bms_id}_min_cell_voltage).state;
+          const float start_v  = id(sim_eq${bms_id}_balance_starting_voltage).state;
+          const float sleep_v  = id(sim_eq${bms_id}_balance_sleep_voltage).state;
+          const float trig_v   = id(sim_eq${bms_id}_balance_trigger_voltage).state;
+          const float stop_dv  = id(sim_eq${bms_id}_balance_stop_diff_voltage).state;
 
           // Real balancer on this bms_id (Enerkey/Heltec/modbus client, or stub)
           const bool real_online = id(balancer${bms_id}_online_status).has_state()
@@ -131,22 +170,20 @@ interval:
           const bool real_eq = id(balancer${bms_id}_equalizing).has_state()
               && id(balancer${bms_id}_equalizing).state;
 
-          if (sim_en) {
-            if (armed && !isnan(V_pack) && !isnan(V_bulk) && (V_pack >= thresh)) {
-              auto_active = true;
-              armed = false;
-              t0 = millis();
+          if (!sim_en) {
+            inferred = false;
+          } else if (!isnan(max_cell) && !isnan(min_cell)) {
+            const float delta = max_cell - min_cell;
+            if (!inferred) {
+              if ((max_cell >= start_v) && (delta >= trig_v))
+                inferred = true;
+            } else {
+              if ((max_cell < sleep_v) || (delta <= stop_dv))
+                inferred = false;
             }
-            if (auto_active && ((millis() - t0) >= hold_ms))
-              auto_active = false;
-            if (!auto_active && !isnan(V_pack) && (V_pack < (thresh - rearm_hyst)))
-              armed = true;
-          } else {
-            auto_active = false;
-            armed = true;
           }
 
-          const bool sim_eq = force || auto_active;
+          const bool sim_eq = force || inferred;
           const bool want_eq = sim_eq || real_eq;
 
           // Merge: keep override path alive if real balancer is online OR sim wants eq

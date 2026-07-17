@@ -428,13 +428,13 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ## Simulate Equalizing
 
-Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open for cell balancing. This optional package acts as a **virtual balancer** and asserts Equalizing through the standard BMS external-balancer override. It **cooperates** with a real balancer (Enerkey / Heltec / modbus client) on the same `bms_id`:
+Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open while cells balance. This optional package **infers** Equalizing from that BMS's max/min cell voltage using the same threshold names as Enerkey / Heltec / JK balancers. It **cooperates** with a real balancer on the same `bms_id`:
 
-`Equalizing = (real balancer balancing) OR (sim auto / force)`
+`Equalizing = (real balancer balancing) OR (inferred) OR (force)`
 
 Package: `packages/balancer/balancer_simulate_equalizing.yaml`
 
-Requires `balancer${bms_id}_equalizing` and `balancer${bms_id}_online_status` from a real balancer package, or the stub below if you have no hardware balancer on that BMS.
+Requires `bms${bms_id}_max_cell_voltage` / `_min_cell_voltage`, plus `balancer${bms_id}_equalizing` and `_online_status` from a real balancer package (or `balancer_equalizing_stub.yaml`).
 
 ```YAML
 packages:
@@ -446,7 +446,7 @@ packages:
   sim_equalizing: !include
     file: packages/balancer/balancer_simulate_equalizing.yaml
     vars:
-      bms_id: '1'                        # which BMS override to drive
+      bms_id: '1'                        # which BMS cells + override to drive
       sim_eq_name: 'Sim Equalizing 1'    # HA device name (uses sim_eq_1_* ids)
 
   # Only if there is NO real balancer package for this bms_id:
@@ -457,29 +457,31 @@ packages:
   #     balancer_name: 'Balancer Stub 1'
 ```
 
-Uses its own `sim_eq_${bms_id}` device/IDs so entity IDs do not collide with `balancer_${bms_id}`. Each tick merges into `var_ext_balancer_*` and never clears online/equalizing out from under a live real balancer.
+Uses its own `sim_eq_${bms_id}` device/IDs so they do not collide with `balancer_${bms_id}`. Each tick merges into `var_ext_balancer_*` and never clears online/equalizing out from under a live real balancer.
 
 Behaviour:
 
-1. `Sim Equalizing`: when pack voltage reaches `Bulk − Sim Eq Offset` (default `0.05V`), assert Equalizing for `Sim Eq Hold` minutes (default `15`). Re-arms after voltage falls `0.05V` below that threshold.
-2. `Force Equalizing`: manual / Home Assistant automation force (e.g. once a week). While on, Equalizing stays asserted.
+1. `Sim Equalizing` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
+2. `Force Equalizing`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference.
 3. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when sim is idle.
 
-While Equalizing is true (sim and/or real), YamBMS bank **Equalizing state** is true, so Cut-Off holds CVL (cut-off timer paused).
+While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The **EOC timer** is still the hard charge-end ceiling — no separate max-hold is needed when EOC is enabled.
 
 > [!NOTE]
-> Keep the **EOC timer** longer than `Sim Eq Hold` (or disable it) if you want the full hold window. This only signals Equalizing — it does not move charge between cells.
+> These numbers are **inference** thresholds for YamBMS, not writes to a hardware balancer. Match them to how your BMS/balancer actually behaves. This only signals Equalizing — it does not move charge between cells.
 
 Configuration options:
 
-- `Sim Equalizing`: Enables automatic Equalizing near bulk.
+- `Sim Equalizing`: Enables cell-threshold inference.
 - `Force Equalizing`: Forces Equalizing while on (automation-friendly).
-- `Sim Eq Offset`: Volts below `Bulk` where auto Equalizing starts (default `0.05V`).
-- `Sim Eq Hold`: Minutes to hold auto Equalizing (default `15`).
+- `Balance Starting Voltage`: Max-cell floor to enter (default `3.400V`).
+- `Balance Sleep Voltage`: Max-cell floor to exit (default `3.200V`).
+- `Balance Trigger Voltage`: Cell delta to enter (default `0.015V`).
+- `Balance Stop Diff Voltage`: Cell delta to exit (default `0.005V`).
 
 Diagnostic sensors:
 
-- `Sim Eq Active`: True while simulated / forced Equalizing is asserted (does not include real-balancer-only periods).
+- `Sim Eq Active`: True while inferred / forced Equalizing is asserted (does not include real-balancer-only periods).
 
 ## Diagnostic
 
