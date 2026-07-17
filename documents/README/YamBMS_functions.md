@@ -507,7 +507,7 @@ Uses its own `sim_eq_${bms_id}` device/IDs so they do not collide with `balancer
 
 Behaviour:
 
-1. `Sim Equalizing` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
+1. `Enable Sim Equalizing` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
 2. `Force Equalizing`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference.
 3. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when sim is idle.
 
@@ -518,7 +518,7 @@ While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The **EOC ti
 
 Configuration options:
 
-- `Sim Equalizing`: Enables cell-threshold inference.
+- `Enable Sim Equalizing`: Enables cell-threshold inference.
 - `Force Equalizing`: Forces Equalizing while on (automation-friendly).
 - `Balance Starting Voltage`: Max-cell floor to enter (default `3.400V`).
 - `Balance Sleep Voltage`: Max-cell floor to exit (default `3.200V`).

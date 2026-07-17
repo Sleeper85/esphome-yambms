@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.1.0
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -57,7 +57,7 @@ switch:
   - platform: template
     id: sim_eq${bms_id}_switch_sim_eq
     device_id: sim_eq_${bms_id}
-    name: "Sim Equalizing"
+    name: "Enable Sim Equalizing"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
