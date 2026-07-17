@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.1.3
+# Version : 1.2.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -44,7 +44,8 @@
 # Contract:
 #   - Merges into: bms${bms_id}_var_ext_balancer_online / _equalizing every tick
 #   - Never clears online/equalizing out from under a live real balancer
-#   - Charge-end ceiling while Equalizing holds Cut-Off open: YamBMS EOC timer
+#   - Max Run Time caps how long sim (inferred/force) may assert Equalizing;
+#     YamBMS EOC timer is a separate compile-time charge-end ceiling
 #--------------------------------------------------------------------------------------------
 
 esphome:
@@ -96,6 +97,23 @@ switch:
           id(sim_eq${bms_id}_switch_force_eq).publish_state(false);
 
 number:
+  # Cap continuous sim Equalizing (inferred or force). Runtime alternative to
+  # raising the compile-time YamBMS EOC timer for longer weekly top-balance.
+  - platform: template
+    id: sim_eq${bms_id}_max_run_time
+    device_id: sim_eq_${bms_id}
+    name: "Max Run Time"
+    unit_of_measurement: min
+    min_value: 1
+    max_value: 360
+    step: 1
+    mode: slider
+    restore_value: true
+    optimistic: true
+    initial_value: 30
+    entity_category: config
+    icon: mdi:timer-outline
+
   # Enter when max cell >= this (Enerkey: Balance Starting Voltage)
   - platform: template
     id: sim_eq${bms_id}_balance_starting_voltage
@@ -177,9 +195,19 @@ interval:
     then:
       - lambda: |-
           static bool inferred = false;
+          static bool run_expired = false;   // latched after Max Run Time until re-arm
+          static bool prev_force = false;
+          static uint32_t started_ms = 0;    // when this sim assertion session began
 
           const bool sim_en = id(sim_eq${bms_id}_var_enable);
-          const bool force  = id(sim_eq${bms_id}_var_force);
+          bool force = id(sim_eq${bms_id}_var_force);
+
+          // Force rising edge starts a new timed session (weekly top-balance)
+          if (force && !prev_force) {
+            run_expired = false;
+            started_ms = 0;
+          }
+          prev_force = force;
 
           const float max_cell = id(bms${bms_id}_max_cell_voltage).state;
           const float min_cell = id(bms${bms_id}_min_cell_voltage).state;
@@ -187,6 +215,7 @@ interval:
           const float sleep_v  = id(sim_eq${bms_id}_balance_sleep_voltage).state;
           const float trig_v   = id(sim_eq${bms_id}_balance_trigger_voltage).state;
           const float stop_dv  = id(sim_eq${bms_id}_balance_stop_diff_voltage).state;
+          const float max_run_min = id(sim_eq${bms_id}_max_run_time).state;
 
           // Real balancer on this bms_id (Enerkey/Heltec/modbus client, or stub)
           const bool real_online = id(balancer${bms_id}_online_status).has_state()
@@ -194,12 +223,17 @@ interval:
           const bool real_eq = id(balancer${bms_id}_equalizing).has_state()
               && id(balancer${bms_id}_equalizing).state;
 
+          const bool cells_ok = !isnan(max_cell) && !isnan(min_cell);
+          const float delta = cells_ok ? (max_cell - min_cell) : NAN;
+          // Below enter thresholds → safe to re-arm after a Max Run Time expiry
+          const bool below_enter = cells_ok
+              && ((max_cell < start_v) || (delta < trig_v));
+
           if (!sim_en) {
             inferred = false;
-          } else if (!isnan(max_cell) && !isnan(min_cell)) {
-            const float delta = max_cell - min_cell;
+          } else if (cells_ok) {
             if (!inferred) {
-              if ((max_cell >= start_v) && (delta >= trig_v))
+              if (!run_expired && (max_cell >= start_v) && (delta >= trig_v))
                 inferred = true;
             } else {
               if ((max_cell < sleep_v) || (delta <= stop_dv))
@@ -207,7 +241,33 @@ interval:
             }
           }
 
-          const bool sim_eq = force || inferred;
+          bool sim_eq = force || inferred;
+
+          // Max Run Time: cap continuous sim Equalizing (inferred or force)
+          if (!sim_eq) {
+            started_ms = 0;
+            if (!force && below_enter)
+              run_expired = false;
+          } else if (run_expired) {
+            sim_eq = false;
+          } else {
+            const uint32_t now = millis();
+            if (started_ms == 0)
+              started_ms = now;
+            const uint32_t max_ms = (uint32_t)(max_run_min * 60000.0f);
+            if ((now - started_ms) >= max_ms) {
+              run_expired = true;
+              inferred = false;
+              started_ms = 0;
+              if (force) {
+                id(sim_eq${bms_id}_var_force) = false;
+                id(sim_eq${bms_id}_switch_force_eq).publish_state(false);
+                force = false;
+              }
+              sim_eq = false;
+            }
+          }
+
           const bool want_eq = sim_eq || real_eq;
 
           // Merge: keep override path alive if real balancer is online OR sim wants eq

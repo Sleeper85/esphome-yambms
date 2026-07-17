@@ -459,6 +459,8 @@ views:
             name: Enable Sim Equalizing
           - entity: switch.sim_equalizing_1_force_equalizing
             name: Force Equalizing
+          - entity: number.sim_equalizing_1_max_run_time
+            name: Max Run Time
           - entity: number.sim_equalizing_1_balance_starting_voltage
             name: Start Balance V
           - entity: number.sim_equalizing_1_balance_sleep_voltage
