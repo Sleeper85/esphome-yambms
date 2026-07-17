@@ -1,4 +1,4 @@
-# Updated : 2026.07.12
+# Updated : 2026.07.17
 # Version : 1.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -33,10 +33,30 @@
 
 esphome:
   on_boot:
+    # Registration in the Auto CCL pipeline
     - priority: -100.0
       then:
         - lambda: |-
             id(yambms${yambms_id}_var_auto_ccl_functions_count)++;   // Registration
+
+    # Knee Voltage limits based on cell count and battery chemistry
+    # Priority 550 : runs right after the YamBMS chemistry block (600)
+    # which sets the var_cell_* globals used below
+    - priority: 550.0
+      then:
+        - lambda: |-
+            const int cell_count = id(yambms${yambms_id}_cell_count).state;
+            const float v_min = round(cell_count * id(yambms${yambms_id}_var_cell_nominal_v) * 10) / 10;
+            const float v_max = round(cell_count * id(yambms${yambms_id}_var_cell_max_charge_v) * 10) / 10;
+
+            id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).traits.set_min_value(v_min);
+            id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).traits.set_max_value(v_max);
+
+            // Initialize/clamp the value inside the pack window
+            // (the static initial_value is 16S LFP), default = cell_min_charge × cells
+            const float knee_v = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;
+            if (isnan(knee_v) || (knee_v < v_min) || (knee_v > v_max))
+              id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).publish_state(round(cell_count * id(yambms${yambms_id}_var_cell_min_charge_v) * 10) / 10);
 
 switch:
   - platform: template
@@ -49,19 +69,20 @@ switch:
 
 number:
   # Knee / activation voltage (pack)
+  # Min/max are updated at boot from cell count × chemistry (see on_boot priority 550).
   - platform: template
     id: yambms${yambms_id}_number_auto_ccl_ct_knee_v
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT Knee Voltage"
     unit_of_measurement: V
     device_class: voltage
-    min_value: 54.2
-    max_value: 56.0
+    min_value: 54.2 # LFP placeholder; overwritten at boot
+    max_value: 56.0 # LFP placeholder; overwritten at boot
     step: 0.1
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 54.4
+    initial_value: 54.4 # LFP 16S placeholder; clamped at boot if out of range
     entity_category: config
     icon: mdi:sine-wave
 
@@ -115,7 +136,7 @@ number:
     icon: mdi:current-dc
 
   # Curve shape: 1=linear, >1=quicker drop then longer tail
-  # Range a bit past "sensible" so the HA curve chart can demo extremes (~0.3 late cliff, ~2.5 early cliff)
+  # Range 0.5–2.0 (below 1 delays taper / sharpens near bulk; above 1 drops faster early)
   - platform: template
     id: yambms${yambms_id}_number_auto_ccl_ct_curve_exp
     device_id: yambms_yambms${yambms_id}
@@ -131,7 +152,7 @@ number:
     icon: mdi:chart-bell-curve
 
 sensor:
-  # Pack V for taper math — 8-sample SMA; keeps CCL from amplifying raw V noise
+  # Pack V for taper math — 10-sample SMA; keeps CCL from amplifying raw V noise
   # If it’s twitchy, increase window_size; if too sluggish, lower it.
   - platform: copy
     source_id: yambms${yambms_id}_total_voltage
@@ -242,6 +263,19 @@ interval:
 
           float I_target = I_max;
           float delta    = 0.0f;
+
+          //--------------------------------------------------------------------
+          // Gate #3: Knee must sit below bulk (with hysteresis margin).
+          // bulk_voltage is runtime-adjustable, so boot traits alone can't enforce this.
+          //--------------------------------------------------------------------
+          if (V_knee >= (V_bulk - V_hyst)) {
+            active = false;
+            bulk_latched = false;
+            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+            id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
+            id(yambms${yambms_id}_var_charge_current_step)++;
+            return;
+          }
 
           //--------------------------------------------------------------------
           // Session: activate at knee; stay active until 0.2 V below knee
