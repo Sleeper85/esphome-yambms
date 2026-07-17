@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.1.2
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -105,11 +105,11 @@ number:
     device_class: voltage
     min_value: 2.0
     max_value: 4.5
-    step: 0.001
+    step: 0.01
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 3.400
+    initial_value: 3.40
     entity_category: config
     icon: mdi:battery-arrow-up
 
@@ -122,11 +122,11 @@ number:
     device_class: voltage
     min_value: 2.0
     max_value: 4.5
-    step: 0.001
+    step: 0.01
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 3.200
+    initial_value: 3.20
     entity_category: config
     icon: mdi:battery-arrow-down
 

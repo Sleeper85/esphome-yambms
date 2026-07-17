@@ -520,8 +520,8 @@ Configuration options:
 
 - `Enable Sim Equalizing`: Enables cell-threshold inference.
 - `Force Equalizing`: Forces Equalizing while on (automation-friendly).
-- `Balance Starting Voltage`: Max-cell floor to enter (default `3.400V`).
-- `Balance Sleep Voltage`: Max-cell floor to exit (default `3.200V`).
+- `Balance Starting Voltage`: Max-cell floor to enter (default `3.40V`).
+- `Balance Sleep Voltage`: Max-cell floor to exit (default `3.20V`).
 - `Balance Trigger Voltage`: Cell delta to enter (default `0.015V`).
 - `Balance Stop Diff Voltage`: Cell delta to exit (default `0.005V`).
 
