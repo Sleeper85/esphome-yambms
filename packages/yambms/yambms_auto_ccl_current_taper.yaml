@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.2.0
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,13 +23,14 @@
 # Purpose:
 #   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
 #   to balance current. Zero after EOC (var_eoc).
-#   When Auto CVL is off and bulk is latched, cancel Charging Offset V. via custom_cvl so
-#   CVL is not left at bulk + charging_offset under balance current.
+#   Owns Charging Offset V.: while active (at/above knee) and before bulk, add it to Bulk
+#   CVL via var_auto_custom_cvl; clear at bulk / EOC / when Auto CVL is on.
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
 #   - Writes: id(yambms${yambms_id}_var_auto_custom_ccl)  (<= 0)
-#   - Writes: id(yambms${yambms_id}_var_auto_custom_cvl)  (0, or -charging_offset at bulk)
+#   - Writes: id(yambms${yambms_id}_var_auto_custom_cvl)  (+charging_offset while active
+#     before bulk, else 0). Requires core Bulk CVL to sum var_auto_custom_cvl.
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #
 #--------------------------------------------------------------------------------------------
@@ -156,6 +157,23 @@ number:
     entity_category: config
     icon: mdi:chart-bell-curve
 
+  # Extra Bulk CVL while CT is active (knee → bulk). Cleared at bulk. IR/sense stays on Charger Offset.
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Charging Offset"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0
+    max_value: 1
+    step: 0.1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.0
+    entity_category: config
+    icon: mdi:battery-charging
+
 sensor:
   # Pack V for taper math — 10-sample SMA; keeps CCL from amplifying raw V noise
   # If it’s twitchy, increase window_size; if too sluggish, lower it.
@@ -182,6 +200,19 @@ sensor:
     entity_category: diagnostic
     icon: mdi:current-dc
     lambda: 'return id(yambms${yambms_id}_var_auto_custom_ccl);'
+
+  # Applied charging offset on Bulk CVL (0 / +offset). Steps at knee and again at bulk.
+  - platform: template
+    name: "Auto CCL CT CVL Offset"
+    id: yambms${yambms_id}_auto_ccl_ct_cvl_offset
+    device_id: yambms_yambms${yambms_id}
+    unit_of_measurement: V
+    device_class: voltage
+    accuracy_decimals: 1
+    update_interval: never
+    entity_category: diagnostic
+    icon: mdi:sine-wave
+    lambda: 'return id(yambms${yambms_id}_var_auto_custom_cvl);'
 
   # C-rate × capacity
   - platform: template
@@ -243,6 +274,7 @@ interval:
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
+            id(yambms${yambms_id}_auto_ccl_ct_cvl_offset).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -280,6 +312,7 @@ interval:
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
+            id(yambms${yambms_id}_auto_ccl_ct_cvl_offset).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -326,15 +359,16 @@ interval:
           id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
 
           //--------------------------------------------------------------------
-          // Bulk CVL: cancel Charging Offset once at bulk (Auto CVL must be off)
-          // Core sums: bulk + charger_ofs + charging_ofs + auto_cvl + custom_cvl
+          // Bulk CVL: add Charging Offset while active, before bulk (Auto CVL off)
+          // Core sums: bulk + charger_offset + auto_cvl + custom_cvl
           //--------------------------------------------------------------------
           float cvl_delta = 0.0f;
-          if (bulk_latched && !eoc_done
+          if (active && !bulk_latched && !eoc_done
               && !id(yambms${yambms_id}_switch_auto_cvl).state) {
-            cvl_delta = -id(yambms${yambms_id}_charging_offset_v).state;
+            cvl_delta = id(yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v).state;
           }
           id(yambms${yambms_id}_var_auto_custom_cvl) = cvl_delta;
+          id(yambms${yambms_id}_auto_ccl_ct_cvl_offset).publish_state(cvl_delta);
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;

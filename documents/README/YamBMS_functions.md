@@ -50,9 +50,7 @@ The `Bulk voltage` slider allows you to set the voltage used during the `Bulk`, 
 
 The `Float voltage` slider allows you to set the voltage used after charging is complete if the `Float charge enabled` switch is enabled.
 
-The `Charger Offset V.` slider corrects IR / sense error (typically about `0.1V`) so the inverter's measured voltage matches the battery. It is always applied to the requested charge voltage.
-
-The `Charging Offset V.` slider adds extra Bulk CVL headroom when the inverter undershoots and will not push the pack all the way to `Bulk` without it (e.g. `0.5V` on some hybrids). Core always sums it on the Bulk path; an Auto package (e.g. Current Taper) may cancel it after bulk via `var_auto_custom_cvl` so a low balance / taper current cannot keep climbing toward `Bulk + Charging Offset`.
+The `Charger Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop (typically about `0.1V` for IR / sense). Prefer keeping this for that purpose; approach headroom for undershooting inverters belongs to Current Taper's `Charging Offset` (see below).
 
 The `Cut-Off Cell Voltage` select defines which cell voltage is used by the `Cut-Off` detection, see the [Charging logic](Charging_logic.md).
 
@@ -432,7 +430,7 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 When to use: Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and stays from rising much above it.
 
-For undershoot, raise `Charging Offset V.` enough that the inverter keeps charging until pack voltage can reach bulk. Keep `Charger Offset V.` for IR / sense (~`0.1V`). At bulk, Current Taper cancels Charging Offset via `var_auto_custom_cvl` (only when Auto CVL is off) and limits CCL so voltage does not climb past bulk.
+For undershoot, set `Auto CCL CT Charging Offset` (e.g. `0.5V`). When the taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`). If Auto CVL is on, Current Taper does not write CVL.
 
 This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
@@ -443,10 +441,10 @@ By default the taper is linear with pack voltage. `Auto CCL CT Curve Exp` change
 
 Behaviour:
 
-1. Below `Auto CCL CT Knee Voltage`: no reduction (inactive).
-2. From knee to bulk: CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
-3. At first bulk touch: CCL drops to `Auto CCL CT Balance Current` (default `2A`) and holds there so pack voltage does not keep climbing; a non-zero value is used because some inverters ignore `0A`. If Auto CVL is off, `var_auto_custom_cvl = −Charging Offset` so CVL is not left at `Bulk + Charging Offset`.
-4. After EOC (`var_eoc`): CCL goes to `0A`; custom CVL cancel clears.
+1. Below `Auto CCL CT Knee Voltage`: inactive — CCL unchanged, CVL offset `0`.
+2. At knee (active): if Auto CVL is off, `var_auto_custom_cvl = +Charging Offset` (visible on `Auto CCL CT CVL Offset`). CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
+3. At first bulk touch: CCL drops to `Auto CCL CT Balance Current` (default `2A`); CVL offset clears to `0` so CVL is not left elevated under balance current.
+4. After EOC (`var_eoc`): CCL goes to `0A`; CVL offset stays `0`.
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 If `Knee Voltage` is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
@@ -459,18 +457,21 @@ Configuration options:
 - `Auto CCL CT Bulk C-Rate`: C-rate at bulk (default `0.03C`).
 - `Auto CCL CT Balance Current`: CCL while latched at bulk (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
 - `Auto CCL CT Curve Exp`: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (range `0.5`–`2.0`, default `1.0`).
+- `Auto CCL CT Charging Offset`: Extra Bulk CVL while active (knee → bulk). Default `0`.
 
 Diagnostic sensors:
 
 - `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
 - `Auto CCL CT Knee Amps` / `Auto CCL CT Bulk Amps`: Capacity × C-rate targets.
-- `Auto CCL CT Delta`: Pipeline reduction applied (≤ `0A`).
+- `Auto CCL CT Delta`: Pipeline CCL reduction applied (≤ `0A`).
+- `Auto CCL CT CVL Offset`: Applied charging offset on Bulk CVL (`0` or `+Charging Offset`). Steps at knee and again at bulk.
 
 Notes:
 
 - Requires a correct `Battery Capacity`.
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
-- Pair with `Charging Offset V.` when the inverter undershoots bulk. If Auto CVL is enabled, Current Taper does not touch CVL.
+- Dual lever (CCL + CVL) is intentional: undershoot headroom and taper are one charge behavior. Core only sums `var_auto_custom_cvl`; it does not know about Charging Offset.
+- If Auto CVL is enabled, Current Taper does not write CVL.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - With Float enabled: after EOC, Current Taper holds CCL at `0A` while `var_eoc` is true and the session is still active, so Float cannot deliver current until pack voltage falls below `knee − 0.2V`. That is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
 
