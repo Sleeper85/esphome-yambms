@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.0.2
+# Version : 1.0.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,8 @@
 #
 # Purpose:
 #   Assert YamBMS Equalizing via the BMS external-balancer override so Cut-Off holds
-#   CVL while cells balance. For BMS that never report balancing (e.g. Seplos).
+#   CVL while cells balance. Cooperates with a real balancer on the same bms_id:
+#   Equalizing = (real balancer balancing) OR (sim auto/force).
 #
 # Include (one BMS id — YamBMS BMS ids start at 1):
 #   sim_equalizing: !include
@@ -31,15 +32,15 @@
 #       bms_id: '1'
 #       sim_eq_name: 'Sim Equalizing 1'
 #
-# IDs use sim_eq_${bms_id} / sim_eq${bms_id}_* so this can coexist with a real
-# external balancer package (e.g. Enerkey) that already owns balancer_${bms_id}.
+# Requires balancer${bms_id}_equalizing and balancer${bms_id}_online_status
+# (from Enerkey/Heltec/modbus balancer package, or balancer_equalizing_stub.yaml).
 #
-# Do not enable this on a BMS that already has a live external balancer driving
-# bms${bms_id}_var_ext_balancer_* — both would fight over the same override.
+# IDs use sim_eq_${bms_id} / sim_eq${bms_id}_* so they do not collide with
+# balancer_${bms_id} used by real balancer packages.
 #
 # Contract:
-#   - Writes: bms${bms_id}_var_ext_balancer_online / _equalizing
-#   - Only asserts the override while active; releases it afterward
+#   - Merges into: bms${bms_id}_var_ext_balancer_online / _equalizing every tick
+#   - Never clears online/equalizing out from under a live real balancer
 #--------------------------------------------------------------------------------------------
 
 esphome:
@@ -112,7 +113,6 @@ interval:
       - lambda: |-
           static bool auto_active = false;
           static bool armed = true;          // re-arm after voltage falls below threshold
-          static bool owns_override = false;
           static uint32_t t0 = 0;
 
           const bool sim_en = id(sim_eq${bms_id}_switch_sim_eq).state;
@@ -124,6 +124,12 @@ interval:
               (uint32_t)(id(sim_eq${bms_id}_number_sim_eq_hold_min).state * 60000.0f);
           const float thresh = V_bulk - offset;
           constexpr float rearm_hyst = 0.05f;
+
+          // Real balancer on this bms_id (Enerkey/Heltec/modbus client, or stub)
+          const bool real_online = id(balancer${bms_id}_online_status).has_state()
+              && id(balancer${bms_id}_online_status).state;
+          const bool real_eq = id(balancer${bms_id}_equalizing).has_state()
+              && id(balancer${bms_id}_equalizing).state;
 
           if (sim_en) {
             if (armed && !isnan(V_pack) && !isnan(V_bulk) && (V_pack >= thresh)) {
@@ -140,16 +146,11 @@ interval:
             armed = true;
           }
 
-          const bool want_eq = force || auto_active;
+          const bool sim_eq = force || auto_active;
+          const bool want_eq = sim_eq || real_eq;
 
-          if (want_eq) {
-            id(bms${bms_id}_var_ext_balancer_online) = true;
-            id(bms${bms_id}_var_ext_balancer_equalizing) = true;
-            owns_override = true;
-          } else if (owns_override) {
-            id(bms${bms_id}_var_ext_balancer_online) = false;
-            id(bms${bms_id}_var_ext_balancer_equalizing) = false;
-            owns_override = false;
-          }
+          // Merge: keep override path alive if real balancer is online OR sim wants eq
+          id(bms${bms_id}_var_ext_balancer_online) = real_online || sim_eq;
+          id(bms${bms_id}_var_ext_balancer_equalizing) = want_eq;
 
-          id(sim_eq${bms_id}_sim_eq_active).publish_state(want_eq);
+          id(sim_eq${bms_id}_sim_eq_active).publish_state(sim_eq);

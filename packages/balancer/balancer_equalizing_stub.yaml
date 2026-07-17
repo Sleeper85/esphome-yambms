@@ -1,0 +1,40 @@
+# Updated : 2026.07.17
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# Minimal stub so balancer_simulate_equalizing.yaml can compile/OR when no real
+# external balancer package is included for this bms_id.
+# Do NOT include this together with Enerkey/Heltec/modbus balancer on the same bms_id.
+
+# Include:
+#   balancer_stub: !include
+#     file: packages/balancer/balancer_equalizing_stub.yaml
+#     vars:
+#       bms_id: '1'
+#       balancer_name: 'Balancer Stub 1'
+
+packages:
+  sub_device: !include balancer_base_sub_device.yaml
+
+binary_sensor:
+  - platform: template
+    id: balancer${bms_id}_online_status
+    device_id: balancer_${bms_id}
+    name: "Online status"
+    trigger_on_initial_state: true
+    lambda: return false;
+    on_state:
+      then:
+        - lambda: id(bms${bms_id}_var_ext_balancer_online) = x;
+
+  - platform: template
+    id: balancer${bms_id}_equalizing
+    device_id: balancer_${bms_id}
+    name: "balancing"
+    trigger_on_initial_state: true
+    lambda: return false;
+    on_state:
+      then:
+        - lambda: id(bms${bms_id}_var_ext_balancer_equalizing) = x;

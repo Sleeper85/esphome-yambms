@@ -428,27 +428,44 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ## Simulate Equalizing
 
-Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open for cell balancing. This optional package acts as a **virtual balancer** and asserts Equalizing through the standard BMS external-balancer override.
+Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open for cell balancing. This optional package acts as a **virtual balancer** and asserts Equalizing through the standard BMS external-balancer override. It **cooperates** with a real balancer (Enerkey / Heltec / modbus client) on the same `bms_id`:
+
+`Equalizing = (real balancer balancing) OR (sim auto / force)`
 
 Package: `packages/balancer/balancer_simulate_equalizing.yaml`
 
+Requires `balancer${bms_id}_equalizing` and `balancer${bms_id}_online_status` from a real balancer package, or the stub below if you have no hardware balancer on that BMS.
+
 ```YAML
 packages:
+  # Real balancer (example) — already provides the IDs sim ORs with
+  # balancer1: !include
+  #   file: packages/balancer/balancer_modbus_client.yaml
+  #   vars: { bms_id: '1', balancer_name: 'Enerkey 1', ... }
+
   sim_equalizing: !include
     file: packages/balancer/balancer_simulate_equalizing.yaml
     vars:
       bms_id: '1'                        # which BMS override to drive
       sim_eq_name: 'Sim Equalizing 1'    # HA device name (uses sim_eq_1_* ids)
+
+  # Only if there is NO real balancer package for this bms_id:
+  # balancer_stub1: !include
+  #   file: packages/balancer/balancer_equalizing_stub.yaml
+  #   vars:
+  #     bms_id: '1'
+  #     balancer_name: 'Balancer Stub 1'
 ```
 
-Uses its own `sim_eq_${bms_id}` device/IDs so it does not collide with a real balancer package (e.g. Enerkey) on `balancer_${bms_id}`. Do not enable it on a BMS whose external balancer is already driving `var_ext_balancer_*`.
+Uses its own `sim_eq_${bms_id}` device/IDs so entity IDs do not collide with `balancer_${bms_id}`. Each tick merges into `var_ext_balancer_*` and never clears online/equalizing out from under a live real balancer.
 
 Behaviour:
 
 1. `Sim Equalizing`: when pack voltage reaches `Bulk − Sim Eq Offset` (default `0.05V`), assert Equalizing for `Sim Eq Hold` minutes (default `15`). Re-arms after voltage falls `0.05V` below that threshold.
 2. `Force Equalizing`: manual / Home Assistant automation force (e.g. once a week). While on, Equalizing stays asserted.
+3. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when sim is idle.
 
-While active, YamBMS bank **Equalizing state** is true, so Cut-Off holds CVL (cut-off timer paused) the same way it would for a real balancer report. The override is released when inactive so a real external balancer on that BMS is not permanently masked.
+While Equalizing is true (sim and/or real), YamBMS bank **Equalizing state** is true, so Cut-Off holds CVL (cut-off timer paused).
 
 > [!NOTE]
 > Keep the **EOC timer** longer than `Sim Eq Hold` (or disable it) if you want the full hold window. This only signals Equalizing — it does not move charge between cells.
@@ -462,7 +479,7 @@ Configuration options:
 
 Diagnostic sensors:
 
-- `Sim Eq Active`: True while simulated / forced Equalizing is asserted.
+- `Sim Eq Active`: True while simulated / forced Equalizing is asserted (does not include real-balancer-only periods).
 
 ## Diagnostic
 
