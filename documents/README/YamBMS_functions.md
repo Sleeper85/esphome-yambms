@@ -52,7 +52,7 @@ The `Float voltage` slider allows you to set the voltage used after charging is 
 
 The `Charger Offset V.` slider corrects IR / sense error (typically about `0.1V`) so the inverter's measured voltage matches the battery. It is always applied to the requested charge voltage.
 
-The `Charging Offset V.` slider adds extra Bulk CVL headroom when the inverter undershoots and will not push the pack all the way to `Bulk` without it (e.g. `0.5V` on some hybrids). Once pack voltage has reached `Bulk` in the current charge session, this offset is dropped so CVL returns to `Bulk + Charger Offset` and a low balance / taper current cannot keep climbing toward `Bulk + Charging Offset`.
+The `Charging Offset V.` slider adds extra Bulk CVL headroom when the inverter undershoots and will not push the pack all the way to `Bulk` without it (e.g. `0.5V` on some hybrids). Core always sums it on the Bulk path; an Auto package (e.g. Current Taper) may cancel it after bulk via `var_auto_custom_cvl` so a low balance / taper current cannot keep climbing toward `Bulk + Charging Offset`.
 
 The `Cut-Off Cell Voltage` select defines which cell voltage is used by the `Cut-Off` detection, see the [Charging logic](Charging_logic.md).
 

@@ -1005,45 +1005,26 @@ interval:
             // +-----------------------------------------------+
             // | Requested Charge Voltage (CVL)                |
             // +-----------------------------------------------+
-            // Charger Offset V.  : IR / sense compensation (typically ~0.1V), always applied.
-            // Charging Offset V. : extra Bulk headroom so the inverter reaches bulk; dropped
-            //                      once pack voltage has reached bulk this charge session.
-            // var_auto_custom_cvl: optional package Bulk delta (mirror of custom_ccl).
-            static bool charging_offset_done = false;
+            // Charger Offset V.   : IR / sense compensation (typically ~0.1V).
+            // Charging Offset V.  : Bulk approach headroom (e.g. 0.5V). Always summed here;
+            //                       packages may cancel it via var_auto_custom_cvl.
+            // var_auto_cvl        : Auto CVL PI delta.
+            // var_auto_custom_cvl : optional package Bulk delta (mirror of custom_ccl).
             float requested_charge_voltage;
             if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined
-            {
-              charging_offset_done = false;
               requested_charge_voltage = 0;
-            }
             // Bulk
             else if (charging_instruction == "Bulk")
-            {
-              const float V_bulk = id(yambms${yambms_id}_bulk_voltage).state;
-              const float V_pack = id(yambms${yambms_id}_total_voltage).state;
-              if (!isnan(V_pack) && !isnan(V_bulk) && (V_pack >= V_bulk))
-                charging_offset_done = true;
-              const float charging_ofs = charging_offset_done
-                  ? 0.0f
-                  : id(yambms${yambms_id}_charging_offset_v).state;
-              requested_charge_voltage = (V_bulk
+              requested_charge_voltage = (id(yambms${yambms_id}_bulk_voltage).state
                   + id(yambms${yambms_id}_charger_offset_v).state
-                  + charging_ofs
+                  + id(yambms${yambms_id}_charging_offset_v).state
                   + id(yambms${yambms_id}_var_auto_cvl)
                   + id(yambms${yambms_id}_var_auto_custom_cvl));
-            }
             // Float
             else if (charging_instruction == "Float")
-            {
-              charging_offset_done = false;
               requested_charge_voltage = (id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_charger_offset_v).state) + id(yambms${yambms_id}_var_auto_float);
-            }
             // Stop Charging
-            else
-            {
-              charging_offset_done = false;
-              requested_charge_voltage = (id(yambms${yambms_id}_rebulk_voltage).state + id(yambms${yambms_id}_charger_offset_v).state);
-            }
+            else requested_charge_voltage = (id(yambms${yambms_id}_rebulk_voltage).state + id(yambms${yambms_id}_charger_offset_v).state);
             // Publish the sensor
             id(yambms${yambms_id}_requested_charge_voltage).publish_state(requested_charge_voltage);
 
@@ -1433,7 +1414,7 @@ number:
     icon: mdi:sine-wave
     optimistic: true
     entity_category: config
-  # Charging Offset V. — extra Bulk CVL so the inverter reaches bulk; dropped once pack >= bulk.
+  # Charging Offset V. — extra Bulk CVL headroom so the inverter reaches bulk (cancel via custom_cvl).
   - platform: template
     name: "Charging Offset V."
     id: yambms${yambms_id}_charging_offset_v

@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.1.0
+# Version : 1.2.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,11 +23,13 @@
 # Purpose:
 #   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
 #   to balance current. Zero after EOC (var_eoc).
+#   When Auto CVL is off and bulk is latched, cancel Charging Offset V. via custom_cvl so
+#   CVL is not left at bulk + charging_offset under balance current.
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
-#   - Writes only: id(yambms${yambms_id}_var_auto_custom_ccl)
-#   - Value must be <= 0.0  (negative = reduce, 0 = no reduction)
+#   - Writes: id(yambms${yambms_id}_var_auto_custom_ccl)  (<= 0)
+#   - Writes: id(yambms${yambms_id}_var_auto_custom_cvl)  (0, or -charging_offset at bulk)
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #
 #--------------------------------------------------------------------------------------------
@@ -239,6 +241,7 @@ interval:
             active = false;
             bulk_latched = false;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+            id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
@@ -275,6 +278,7 @@ interval:
             active = false;
             bulk_latched = false;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+            id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
@@ -320,6 +324,17 @@ interval:
 
           id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
           id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
+
+          //--------------------------------------------------------------------
+          // Bulk CVL: cancel Charging Offset once at bulk (Auto CVL must be off)
+          // Core sums: bulk + charger_ofs + charging_ofs + auto_cvl + custom_cvl
+          //--------------------------------------------------------------------
+          float cvl_delta = 0.0f;
+          if (bulk_latched && !eoc_done
+              && !id(yambms${yambms_id}_switch_auto_cvl).state) {
+            cvl_delta = -id(yambms${yambms_id}_charging_offset_v).state;
+          }
+          id(yambms${yambms_id}_var_auto_custom_cvl) = cvl_delta;
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;
