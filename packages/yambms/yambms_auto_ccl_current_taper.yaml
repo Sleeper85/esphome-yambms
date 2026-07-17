@@ -25,7 +25,8 @@
 #   2) At bulk, hold low Balance Current with CVL at bulk for balancing — absorption is
 #      moved ahead of bulk (knee→bulk curve) so enough Ah remain to finish at 2–3 A.
 #   Owns Charging Offset: while active (knee→bulk), add it to Bulk CVL via custom_cvl;
-#   clear at bulk / EOC. Zero CCL after EOC (var_eoc).
+#   clear at bulk / EOC. After EOC (var_eoc): currently forces CCL to 0A; alternative
+#   would be leave Balance Current and rely on SoC=100 (no user switch yet).
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
@@ -341,7 +342,8 @@ interval:
           //--------------------------------------------------------------------
           if (active) {
             if (eoc_done) {
-              I_target = 0.0f;                                              // EOC → CCL = 0
+              // EOC → CCL = 0 for now; alt: keep I_balance and rely on SoC=100 (switch later?)
+              I_target = 0.0f;
             } else if (bulk_latched) {
               I_target = I_balance;                                         // at bulk → balance current
             } else {

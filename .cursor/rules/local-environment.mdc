@@ -1,0 +1,59 @@
+---
+description: David’s YamBMS fork + Home Assistant environment (institutional knowledge)
+alwaysApply: true
+---
+
+# Local environment (haysdb / YamBMS)
+
+Personal setup knowledge for agents. Do **not** commit secrets. Prefer keeping this rule local if opening a PR to upstream (do not copy HA credentials into the PR).
+
+## Git / GitHub
+
+- **Fork:** `haysdb/esphome-yambms` (`origin`)
+- **Upstream:** `Sleeper85/esphome-yambms` (`upstream`)
+- **Current Taper branch:** `PR_Current_Taper` (PR [#303](https://github.com/Sleeper85/esphome-yambms/pull/303) → base **`dev`**)
+- **Simulate Equalizing branch:** `PR_Equalizing_Simulator` (separate PR → base **`dev`**); package `packages/balancer/balancer_simulate_equalizing.yaml`
+- Fork **`dev` does not include these features** — use the PR branches. GitHub “ahead/behind main” banners are irrelevant.
+- After rebase onto `upstream/dev`, **force-push `origin/PR_Current_Taper`** (never pull the old remote history back onto a rebased branch).
+- **Push/auth:** `gh` is installed and logged in as `haysdb` (`gh auth setup-git`). Prefer `git push origin HEAD` from the agent. GitHub Desktop also works.
+- Source of truth for CT / PR files: this git repo. Edit here → commit → push → recompile ESPHome.
+
+## Home Assistant / ESPHome (live)
+
+- Live HA config is SMB-mounted: **`/Volumes/config`** (`//homeassistant/config`)
+- Main node YAML: **`/Volumes/config/esphome/yambms.yaml`**
+- Board: LilyGo **T-Connect** ESP32-S3 (`packages/board/board_ESP32-S3_LilyGo-T-Connect.yaml` local)
+- Hardware: **3× Seplos V3** (RS485 sniffer), **Victron SmartShunt** (UART3), **Deye** inverter (CAN), Enerkey balancers via Modbus client; YamBMS Modbus server on UART2
+- Seplos **never reports equalizing** (`bms_equalizing` is hard-false) — use CT Simulate Equalizing / Force Equalizing for Cut-Off hold
+
+### Package split (important)
+
+| Package | Where |
+|---------|--------|
+| Current Taper | **Remote** ref **`PR_Current_Taper`**. |
+| Simulate Equalizing | **Remote** ref **`PR_Equalizing_Simulator`** (`packages/balancer/balancer_simulate_equalizing.yaml`). |
+| Soft Landing, custom Auto Float, Adaptive EOC/DCL, local board/LEDs/debug | **Local** under `/Volumes/config/esphome/packages/` |
+| Stock board/BMS/shunt/etc. | Remote from `Sleeper85/esphome-yambms` **`dev`** |
+| `yambms_core` | Currently remote upstream `dev` (local core file may still exist unused) |
+
+- Soft Landing and Current Taper both write `var_auto_custom_ccl` — **only one enabled at a time**.
+- Local Auto Float: steps using battery EMA vs **unadjusted** `float_v`; core adds **`charger_offset_v`** when building requested CVL (`float_v + offset`). Already correct for “compare battery, command offset CVL”.
+- Docs weblink for CT: use branch that **has** the section, e.g.  
+  `…/haysdb/esphome-yambms/blob/PR_Current_Taper/documents/README/YamBMS_functions.md#auto-ccl-current-taper`  
+  (`dev` / wrong branch → opens at top). Local `www/YamBMS_functions.md` was removed on purpose.
+
+## Current Taper implementation notes
+
+- File: `packages/yambms/yambms_auto_ccl_current_taper.yaml`
+- Knee Voltage boot traits: use **`${yambms_cell_count}`**, never `cell_count.state` at on_boot (NaN→int caused ~7e9 V).
+- Curve end current: `I_end = min(I_bulk, I_anchor)` so taper cannot increase CCL.
+- `I_anchor = min(knee amps, current CCL)` at session start.
+- Simulate Equalizing is a **separate** package: `packages/balancer/balancer_simulate_equalizing.yaml` (include with `bms_id`). Uses BMS external-balancer override; release when inactive.
+- Keep EOC timer ≥ Sim Eq Hold (or disable EOC timer) if a full hold window is required.
+
+## Agent habits for this user
+
+- Prefer Cursor terminal / `gh`+git for commits and pushes once auth works.
+- Do not paste tokens into chat. Do not commit API/OTA keys from `yambms.yaml`.
+- When changing HA live YAML on `/Volumes/config`, SMB can be slow — avoid recursive `find`/`rg` over the whole share; target known paths.
+- User wants hybrid workflow: private experiments stay local HA; upstream-worthy CT stays on `PR_Current_Taper`.

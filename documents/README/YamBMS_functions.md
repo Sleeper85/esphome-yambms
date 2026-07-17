@@ -456,7 +456,7 @@ Behaviour:
 1. Below **Knee Voltage**: inactive — CCL unchanged; Charging Offset not applied.
 2. At knee (active): Charging Offset is applied to Bulk CVL; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
 3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); Charging Offset is cleared so CVL stays at Bulk (+ charger offset) while balancing finishes at low current.
-4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset stays cleared.
+4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset stays cleared. (Open choice — see Notes.)
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
@@ -485,7 +485,19 @@ Notes:
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
 - Dual lever (CCL + CVL) is intentional: undershoot headroom and taper are one charge behavior. Auto CVL (if present) uses a separate delta and can coexist.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
-- With Float enabled: after EOC, Current Taper holds CCL at `0A` while `var_eoc` is true and the session is still active, so Float cannot deliver current until pack voltage falls below `knee − 0.2V`. That is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
+- After EOC, Current Taper currently forces CCL to `0A` (while the session is still active). The alternative would be to leave **Balance Current** and rely on the inverter treating `SoC = 100%` as charge-complete. Which is right depends on the inverter: some honor `CCL = 0` as a hard stop, others ignore it; some stop cleanly on SoC alone. There is no user switch yet; one may be added later if field experience needs both modes.
+- With Float enabled: that post-EOC `CCL = 0` hold lasts until pack voltage falls below `knee − 0.2V`. If the inverter treats `CCL = 0` as “do not charge”, Float cannot deliver current during that window; some inverters ignore a zero CCL and may still float. That hold is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
+
+> **Why is this so complicated?**
+>
+> Current Taper is not designed against one charger. Hybrid/inverter brands (and firmware revisions) each pick a different subset of charge-control signals, so YamBMS ends up needing levers that look redundant until you hit the one that doesn’t:
+>
+> - whether `CCL = 0` is a hard stop, a soft limit, or ignored
+> - whether elevated CVL keeps pushing after Bulk, or only until current collapses
+> - whether `SoC = 100%` ends charge, or only low current / Cut-Off does
+> - whether Float needs a non-zero CCL, or only a float CVL
+>
+> The defaults stay simple; knobs exist where field experience shows inverters disagree.
 
 ## Diagnostic
 
