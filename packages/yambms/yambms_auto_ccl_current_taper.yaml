@@ -23,8 +23,6 @@
 # Purpose:
 #   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
 #   to balance current. Zero after EOC (var_eoc).
-#   Optional: simulate Equalizing so Cut-Off holds CVL while cells balance (for BMS that
-#   never report balancing, e.g. Seplos).
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
@@ -32,15 +30,10 @@
 #   - Value must be <= 0.0  (negative = reduce, 0 = no reduction)
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #
-# Simulate Equalizing (separate interval):
-#   - Uses BMS external-balancer override on bms${yambms_ct_eq_bms_id} (default 1)
-#   - Only asserts the override while active; releases it afterward so a real balancer
-#     on that BMS is not permanently masked
+# Related (separate package):
+#   packages/balancer/balancer_simulate_equalizing.yaml — simulate Equalizing for BMS
+#   that never report balancing (optional; not required for Current Taper).
 #--------------------------------------------------------------------------------------------
-
-substitutions:
-  # Which BMS receives the simulated equalizing override (YamBMS BMS ids start at 1)
-  yambms_ct_eq_bms_id: '1'
 
 esphome:
   on_boot:
@@ -76,24 +69,6 @@ switch:
     id: yambms${yambms_id}_switch_auto_ccl_ct
     device_id: yambms_yambms${yambms_id}
     name: "Auto CCL CT"
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: true
-    entity_category: config
-
-  # Auto: assert Equalizing when pack reaches Bulk − offset, hold for N minutes
-  - platform: template
-    id: yambms${yambms_id}_switch_auto_ccl_ct_sim_eq
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Sim Equalizing"
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: true
-    entity_category: config
-
-  # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
-  - platform: template
-    id: yambms${yambms_id}_switch_auto_ccl_ct_force_eq
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Force Equalizing"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
@@ -181,47 +156,6 @@ number:
     initial_value: 1.0
     entity_category: config
     icon: mdi:chart-bell-curve
-
-  # Simulate Equalizing: trigger threshold below Bulk voltage
-  - platform: template
-    id: yambms${yambms_id}_number_auto_ccl_ct_sim_eq_offset_v
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Sim Eq Offset"
-    unit_of_measurement: V
-    device_class: voltage
-    min_value: 0.0
-    max_value: 0.5
-    step: 0.01
-    mode: ${yambms_input_number_mode}
-    restore_value: true
-    optimistic: true
-    initial_value: 0.05
-    entity_category: config
-    icon: mdi:delta
-
-  # Simulate Equalizing: how long to hold Equalizing after the auto trigger
-  - platform: template
-    id: yambms${yambms_id}_number_auto_ccl_ct_sim_eq_hold_min
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Sim Eq Hold"
-    unit_of_measurement: min
-    min_value: 1
-    max_value: 120
-    step: 1
-    mode: ${yambms_input_number_mode}
-    restore_value: true
-    optimistic: true
-    initial_value: 15
-    entity_category: config
-    icon: mdi:timer-outline
-
-binary_sensor:
-  - platform: template
-    id: yambms${yambms_id}_auto_ccl_ct_sim_eq_active
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Sim Eq Active"
-    entity_category: diagnostic
-    icon: mdi:scale-balance
 
 sensor:
   # Pack V for taper math — 10-sample SMA; keeps CCL from amplifying raw V noise
@@ -392,55 +326,3 @@ interval:
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;
-
-  #--------------------------------------------------------------------------
-  # Simulate Equalizing (independent of the Auto CCL STEP pipeline)
-  # Holds YamBMS Equalizing via BMS external-balancer override so Cut-Off
-  # keeps CVL while cells balance. Useful when the BMS never reports balancing.
-  #--------------------------------------------------------------------------
-  - interval: ${yambms_update_interval}
-    then:
-      - lambda: |-
-          static bool auto_active = false;
-          static bool armed = true;          // re-arm after voltage falls below threshold
-          static bool ct_owns_override = false;
-          static uint32_t t0 = 0;
-
-          const bool sim_en = id(yambms${yambms_id}_switch_auto_ccl_ct_sim_eq).state;
-          const bool force  = id(yambms${yambms_id}_switch_auto_ccl_ct_force_eq).state;
-          const float V_pack = id(yambms${yambms_id}_total_voltage).state;
-          const float V_bulk = id(yambms${yambms_id}_bulk_voltage).state;
-          const float offset = id(yambms${yambms_id}_number_auto_ccl_ct_sim_eq_offset_v).state;
-          const uint32_t hold_ms =
-              (uint32_t)(id(yambms${yambms_id}_number_auto_ccl_ct_sim_eq_hold_min).state * 60000.0f);
-          const float thresh = V_bulk - offset;
-          constexpr float rearm_hyst = 0.05f;
-
-          if (sim_en) {
-            if (armed && !isnan(V_pack) && !isnan(V_bulk) && (V_pack >= thresh)) {
-              auto_active = true;
-              armed = false;
-              t0 = millis();
-            }
-            if (auto_active && ((millis() - t0) >= hold_ms))
-              auto_active = false;
-            if (!auto_active && !isnan(V_pack) && (V_pack < (thresh - rearm_hyst)))
-              armed = true;
-          } else {
-            auto_active = false;
-            armed = true;
-          }
-
-          const bool want_eq = force || auto_active;
-
-          if (want_eq) {
-            id(bms${yambms_ct_eq_bms_id}_var_ext_balancer_online) = true;
-            id(bms${yambms_ct_eq_bms_id}_var_ext_balancer_equalizing) = true;
-            ct_owns_override = true;
-          } else if (ct_owns_override) {
-            id(bms${yambms_ct_eq_bms_id}_var_ext_balancer_online) = false;
-            id(bms${yambms_ct_eq_bms_id}_var_ext_balancer_equalizing) = false;
-            ct_owns_override = false;
-          }
-
-          id(yambms${yambms_id}_auto_ccl_ct_sim_eq_active).publish_state(want_eq);
