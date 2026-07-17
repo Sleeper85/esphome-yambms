@@ -471,8 +471,7 @@ Configuration options (entities card names):
 - **Bulk Amps**: Capacity × Bulk C-Rate (read-only).
 - **Balance Current**: CCL while latched at bulk (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
 - **Curve Exponent**: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (range `0.5`–`2.0`, default `1.0`).
-- **Charging Offset**: Extra Bulk CVL while active (knee → bulk). Default `0`.
-- **CVL Offset**: Applied charging offset on Bulk CVL (`0` or `+Charging Offset`) — explains why CVL is above Bulk.
+- **Charging Offset**: Extra Bulk CVL to apply while active (knee → bulk). Default `0`. The entities card **CVL Offset** row is the same value when active, otherwise `0` — it only shows whether that offset is currently on Bulk CVL.
 
 Other diagnostic sensors:
 
