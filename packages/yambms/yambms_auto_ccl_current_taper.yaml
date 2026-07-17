@@ -283,7 +283,11 @@ interval:
           if (!active && V_pack >= V_knee) {
             active = true;
             bulk_latched = false;                                           // new session
-            I_anchor = I_knee;
+            // Left end: min(knee amps, current CCL) — never start above Auto EOC (etc.)
+            const float I_ccl = id(yambms${yambms_id}_requested_charge_current).has_state()
+                ? id(yambms${yambms_id}_requested_charge_current).state
+                : I_max;
+            I_anchor = fminf(I_knee, I_ccl);
           } else if (active && V_pack <= (V_knee - V_hyst)) {
             active = false;
             bulk_latched = false;
