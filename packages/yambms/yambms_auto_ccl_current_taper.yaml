@@ -307,7 +307,10 @@ interval:
               float p = (V_pack - V_knee) / (V_bulk - V_knee);              // 0 at knee → 1 at bulk
               p = fmaxf(0.0f, fminf(p, 1.0f));                              // below knee (hyst band): hold I_anchor
               const float curve = powf(1.0f - p, curve_exp);
-              I_target = I_bulk + (I_anchor - I_bulk) * curve;              // curve ends at I_bulk at bulk
+              // Never let the curve end above the left end (I_anchor may be
+              // min(knee amps, current CCL); bulk C-rate must not invert the taper).
+              const float I_end = fminf(I_bulk, I_anchor);
+              I_target = I_end + (I_anchor - I_end) * curve;                // curve ends at I_end at bulk
             }
             delta = fminf(0.0f, I_target - I_max);
           }
