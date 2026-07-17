@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.0
+# Version : 1.0.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -41,11 +41,13 @@ esphome:
 
     # Knee Voltage limits based on cell count and battery chemistry
     # Priority 550 : runs right after the YamBMS chemistry block (600)
-    # which sets the var_cell_* globals used below
+    # which sets the var_cell_* globals used below.
+    # Use the substitution (not cell_count.state): the sensor is often still
+    # NaN at this priority, and casting NaN→int produces garbage limits/values.
     - priority: 550.0
       then:
         - lambda: |-
-            const int cell_count = id(yambms${yambms_id}_cell_count).state;
+            const int cell_count = ${yambms_cell_count};
             const float v_min = round(cell_count * id(yambms${yambms_id}_var_cell_nominal_v) * 10) / 10;
             const float v_max = round(cell_count * id(yambms${yambms_id}_var_cell_max_charge_v) * 10) / 10;
 
