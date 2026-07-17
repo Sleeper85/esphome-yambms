@@ -24,8 +24,7 @@
 #   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
 #   to balance current. Zero after EOC (var_eoc).
 #   Owns Charging Offset: while active (at/above knee) and before bulk, add it to Bulk
-#   CVL via var_auto_custom_cvl; clear at bulk / EOC. Do not use with Auto CVL enabled
-#   (set Charging Offset to 0, or leave Auto CVL off) — CT does not reference Auto CVL IDs.
+#   CVL via var_auto_custom_cvl; clear at bulk / EOC.
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
@@ -361,7 +360,6 @@ interval:
           //--------------------------------------------------------------------
           // Bulk CVL: add Charging Offset while active, before bulk
           // Core sums: bulk + charger_offset + auto_cvl + custom_cvl
-          // (No Auto CVL switch check — that package is optional and may be absent.)
           //--------------------------------------------------------------------
           float cvl_delta = 0.0f;
           if (active && !bulk_latched && !eoc_done) {

@@ -430,7 +430,7 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 When to use: Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and stays from rising much above it.
 
-For undershoot, set `Auto CCL CT Charging Offset` (e.g. `0.5V`). When the taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`). Do not run with Auto CVL enabled (set Charging Offset to `0` if you use Auto CVL).
+For undershoot, set `Auto CCL CT Charging Offset` (e.g. `0.5V`). When the taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`).
 
 This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
@@ -470,8 +470,7 @@ Notes:
 
 - Requires a correct `Battery Capacity`.
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
-- Dual lever (CCL + CVL) is intentional: undershoot headroom and taper are one charge behavior. Core only sums `var_auto_custom_cvl`; it does not know about Charging Offset.
-- Incompatible with Auto CVL while Charging Offset is non-zero (both would adjust Bulk CVL).
+- Dual lever (CCL + CVL) is intentional: undershoot headroom and taper are one charge behavior. Core only sums `var_auto_custom_cvl`; it does not know about Charging Offset. Auto CVL (if present) uses a separate delta and can coexist.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - With Float enabled: after EOC, Current Taper holds CCL at `0A` while `var_eoc` is true and the session is still active, so Float cannot deliver current until pack voltage falls below `knee − 0.2V`. That is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
 
