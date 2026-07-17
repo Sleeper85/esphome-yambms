@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.1.1
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -52,24 +52,48 @@ esphome:
     - id: sim_eq_${bms_id}
       name: "${sim_eq_name}"
 
+globals:
+  - id: sim_eq${bms_id}_var_enable
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: sim_eq${bms_id}_var_force
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
 switch:
   # Auto: infer Equalizing from this BMS's cell voltage + delta vs thresholds
   - platform: template
     id: sim_eq${bms_id}_switch_sim_eq
     device_id: sim_eq_${bms_id}
     name: "Enable Sim Equalizing"
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: true
     entity_category: config
+    lambda: return id(sim_eq${bms_id}_var_enable);
+    turn_on_action:
+      - lambda: |-
+          id(sim_eq${bms_id}_var_enable) = true;
+          id(sim_eq${bms_id}_switch_sim_eq).publish_state(true);
+    turn_off_action:
+      - lambda: |-
+          id(sim_eq${bms_id}_var_enable) = false;
+          id(sim_eq${bms_id}_switch_sim_eq).publish_state(false);
 
   # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
   - platform: template
     id: sim_eq${bms_id}_switch_force_eq
     device_id: sim_eq_${bms_id}
     name: "Force Equalizing"
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: true
     entity_category: config
+    lambda: return id(sim_eq${bms_id}_var_force);
+    turn_on_action:
+      - lambda: |-
+          id(sim_eq${bms_id}_var_force) = true;
+          id(sim_eq${bms_id}_switch_force_eq).publish_state(true);
+    turn_off_action:
+      - lambda: |-
+          id(sim_eq${bms_id}_var_force) = false;
+          id(sim_eq${bms_id}_switch_force_eq).publish_state(false);
 
 number:
   # Enter when max cell >= this (Enerkey: Balance Starting Voltage)
@@ -154,8 +178,8 @@ interval:
       - lambda: |-
           static bool inferred = false;
 
-          const bool sim_en = id(sim_eq${bms_id}_switch_sim_eq).state;
-          const bool force  = id(sim_eq${bms_id}_switch_force_eq).state;
+          const bool sim_en = id(sim_eq${bms_id}_var_enable);
+          const bool force  = id(sim_eq${bms_id}_var_force);
 
           const float max_cell = id(bms${bms_id}_max_cell_voltage).state;
           const float min_cell = id(bms${bms_id}_min_cell_voltage).state;
