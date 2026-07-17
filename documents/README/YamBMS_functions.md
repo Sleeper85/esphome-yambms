@@ -438,6 +438,8 @@ With classic CC–CV, the pack is charged hard until CVL, then voltage is held w
 
 Most installations that need balancing hold time will use both: taper CCL into Bulk, and use **Charging Offset** so the inverter actually gets there. Without tapering, a pack that only needs a small finishing current may be left undercharged if CCL is slammed to balance amps too early with no Ah left to absorb.
 
+The balancing act is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That sweet spot takes some experimentation; an appropriate Current Taper curve makes the result somewhat repeatable from day to day.
+
 For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`). **CVL Offset** on the entities card shows the amount currently applied (why CVL is above Bulk).
 
 This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
