@@ -488,14 +488,14 @@ Notes:
 - After EOC, Current Taper currently forces CCL to `0A` (while the session is still active). The alternative would be to leave **Balance Current** and rely on the inverter treating `SoC = 100%` as charge-complete. Which is right depends on the inverter: some honor `CCL = 0` as a hard stop, others ignore it; some stop cleanly on SoC alone. There is no user switch yet; one may be added later if field experience needs both modes.
 - With Float enabled: that post-EOC `CCL = 0` hold lasts until pack voltage falls below `knee − 0.2V`. If the inverter treats `CCL = 0` as “do not charge”, Float cannot deliver current during that window; some inverters ignore a zero CCL and may still float. That hold is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
 
-> **Why is this so complicated?**
->
-> Current Taper is not designed against one charger. Hybrid/inverter brands (and firmware revisions) each pick a different subset of charge-control signals, so YamBMS ends up needing levers that look redundant until you hit the one that doesn’t:
->
-> - whether `CCL = 0` is a hard stop, a soft limit, or ignored
-> - whether elevated CVL keeps pushing after Bulk, or only until current collapses
-> - whether `SoC = 100%` ends charge, or only low current / Cut-Off does
-> - whether Float needs a non-zero CCL, or only a float CVL
+**Why is this so complicated?**
+
+The inverter only sees `SoC`, `CVL`, and `CCL`. Brands (and firmware revisions) interpret those three differently, so YamBMS ends up needing levers that look redundant until you hit the one that doesn’t:
+
+- Does `CCL = 0` mean “stop charging”, a soft limit, or get ignored?
+- When its own charge current falls near zero, does the inverter keep holding at CVL, or treat that as “done” and stop charging?
+- What ends the charge: `SoC = 100%`, low charge current, either alone, or both required?
+- Does Float need a non-zero CCL to deliver any current?
 
 ## Diagnostic
 
