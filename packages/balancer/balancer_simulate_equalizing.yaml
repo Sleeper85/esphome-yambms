@@ -1,0 +1,144 @@
+# Updated : 2026.07.17
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+#--------------------------------------------------------------------------------------------
+# Simulate Equalizing (virtual balancer)
+#
+# Purpose:
+#   Assert YamBMS Equalizing via the BMS external-balancer override so Cut-Off holds
+#   CVL while cells balance. For BMS that never report balancing (e.g. Seplos).
+#
+# Include (one BMS id — YamBMS BMS ids start at 1):
+#   sim_equalizing: !include
+#     file: packages/balancer/balancer_simulate_equalizing.yaml
+#     vars:
+#       bms_id: '1'
+#
+# Contract:
+#   - Writes: bms${bms_id}_var_ext_balancer_online / _equalizing
+#   - Only asserts the override while active; releases it afterward so a real
+#     external balancer on that BMS is not permanently masked
+#--------------------------------------------------------------------------------------------
+
+switch:
+  # Auto: assert Equalizing when pack reaches Bulk − offset, hold for N minutes
+  - platform: template
+    id: yambms${yambms_id}_switch_sim_eq
+    device_id: yambms_yambms${yambms_id}
+    name: "Sim Equalizing"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+  # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
+  - platform: template
+    id: yambms${yambms_id}_switch_force_eq
+    device_id: yambms_yambms${yambms_id}
+    name: "Force Equalizing"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  - platform: template
+    id: yambms${yambms_id}_number_sim_eq_offset_v
+    device_id: yambms_yambms${yambms_id}
+    name: "Sim Eq Offset"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0.0
+    max_value: 0.5
+    step: 0.01
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.05
+    entity_category: config
+    icon: mdi:delta
+
+  - platform: template
+    id: yambms${yambms_id}_number_sim_eq_hold_min
+    device_id: yambms_yambms${yambms_id}
+    name: "Sim Eq Hold"
+    unit_of_measurement: min
+    min_value: 1
+    max_value: 120
+    step: 1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 15
+    entity_category: config
+    icon: mdi:timer-outline
+
+binary_sensor:
+  - platform: template
+    id: yambms${yambms_id}_sim_eq_active
+    device_id: yambms_yambms${yambms_id}
+    name: "Sim Eq Active"
+    entity_category: diagnostic
+    icon: mdi:scale-balance
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          static bool auto_active = false;
+          static bool armed = true;          // re-arm after voltage falls below threshold
+          static bool owns_override = false;
+          static uint32_t t0 = 0;
+
+          const bool sim_en = id(yambms${yambms_id}_switch_sim_eq).state;
+          const bool force  = id(yambms${yambms_id}_switch_force_eq).state;
+          const float V_pack = id(yambms${yambms_id}_total_voltage).state;
+          const float V_bulk = id(yambms${yambms_id}_bulk_voltage).state;
+          const float offset = id(yambms${yambms_id}_number_sim_eq_offset_v).state;
+          const uint32_t hold_ms =
+              (uint32_t)(id(yambms${yambms_id}_number_sim_eq_hold_min).state * 60000.0f);
+          const float thresh = V_bulk - offset;
+          constexpr float rearm_hyst = 0.05f;
+
+          if (sim_en) {
+            if (armed && !isnan(V_pack) && !isnan(V_bulk) && (V_pack >= thresh)) {
+              auto_active = true;
+              armed = false;
+              t0 = millis();
+            }
+            if (auto_active && ((millis() - t0) >= hold_ms))
+              auto_active = false;
+            if (!auto_active && !isnan(V_pack) && (V_pack < (thresh - rearm_hyst)))
+              armed = true;
+          } else {
+            auto_active = false;
+            armed = true;
+          }
+
+          const bool want_eq = force || auto_active;
+
+          if (want_eq) {
+            id(bms${bms_id}_var_ext_balancer_online) = true;
+            id(bms${bms_id}_var_ext_balancer_equalizing) = true;
+            owns_override = true;
+          } else if (owns_override) {
+            id(bms${bms_id}_var_ext_balancer_online) = false;
+            id(bms${bms_id}_var_ext_balancer_equalizing) = false;
+            owns_override = false;
+          }
+
+          id(yambms${yambms_id}_sim_eq_active).publish_state(want_eq);

@@ -426,6 +426,41 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ![Image](../../images/YamBMS_CANBUS_Status.png "YamBMS_CANBUS_Status")
 
+## Simulate Equalizing
+
+Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open for cell balancing. This optional package acts as a **virtual balancer** and asserts Equalizing through the standard BMS external-balancer override.
+
+Package: `packages/balancer/balancer_simulate_equalizing.yaml`
+
+```YAML
+packages:
+  sim_equalizing: !include
+    file: packages/balancer/balancer_simulate_equalizing.yaml
+    vars:
+      bms_id: '1'   # which BMS receives the override (YamBMS BMS ids start at 1)
+```
+
+Behaviour:
+
+1. `Sim Equalizing`: when pack voltage reaches `Bulk − Sim Eq Offset` (default `0.05V`), assert Equalizing for `Sim Eq Hold` minutes (default `15`). Re-arms after voltage falls `0.05V` below that threshold.
+2. `Force Equalizing`: manual / Home Assistant automation force (e.g. once a week). While on, Equalizing stays asserted.
+
+While active, YamBMS bank **Equalizing state** is true, so Cut-Off holds CVL (cut-off timer paused) the same way it would for a real balancer report. The override is released when inactive so a real external balancer on that BMS is not permanently masked.
+
+> [!NOTE]
+> Keep the **EOC timer** longer than `Sim Eq Hold` (or disable it) if you want the full hold window. This only signals Equalizing — it does not move charge between cells.
+
+Configuration options:
+
+- `Sim Equalizing`: Enables automatic Equalizing near bulk.
+- `Force Equalizing`: Forces Equalizing while on (automation-friendly).
+- `Sim Eq Offset`: Volts below `Bulk` where auto Equalizing starts (default `0.05V`).
+- `Sim Eq Hold`: Minutes to hold auto Equalizing (default `15`).
+
+Diagnostic sensors:
+
+- `Sim Eq Active`: True while simulated / forced Equalizing is asserted.
+
 ## Diagnostic
 
 Useful information for troubleshooting.
