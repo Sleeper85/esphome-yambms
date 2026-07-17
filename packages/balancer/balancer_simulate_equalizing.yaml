@@ -107,7 +107,7 @@ number:
     min_value: 1
     max_value: 360
     step: 1
-    mode: slider
+    mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
     initial_value: 30
