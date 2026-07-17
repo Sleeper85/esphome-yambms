@@ -30,9 +30,6 @@
 #   - Value must be <= 0.0  (negative = reduce, 0 = no reduction)
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #
-# Related (separate package):
-#   packages/balancer/balancer_simulate_equalizing.yaml — simulate Equalizing for BMS
-#   that never report balancing (optional; not required for Current Taper).
 #--------------------------------------------------------------------------------------------
 
 esphome:
