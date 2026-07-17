@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.0.1
+# Version : 1.0.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,22 +29,29 @@
 #     file: packages/balancer/balancer_simulate_equalizing.yaml
 #     vars:
 #       bms_id: '1'
-#       balancer_name: 'Sim Equalizing 1'
+#       sim_eq_name: 'Sim Equalizing 1'
+#
+# IDs use sim_eq_${bms_id} / sim_eq${bms_id}_* so this can coexist with a real
+# external balancer package (e.g. Enerkey) that already owns balancer_${bms_id}.
+#
+# Do not enable this on a BMS that already has a live external balancer driving
+# bms${bms_id}_var_ext_balancer_* — both would fight over the same override.
 #
 # Contract:
 #   - Writes: bms${bms_id}_var_ext_balancer_online / _equalizing
-#   - Only asserts the override while active; releases it afterward so a real
-#     external balancer on that BMS is not permanently masked
+#   - Only asserts the override while active; releases it afterward
 #--------------------------------------------------------------------------------------------
 
-packages:
-  sub_device: !include balancer_base_sub_device.yaml
+esphome:
+  devices:
+    - id: sim_eq_${bms_id}
+      name: "${sim_eq_name}"
 
 switch:
   # Auto: assert Equalizing when pack reaches Bulk − offset, hold for N minutes
   - platform: template
-    id: balancer${bms_id}_switch_sim_eq
-    device_id: balancer_${bms_id}
+    id: sim_eq${bms_id}_switch_sim_eq
+    device_id: sim_eq_${bms_id}
     name: "Sim Equalizing"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -52,8 +59,8 @@ switch:
 
   # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
   - platform: template
-    id: balancer${bms_id}_switch_force_eq
-    device_id: balancer_${bms_id}
+    id: sim_eq${bms_id}_switch_force_eq
+    device_id: sim_eq_${bms_id}
     name: "Force Equalizing"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -61,8 +68,8 @@ switch:
 
 number:
   - platform: template
-    id: balancer${bms_id}_number_sim_eq_offset_v
-    device_id: balancer_${bms_id}
+    id: sim_eq${bms_id}_number_sim_eq_offset_v
+    device_id: sim_eq_${bms_id}
     name: "Sim Eq Offset"
     unit_of_measurement: V
     device_class: voltage
@@ -77,8 +84,8 @@ number:
     icon: mdi:delta
 
   - platform: template
-    id: balancer${bms_id}_number_sim_eq_hold_min
-    device_id: balancer_${bms_id}
+    id: sim_eq${bms_id}_number_sim_eq_hold_min
+    device_id: sim_eq_${bms_id}
     name: "Sim Eq Hold"
     unit_of_measurement: min
     min_value: 1
@@ -93,8 +100,8 @@ number:
 
 binary_sensor:
   - platform: template
-    id: balancer${bms_id}_sim_eq_active
-    device_id: balancer_${bms_id}
+    id: sim_eq${bms_id}_sim_eq_active
+    device_id: sim_eq_${bms_id}
     name: "Sim Eq Active"
     entity_category: diagnostic
     icon: mdi:scale-balance
@@ -108,13 +115,13 @@ interval:
           static bool owns_override = false;
           static uint32_t t0 = 0;
 
-          const bool sim_en = id(balancer${bms_id}_switch_sim_eq).state;
-          const bool force  = id(balancer${bms_id}_switch_force_eq).state;
+          const bool sim_en = id(sim_eq${bms_id}_switch_sim_eq).state;
+          const bool force  = id(sim_eq${bms_id}_switch_force_eq).state;
           const float V_pack = id(yambms${yambms_id}_total_voltage).state;
           const float V_bulk = id(yambms${yambms_id}_bulk_voltage).state;
-          const float offset = id(balancer${bms_id}_number_sim_eq_offset_v).state;
+          const float offset = id(sim_eq${bms_id}_number_sim_eq_offset_v).state;
           const uint32_t hold_ms =
-              (uint32_t)(id(balancer${bms_id}_number_sim_eq_hold_min).state * 60000.0f);
+              (uint32_t)(id(sim_eq${bms_id}_number_sim_eq_hold_min).state * 60000.0f);
           const float thresh = V_bulk - offset;
           constexpr float rearm_hyst = 0.05f;
 
@@ -145,4 +152,4 @@ interval:
             owns_override = false;
           }
 
-          id(balancer${bms_id}_sim_eq_active).publish_state(want_eq);
+          id(sim_eq${bms_id}_sim_eq_active).publish_state(want_eq);

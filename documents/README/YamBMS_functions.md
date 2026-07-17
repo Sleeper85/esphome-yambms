@@ -437,9 +437,11 @@ packages:
   sim_equalizing: !include
     file: packages/balancer/balancer_simulate_equalizing.yaml
     vars:
-      bms_id: '1'                      # which BMS receives the override
-      balancer_name: 'Sim Equalizing 1'  # HA device / entity prefix
+      bms_id: '1'                        # which BMS override to drive
+      sim_eq_name: 'Sim Equalizing 1'    # HA device name (uses sim_eq_1_* ids)
 ```
+
+Uses its own `sim_eq_${bms_id}` device/IDs so it does not collide with a real balancer package (e.g. Enerkey) on `balancer_${bms_id}`. Do not enable it on a BMS whose external balancer is already driving `var_ext_balancer_*`.
 
 Behaviour:
 
