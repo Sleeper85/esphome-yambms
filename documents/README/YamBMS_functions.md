@@ -428,7 +428,15 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ## Auto CCL Current Taper
 
-When to use: Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and stays from rising much above it.
+Current Taper serves two related needs.
+
+**1. Reach Bulk cleanly (original purpose)**  
+Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and does not climb much above it.
+
+**2. Hold at Bulk for balancing**  
+With classic CC–CV, the pack is charged hard until CVL, then voltage is held while the battery absorbs at falling current. Current Taper changes that: as soon as pack voltage reaches Bulk, CCL is stepped down to **Balance Current** (e.g. `2A`–`3A`). That interrupts traditional absorption at CVL. Instead, absorption is moved **ahead of** Bulk (the knee→bulk curve) so that enough amp-hours are still “missing” when Bulk is hit — the pack can then accept `2A`–`3A` while balancing completes, with CVL held at Bulk (not Bulk + charging headroom).
+
+Most installations that need balancing hold time will use both: taper CCL into Bulk, and use **Charging Offset** so the inverter actually gets there. Without tapering, a pack that only needs a small finishing current may be left undercharged if CCL is slammed to balance amps too early with no Ah left to absorb.
 
 For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`). **CVL Offset** on the entities card shows the amount currently applied (why CVL is above Bulk).
 
@@ -444,8 +452,8 @@ By default the taper is linear with pack voltage. **Curve Exponent** changes the
 Behaviour:
 
 1. Below **Knee Voltage**: inactive — CCL unchanged, **CVL Offset** = `0`.
-2. At knee (active): **CVL Offset** = **Charging Offset**; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity`.
-3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); **CVL Offset** clears to `0` so CVL is not left elevated under balance current.
+2. At knee (active): **CVL Offset** = **Charging Offset**; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
+3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); **CVL Offset** clears to `0` so CVL stays at Bulk (+ charger offset) while balancing finishes at low current.
 4. After EOC (`var_eoc`): CCL goes to `0A`; **CVL Offset** stays `0`.
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 

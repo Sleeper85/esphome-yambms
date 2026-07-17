@@ -21,10 +21,11 @@
 # Auto CCL Current Taper
 #
 # Purpose:
-#   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
-#   to balance current. Zero after EOC (var_eoc).
-#   Owns Charging Offset: while active (at/above knee) and before bulk, add it to Bulk
-#   CVL via var_auto_custom_cvl; clear at bulk / EOC.
+#   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly (undershoot/overshoot).
+#   2) At bulk, hold low Balance Current with CVL at bulk for balancing — absorption is
+#      moved ahead of bulk (knee→bulk curve) so enough Ah remain to finish at 2–3 A.
+#   Owns Charging Offset: while active (knee→bulk), add it to Bulk CVL via custom_cvl;
+#   clear at bulk / EOC. Zero CCL after EOC (var_eoc).
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
