@@ -520,15 +520,15 @@ views:
         title: Simulate Equalizing
         show_header_toggle: false
         entities:
-          - entity: switch.yambms_1_sim_equalizing
+          - entity: switch.sim_equalizing_1_sim_equalizing
             name: Sim Equalizing
-          - entity: switch.yambms_1_force_equalizing
+          - entity: switch.sim_equalizing_1_force_equalizing
             name: Force Equalizing
-          - entity: number.yambms_1_sim_eq_offset
+          - entity: number.sim_equalizing_1_sim_eq_offset
             name: Sim Eq Offset
-          - entity: number.yambms_1_sim_eq_hold
+          - entity: number.sim_equalizing_1_sim_eq_hold
             name: Sim Eq Hold
-          - entity: binary_sensor.yambms_1_sim_eq_active
+          - entity: binary_sensor.sim_equalizing_1_sim_eq_active
             name: Sim Eq Active
           - type: weblink
             url: >-

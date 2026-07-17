@@ -437,7 +437,8 @@ packages:
   sim_equalizing: !include
     file: packages/balancer/balancer_simulate_equalizing.yaml
     vars:
-      bms_id: '1'   # which BMS receives the override (YamBMS BMS ids start at 1)
+      bms_id: '1'                      # which BMS receives the override
+      balancer_name: 'Sim Equalizing 1'  # HA device / entity prefix
 ```
 
 Behaviour:

@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.0.0
+# Version : 1.0.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -29,6 +29,7 @@
 #     file: packages/balancer/balancer_simulate_equalizing.yaml
 #     vars:
 #       bms_id: '1'
+#       balancer_name: 'Sim Equalizing 1'
 #
 # Contract:
 #   - Writes: bms${bms_id}_var_ext_balancer_online / _equalizing
@@ -36,11 +37,14 @@
 #     external balancer on that BMS is not permanently masked
 #--------------------------------------------------------------------------------------------
 
+packages:
+  sub_device: !include balancer_base_sub_device.yaml
+
 switch:
   # Auto: assert Equalizing when pack reaches Bulk − offset, hold for N minutes
   - platform: template
-    id: yambms${yambms_id}_switch_sim_eq
-    device_id: yambms_yambms${yambms_id}
+    id: balancer${bms_id}_switch_sim_eq
+    device_id: balancer_${bms_id}
     name: "Sim Equalizing"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -48,8 +52,8 @@ switch:
 
   # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
   - platform: template
-    id: yambms${yambms_id}_switch_force_eq
-    device_id: yambms_yambms${yambms_id}
+    id: balancer${bms_id}_switch_force_eq
+    device_id: balancer_${bms_id}
     name: "Force Equalizing"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -57,8 +61,8 @@ switch:
 
 number:
   - platform: template
-    id: yambms${yambms_id}_number_sim_eq_offset_v
-    device_id: yambms_yambms${yambms_id}
+    id: balancer${bms_id}_number_sim_eq_offset_v
+    device_id: balancer_${bms_id}
     name: "Sim Eq Offset"
     unit_of_measurement: V
     device_class: voltage
@@ -73,8 +77,8 @@ number:
     icon: mdi:delta
 
   - platform: template
-    id: yambms${yambms_id}_number_sim_eq_hold_min
-    device_id: yambms_yambms${yambms_id}
+    id: balancer${bms_id}_number_sim_eq_hold_min
+    device_id: balancer_${bms_id}
     name: "Sim Eq Hold"
     unit_of_measurement: min
     min_value: 1
@@ -89,8 +93,8 @@ number:
 
 binary_sensor:
   - platform: template
-    id: yambms${yambms_id}_sim_eq_active
-    device_id: yambms_yambms${yambms_id}
+    id: balancer${bms_id}_sim_eq_active
+    device_id: balancer_${bms_id}
     name: "Sim Eq Active"
     entity_category: diagnostic
     icon: mdi:scale-balance
@@ -104,13 +108,13 @@ interval:
           static bool owns_override = false;
           static uint32_t t0 = 0;
 
-          const bool sim_en = id(yambms${yambms_id}_switch_sim_eq).state;
-          const bool force  = id(yambms${yambms_id}_switch_force_eq).state;
+          const bool sim_en = id(balancer${bms_id}_switch_sim_eq).state;
+          const bool force  = id(balancer${bms_id}_switch_force_eq).state;
           const float V_pack = id(yambms${yambms_id}_total_voltage).state;
           const float V_bulk = id(yambms${yambms_id}_bulk_voltage).state;
-          const float offset = id(yambms${yambms_id}_number_sim_eq_offset_v).state;
+          const float offset = id(balancer${bms_id}_number_sim_eq_offset_v).state;
           const uint32_t hold_ms =
-              (uint32_t)(id(yambms${yambms_id}_number_sim_eq_hold_min).state * 60000.0f);
+              (uint32_t)(id(balancer${bms_id}_number_sim_eq_hold_min).state * 60000.0f);
           const float thresh = V_bulk - offset;
           constexpr float rearm_hyst = 0.05f;
 
@@ -141,4 +145,4 @@ interval:
             owns_override = false;
           }
 
-          id(yambms${yambms_id}_sim_eq_active).publish_state(want_eq);
+          id(balancer${bms_id}_sim_eq_active).publish_state(want_eq);
