@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.3.0
+# Version : 1.3.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,8 +23,9 @@
 # Purpose:
 #   Taper requested charge current from knee to bulk voltage. At first bulk touch, drop CCL
 #   to balance current. Zero after EOC (var_eoc).
-#   Owns Charging Offset V.: while active (at/above knee) and before bulk, add it to Bulk
-#   CVL via var_auto_custom_cvl; clear at bulk / EOC / when Auto CVL is on.
+#   Owns Charging Offset: while active (at/above knee) and before bulk, add it to Bulk
+#   CVL via var_auto_custom_cvl; clear at bulk / EOC. Do not use with Auto CVL enabled
+#   (set Charging Offset to 0, or leave Auto CVL off) — CT does not reference Auto CVL IDs.
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
@@ -358,12 +359,12 @@ interval:
           id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
 
           //--------------------------------------------------------------------
-          // Bulk CVL: add Charging Offset while active, before bulk (Auto CVL off)
+          // Bulk CVL: add Charging Offset while active, before bulk
           // Core sums: bulk + charger_offset + auto_cvl + custom_cvl
+          // (No Auto CVL switch check — that package is optional and may be absent.)
           //--------------------------------------------------------------------
           float cvl_delta = 0.0f;
-          if (active && !bulk_latched && !eoc_done
-              && !id(yambms${yambms_id}_switch_auto_cvl).state) {
+          if (active && !bulk_latched && !eoc_done) {
             cvl_delta = id(yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v).state;
           }
           id(yambms${yambms_id}_var_auto_custom_cvl) = cvl_delta;
