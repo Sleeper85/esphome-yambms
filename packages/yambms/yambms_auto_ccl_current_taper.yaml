@@ -201,7 +201,7 @@ sensor:
     icon: mdi:current-dc
     lambda: 'return id(yambms${yambms_id}_var_auto_custom_ccl);'
 
-  # Applied charging offset on Bulk CVL (0 / +offset). Steps at knee and again at bulk.
+  # Applied charging offset on Bulk CVL (0 or +offset). Entities-card explanation for CVL > Bulk.
   - platform: template
     name: "Auto CCL CT CVL Offset"
     id: yambms${yambms_id}_auto_ccl_ct_cvl_offset
@@ -210,7 +210,6 @@ sensor:
     device_class: voltage
     accuracy_decimals: 1
     update_interval: never
-    entity_category: diagnostic
     icon: mdi:sine-wave
     lambda: 'return id(yambms${yambms_id}_var_auto_custom_cvl);'
 

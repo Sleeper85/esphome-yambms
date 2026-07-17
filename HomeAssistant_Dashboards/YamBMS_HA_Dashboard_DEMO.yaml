@@ -474,7 +474,7 @@ views:
           - entity: number.yambms_demo_auto_ccl_ct_charging_offset
             name: Charging Offset
           - entity: sensor.yambms_demo_auto_ccl_ct_cvl_offset
-            name: CVL Offset
+            name: CVL Offset (why CVL > Bulk)
           - type: weblink
             url: >-
               https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper

@@ -442,7 +442,7 @@ By default the taper is linear with pack voltage. `Auto CCL CT Curve Exp` change
 Behaviour:
 
 1. Below `Auto CCL CT Knee Voltage`: inactive — CCL unchanged, CVL offset `0`.
-2. At knee (active): if Auto CVL is off, `var_auto_custom_cvl = +Charging Offset` (visible on `Auto CCL CT CVL Offset`). CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
+2. At knee (active): if Auto CVL is off, `var_auto_custom_cvl = +Charging Offset` (`Auto CCL CT CVL Offset` shows that amount so you can see why CVL is above Bulk). CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
 3. At first bulk touch: CCL drops to `Auto CCL CT Balance Current` (default `2A`); CVL offset clears to `0` so CVL is not left elevated under balance current.
 4. After EOC (`var_eoc`): CCL goes to `0A`; CVL offset stays `0`.
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
@@ -464,7 +464,7 @@ Diagnostic sensors:
 - `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
 - `Auto CCL CT Knee Amps` / `Auto CCL CT Bulk Amps`: Capacity × C-rate targets.
 - `Auto CCL CT Delta`: Pipeline CCL reduction applied (≤ `0A`).
-- `Auto CCL CT CVL Offset`: Applied charging offset on Bulk CVL (`0` or `+Charging Offset`). Steps at knee and again at bulk.
+- `Auto CCL CT CVL Offset`: Applied charging offset on Bulk CVL (`0` or `+Charging Offset`). Shown on the entities card to explain why CVL is above Bulk.
 
 Notes:
 
