@@ -75,6 +75,23 @@ switch:
     entity_category: config
 
 number:
+  # Extra Bulk CVL while CT is active (knee → bulk). Cleared at bulk. IR/sense stays on Charger Offset.
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Charging Offset"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0
+    max_value: 1
+    step: 0.1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.0
+    entity_category: config
+    icon: mdi:battery-charging
+
   # Knee / activation voltage (pack)
   # Min/max are updated at boot from cell count × chemistry (see on_boot priority 550).
   - platform: template
@@ -158,23 +175,6 @@ number:
     entity_category: config
     icon: mdi:chart-bell-curve
 
-  # Extra Bulk CVL while CT is active (knee → bulk). Cleared at bulk. IR/sense stays on Charger Offset.
-  - platform: template
-    id: yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Charging Offset"
-    unit_of_measurement: V
-    device_class: voltage
-    min_value: 0
-    max_value: 1
-    step: 0.1
-    mode: ${yambms_input_number_mode}
-    restore_value: true
-    optimistic: true
-    initial_value: 0.0
-    entity_category: config
-    icon: mdi:battery-charging
-
 sensor:
   # Pack V for taper math — 10-sample SMA; keeps CCL from amplifying raw V noise
   # If it’s twitchy, increase window_size; if too sluggish, lower it.
@@ -202,7 +202,7 @@ sensor:
     icon: mdi:current-dc
     lambda: 'return id(yambms${yambms_id}_var_auto_custom_ccl);'
 
-  # Applied charging offset on Bulk CVL (0 or +offset). Entities-card explanation for CVL > Bulk.
+  # Applied Charging Offset on Bulk CVL (0 or +offset). Diagnostic / custom dashboards — not a config entity.
   - platform: template
     name: "Auto CCL CT CVL Offset"
     id: yambms${yambms_id}_auto_ccl_ct_cvl_offset
@@ -211,6 +211,7 @@ sensor:
     device_class: voltage
     accuracy_decimals: 1
     update_interval: never
+    entity_category: diagnostic
     icon: mdi:sine-wave
     lambda: 'return id(yambms${yambms_id}_var_auto_custom_cvl);'
 

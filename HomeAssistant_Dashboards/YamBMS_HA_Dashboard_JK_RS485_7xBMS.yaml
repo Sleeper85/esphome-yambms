@@ -522,6 +522,8 @@ views:
         entities:
           - entity: switch.yambms_1_auto_ccl_ct
             name: Current Taper
+          - entity: number.yambms_1_auto_ccl_ct_charging_offset
+            name: Charging Offset
           - entity: number.yambms_1_auto_ccl_ct_knee_voltage
             name: Knee Voltage
           - entity: number.yambms_1_auto_ccl_ct_knee_c_rate
@@ -536,10 +538,6 @@ views:
             name: Balance Current
           - entity: number.yambms_1_auto_ccl_ct_curve_exp
             name: Curve Exponent
-          - entity: number.yambms_1_auto_ccl_ct_charging_offset
-            name: Charging Offset
-          - entity: sensor.yambms_1_auto_ccl_ct_cvl_offset
-            name: CVL Offset
           - type: weblink
             url: >-
               https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper

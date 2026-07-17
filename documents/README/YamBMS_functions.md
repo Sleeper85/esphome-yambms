@@ -440,7 +440,7 @@ Most installations that need balancing hold time will use both: taper CCL into B
 
 The balancing act is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That sweet spot takes some experimentation; an appropriate Current Taper curve makes the result somewhat repeatable from day to day.
 
-For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`). **CVL Offset** on the entities card shows the amount currently applied (why CVL is above Bulk).
+For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`).
 
 This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
@@ -453,10 +453,10 @@ By default the taper is linear with pack voltage. **Curve Exponent** changes the
 
 Behaviour:
 
-1. Below **Knee Voltage**: inactive — CCL unchanged, **CVL Offset** = `0`.
-2. At knee (active): **CVL Offset** = **Charging Offset**; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
-3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); **CVL Offset** clears to `0` so CVL stays at Bulk (+ charger offset) while balancing finishes at low current.
-4. After EOC (`var_eoc`): CCL goes to `0A`; **CVL Offset** stays `0`.
+1. Below **Knee Voltage**: inactive — CCL unchanged; Charging Offset not applied.
+2. At knee (active): Charging Offset is applied to Bulk CVL; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
+3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); Charging Offset is cleared so CVL stays at Bulk (+ charger offset) while balancing finishes at low current.
+4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset stays cleared.
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
@@ -464,6 +464,7 @@ If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the fu
 Configuration options (entities card names):
 
 - **Current Taper**: Enables or disables the function.
+- **Charging Offset**: Extra Bulk CVL to apply while active (knee → bulk). Default `0`.
 - **Knee Voltage**: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
 - **Knee C-Rate**: C-rate at the knee; × `Battery Capacity` for the starting CCL (default `0.125C`).
 - **Knee Amps**: Capacity × Knee C-Rate (read-only).
@@ -471,12 +472,12 @@ Configuration options (entities card names):
 - **Bulk Amps**: Capacity × Bulk C-Rate (read-only).
 - **Balance Current**: CCL while latched at bulk (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
 - **Curve Exponent**: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (range `0.5`–`2.0`, default `1.0`).
-- **Charging Offset**: Extra Bulk CVL to apply while active (knee → bulk). Default `0`. The entities card **CVL Offset** row is the same value when active, otherwise `0` — it only shows whether that offset is currently on Bulk CVL.
 
 Other diagnostic sensors:
 
 - `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
 - `Auto CCL CT Delta`: Pipeline CCL reduction applied (≤ `0A`).
+- `Auto CCL CT CVL Offset`: Charging Offset currently applied to Bulk CVL (`0` when inactive / at bulk). Useful on a custom dashboard; not part of the configuration card.
 
 Notes:
 
