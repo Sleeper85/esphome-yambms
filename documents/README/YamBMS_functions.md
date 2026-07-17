@@ -496,8 +496,6 @@ Notes:
 > - whether elevated CVL keeps pushing after Bulk, or only until current collapses
 > - whether `SoC = 100%` ends charge, or only low current / Cut-Off does
 > - whether Float needs a non-zero CCL, or only a float CVL
->
-> The defaults stay simple; knobs exist where field experience shows inverters disagree.
 
 ## Diagnostic
 
