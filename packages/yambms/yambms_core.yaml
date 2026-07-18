@@ -1064,7 +1064,11 @@ interval:
 
               if (id(yambms${yambms_id}_var_charge_status) != "Init")
                 id(yambms${yambms_id}_var_requested_ccl_init) = true;
-              
+
+              // Next pipeline round: clear shared custom slots so disabled packages
+              // need not write 0 (which would wipe another custom Auto CCL writer).
+              id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+              id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
               id(yambms${yambms_id}_var_charge_current_step) = 1;
             }
 

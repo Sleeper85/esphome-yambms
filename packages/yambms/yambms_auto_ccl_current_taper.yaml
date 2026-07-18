@@ -297,11 +297,12 @@ interval:
           // Gate #2: Feature enabled?
           //--------------------------------------------------------------------
           if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state) {
+            // Disabled: advance baton only. Do NOT write custom_ccl/cvl = 0 — that
+            // would wipe another custom Auto CCL package (e.g. Soft Landing) that
+            // already wrote this cycle (shared var_auto_custom_ccl slot).
             active = false;
             bulk_latched = false;
             id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
-            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
-            id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
             id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
@@ -336,10 +337,10 @@ interval:
           // bulk_voltage is runtime-adjustable, so boot traits alone can't enforce this.
           //--------------------------------------------------------------------
           if (V_knee >= (V_bulk - V_hyst)) {
+            // Invalid knee/bulk window: no-op for CT. Do not zero custom_ccl (shared slot).
             active = false;
             bulk_latched = false;
             id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
-            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
             id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
@@ -391,7 +392,9 @@ interval:
             I_target = I_max;
           }
 
-          id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
+          // Shared custom slot: keep the more restrictive (more negative) delta
+          id(yambms${yambms_id}_var_auto_custom_ccl) =
+              fminf(id(yambms${yambms_id}_var_auto_custom_ccl), delta);
           id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = delta;
 
           //--------------------------------------------------------------------
