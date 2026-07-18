@@ -434,13 +434,13 @@ Current Taper serves two related needs.
 Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and does not climb much above it.
 
 **2. Hold at Bulk for balancing**  
-With classic CC–CV, the pack is charged hard until CVL, then voltage is held while the battery absorbs at whatever current it will still accept. If absorption is allowed at that maximum rate, the pack fills quickly, current falls toward zero, and some inverters treat the low current as “charging complete” and **stop holding Bulk** — cutting short the time available for balancing. Current Taper changes that: as soon as pack voltage reaches Bulk, CCL is stepped down to **Balance Current** (e.g. `2A`–`3A`). That interrupts traditional absorption at CVL. Instead, absorption is moved **ahead of** Bulk (the knee→bulk curve) so that enough amp-hours are still “missing” when Bulk is hit — charging can continue at low current for an extended period while balancing completes, with CVL held at Bulk (not Bulk + charging headroom).
+With classic CC–CV, the pack is charged hard until CVL, then voltage is held while the battery absorbs at whatever current it will still accept. If absorption is allowed at that maximum rate, the pack fills quickly, current falls toward zero, and some inverters treat the low current as “charging complete” and **stop holding Bulk** — cutting short the time available for balancing. Current Taper changes that: as soon as pack voltage reaches Bulk, CCL is stepped down to **Balance Current** (e.g. `2A`–`3A`) while **Charging Offset** stays on CVL until EOC. Dropping CVL at bulk can look like “charging complete” to some inverters; the climb is limited with CCL instead. Absorption is moved **ahead of** Bulk (the knee→bulk curve) so enough amp-hours remain when Bulk is hit for a long low-current balance hold.
 
 Most installations that need balancing hold time will use both: taper CCL into Bulk, and use **Charging Offset** so the inverter actually gets there. Without tapering, a pack that only needs a small finishing current may be left undercharged if CCL is slammed to balance amps too early with no Ah left to absorb.
 
 The balancing act is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That sweet spot takes some experimentation; an appropriate Current Taper curve makes the result somewhat repeatable from day to day.
 
-For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`; at bulk it is cleared so CVL returns to `Bulk + Charger Offset`. Keep `Charger Offset V.` for IR / sense (~`0.1V`).
+For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl` and **stays applied until EOC**. At bulk, CCL drops to **Balance Current** to limit further voltage climb; CVL is not stepped down at bulk — some inverters treat a sudden CVL drop as “charging complete” and stop holding. Keep `Charger Offset V.` for IR / sense (~`0.1V`).
 
 This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
@@ -455,8 +455,8 @@ Behaviour:
 
 1. Below **Knee Voltage**: inactive — CCL unchanged; Charging Offset not applied.
 2. At knee (active): Charging Offset is applied to Bulk CVL; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
-3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); Charging Offset is cleared so CVL stays at Bulk (+ charger offset) while balancing finishes at low current.
-4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset stays cleared. (Open choice — see Notes.)
+3. At first bulk touch: CCL drops to **Balance Current** (default `2A`); Charging Offset **remains** on CVL (`Bulk + Charging Offset + Charger Offset`) so the inverter keeps a charge voltage target while balancing at low current.
+4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset is cleared. (Open choice on CCL — see Notes.)
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
@@ -464,7 +464,7 @@ If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the fu
 Configuration options (entities card names):
 
 - **Current Taper**: Enables or disables the function.
-- **Charging Offset**: Extra Bulk CVL to apply while active (knee → bulk). Default `0`.
+- **Charging Offset**: Extra Bulk CVL to apply while active until EOC. Default `0`.
 - **Knee Voltage**: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
 - **Knee C-Rate**: C-rate at the knee; × `Battery Capacity` for the starting CCL (default `0.125C`).
 - **Knee Amps**: Capacity × Knee C-Rate (read-only).
@@ -477,7 +477,7 @@ Other diagnostic sensors:
 
 - `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
 - `Auto CCL CT Delta`: Pipeline CCL reduction applied (≤ `0A`).
-- `Auto CCL CT CVL Offset`: Charging Offset currently applied to Bulk CVL (`0` when inactive / at bulk). Useful on a custom dashboard; not part of the configuration card.
+- `Auto CCL CT CVL Offset`: Charging Offset currently applied to Bulk CVL (`0` when inactive / after EOC). Useful on a custom dashboard; not part of the configuration card.
 
 Notes:
 

@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.3.3
+# Version : 1.3.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,17 +22,17 @@
 #
 # Purpose:
 #   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly (undershoot/overshoot).
-#   2) At bulk, hold low Balance Current with CVL at bulk for balancing — absorption is
-#      moved ahead of bulk (knee→bulk curve) so enough Ah remain to finish at 2–3 A.
-#   Owns Charging Offset: while active (knee→bulk), add it to Bulk CVL via custom_cvl;
-#   clear at bulk / EOC. After EOC (var_eoc): currently forces CCL to 0A; alternative
-#   would be leave Balance Current and rely on SoC=100 (no user switch yet).
+#   2) At bulk, drop CCL to Balance Current; keep Charging Offset on CVL until EOC so the
+#      inverter is not told “charge done” by a sudden CVL step-down — hold voltage with CCL.
+#   Owns Charging Offset: while active until EOC, add it to Bulk CVL via custom_cvl.
+#   After EOC (var_eoc): currently forces CCL to 0A; alternative would be leave Balance
+#   Current and rely on SoC=100 (no user switch yet).
 #
 # Contract with yambms_core.yaml:
 #   - Participates in Auto CCL STEP pipeline
 #   - Writes: id(yambms${yambms_id}_var_auto_custom_ccl)  (<= 0)
 #   - Writes: id(yambms${yambms_id}_var_auto_custom_cvl)  (+charging_offset while active
-#     before bulk, else 0). Requires core Bulk CVL to sum var_auto_custom_cvl.
+#     until EOC, else 0). Requires core Bulk CVL to sum var_auto_custom_cvl.
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #   - Publishes: id(yambms${yambms_id}_var_auto_ccl_ct_active) for Auto EOC Adaptive Charging yield
 #
@@ -92,7 +92,7 @@ switch:
     entity_category: config
 
 number:
-  # Extra Bulk CVL while CT is active (knee → bulk). Cleared at bulk. IR/sense stays on Charger Offset.
+  # Extra Bulk CVL while CT is active until EOC. IR/sense stays on Charger Offset.
   - platform: template
     id: yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v
     device_id: yambms_yambms${yambms_id}
@@ -398,11 +398,13 @@ interval:
           id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = delta;
 
           //--------------------------------------------------------------------
-          // Bulk CVL: add Charging Offset while active, before bulk
+          // Bulk CVL: Charging Offset while active until EOC (not cleared at bulk).
+          // Dropping CVL at bulk can look like “charge complete” to some inverters;
+          // hold Bulk+offset and limit climb with Balance Current CCL instead.
           // Core sums: bulk + charger_offset + auto_cvl + custom_cvl
           //--------------------------------------------------------------------
           float cvl_delta = 0.0f;
-          if (active && !bulk_latched && !eoc_done) {
+          if (active && !eoc_done) {
             cvl_delta = id(yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v).state;
           }
           id(yambms${yambms_id}_var_auto_custom_cvl) = cvl_delta;
