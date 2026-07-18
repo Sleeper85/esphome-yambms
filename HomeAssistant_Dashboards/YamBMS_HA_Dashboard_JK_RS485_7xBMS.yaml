@@ -524,6 +524,8 @@ views:
             name: Current Taper
           - entity: number.yambms_1_auto_ccl_ct_charging_offset
             name: Charging Offset
+          - entity: switch.yambms_1_auto_ccl_ct_drop_offset_at_bulk
+            name: Drop Offset at Bulk
           - entity: number.yambms_1_auto_ccl_ct_knee_voltage
             name: Knee Voltage
           - entity: number.yambms_1_auto_ccl_ct_knee_c_rate
