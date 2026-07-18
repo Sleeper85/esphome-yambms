@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.2.1
+# Version : 1.2.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -53,56 +53,24 @@ esphome:
     - id: sim_eq_${bms_id}
       name: "${sim_eq_name}"
 
-  # Globals restore before this; template switches need an explicit publish or HA shows OFF.
-  on_boot:
-    - priority: -100.0
-      then:
-        - lambda: |-
-            id(sim_eq${bms_id}_switch_sim_eq).publish_state(id(sim_eq${bms_id}_var_enable));
-            id(sim_eq${bms_id}_switch_force_eq).publish_state(id(sim_eq${bms_id}_var_force));
-
-globals:
-  - id: sim_eq${bms_id}_var_enable
-    type: bool
-    restore_value: yes
-    initial_value: 'false'
-  - id: sim_eq${bms_id}_var_force
-    type: bool
-    restore_value: yes
-    initial_value: 'false'
-
 switch:
   # Auto: infer Equalizing from this BMS's cell voltage + delta vs thresholds
   - platform: template
     id: sim_eq${bms_id}_switch_sim_eq
     device_id: sim_eq_${bms_id}
     name: "Enable"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
     entity_category: config
-    lambda: return id(sim_eq${bms_id}_var_enable);
-    turn_on_action:
-      - lambda: |-
-          id(sim_eq${bms_id}_var_enable) = true;
-          id(sim_eq${bms_id}_switch_sim_eq).publish_state(true);
-    turn_off_action:
-      - lambda: |-
-          id(sim_eq${bms_id}_var_enable) = false;
-          id(sim_eq${bms_id}_switch_sim_eq).publish_state(false);
 
   # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
   - platform: template
     id: sim_eq${bms_id}_switch_force_eq
     device_id: sim_eq_${bms_id}
     name: "Force"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
     entity_category: config
-    lambda: return id(sim_eq${bms_id}_var_force);
-    turn_on_action:
-      - lambda: |-
-          id(sim_eq${bms_id}_var_force) = true;
-          id(sim_eq${bms_id}_switch_force_eq).publish_state(true);
-    turn_off_action:
-      - lambda: |-
-          id(sim_eq${bms_id}_var_force) = false;
-          id(sim_eq${bms_id}_switch_force_eq).publish_state(false);
 
 number:
   # Cap continuous sim Equalizing (inferred or force). Runtime alternative to
@@ -207,8 +175,8 @@ interval:
           static bool prev_force = false;
           static uint32_t started_ms = 0;    // when this sim assertion session began
 
-          const bool sim_en = id(sim_eq${bms_id}_var_enable);
-          bool force = id(sim_eq${bms_id}_var_force);
+          const bool sim_en = id(sim_eq${bms_id}_switch_sim_eq).state;
+          bool force = id(sim_eq${bms_id}_switch_force_eq).state;
 
           // Force rising edge starts a new timed session (weekly top-balance)
           if (force && !prev_force) {
@@ -268,7 +236,6 @@ interval:
               inferred = false;
               started_ms = 0;
               if (force) {
-                id(sim_eq${bms_id}_var_force) = false;
                 id(sim_eq${bms_id}_switch_force_eq).publish_state(false);
                 force = false;
               }
