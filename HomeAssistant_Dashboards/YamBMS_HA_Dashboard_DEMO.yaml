@@ -452,25 +452,25 @@ views:
             icon: mdi:book-open-variant
         title: YamBMS - Auto EOC
       - type: entities
-        title: Simulate Equalizing
+        title: Sim Eq
         show_header_toggle: false
         entities:
-          - entity: switch.sim_equalizing_1_enable_sim_equalizing
-            name: Enable Sim Equalizing
-          - entity: switch.sim_equalizing_1_force_equalizing
-            name: Force Equalizing
-          - entity: number.sim_equalizing_1_max_run_time
+          - entity: switch.sim_eq_1_enable
+            name: Enable
+          - entity: switch.sim_eq_1_force
+            name: Force
+          - entity: number.sim_eq_1_max_run_time
             name: Max Run Time
-          - entity: number.sim_equalizing_1_balance_starting_voltage
+          - entity: number.sim_eq_1_balance_starting_voltage
             name: Start Balance V
-          - entity: number.sim_equalizing_1_balance_sleep_voltage
+          - entity: number.sim_eq_1_balance_sleep_voltage
             name: Stop Balance V
-          - entity: number.sim_equalizing_1_balance_trigger_voltage
+          - entity: number.sim_eq_1_balance_trigger_voltage
             name: Start Delta V
-          - entity: number.sim_equalizing_1_balance_stop_diff_voltage
+          - entity: number.sim_eq_1_balance_stop_diff_voltage
             name: Stop Delta V
-          - entity: binary_sensor.sim_equalizing_1_sim_eq_active
-            name: Sim Eq Active
+          - entity: binary_sensor.sim_eq_1_active
+            name: Active
           - type: weblink
             url: >-
               https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#simulate-equalizing

@@ -489,11 +489,11 @@ packages:
   #   file: packages/balancer/balancer_modbus_client.yaml
   #   vars: { bms_id: '1', balancer_name: 'Enerkey 1', ... }
 
-  sim_equalizing: !include
+  sim_eq: !include
     file: packages/balancer/balancer_simulate_equalizing.yaml
     vars:
       bms_id: '1'                        # which BMS cells + override to drive
-      sim_eq_name: 'Sim Equalizing 1'    # HA device name (uses sim_eq_1_* ids)
+      sim_eq_name: 'Sim Eq 1'            # HA device name → entity_id prefix sim_eq_1_
 
   # Only if there is NO real balancer package for this bms_id:
   # balancer_stub1: !include
@@ -507,8 +507,8 @@ Uses its own `sim_eq_${bms_id}` device/IDs so they do not collide with `balancer
 
 Behaviour:
 
-1. `Enable Sim Equalizing` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
-2. `Force Equalizing`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference. Cleared automatically when **Max Run Time** expires.
+1. `Enable` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
+2. `Force`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference. Cleared automatically when **Max Run Time** expires.
 3. `Max Run Time`: caps how long sim Equalizing (inferred or force) may stay asserted (default `30` min, max `360`). After expiry, sim drops Equalizing and will not re-enter until cells fall below the enter thresholds (or Force is used again after re-arm). Use this for longer weekly top-balance without changing the compile-time YamBMS **EOC timer**.
 4. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when sim is idle.
 
@@ -519,8 +519,8 @@ While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The YamBMS *
 
 Configuration options:
 
-- `Enable Sim Equalizing`: Enables cell-threshold inference.
-- `Force Equalizing`: Forces Equalizing while on (automation-friendly).
+- `Enable`: Enables cell-threshold inference.
+- `Force`: Forces Equalizing while on (automation-friendly).
 - `Max Run Time`: Maximum continuous sim Equalizing in minutes (slider, `1`–`360`, default `30`).
 - `Balance Starting Voltage`: Max-cell floor to enter (default `3.40V`).
 - `Balance Sleep Voltage`: Max-cell floor to exit (default `3.20V`).
@@ -529,7 +529,7 @@ Configuration options:
 
 Diagnostic sensors:
 
-- `Sim Eq Active`: True while inferred / forced Equalizing is asserted (does not include real-balancer-only periods).
+- `Active`: True while inferred / forced Equalizing is asserted (does not include real-balancer-only periods).
 
 ## Diagnostic
 

@@ -27,11 +27,11 @@
 #   Equalizing = (real balancer balancing) OR (inferred / force).
 #
 # Include (one BMS id — YamBMS BMS ids start at 1):
-#   sim_equalizing: !include
+#   sim_eq: !include
 #     file: packages/balancer/balancer_simulate_equalizing.yaml
 #     vars:
 #       bms_id: '1'
-#       sim_eq_name: 'Sim Equalizing 1'
+#       sim_eq_name: 'Sim Eq 1'
 #
 # Requires:
 #   - bms${bms_id}_max_cell_voltage / _min_cell_voltage
@@ -68,7 +68,7 @@ switch:
   - platform: template
     id: sim_eq${bms_id}_switch_sim_eq
     device_id: sim_eq_${bms_id}
-    name: "Enable Sim Equalizing"
+    name: "Enable"
     entity_category: config
     lambda: return id(sim_eq${bms_id}_var_enable);
     turn_on_action:
@@ -84,7 +84,7 @@ switch:
   - platform: template
     id: sim_eq${bms_id}_switch_force_eq
     device_id: sim_eq_${bms_id}
-    name: "Force Equalizing"
+    name: "Force"
     entity_category: config
     lambda: return id(sim_eq${bms_id}_var_force);
     turn_on_action:
@@ -186,7 +186,7 @@ binary_sensor:
   - platform: template
     id: sim_eq${bms_id}_sim_eq_active
     device_id: sim_eq_${bms_id}
-    name: "Sim Eq Active"
+    name: "Active"
     entity_category: diagnostic
     icon: mdi:scale-balance
 
