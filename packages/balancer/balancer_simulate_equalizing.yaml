@@ -1,5 +1,5 @@
 # Updated : 2026.07.17
-# Version : 1.2.2
+# Version : 1.2.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -42,8 +42,9 @@
 # balancer_${bms_id} used by real balancer packages.
 #
 # Contract:
-#   - Merges into: bms${bms_id}_var_ext_balancer_online / _equalizing every tick
-#   - Never clears online/equalizing out from under a live real balancer
+#   - Sets sim_eq${bms_id}_var_asserting; !extends bms equalizing to OR it in
+#     (Enerkey modbus also writes var_ext_balancer_* and would wipe a plain write)
+#   - Still updates var_ext_balancer_* for stub / no-hardware-balancer setups
 #   - Max Run Time caps how long sim (inferred/force) may assert Equalizing;
 #     YamBMS EOC timer is a separate compile-time charge-end ceiling
 #--------------------------------------------------------------------------------------------
@@ -52,6 +53,13 @@ esphome:
   devices:
     - id: sim_eq_${bms_id}
       name: "${sim_eq_name}"
+
+globals:
+  # Sim wants Equalizing this tick (survives Enerkey overwriting var_ext_balancer_equalizing)
+  - id: sim_eq${bms_id}_var_asserting
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
 switch:
   # Auto: infer Equalizing from this BMS's cell voltage + delta vs thresholds
@@ -159,6 +167,14 @@ number:
     icon: mdi:delta
 
 binary_sensor:
+  # OR sim into the BMS equalizing sensor (Enerkey on_state would otherwise clear it)
+  - id: !extend bms${bms_id}_equalizing
+    lambda: |-
+      const bool sim = id(sim_eq${bms_id}_var_asserting);
+      if (id(bms${bms_id}_var_ext_balancer_online))
+        return id(bms${bms_id}_var_ext_balancer_equalizing) || sim;
+      return id(bms${bms_id}_bms_equalizing).state || sim;
+
   - platform: template
     id: sim_eq${bms_id}_sim_eq_active
     device_id: sim_eq_${bms_id}
@@ -245,7 +261,10 @@ interval:
 
           const bool want_eq = sim_eq || real_eq;
 
-          // Merge: keep override path alive if real balancer is online OR sim wants eq
+          // Sticky sim bit — bms equalizing lambda ORs this (Enerkey must not be able to clear it)
+          id(sim_eq${bms_id}_var_asserting) = sim_eq;
+
+          // Also write ext vars for stub / offline-balancer setups (may be overwritten by Enerkey)
           id(bms${bms_id}_var_ext_balancer_online) = real_online || sim_eq;
           id(bms${bms_id}_var_ext_balancer_equalizing) = want_eq;
 
