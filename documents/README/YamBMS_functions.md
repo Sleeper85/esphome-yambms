@@ -443,7 +443,7 @@ The balancing act is to charge hard enough that the pack is **not yet full** whe
 For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`. What happens at bulk is inverter-dependent — use **Drop Offset at Bulk**:
 
 - **OFF** (default): keep Charging Offset until EOC. Needed when the inverter sometimes undershoots CVL by ~`0.5V` and must keep that headroom (e.g. some Deye setups). Limit further climb with **Balance Current** CCL.
-- **ON**: at Bulk, replace Charging Offset with a soft hold: `round(pack V, 2) + 0.1V − Bulk` (latched at first bulk touch), kept until EOC. Avoids a hard drop to Bulk (which some inverters treat as charge-complete) while still cutting most of the approach headroom so the inverter does not keep pushing hard.
+- **ON**: at Bulk, replace Charging Offset with a soft hold: `round(pack V + 0.1V, 1 decimal) − Bulk` (latched at first bulk touch), kept until EOC. Avoids a hard drop to Bulk (which some inverters treat as charge-complete) while still cutting most of the approach headroom so the inverter does not keep pushing hard.
 
 Keep `Charger Offset V.` for IR / sense (~`0.1V`).
 
@@ -460,7 +460,7 @@ Behaviour:
 
 1. Below **Knee Voltage**: inactive — CCL unchanged; Charging Offset not applied.
 2. At knee (active): Charging Offset is applied to Bulk CVL; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
-3. At first bulk touch: CCL drops to **Balance Current** (default `2A`). If **Drop Offset at Bulk** is on, Charging Offset is replaced by the soft hold (`round(pack, 2) + 0.1 − Bulk`); if off, Charging Offset stays until EOC.
+3. At first bulk touch: CCL drops to **Balance Current** (default `2A`). If **Drop Offset at Bulk** is on, Charging Offset is replaced by the soft hold (`round(pack + 0.1, 1 decimal) − Bulk`); if off, Charging Offset stays until EOC.
 4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset is cleared. (Open choice on CCL — see Notes.)
 5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
@@ -470,7 +470,7 @@ Configuration options (entities card names):
 
 - **Current Taper**: Enables or disables the function.
 - **Charging Offset**: Extra Bulk CVL while Current Taper is active (until bulk or EOC per the next switch). Default `0`.
-- **Drop Offset at Bulk**: When on, at Bulk switch CVL custom offset to `round(pack V, 2) + 0.1V − Bulk` until EOC. When off (default), keep Charging Offset until EOC.
+- **Drop Offset at Bulk**: When on, at Bulk switch CVL custom offset to `round(pack V + 0.1V, 1 decimal) − Bulk` until EOC. When off (default), keep Charging Offset until EOC.
 - **Knee Voltage**: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
 - **Knee C-Rate**: C-rate at the knee; × `Battery Capacity` for the starting CCL (default `0.125C`).
 - **Knee Amps**: Capacity × Knee C-Rate (read-only).

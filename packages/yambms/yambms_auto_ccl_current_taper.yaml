@@ -23,7 +23,7 @@
 # Purpose:
 #   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly (undershoot/overshoot).
 #   2) At bulk, drop CCL to Balance Current. Charging Offset on CVL: kept until EOC by
-#      default; Drop Offset at Bulk replaces it with a hold of round(pack,2)+0.1 − Bulk
+#      default; Drop Offset at Bulk replaces it with a hold of round(pack+0.1, 1) − Bulk
 #      (latched at bulk touch) until EOC — soft step-down so the inverter keeps holding.
 #   Owns Charging Offset via custom_cvl.
 #
@@ -90,7 +90,7 @@ switch:
     optimistic: true
     entity_category: config
 
-  # ON: at bulk, replace Charging Offset with hold = round(pack V, 2)+0.1 − Bulk until EOC.
+  # ON: at bulk, replace Charging Offset with hold = round(pack V + 0.1, 1) − Bulk until EOC.
   # OFF: keep Charging Offset until EOC (full headroom; some inverters need that).
   - platform: template
     id: yambms${yambms_id}_switch_auto_ccl_ct_drop_offset_at_bulk
@@ -380,9 +380,8 @@ interval:
             hold_cvl_off = NAN;
           } else if (active && !bulk_latched && V_pack >= V_bulk) {
             bulk_latched = true;                                            // sudden drop to I_balance
-            // Soft CVL step-down: round(pack, 2) + 0.1 − Bulk (used if Drop Offset at Bulk)
-            const float v_r = roundf(V_pack * 100.0f) / 100.0f;
-            hold_cvl_off = (v_r + 0.1f) - V_bulk;
+            // Soft CVL step-down: round(pack + 0.1, 1 decimal) − Bulk (if Drop Offset at Bulk)
+            hold_cvl_off = roundf((V_pack + 0.1f) * 10.0f) / 10.0f - V_bulk;
           }
 
           id(yambms${yambms_id}_var_auto_ccl_ct_active) = active;
@@ -420,7 +419,7 @@ interval:
           //--------------------------------------------------------------------
           // Bulk CVL: Charging Offset while active.
           // Drop Offset at Bulk OFF → keep Charging Offset until EOC.
-          // Drop Offset at Bulk ON  → at bulk, hold round(pack,2)+0.1 − Bulk until EOC
+          // Drop Offset at Bulk ON  → at bulk, hold round(pack+0.1, 1) − Bulk until EOC
           //   (soft step-down; full drop to Bulk looks like EOC to some inverters).
           // Core sums: bulk + charger_offset + auto_cvl + custom_cvl
           //--------------------------------------------------------------------
