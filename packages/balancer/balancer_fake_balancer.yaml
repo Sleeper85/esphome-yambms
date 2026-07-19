@@ -1,5 +1,5 @@
-# Updated : 2026.07.17
-# Version : 1.2.3
+# Updated : 2026.07.19
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 #--------------------------------------------------------------------------------------------
-# Simulate Equalizing (virtual balancer)
+# Fake Balancer (virtual Equalizing)
 #
 # Purpose:
 #   Infer Equalizing for a BMS that balances but never reports a balancing flag.
@@ -27,36 +27,36 @@
 #   Equalizing = (real balancer balancing) OR (inferred / force).
 #
 # Include (one BMS id — YamBMS BMS ids start at 1):
-#   sim_eq: !include
-#     file: packages/balancer/balancer_simulate_equalizing.yaml
+#   fake_balancer: !include
+#     file: packages/balancer/balancer_fake_balancer.yaml
 #     vars:
 #       bms_id: '1'
-#       sim_eq_name: 'Sim Eq 1'
+#       fake_bal_name: 'Fake Balancer 1'
 #
 # Requires:
 #   - bms${bms_id}_max_cell_voltage / _min_cell_voltage
 #   - balancer${bms_id}_equalizing and balancer${bms_id}_online_status
 #     (Enerkey/Heltec/modbus balancer package, or balancer_equalizing_stub.yaml)
 #
-# IDs use sim_eq_${bms_id} / sim_eq${bms_id}_* so they do not collide with
+# IDs use fake_bal_${bms_id} / fake_bal${bms_id}_* so they do not collide with
 # balancer_${bms_id} used by real balancer packages.
 #
 # Contract:
-#   - Sets sim_eq${bms_id}_var_asserting; !extends bms equalizing to OR it in
+#   - Sets fake_bal${bms_id}_var_asserting; !extends bms equalizing to OR it in
 #     (Enerkey modbus also writes var_ext_balancer_* and would wipe a plain write)
 #   - Still updates var_ext_balancer_* for stub / no-hardware-balancer setups
-#   - Max Run Time caps how long sim (inferred/force) may assert Equalizing;
+#   - Max Run Time caps how long fake (inferred/force) may assert Equalizing;
 #     YamBMS EOC timer is a separate compile-time charge-end ceiling
 #--------------------------------------------------------------------------------------------
 
 esphome:
   devices:
-    - id: sim_eq_${bms_id}
-      name: "${sim_eq_name}"
+    - id: fake_bal_${bms_id}
+      name: "${fake_bal_name}"
 
 globals:
-  # Sim wants Equalizing this tick (survives Enerkey overwriting var_ext_balancer_equalizing)
-  - id: sim_eq${bms_id}_var_asserting
+  # Fake Balancer wants Equalizing this tick (survives Enerkey overwriting var_ext_balancer_equalizing)
+  - id: fake_bal${bms_id}_var_asserting
     type: bool
     restore_value: no
     initial_value: 'false'
@@ -64,8 +64,8 @@ globals:
 switch:
   # Auto: infer Equalizing from this BMS's cell voltage + delta vs thresholds
   - platform: template
-    id: sim_eq${bms_id}_switch_sim_eq
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_switch_enable
+    device_id: fake_bal_${bms_id}
     name: "Enable"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
@@ -73,19 +73,19 @@ switch:
 
   # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
   - platform: template
-    id: sim_eq${bms_id}_switch_force_eq
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_switch_force
+    device_id: fake_bal_${bms_id}
     name: "Force"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
 
 number:
-  # Cap continuous sim Equalizing (inferred or force). Runtime alternative to
+  # Cap continuous fake Equalizing (inferred or force). Runtime alternative to
   # raising the compile-time YamBMS EOC timer for longer weekly top-balance.
   - platform: template
-    id: sim_eq${bms_id}_max_run_time
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_max_run_time
+    device_id: fake_bal_${bms_id}
     name: "Max Run Time"
     unit_of_measurement: min
     min_value: 1
@@ -100,8 +100,8 @@ number:
 
   # Enter when max cell >= this (Enerkey: Balance Starting Voltage)
   - platform: template
-    id: sim_eq${bms_id}_balance_starting_voltage
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_balance_starting_voltage
+    device_id: fake_bal_${bms_id}
     name: "Balance Starting Voltage"
     unit_of_measurement: V
     device_class: voltage
@@ -117,8 +117,8 @@ number:
 
   # Exit when max cell < this (Enerkey: Balance Sleep Voltage)
   - platform: template
-    id: sim_eq${bms_id}_balance_sleep_voltage
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_balance_sleep_voltage
+    device_id: fake_bal_${bms_id}
     name: "Balance Sleep Voltage"
     unit_of_measurement: V
     device_class: voltage
@@ -134,8 +134,8 @@ number:
 
   # Enter when (max − min) >= this (Enerkey: Balance Trigger Voltage)
   - platform: template
-    id: sim_eq${bms_id}_balance_trigger_voltage
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_balance_trigger_voltage
+    device_id: fake_bal_${bms_id}
     name: "Balance Trigger Voltage"
     unit_of_measurement: V
     device_class: voltage
@@ -151,8 +151,8 @@ number:
 
   # Exit when (max − min) <= this (Enerkey: Balance Stop Diff Voltage)
   - platform: template
-    id: sim_eq${bms_id}_balance_stop_diff_voltage
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_balance_stop_diff_voltage
+    device_id: fake_bal_${bms_id}
     name: "Balance Stop Diff Voltage"
     unit_of_measurement: V
     device_class: voltage
@@ -167,17 +167,17 @@ number:
     icon: mdi:delta
 
 binary_sensor:
-  # OR sim into the BMS equalizing sensor (Enerkey on_state would otherwise clear it)
+  # OR fake into the BMS equalizing sensor (Enerkey on_state would otherwise clear it)
   - id: !extend bms${bms_id}_equalizing
     lambda: |-
-      const bool sim = id(sim_eq${bms_id}_var_asserting);
+      const bool fake = id(fake_bal${bms_id}_var_asserting);
       if (id(bms${bms_id}_var_ext_balancer_online))
-        return id(bms${bms_id}_var_ext_balancer_equalizing) || sim;
-      return id(bms${bms_id}_bms_equalizing).state || sim;
+        return id(bms${bms_id}_var_ext_balancer_equalizing) || fake;
+      return id(bms${bms_id}_bms_equalizing).state || fake;
 
   - platform: template
-    id: sim_eq${bms_id}_sim_eq_active
-    device_id: sim_eq_${bms_id}
+    id: fake_bal${bms_id}_active
+    device_id: fake_bal_${bms_id}
     name: "Active"
     entity_category: diagnostic
     icon: mdi:scale-balance
@@ -189,10 +189,10 @@ interval:
           static bool inferred = false;
           static bool run_expired = false;   // latched after Max Run Time until re-arm
           static bool prev_force = false;
-          static uint32_t started_ms = 0;    // when this sim assertion session began
+          static uint32_t started_ms = 0;    // when this fake assertion session began
 
-          const bool sim_en = id(sim_eq${bms_id}_switch_sim_eq).state;
-          bool force = id(sim_eq${bms_id}_switch_force_eq).state;
+          const bool fake_en = id(fake_bal${bms_id}_switch_enable).state;
+          bool force = id(fake_bal${bms_id}_switch_force).state;
 
           // Force rising edge starts a new timed session (weekly top-balance)
           if (force && !prev_force) {
@@ -203,11 +203,11 @@ interval:
 
           const float max_cell = id(bms${bms_id}_max_cell_voltage).state;
           const float min_cell = id(bms${bms_id}_min_cell_voltage).state;
-          const float start_v  = id(sim_eq${bms_id}_balance_starting_voltage).state;
-          const float sleep_v  = id(sim_eq${bms_id}_balance_sleep_voltage).state;
-          const float trig_v   = id(sim_eq${bms_id}_balance_trigger_voltage).state;
-          const float stop_dv  = id(sim_eq${bms_id}_balance_stop_diff_voltage).state;
-          const float max_run_min = id(sim_eq${bms_id}_max_run_time).state;
+          const float start_v  = id(fake_bal${bms_id}_balance_starting_voltage).state;
+          const float sleep_v  = id(fake_bal${bms_id}_balance_sleep_voltage).state;
+          const float trig_v   = id(fake_bal${bms_id}_balance_trigger_voltage).state;
+          const float stop_dv  = id(fake_bal${bms_id}_balance_stop_diff_voltage).state;
+          const float max_run_min = id(fake_bal${bms_id}_max_run_time).state;
 
           // Real balancer on this bms_id (Enerkey/Heltec/modbus client, or stub)
           const bool real_online = id(balancer${bms_id}_online_status).has_state()
@@ -221,7 +221,7 @@ interval:
           const bool below_enter = cells_ok
               && ((max_cell < start_v) || (delta < trig_v));
 
-          if (!sim_en) {
+          if (!fake_en) {
             inferred = false;
           } else if (cells_ok) {
             if (!inferred) {
@@ -233,15 +233,15 @@ interval:
             }
           }
 
-          bool sim_eq = force || inferred;
+          bool fake_eq = force || inferred;
 
-          // Max Run Time: cap continuous sim Equalizing (inferred or force)
-          if (!sim_eq) {
+          // Max Run Time: cap continuous fake Equalizing (inferred or force)
+          if (!fake_eq) {
             started_ms = 0;
             if (!force && below_enter)
               run_expired = false;
           } else if (run_expired) {
-            sim_eq = false;
+            fake_eq = false;
           } else {
             const uint32_t now = millis();
             if (started_ms == 0)
@@ -252,20 +252,20 @@ interval:
               inferred = false;
               started_ms = 0;
               if (force) {
-                id(sim_eq${bms_id}_switch_force_eq).publish_state(false);
+                id(fake_bal${bms_id}_switch_force).publish_state(false);
                 force = false;
               }
-              sim_eq = false;
+              fake_eq = false;
             }
           }
 
-          const bool want_eq = sim_eq || real_eq;
+          const bool want_eq = fake_eq || real_eq;
 
-          // Sticky sim bit — bms equalizing lambda ORs this (Enerkey must not be able to clear it)
-          id(sim_eq${bms_id}_var_asserting) = sim_eq;
+          // Sticky fake bit — bms equalizing lambda ORs this (Enerkey must not be able to clear it)
+          id(fake_bal${bms_id}_var_asserting) = fake_eq;
 
           // Also write ext vars for stub / offline-balancer setups (may be overwritten by Enerkey)
-          id(bms${bms_id}_var_ext_balancer_online) = real_online || sim_eq;
+          id(bms${bms_id}_var_ext_balancer_online) = real_online || fake_eq;
           id(bms${bms_id}_var_ext_balancer_equalizing) = want_eq;
 
-          id(sim_eq${bms_id}_sim_eq_active).publish_state(sim_eq);
+          id(fake_bal${bms_id}_active).publish_state(fake_eq);

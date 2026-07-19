@@ -472,28 +472,28 @@ Notes:
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - With Float enabled: after EOC, Current Taper holds CCL at `0A` while `var_eoc` is true and the session is still active, so Float cannot deliver current until pack voltage falls below `knee − 0.2V`. That is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
 
-## Simulate Equalizing
+## Fake Balancer
 
 Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open while cells balance. This optional package **infers** Equalizing from that BMS's max/min cell voltage using the same threshold names as Enerkey / Heltec / JK balancers. It **cooperates** with a real balancer on the same `bms_id`:
 
 `Equalizing = (real balancer balancing) OR (inferred) OR (force)`
 
-Package: `packages/balancer/balancer_simulate_equalizing.yaml`
+Package: `packages/balancer/balancer_fake_balancer.yaml`
 
 Requires `bms${bms_id}_max_cell_voltage` / `_min_cell_voltage`, plus `balancer${bms_id}_equalizing` and `_online_status` from a real balancer package (or `balancer_equalizing_stub.yaml`).
 
 ```YAML
 packages:
-  # Real balancer (example) — already provides the IDs sim ORs with
+  # Real balancer (example) — already provides the IDs Fake Balancer ORs with
   # balancer1: !include
   #   file: packages/balancer/balancer_modbus_client.yaml
   #   vars: { bms_id: '1', balancer_name: 'Enerkey 1', ... }
 
-  sim_eq: !include
-    file: packages/balancer/balancer_simulate_equalizing.yaml
+  fake_balancer: !include
+    file: packages/balancer/balancer_fake_balancer.yaml
     vars:
-      bms_id: '1'                        # which BMS cells + override to drive
-      sim_eq_name: 'Sim Eq 1'            # HA device name → entity_id prefix sim_eq_1_
+      bms_id: '1'                              # which BMS cells + override to drive
+      fake_bal_name: 'Fake Balancer 1'         # HA device name → entity_id prefix fake_balancer_1_
 
   # Only if there is NO real balancer package for this bms_id:
   # balancer_stub1: !include
@@ -503,16 +503,16 @@ packages:
   #     balancer_name: 'Balancer Stub 1'
 ```
 
-Uses its own `sim_eq_${bms_id}` device/IDs so they do not collide with `balancer_${bms_id}`. Each tick merges into `var_ext_balancer_*` and never clears online/equalizing out from under a live real balancer.
+Uses its own `fake_bal_${bms_id}` device/IDs so they do not collide with `balancer_${bms_id}`. Each tick merges into `var_ext_balancer_*` and never clears online/equalizing out from under a live real balancer.
 
 Behaviour:
 
 1. `Enable` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
 2. `Force`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference. Cleared automatically when **Max Run Time** expires.
-3. `Max Run Time`: caps how long sim Equalizing (inferred or force) may stay asserted (default `30` min, max `360`). After expiry, sim drops Equalizing and will not re-enter until cells fall below the enter thresholds (or Force is used again after re-arm). Use this for longer weekly top-balance without changing the compile-time YamBMS **EOC timer**.
-4. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when sim is idle.
+3. `Max Run Time`: caps how long fake Equalizing (inferred or force) may stay asserted (default `30` min, max `360`). After expiry, Fake Balancer drops Equalizing and will not re-enter until cells fall below the enter thresholds (or Force is used again after re-arm). Use this for longer weekly top-balance without changing the compile-time YamBMS **EOC timer**.
+4. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when Fake Balancer is idle.
 
-While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The YamBMS **EOC timer** remains a separate compile-time charge-end ceiling; **Max Run Time** is the runtime knob for how long *this sim* may hold Equalizing.
+While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The YamBMS **EOC timer** remains a separate compile-time charge-end ceiling; **Max Run Time** is the runtime knob for how long *Fake Balancer* may hold Equalizing.
 
 > [!NOTE]
 > These numbers are **inference** thresholds for YamBMS, not writes to a hardware balancer. Match them to how your BMS/balancer actually behaves. This only signals Equalizing — it does not move charge between cells.
