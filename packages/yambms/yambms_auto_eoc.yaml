@@ -1,5 +1,5 @@
-# Updated : 2026.07.14
-# Version : 1.2.2
+# Updated : 2026.07.16
+# Version : 1.2.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -209,6 +209,26 @@ interval:
             return;
           }
 
+          // Check if Auto SoC Limit has reached its target and is holding the battery there.
+          // While parked ("Stop: SoC limit reached", then "Wait: Reactivating at X%") the battery is
+          // deliberately not charged any further, so there is nothing for Auto EOC to plan: it would
+          // chase a target the SoC limit does not allow it to reach, and because the battery drifts
+          // slightly below that target inside the hysteresis band, the required current would keep
+          // ramping up as the target time approaches. Auto SoC Limit keeps its own, stronger CCL
+          // derating while parked, so releasing the Auto EOC limit here does not raise the current.
+          // In Float / Float + CCL mode the Float check above already catches this.
+          if (id(yambms${yambms_id}_switch_auto_soc_limit).state &&
+              id(yambms${yambms_id}_auto_soc_limit_status).has_state()) {
+            const std::string &soc_status = id(yambms${yambms_id}_auto_soc_limit_status).state;
+            if (soc_status.starts_with("Wait") || (soc_status == "Stop: SoC limit reached")) {
+              id(yambms${yambms_id}_var_auto_eoc) = 0;
+              id(yambms${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
+              id(yambms${yambms_id}_auto_eoc_status).publish_state("Stop: Auto SoC Limit reached");
+              id(yambms${yambms_id}_var_charge_current_step)++;
+              return;
+            }
+          }
+
           // Update in 60s intervals only
           static uint32_t last_execution_ms = 0;
           uint32_t current_ms = millis();
@@ -289,7 +309,7 @@ interval:
         
           // Check if Auto SoC Limit is active
           int auto_soc_limit = 0;
-          if (id(yambms${yambms_id}_switch_auto_soc_limit).state && 
+          if (id(yambms${yambms_id}_switch_auto_soc_limit).state &&
               id(yambms${yambms_id}_auto_soc_limit_status).has_state()) {
             // Check status, if Run, remove Auto SoC limit difference from battery capacity
             if (id(yambms${yambms_id}_auto_soc_limit_status).state.starts_with("Run")) {
