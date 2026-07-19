@@ -385,7 +385,8 @@ interval:
           if (active) {
             if (eoc_done) {
               // EOC → CCL = 0 for now; alt: keep I_balance and rely on SoC=100 (switch later?)
-              I_target = 0.0f;
+              //I_target = 0.0f;
+              I_target = I_balance;                                         // at bulk → balance current
             } else if (bulk_latched) {
               I_target = I_balance;                                         // at bulk → balance current
             } else {
