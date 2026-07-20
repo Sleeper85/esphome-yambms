@@ -50,7 +50,7 @@ The `Bulk voltage` slider allows you to set the voltage used during the `Bulk`, 
 
 The `Float voltage` slider allows you to set the voltage used after charging is complete if the `Float charge enabled` switch is enabled.
 
-The `Charger Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop (typically about `0.1V` for IR / sense). Prefer keeping this for that purpose; approach headroom for undershooting inverters belongs to Current Taper's `Charging Offset` (see below).
+The `Charger Offset V.` slider allows you to correct the inverter charge voltage, either because it does not respect the requested value or because your inverter is far from your batteries and there is a voltage drop. This allows you to reach the target `Bulk` or `Float` charge voltage by adding an offset.
 
 The `Cut-Off Cell Voltage` select defines which cell voltage is used by the `Cut-Off` detection, see the [Charging logic](Charging_logic.md).
 
@@ -428,49 +428,37 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ## Auto CCL Current Taper
 
-Current Taper serves two related needs.
+Optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`).
 
-**1. Reach Bulk cleanly (original purpose)**  
-Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and does not climb much above it.
+**1. Reach Bulk cleanly**  
+Your inverter may stop short of or overshoot the configured `Bulk voltage`. Current Taper reduces `Requested Charge Current (CCL)` along a knee→bulk curve so the pack reaches bulk more cleanly.
 
 **2. Hold at Bulk for balancing**  
-With classic CC–CV, the pack is charged hard until CVL, then voltage is held while the battery absorbs at whatever current it will still accept. If absorption is allowed at that maximum rate, the pack fills quickly, current falls toward zero, and some inverters treat the low current as “charging complete” and **stop holding Bulk** — cutting short the time available for balancing. Current Taper changes that: as soon as pack voltage reaches Bulk, CCL is stepped down to **Balance Current** (e.g. `2A`–`3A`). Whether **Charging Offset** stays on CVL or is cleared at bulk is controlled by **Drop Offset at Bulk** (see below). Absorption is moved **ahead of** Bulk (the knee→bulk curve) so enough amp-hours remain when Bulk is hit for a long low-current balance hold.
+At first bulk touch, CCL drops to **Balance Current** (e.g. `2A`–`3A`) and stays there while the session is active, so absorption is not allowed to race to zero and cut the balance window short. Absorption is moved **ahead of** Bulk (the knee→bulk curve) so enough amp-hours remain when Bulk is hit for a low-current balance hold.
 
-Most installations that need balancing hold time will use both: taper CCL into Bulk, and use **Charging Offset** so the inverter actually gets there. Without tapering, a pack that only needs a small finishing current may be left undercharged if CCL is slammed to balance amps too early with no Ah left to absorb.
+The sweet spot is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That takes some experimentation; a stable curve makes the result more repeatable day to day.
 
-The balancing act is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That sweet spot takes some experimentation; an appropriate Current Taper curve makes the result somewhat repeatable from day to day.
-
-For undershoot, set **Charging Offset** (e.g. `0.5V`). When Current Taper becomes active at the knee, that offset is added to Bulk CVL via `var_auto_custom_cvl`. What happens at bulk is inverter-dependent — use **Drop Offset at Bulk**:
-
-- **OFF** (default): keep Charging Offset until EOC. Needed when the inverter sometimes undershoots CVL by ~`0.5V` and must keep that headroom (e.g. some Deye setups). Limit further climb with **Balance Current** CCL.
-- **ON**: at Bulk, replace Charging Offset with a soft hold: `round(pack V + 0.1V, 1 decimal) − Bulk` (latched at first bulk touch), kept until EOC. Avoids a hard drop to Bulk (which some inverters treat as charge-complete) while still cutting most of the approach headroom so the inverter does not keep pushing hard.
-
-Keep `Charger Offset V.` for IR / sense (~`0.1V`).
-
-This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
+This package participates in the Auto CCL STEP pipeline and writes `var_auto_custom_ccl` (the shared custom CCL slot on `dev`). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
 By default the taper is linear with pack voltage. **Curve Exponent** changes the shape: higher values taper faster early and leave a longer tail; lower values delay the taper and drop more sharply near bulk. Linear or near-linear usually works best.
 
+Use `Charger Offset V.` for IR / sense or inverter CVL error (~`0.1V` and up).
+
 > [!IMPORTANT]
 > Unlike stock `Auto CCL` (max cell vs BMS `OVP`), Current Taper uses **pack voltage** vs a user knee and YamBMS `Bulk voltage`.
->
-> Core only sums `var_auto_custom_cvl` on Bulk CVL. It does not know about Charging Offset — Current Taper owns that.
 
 Behaviour:
 
-1. Below **Knee Voltage**: inactive — CCL unchanged; Charging Offset not applied.
-2. At knee (active): Charging Offset is applied to Bulk CVL; CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity` (absorption moved ahead of Bulk).
-3. At first bulk touch: CCL drops to **Balance Current** (default `2A`). If **Drop Offset at Bulk** is on, Charging Offset is replaced by the soft hold (`round(pack + 0.1, 1 decimal) − Bulk`); if off, Charging Offset stays until EOC.
-4. After EOC (`var_eoc`): CCL goes to `0A`; Charging Offset is cleared. (Open choice on CCL — see Notes.)
-5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
+1. Below **Knee Voltage**: inactive — CCL unchanged (`custom_ccl = 0`).
+2. At knee (active): CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity`.
+3. At first bulk touch: CCL drops to **Balance Current** (default `2A`) and stays there while the session is active (including through EOC).
+4. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
 
 Configuration options (entities card names):
 
 - **Current Taper**: Enables or disables the function.
-- **Charging Offset**: Extra Bulk CVL while Current Taper is active (until bulk or EOC per the next switch). Default `0`.
-- **Drop Offset at Bulk**: When on, at Bulk switch CVL custom offset to `round(pack V + 0.1V, 1 decimal) − Bulk` until EOC. When off (default), keep Charging Offset until EOC.
 - **Knee Voltage**: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
 - **Knee C-Rate**: C-rate at the knee; × `Battery Capacity` for the starting CCL (default `0.125C`).
 - **Knee Amps**: Capacity × Knee C-Rate (read-only).
@@ -483,25 +471,14 @@ Other diagnostic sensors:
 
 - `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
 - `Auto CCL CT Delta`: Pipeline CCL reduction applied (≤ `0A`).
-- `Auto CCL CT CVL Offset`: Custom CVL delta currently applied (`Charging Offset`, or the soft bulk hold, or `0` when inactive / after EOC). Useful on a custom dashboard; not part of the configuration card.
 
 Notes:
 
 - Requires a correct `Battery Capacity`.
+- Writes the shared `var_auto_custom_ccl` slot; when inactive or disabled it writes `0` so a prior taper cannot stick (`dev` does not clear that slot each round).
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
-- Dual lever (CCL + CVL) is intentional: undershoot headroom and taper are one charge behavior. Auto CVL (if present) uses a separate delta and can coexist.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
-- After EOC, Current Taper currently forces CCL to `0A` (while the session is still active). The alternative would be to leave **Balance Current** and rely on the inverter treating `SoC = 100%` as charge-complete. Which is right depends on the inverter: some honor `CCL = 0` as a hard stop, others ignore it; some stop cleanly on SoC alone. There is no user switch yet; one may be added later if field experience needs both modes.
-- With Float enabled: that post-EOC `CCL = 0` hold lasts until pack voltage falls below `knee − 0.2V`. If the inverter treats `CCL = 0` as “do not charge”, Float cannot deliver current during that window; some inverters ignore a zero CCL and may still float. That hold is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
-
-**Why is this so complicated?**
-
-The inverter only sees `SoC`, `CVL`, and `CCL`. Brands (and firmware revisions) interpret those three differently, so YamBMS ends up needing levers that look redundant until you hit the one that doesn’t:
-
-- Does `CCL = 0` mean “stop charging”, a soft limit, or get ignored?
-- When its own charge current falls near zero, does the inverter keep holding at CVL, or treat that as “done” and stop charging?
-- What ends the charge: `SoC = 100%`, low charge current, either alone, or both required?
-- Does Float need a non-zero CCL to deliver any current?
+- Pair with `Charger Offset V.` when the inverter undershoots bulk.
 
 ## Diagnostic
 

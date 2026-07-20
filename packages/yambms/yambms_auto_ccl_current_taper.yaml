@@ -1,5 +1,5 @@
-# Updated : 2026.07.17
-# Version : 1.3.6
+# Updated : 2026.07.20
+# Version : 1.4.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,34 +21,18 @@
 # Auto CCL Current Taper
 #
 # Purpose:
-#   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly (undershoot/overshoot).
-#   2) At bulk, drop CCL to Balance Current. Charging Offset on CVL: kept until EOC by
-#      default; Drop Offset at Bulk replaces it with a hold of round(pack+0.1, 1) − Bulk
-#      (latched at bulk touch) until EOC — soft step-down so the inverter keeps holding.
-#   Owns Charging Offset via custom_cvl.
+#   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly.
+#   2) At bulk, drop CCL to Balance Current (held while the session stays active).
 #
-# Contract with yambms_core.yaml:
+# Contract with yambms_core.yaml (upstream/dev):
 #   - Participates in Auto CCL STEP pipeline
-#   - Writes: id(yambms${yambms_id}_var_auto_custom_ccl)  (<= 0)
-#   - Writes: id(yambms${yambms_id}_var_auto_custom_cvl)  (charging offset / bulk hold /
-#     0 at EOC). Requires core Bulk CVL sum.
+#   - Writes: id(yambms${yambms_id}_var_auto_custom_ccl)  (<= 0 when tapering; 0 when inactive)
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
-#   - Publishes: id(yambms${yambms_id}_var_auto_ccl_ct_active) for Auto EOC Adaptive Charging yield
-#
 #--------------------------------------------------------------------------------------------
 
 globals:
-  # Session active (knee→release). Adaptive Charging yields while true.
-  - id: yambms${yambms_id}_var_auto_ccl_ct_active
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-  # Diagnostic readouts (always defined; 0 when session inactive)
+  # Diagnostic readout (0 when session inactive)
   - id: yambms${yambms_id}_var_auto_ccl_ct_delta_a
-    type: float
-    restore_value: no
-    initial_value: '0.0'
-  - id: yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -90,36 +74,7 @@ switch:
     optimistic: true
     entity_category: config
 
-  # ON: at bulk, replace Charging Offset with hold = round(pack V + 0.1, 1) − Bulk until EOC.
-  # OFF: keep Charging Offset until EOC (full headroom; some inverters need that).
-  - platform: template
-    id: yambms${yambms_id}_switch_auto_ccl_ct_drop_offset_at_bulk
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Drop Offset at Bulk"
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: true
-    entity_category: config
-    icon: mdi:arrow-collapse-down
-
 number:
-  # Extra Bulk CVL while CT is active; at bulk may switch to pack+0.1 hold (Drop Offset at Bulk).
-  # IR/sense stays on Charger Offset.
-  - platform: template
-    id: yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v
-    device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT Charging Offset"
-    unit_of_measurement: V
-    device_class: voltage
-    min_value: 0
-    max_value: 1
-    step: 0.1
-    mode: ${yambms_input_number_mode}
-    restore_value: true
-    optimistic: true
-    initial_value: 0.0
-    entity_category: config
-    icon: mdi:battery-charging
-
   # Knee / activation voltage (pack)
   # Min/max are updated at boot from cell count × chemistry (see on_boot priority 550).
   - platform: template
@@ -170,7 +125,7 @@ number:
     entity_category: config
     icon: mdi:current-dc
 
-  # Balance current (A) while latched at bulk. Non-zero so inverters that ignore 0 A still see a limit.
+  # Balance current (A) while latched at bulk.
   - platform: template
     id: yambms${yambms_id}_number_auto_ccl_ct_balance_a
     device_id: yambms_yambms${yambms_id}
@@ -232,19 +187,6 @@ sensor:
     icon: mdi:current-dc
     lambda: 'return id(yambms${yambms_id}_var_auto_ccl_ct_delta_a);'
 
-  # Applied Charging Offset on Bulk CVL (0 or +offset). Diagnostic / custom dashboards — not a config entity.
-  - platform: template
-    name: "Auto CCL CT CVL Offset"
-    id: yambms${yambms_id}_auto_ccl_ct_cvl_offset
-    device_id: yambms_yambms${yambms_id}
-    unit_of_measurement: V
-    device_class: voltage
-    accuracy_decimals: 1
-    update_interval: ${yambms_update_interval}
-    entity_category: diagnostic
-    icon: mdi:sine-wave
-    lambda: 'return id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v);'
-
   # C-rate × capacity
   - platform: template
     name: "Auto CCL CT Knee Amps"
@@ -286,7 +228,6 @@ interval:
           static bool  active       = false;   // At/above knee this session
           static bool  bulk_latched = false;   // Pack has touched bulk this session
           static float I_anchor     = NAN;     // CCL at knee (left end of curve)
-          static float hold_cvl_off = NAN;     // Drop Offset at Bulk: latched custom_cvl at bulk
 
           //--------------------------------------------------------------------
           // Gate #1: Correct Auto CCL step
@@ -298,9 +239,7 @@ interval:
             if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state || !active) {
               active = false;
               bulk_latched = false;
-              id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
               id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
-              id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
             }
             return;
           }
@@ -309,15 +248,12 @@ interval:
           // Gate #2: Feature enabled?
           //--------------------------------------------------------------------
           if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state) {
-            // Disabled: advance baton only. Do NOT write custom_ccl/cvl = 0 — that
-            // would wipe another custom Auto CCL package (e.g. Soft Landing) that
-            // already wrote this cycle (shared var_auto_custom_ccl slot).
+            // Disabled: clear shared custom_ccl (dev does not clear each round)
+            // and advance baton.
             active = false;
             bulk_latched = false;
-            hold_cvl_off = NAN;
-            id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
             id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
-            id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
+            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -339,7 +275,6 @@ interval:
           const float V_pack    = id(yambms${yambms_id}_auto_ccl_ct_voltage).has_state()
               ? id(yambms${yambms_id}_auto_ccl_ct_voltage).state
               : id(yambms${yambms_id}_total_voltage).state;
-          const bool  eoc_done  = id(yambms${yambms_id}_var_eoc);
           constexpr float V_hyst = 0.2f;                                    // release hysteresis below knee
 
           float I_target = I_max;
@@ -350,14 +285,10 @@ interval:
           // bulk_voltage is runtime-adjustable, so boot traits alone can't enforce this.
           //--------------------------------------------------------------------
           if (V_knee >= (V_bulk - V_hyst)) {
-            // Invalid knee/bulk window: no-op for CT. Do not zero custom_ccl (shared slot).
             active = false;
             bulk_latched = false;
-            hold_cvl_off = NAN;
-            id(yambms${yambms_id}_var_auto_ccl_ct_active) = false;
-            id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
             id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
-            id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = 0.0f;
+            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
           }
@@ -368,7 +299,6 @@ interval:
           if (!active && V_pack >= V_knee) {
             active = true;
             bulk_latched = false;                                           // new session
-            hold_cvl_off = NAN;
             // Left end: min(knee amps, current CCL) — never start above Auto EOC (etc.)
             const float I_ccl = id(yambms${yambms_id}_requested_charge_current).has_state()
                 ? id(yambms${yambms_id}_requested_charge_current).state
@@ -377,24 +307,15 @@ interval:
           } else if (active && V_pack <= (V_knee - V_hyst)) {
             active = false;
             bulk_latched = false;
-            hold_cvl_off = NAN;
           } else if (active && !bulk_latched && V_pack >= V_bulk) {
             bulk_latched = true;                                            // sudden drop to I_balance
-            // Soft CVL step-down: round(pack + 0.1, 1 decimal) − Bulk (if Drop Offset at Bulk)
-            hold_cvl_off = roundf((V_pack + 0.1f) * 10.0f) / 10.0f - V_bulk;
           }
-
-          id(yambms${yambms_id}_var_auto_ccl_ct_active) = active;
 
           //--------------------------------------------------------------------
           // Desired charge current
           //--------------------------------------------------------------------
           if (active) {
-            if (eoc_done) {
-              // EOC → CCL = 0 for now; alt: keep I_balance and rely on SoC=100 (switch later?)
-              //I_target = 0.0f;
-              I_target = I_balance;                                         // at bulk → balance current
-            } else if (bulk_latched) {
+            if (bulk_latched) {
               I_target = I_balance;                                         // at bulk → balance current
             } else {
               float p = (V_pack - V_knee) / (V_bulk - V_knee);              // 0 at knee → 1 at bulk
@@ -411,29 +332,10 @@ interval:
             I_target = I_max;
           }
 
-          // Shared custom slot: keep the more restrictive (more negative) delta
-          id(yambms${yambms_id}_var_auto_custom_ccl) =
-              fminf(id(yambms${yambms_id}_var_auto_custom_ccl), delta);
+          // Shared custom slot (dev does not clear each round): write our delta,
+          // including 0 when inactive so a prior taper cannot stick.
+          id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
           id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = delta;
-
-          //--------------------------------------------------------------------
-          // Bulk CVL: Charging Offset while active.
-          // Drop Offset at Bulk OFF → keep Charging Offset until EOC.
-          // Drop Offset at Bulk ON  → at bulk, hold round(pack+0.1, 1) − Bulk until EOC
-          //   (soft step-down; full drop to Bulk looks like EOC to some inverters).
-          // Core sums: bulk + charger_offset + auto_cvl + custom_cvl
-          //--------------------------------------------------------------------
-          float cvl_delta = 0.0f;
-          const bool drop_at_bulk =
-              id(yambms${yambms_id}_switch_auto_ccl_ct_drop_offset_at_bulk).state;
-          if (active && !eoc_done) {
-            if (drop_at_bulk && bulk_latched && !isnan(hold_cvl_off))
-              cvl_delta = hold_cvl_off;
-            else
-              cvl_delta = id(yambms${yambms_id}_number_auto_ccl_ct_charging_offset_v).state;
-          }
-          id(yambms${yambms_id}_var_auto_custom_cvl) = cvl_delta;
-          id(yambms${yambms_id}_var_auto_ccl_ct_cvl_offset_v) = cvl_delta;
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;
