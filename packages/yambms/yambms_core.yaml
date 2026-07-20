@@ -290,14 +290,18 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  # Latched at CCL baton finalize. Working custom_ccl/cvl are cleared each round;
+  # CCL Derating Reason and Bulk CVL must not sample the wiped slots (Current Taper
+  # flickered reason Current Taper↔No Derating and CVL bulk↔bulk+offset). Minimal
+  # test fix — upstream may prefer publishing CVL inside finalize instead.
+  - id: yambms${yambms_id}_var_auto_custom_ccl_applied
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: yambms${yambms_id}_var_auto_custom_cvl
     type: float
     restore_value: no
     initial_value: '0.0'
-  # Latched at CCL baton finalize for Bulk CVL. Working custom_cvl is cleared each
-  # round; CVL publishes every tick and must not sample the wiped slot (Current Taper
-  # Charging Offset was flickering bulk↔bulk+offset). Debate with upstream: publish
-  # Bulk CVL inside finalize instead — this latch is the minimal test fix.
   - id: yambms${yambms_id}_var_auto_custom_cvl_applied
     type: float
     restore_value: no
@@ -1068,16 +1072,19 @@ interval:
                 if (requested_charge_current < 0) requested_charge_current = 0;
               }
 
+              // Latch before publish/clear: derating on_value may run after clear.
+              id(yambms${yambms_id}_var_auto_custom_ccl_applied) =
+                  id(yambms${yambms_id}_var_auto_custom_ccl);
+              id(yambms${yambms_id}_var_auto_custom_cvl_applied) =
+                  id(yambms${yambms_id}_var_auto_custom_cvl);
+
               // Publish the sensor
               id(yambms${yambms_id}_requested_charge_current).publish_state(requested_charge_current);
 
               if (id(yambms${yambms_id}_var_charge_status) != "Init")
                 id(yambms${yambms_id}_var_requested_ccl_init) = true;
 
-              // Latch custom CVL for Bulk Requested CVL, then clear working slots so
-              // disabled packages need not write 0 (which would wipe another writer).
-              id(yambms${yambms_id}_var_auto_custom_cvl_applied) =
-                  id(yambms${yambms_id}_var_auto_custom_cvl);
+              // Clear working slots so disabled packages need not write 0.
               id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
               id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
               id(yambms${yambms_id}_var_charge_current_step) = 1;
@@ -2280,7 +2287,8 @@ text_sensor:
       float limit_2 = id(yambms${yambms_id}_var_auto_ccl);
       float limit_3 = id(yambms${yambms_id}_var_auto_soc_limit);
       float limit_4 = id(yambms${yambms_id}_var_auto_eoc);
-      float limit_5 = id(yambms${yambms_id}_var_auto_custom_ccl);
+      // Latched at finalize — live custom_ccl is cleared each baton round.
+      float limit_5 = id(yambms${yambms_id}_var_auto_custom_ccl_applied);
 
       float min_val = std::min({limit_1, limit_2, limit_3, limit_4, limit_5});
 
