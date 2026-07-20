@@ -504,25 +504,6 @@ views:
               https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper
             name: README
             icon: mdi:book-open-variant
-          - type: entities
-            show_header_toggle: false
-            visibility:
-              - condition: state
-                entity: switch.yambms_demo_auto_ccl_ct
-                state: "on"
-            entities:
-              - entity: number.yambms_demo_auto_ccl_ct_knee_voltage
-                name: Knee Voltage
-              - entity: number.yambms_demo_auto_ccl_ct_knee_c_rate
-                name: Knee C-Rate
-              - entity: sensor.yambms_demo_auto_ccl_ct_knee_amps
-                name: Knee Amps
-              - entity: number.yambms_demo_auto_ccl_ct_bulk_c_rate
-                name: Bulk C-Rate
-              - entity: sensor.yambms_demo_auto_ccl_ct_bulk_amps
-                name: Bulk Amps
-              - entity: number.yambms_demo_auto_ccl_ct_balance_current
-                name: Balance Current
   - title: Diagnostic
     cards:
       - type: entity-filter
