@@ -294,6 +294,14 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  # Latched at CCL baton finalize for Bulk CVL. Working custom_cvl is cleared each
+  # round; CVL publishes every tick and must not sample the wiped slot (Current Taper
+  # Charging Offset was flickering bulk↔bulk+offset). Debate with upstream: publish
+  # Bulk CVL inside finalize instead — this latch is the minimal test fix.
+  - id: yambms${yambms_id}_var_auto_custom_cvl_applied
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: yambms${yambms_id}_var_auto_custom_dcl
     type: float
     restore_value: no
@@ -1008,12 +1016,13 @@ interval:
             float requested_charge_voltage;
             if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined
               requested_charge_voltage = 0;
-            // Bulk
+            // Bulk — use latched custom_cvl (applied at CCL finalize), not the live
+            // working slot (cleared each baton round; see custom_cvl_applied).
             else if (charging_instruction == "Bulk")
               requested_charge_voltage = (id(yambms${yambms_id}_bulk_voltage).state
                   + id(yambms${yambms_id}_charger_offset_v).state
                   + id(yambms${yambms_id}_var_auto_cvl)
-                  + id(yambms${yambms_id}_var_auto_custom_cvl));
+                  + id(yambms${yambms_id}_var_auto_custom_cvl_applied));
             // Float
             else if (charging_instruction == "Float")
               requested_charge_voltage = (id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_charger_offset_v).state) + id(yambms${yambms_id}_var_auto_float);
@@ -1065,8 +1074,10 @@ interval:
               if (id(yambms${yambms_id}_var_charge_status) != "Init")
                 id(yambms${yambms_id}_var_requested_ccl_init) = true;
 
-              // Next pipeline round: clear shared custom slots so disabled packages
-              // need not write 0 (which would wipe another custom Auto CCL writer).
+              // Latch custom CVL for Bulk Requested CVL, then clear working slots so
+              // disabled packages need not write 0 (which would wipe another writer).
+              id(yambms${yambms_id}_var_auto_custom_cvl_applied) =
+                  id(yambms${yambms_id}_var_auto_custom_cvl);
               id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
               id(yambms${yambms_id}_var_auto_custom_cvl) = 0.0f;
               id(yambms${yambms_id}_var_charge_current_step) = 1;
