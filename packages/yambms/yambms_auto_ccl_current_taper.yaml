@@ -37,11 +37,10 @@ esphome:
       then:
         - lambda: |-
             id(yambms${yambms_id}_var_auto_ccl_functions_count)++;   // Registration
+
     # Knee Voltage limits based on cell count and battery chemistry
     # Priority 550 : runs right after the YamBMS chemistry block (600)
-    # which sets the var_cell_* globals used below.
-    # Use the substitution (not cell_count.state): the sensor is often still
-    # NaN at this priority, and casting NaN→int produces garbage limits/values.
+    # which sets the var_cell_* globals used below
     - priority: 550.0
       then:
         - lambda: |-
