@@ -1,5 +1,5 @@
 # Updated : 2026.07.20
-# Version : 1.4.0
+# Version : 1.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,7 +32,7 @@
 
 globals:
   # Diagnostic readout (0 when session inactive)
-  - id: yambms${yambms_id}_var_auto_ccl_ct_delta_a
+  - id: yambms${yambms_id}_var_auto_ccl_ct_delta
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -174,7 +174,7 @@ sensor:
           window_size: 10
           send_every: 1
 
-  # CCL reduction in amps (≤ 0 when tapering; 0 when inactive — not a voltage)
+  # CCL reduction in amps (≤ 0 when tapering; 0 when inactive)
   - platform: template
     name: "Auto CCL CT Delta"
     id: yambms${yambms_id}_auto_ccl_ct_delta
@@ -185,9 +185,8 @@ sensor:
     update_interval: ${yambms_update_interval}
     entity_category: diagnostic
     icon: mdi:current-dc
-    lambda: 'return id(yambms${yambms_id}_var_auto_ccl_ct_delta_a);'
+    lambda: 'return id(yambms${yambms_id}_var_auto_ccl_ct_delta);'
 
-  # C-rate × capacity
   - platform: template
     name: "Auto CCL CT Knee Amps"
     id: yambms${yambms_id}_auto_ccl_ct_knee_amps
@@ -239,7 +238,7 @@ interval:
             if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state || !active) {
               active = false;
               bulk_latched = false;
-              id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
+              id(yambms${yambms_id}_var_auto_ccl_ct_delta) = 0.0f;
             }
             return;
           }
@@ -252,7 +251,7 @@ interval:
             // and advance baton.
             active = false;
             bulk_latched = false;
-            id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
+            id(yambms${yambms_id}_var_auto_ccl_ct_delta) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
@@ -261,21 +260,21 @@ interval:
           //--------------------------------------------------------------------
           // Inputs
           //--------------------------------------------------------------------
-          const float cap_ah    = id(yambms${yambms_id}_battery_capacity).state;
-          const float I_max     = id(yambms${yambms_id}_max_charge_current).state;
-          const float knee_c    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate).state;
-          const float bulk_c    = id(yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate).state;
-          const float curve_exp = id(yambms${yambms_id}_number_auto_ccl_ct_curve_exp).state;
-          const float I_knee    = cap_ah * knee_c;
-          const float I_bulk    = cap_ah * bulk_c;
-          const float I_balance = id(yambms${yambms_id}_number_auto_ccl_ct_balance_a).state;  // CCL while latched at bulk
-          const float V_knee    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;
-          const float V_bulk    = id(yambms${yambms_id}_bulk_voltage).state;
+          const float cap_ah    = id(yambms${yambms_id}_battery_capacity).state;                // batttery capacity
+          const float I_max     = id(yambms${yambms_id}_max_charge_current).state;              // max charge current
+          const float knee_c    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate).state;  // knee C-rate
+          const float bulk_c    = id(yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate).state;  // bulk C-rate
+          const float I_knee    = cap_ah * knee_c;                                              // knee current
+          const float I_bulk    = cap_ah * bulk_c;                                              // bulk current
+          const float I_balance = id(yambms${yambms_id}_number_auto_ccl_ct_balance_a).state;    // CCL while latched at bulk
+          const float V_knee    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;       // knee voltage
+          const float V_bulk    = id(yambms${yambms_id}_bulk_voltage).state;                    // bulk voltage
           // Prefer SMA pack V; fall back to raw until the filter has a sample
-          const float V_pack    = id(yambms${yambms_id}_auto_ccl_ct_voltage).has_state()
+          const float V_pack    = id(yambms${yambms_id}_auto_ccl_ct_voltage).has_state()        // pack voltage
               ? id(yambms${yambms_id}_auto_ccl_ct_voltage).state
               : id(yambms${yambms_id}_total_voltage).state;
-          constexpr float V_hyst = 0.2f;                                    // release hysteresis below knee
+          const float curve_exp = id(yambms${yambms_id}_number_auto_ccl_ct_curve_exp).state;    // curve exponent
+          constexpr float V_hyst = 0.2f;                                                        // release hysteresis below knee
 
           float I_target = I_max;
           float delta    = 0.0f;
@@ -287,7 +286,7 @@ interval:
           if (V_knee >= (V_bulk - V_hyst)) {
             active = false;
             bulk_latched = false;
-            id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = 0.0f;
+            id(yambms${yambms_id}_var_auto_ccl_ct_delta) = 0.0f;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
@@ -335,7 +334,7 @@ interval:
           // Shared custom slot (dev does not clear each round): write our delta,
           // including 0 when inactive so a prior taper cannot stick.
           id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
-          id(yambms${yambms_id}_var_auto_ccl_ct_delta_a) = delta;
+          id(yambms${yambms_id}_var_auto_ccl_ct_delta) = delta;
 
           // Pass the baton
           id(yambms${yambms_id}_var_charge_current_step)++;
