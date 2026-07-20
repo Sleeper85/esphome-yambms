@@ -440,7 +440,7 @@ The sweet spot is to charge hard enough that the pack is **not yet full** when B
 
 This package participates in the Auto CCL STEP pipeline and writes `var_auto_custom_ccl` (the shared custom CCL slot on `dev`). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
-By default the taper is linear with pack voltage. **Curve Exponent** changes the shape: higher values taper faster early and leave a longer tail; lower values delay the taper and drop more sharply near bulk. Linear or near-linear usually works best.
+The taper is linear with pack voltage.
 
 Use `Charger Offset V.` for IR / sense or inverter CVL error (~`0.1V` and up).
 
@@ -464,8 +464,7 @@ Configuration options (entities card names):
 - **Knee Amps**: Capacity × Knee C-Rate (read-only).
 - **Bulk C-Rate**: C-rate at bulk (default `0.03C`).
 - **Bulk Amps**: Capacity × Bulk C-Rate (read-only).
-- **Balance Current**: CCL while latched at bulk (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
-- **Curve Exponent**: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (range `0.5`–`2.0`, default `1.0`).
+- **Balance Current**: CCL while latched at bulk or after EOC (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
 
 Other diagnostic sensors:
 
@@ -475,7 +474,7 @@ Other diagnostic sensors:
 Notes:
 
 - Requires a correct `Battery Capacity`.
-- Writes the shared `var_auto_custom_ccl` slot; when inactive or disabled it writes `0` so a prior taper cannot stick (`dev` does not clear that slot each round).
+- Writes the shared `var_auto_custom_ccl` slot; when inactive or disabled it writes `0` so a prior taper cannot stick.
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - Pair with `Charger Offset V.` when the inverter undershoots bulk.
