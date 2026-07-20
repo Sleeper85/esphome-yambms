@@ -451,7 +451,7 @@ Behaviour:
 
 1. Below **Knee Voltage**: inactive — CCL unchanged (`custom_ccl = 0`).
 2. At knee (active): CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity`.
-3. At first bulk touch: CCL drops to **Balance Current** (default `2A`) and stays there while the session is active (including through EOC).
+3. At first bulk touch, or if EOC occurs earlier: CCL drops to **Balance Current** (default `2A`) and stays there while the session is active.
 4. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
 If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.

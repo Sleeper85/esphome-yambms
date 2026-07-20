@@ -22,7 +22,7 @@
 #
 # Purpose:
 #   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly.
-#   2) At bulk, drop CCL to Balance Current (held while the session stays active).
+#   2) At bulk (or earlier EOC), drop CCL to Balance Current while the session is active.
 #
 # Contract with yambms_core.yaml (upstream/dev):
 #   - Participates in Auto CCL STEP pipeline
@@ -274,6 +274,7 @@ interval:
               ? id(yambms${yambms_id}_auto_ccl_ct_voltage).state
               : id(yambms${yambms_id}_total_voltage).state;
           const float curve_exp = id(yambms${yambms_id}_number_auto_ccl_ct_curve_exp).state;    // curve exponent
+          const bool  eoc_done  = id(yambms${yambms_id}_var_eoc);
           constexpr float V_hyst = 0.2f;                                                        // release hysteresis below knee
 
           float I_target = I_max;
@@ -314,8 +315,9 @@ interval:
           // Desired charge current
           //--------------------------------------------------------------------
           if (active) {
-            if (bulk_latched) {
-              I_target = I_balance;                                         // at bulk → balance current
+            // Bulk latch or EOC (incl. early EOC before bulk) → Balance Current
+            if (bulk_latched || eoc_done) {
+              I_target = I_balance;
             } else {
               float p = (V_pack - V_knee) / (V_bulk - V_knee);              // 0 at knee → 1 at bulk
               p = fmaxf(0.0f, fminf(p, 1.0f));                              // below knee (hyst band): hold I_anchor
