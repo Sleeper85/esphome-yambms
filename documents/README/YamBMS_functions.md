@@ -438,14 +438,12 @@ At first bulk touch, CCL drops to **Balance Current** (e.g. `2A`–`3A`) and sta
 
 The sweet spot is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That takes some experimentation; a stable curve makes the result more repeatable day to day.
 
-This package participates in the Auto CCL STEP pipeline and writes `var_auto_custom_ccl` (the shared custom CCL slot on `dev`). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
+This package participates in the Auto CCL STEP pipeline and writes `var_auto_custom_ccl` (the shared custom CCL slot). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
 The taper is linear with pack voltage.
 
-Use `Charger Offset V.` for IR / sense or inverter CVL error (~`0.1V` and up).
-
 > [!IMPORTANT]
-> Unlike stock `Auto CCL` (max cell vs BMS `OVP`), Current Taper uses **pack voltage** vs a user knee and YamBMS `Bulk voltage`.
+> Unlike `Auto CCL` (max cell vs BMS `OVP`), Current Taper uses **pack voltage** vs a user knee and YamBMS `Bulk voltage`.
 
 Behaviour:
 
@@ -454,21 +452,19 @@ Behaviour:
 3. At first bulk touch, or if EOC occurs earlier: CCL drops to **Balance Current** (default `2A`) and stays there while the session is active.
 4. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
 
-If **Knee Voltage** is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
-
 Configuration options (entities card names):
 
 - **Current Taper**: Enables or disables the function.
-- **Knee Voltage**: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
-- **Knee C-Rate**: C-rate at the knee; × `Battery Capacity` for the starting CCL (default `0.125C`).
+- **Knee Voltage**: Pack voltage where tapering starts.
+- **Knee C-Rate**: C-rate at the knee; × `Battery Capacity` for the starting CCL.
 - **Knee Amps**: Capacity × Knee C-Rate (read-only).
-- **Bulk C-Rate**: C-rate at bulk (default `0.03C`).
+- **Bulk C-Rate**: C-rate at bulk.
 - **Bulk Amps**: Capacity × Bulk C-Rate (read-only).
 - **Balance Current**: CCL while latched at bulk or after EOC (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
 
 Other diagnostic sensors:
 
-- `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
+- `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve. This minimizes how much CCL jumps around with changes in voltage.
 - `Auto CCL CT Delta`: Pipeline CCL reduction applied (≤ `0A`).
 
 Notes:
