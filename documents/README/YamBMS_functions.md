@@ -440,7 +440,7 @@ The sweet spot is to charge hard enough that the pack is **not yet full** when B
 
 This package participates in the Auto CCL STEP pipeline and writes `var_auto_custom_ccl` (the shared custom CCL slot). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
-The taper is linear with pack voltage.
+By default the taper is linear with pack voltage. Optional YAML substitution `auto_ccl_ct_curve_exp` (default `1.0`) shapes the knee→bulk curve: `>1` drops faster early then longer tail; `<1` delays the taper then sharpens near bulk. Override at package include — compile-time only, no HA entity.
 
 > [!IMPORTANT]
 > Unlike `Auto CCL` (max cell vs BMS `OVP`), Current Taper uses **pack voltage** vs a user knee and YamBMS `Bulk voltage`.

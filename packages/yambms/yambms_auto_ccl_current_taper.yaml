@@ -30,6 +30,11 @@
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
 #--------------------------------------------------------------------------------------------
 
+substitutions:
+  # Curve shape vs pack voltage progress (compile-time; override at package include).
+  # 1.0 = linear; >1 drops faster early then longer tail; <1 delays taper then sharpens near bulk.
+  auto_ccl_ct_curve_exp: "1.0"
+
 esphome:
   on_boot:
     # Registration in the Auto CCL pipeline
@@ -285,7 +290,7 @@ interval:
           }
 
           //--------------------------------------------------------------------
-          // Desired charge current (linear taper with pack voltage)
+          // Desired charge current (curve vs pack voltage; exp from substitution)
           //--------------------------------------------------------------------
           if (active) {
             // Bulk latch or EOC (incl. early EOC before bulk) → Balance Current
@@ -294,10 +299,11 @@ interval:
             } else {
               float p = (V_pack - V_knee) / (V_bulk - V_knee);              // 0 at knee → 1 at bulk
               p = fmaxf(0.0f, fminf(p, 1.0f));                              // below knee (hyst band): hold I_anchor
+              const float curve = powf(1.0f - p, ${auto_ccl_ct_curve_exp}); // 1.0 = linear
               // Never let the curve end above the left end (I_anchor may be
               // min(knee amps, current CCL); bulk C-rate must not invert the taper).
               const float I_end = fminf(I_bulk, I_anchor);
-              I_target = I_end + (I_anchor - I_end) * (1.0f - p);           // linear: I_anchor → I_end
+              I_target = I_end + (I_anchor - I_end) * curve;                // I_anchor → I_end
             }
             delta = fminf(0.0f, I_target - I_max);
           } else {
