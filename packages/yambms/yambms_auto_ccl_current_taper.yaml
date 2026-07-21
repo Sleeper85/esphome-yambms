@@ -1,0 +1,319 @@
+# Updated : 2026.07.20
+# Version : 1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+#--------------------------------------------------------------------------------------------
+# Auto CCL Current Taper
+#
+# Purpose:
+#   1) Taper CCL from knee to bulk so the pack reaches bulk cleanly.
+#   2) At bulk (or earlier EOC), drop CCL to Balance Current while the session is active.
+#
+# Contract with yambms_core.yaml (upstream/dev):
+#   - Participates in Auto CCL STEP pipeline
+#   - Writes: id(yambms${yambms_id}_var_auto_custom_ccl)  (<= 0 when tapering; 0 when inactive)
+#   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
+#--------------------------------------------------------------------------------------------
+
+substitutions:
+  # Curve shape vs pack voltage progress (compile-time; override at package include).
+  # 1.0 = linear; >1 drops faster early then longer tail; <1 delays taper then sharpens near bulk.
+  auto_ccl_ct_curve_exp: "1.0"
+
+esphome:
+  on_boot:
+    # Registration in the Auto CCL pipeline
+    - priority: -100.0
+      then:
+        - lambda: |-
+            id(yambms${yambms_id}_var_auto_ccl_functions_count)++;   // Registration
+
+    # Knee Voltage limits based on cell count and battery chemistry
+    # Priority 550 : runs right after the YamBMS chemistry block (600)
+    # which sets the var_cell_* globals used below
+    - priority: 550.0
+      then:
+        - lambda: |-
+            const int cell_count = ${yambms_cell_count};
+            const float v_min = round(cell_count * id(yambms${yambms_id}_var_cell_nominal_v) * 10) / 10;
+            const float v_max = round(cell_count * id(yambms${yambms_id}_var_cell_max_charge_v) * 10) / 10;
+
+            id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).traits.set_min_value(v_min);
+            id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).traits.set_max_value(v_max);
+
+            // Initialize/clamp the value inside the pack window
+            // (the static initial_value is 16S LFP), default = cell_min_charge × cells
+            const float knee_v = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;
+            if (isnan(knee_v) || (knee_v < v_min) || (knee_v > v_max))
+              id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).publish_state(round(cell_count * id(yambms${yambms_id}_var_cell_min_charge_v) * 10) / 10);
+
+switch:
+  - platform: template
+    id: yambms${yambms_id}_switch_auto_ccl_current_taper
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL Current Taper"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  # Knee / activation voltage (pack)
+  # Min/max are updated at boot from cell count × chemistry (see on_boot priority 550).
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_knee_v
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Knee Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 54.2 # LFP placeholder; overwritten at boot
+    max_value: 56.0 # LFP placeholder; overwritten at boot
+    step: 0.1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 54.4 # LFP 16S placeholder; clamped at boot if out of range
+    entity_category: config
+    icon: mdi:sine-wave
+
+  # Knee / activation C-rate (× capacity → CCL at knee)
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Knee C-Rate"
+    unit_of_measurement: "C"
+    max_value: 0.5
+    min_value: 0.05
+    step: 0.005
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.125
+    entity_category: config
+    icon: mdi:current-dc
+
+  # Bulk / end-of-curve C-rate (× capacity → CCL at bulk, before Balance Current step)
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Bulk C-Rate"
+    unit_of_measurement: "C"
+    max_value: 0.1
+    min_value: 0.0
+    step: 0.005
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.03
+    entity_category: config
+    icon: mdi:current-dc
+
+  # Balance current (A) while latched at bulk / after EOC
+  - platform: template
+    id: yambms${yambms_id}_number_auto_ccl_ct_balance_a
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Balance Current"
+    unit_of_measurement: A
+    device_class: current
+    min_value: 0
+    max_value: 50
+    step: 1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 2
+    entity_category: config
+    icon: mdi:current-dc
+
+sensor:
+  # Pack V for taper math — 10-sample SMA; keeps CCL from amplifying raw V noise
+  # If it’s twitchy, increase window_size; if too sluggish, lower it.
+  - platform: copy
+    source_id: yambms${yambms_id}_total_voltage
+    id: yambms${yambms_id}_auto_ccl_ct_voltage
+    device_id: yambms_yambms${yambms_id}
+    name: "Auto CCL CT Voltage"
+    accuracy_decimals: 3
+    entity_category: diagnostic
+    icon: mdi:sine-wave
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 1
+
+  # CCL reduction in amps (≤ 0 when tapering; 0 when inactive). Updated from the interval.
+  - platform: template
+    name: "Auto CCL CT Delta"
+    id: yambms${yambms_id}_auto_ccl_ct_delta
+    device_id: yambms_yambms${yambms_id}
+    unit_of_measurement: A
+    device_class: current
+    accuracy_decimals: 0
+    update_interval: never
+    entity_category: diagnostic
+    icon: mdi:current-dc
+
+  - platform: template
+    name: "Auto CCL CT Knee Amps"
+    id: yambms${yambms_id}_auto_ccl_ct_knee_amps
+    device_id: yambms_yambms${yambms_id}
+    unit_of_measurement: A
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: ${yambms_update_interval}
+    entity_category: diagnostic
+    icon: mdi:current-dc
+    lambda: |-
+      return roundf(id(yambms${yambms_id}_battery_capacity).state
+                  * id(yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate).state);
+
+  - platform: template
+    name: "Auto CCL CT Bulk Amps"
+    id: yambms${yambms_id}_auto_ccl_ct_bulk_amps
+    device_id: yambms_yambms${yambms_id}
+    unit_of_measurement: A
+    device_class: current
+    state_class: measurement
+    accuracy_decimals: 0
+    update_interval: ${yambms_update_interval}
+    entity_category: diagnostic
+    icon: mdi:current-dc
+    lambda: |-
+      return roundf(id(yambms${yambms_id}_battery_capacity).state
+                  * id(yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate).state);
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          //--------------------------------------------------------------------
+          // Internal state
+          //--------------------------------------------------------------------
+          static bool  active       = false;   // At/above knee this session
+          static bool  bulk_latched = false;   // Pack has touched bulk this session
+          static float I_anchor     = NAN;     // CCL at knee (left end of curve)
+
+          //--------------------------------------------------------------------
+          // Gate #1: Correct Auto CCL step
+          //--------------------------------------------------------------------
+          const int cc_step = id(yambms${yambms_id}_var_charge_current_step);
+          const int n_funcs = id(yambms${yambms_id}_var_auto_ccl_functions_count);
+          if (cc_step < 1 || cc_step > n_funcs) {
+            // Not our pipeline turn — clear sticky custom_ccl when inactive/off
+            if (!id(yambms${yambms_id}_switch_auto_ccl_current_taper).state || !active) {
+              active = false;
+              bulk_latched = false;
+              id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+              id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
+            }
+            return;
+          }
+
+          //--------------------------------------------------------------------
+          // Gate #2: Feature enabled?
+          //--------------------------------------------------------------------
+          if (!id(yambms${yambms_id}_switch_auto_ccl_current_taper).state) {
+            active = false;
+            bulk_latched = false;
+            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+            id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
+            id(yambms${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          //--------------------------------------------------------------------
+          // Inputs
+          //--------------------------------------------------------------------
+          const float cap_ah    = id(yambms${yambms_id}_battery_capacity).state;                // battery capacity
+          const float I_max     = id(yambms${yambms_id}_max_charge_current).state;              // max charge current
+          const float knee_c    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_c_rate).state;  // knee C-rate
+          const float bulk_c    = id(yambms${yambms_id}_number_auto_ccl_ct_bulk_c_rate).state;  // bulk C-rate
+          const float I_knee    = cap_ah * knee_c;                                              // knee current
+          const float I_bulk    = cap_ah * bulk_c;                                              // bulk current
+          const float I_balance = id(yambms${yambms_id}_number_auto_ccl_ct_balance_a).state;    // CCL while latched at bulk / EOC
+          const float V_knee    = id(yambms${yambms_id}_number_auto_ccl_ct_knee_v).state;       // knee voltage
+          const float V_bulk    = id(yambms${yambms_id}_bulk_voltage).state;                    // bulk voltage
+          // Prefer SMA pack V; fall back to raw until the filter has a sample
+          const float V_pack    = id(yambms${yambms_id}_auto_ccl_ct_voltage).has_state()        // pack voltage
+              ? id(yambms${yambms_id}_auto_ccl_ct_voltage).state
+              : id(yambms${yambms_id}_total_voltage).state;
+          const bool  eoc_done  = id(yambms${yambms_id}_var_eoc);                               // EOC reached
+          constexpr float V_hyst = 0.2f;                                                        // release hysteresis below knee
+
+          float I_target = I_max;
+          float delta    = 0.0f;
+
+          //--------------------------------------------------------------------
+          // Gate #3: Knee must sit below bulk (with hysteresis margin).
+          // bulk_voltage is runtime-adjustable, so boot traits alone can't enforce this.
+          //--------------------------------------------------------------------
+          if (V_knee >= (V_bulk - V_hyst)) {
+            active = false;
+            bulk_latched = false;
+            id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
+            id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
+            id(yambms${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          //--------------------------------------------------------------------
+          // Session: activate at knee; stay active until 0.2 V below knee
+          //--------------------------------------------------------------------
+          if (!active && V_pack >= V_knee) {
+            active = true;
+            bulk_latched = false;                                           // new session
+            // Left end: min(knee amps, current CCL) — never start above Auto EOC (etc.)
+            const float I_ccl = id(yambms${yambms_id}_requested_charge_current).has_state()
+                ? id(yambms${yambms_id}_requested_charge_current).state
+                : I_max;
+            I_anchor = fminf(I_knee, I_ccl);
+          } else if (active && V_pack <= (V_knee - V_hyst)) {
+            active = false;
+            bulk_latched = false;
+          } else if (active && !bulk_latched && V_pack >= V_bulk) {
+            bulk_latched = true;                                            // sudden drop to I_balance
+          }
+
+          //--------------------------------------------------------------------
+          // Desired charge current (curve vs pack voltage; exp from substitution)
+          //--------------------------------------------------------------------
+          if (active) {
+            // Bulk latch or EOC (incl. early EOC before bulk) → Balance Current
+            if (bulk_latched || eoc_done) {
+              I_target = I_balance;
+            } else {
+              float p = (V_pack - V_knee) / (V_bulk - V_knee);              // 0 at knee → 1 at bulk
+              p = fmaxf(0.0f, fminf(p, 1.0f));                              // below knee (hyst band): hold I_anchor
+              const float curve = powf(1.0f - p, ${auto_ccl_ct_curve_exp}); // 1.0 = linear
+              // Never let the curve end above the left end (I_anchor may be
+              // min(knee amps, current CCL); bulk C-rate must not invert the taper).
+              const float I_end = fminf(I_bulk, I_anchor);
+              I_target = I_end + (I_anchor - I_end) * curve;                // I_anchor → I_end
+            }
+            delta = fminf(0.0f, I_target - I_max);
+          } else {
+            delta = 0.0f;
+            I_target = I_max;
+          }
+
+          // Write custom_ccl every baton turn (0 when inactive so a prior taper cannot stick)
+          id(yambms${yambms_id}_var_auto_custom_ccl) = delta;
+          id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
+
+          // Pass the baton
+          id(yambms${yambms_id}_var_charge_current_step)++;

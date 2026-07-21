@@ -451,6 +451,59 @@ views:
             name: README
             icon: mdi:book-open-variant
         title: YamBMS - Auto EOC
+      - type: entities
+        title: Auto CCL - Current Taper
+        show_header_toggle: false
+        entities:
+          - entity: switch.yambms_demo_auto_ccl_ct
+            name: Current Taper
+          - type: conditional
+            conditions:
+              - entity: switch.yambms_demo_auto_ccl_ct
+                state: "on"
+            row:
+              entity: number.yambms_demo_auto_ccl_ct_knee_voltage
+              name: Knee Voltage
+          - type: conditional
+            conditions:
+              - entity: switch.yambms_demo_auto_ccl_ct
+                state: "on"
+            row:
+              entity: number.yambms_demo_auto_ccl_ct_knee_c_rate
+              name: Knee C-Rate
+          - type: conditional
+            conditions:
+              - entity: switch.yambms_demo_auto_ccl_ct
+                state: "on"
+            row:
+              entity: sensor.yambms_demo_auto_ccl_ct_knee_amps
+              name: Knee Amps
+          - type: conditional
+            conditions:
+              - entity: switch.yambms_demo_auto_ccl_ct
+                state: "on"
+            row:
+              entity: number.yambms_demo_auto_ccl_ct_bulk_c_rate
+              name: Bulk C-Rate
+          - type: conditional
+            conditions:
+              - entity: switch.yambms_demo_auto_ccl_ct
+                state: "on"
+            row:
+              entity: sensor.yambms_demo_auto_ccl_ct_bulk_amps
+              name: Bulk Amps
+          - type: conditional
+            conditions:
+              - entity: switch.yambms_demo_auto_ccl_ct
+                state: "on"
+            row:
+              entity: number.yambms_demo_auto_ccl_ct_balance_current
+              name: Balance Current
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-ccl-current-taper
+            name: README
+            icon: mdi:book-open-variant
   - title: Diagnostic
     cards:
       - type: entity-filter
