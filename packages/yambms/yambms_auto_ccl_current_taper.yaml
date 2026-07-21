@@ -59,9 +59,9 @@ esphome:
 
 switch:
   - platform: template
-    id: yambms${yambms_id}_switch_auto_ccl_ct
+    id: yambms${yambms_id}_switch_auto_ccl_current_taper
     device_id: yambms_yambms${yambms_id}
-    name: "Auto CCL CT"
+    name: "Auto CCL Current Taper"
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
@@ -210,7 +210,7 @@ interval:
           const int n_funcs = id(yambms${yambms_id}_var_auto_ccl_functions_count);
           if (cc_step < 1 || cc_step > n_funcs) {
             // Not our pipeline turn — clear sticky custom_ccl when inactive/off
-            if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state || !active) {
+            if (!id(yambms${yambms_id}_switch_auto_ccl_current_taper).state || !active) {
               active = false;
               bulk_latched = false;
               id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
@@ -222,7 +222,7 @@ interval:
           //--------------------------------------------------------------------
           // Gate #2: Feature enabled?
           //--------------------------------------------------------------------
-          if (!id(yambms${yambms_id}_switch_auto_ccl_ct).state) {
+          if (!id(yambms${yambms_id}_switch_auto_ccl_current_taper).state) {
             active = false;
             bulk_latched = false;
             id(yambms${yambms_id}_var_auto_custom_ccl) = 0.0f;
