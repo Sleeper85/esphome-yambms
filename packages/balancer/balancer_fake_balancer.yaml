@@ -22,9 +22,20 @@
 #
 # Purpose:
 #   Infer Equalizing for a BMS that balances but never reports a balancing flag.
+#   Top-of-charge only — Start/Sleep sit near max charge voltage, never near the
+#   bottom of the SoC window. Defaults are LFP (3.45 / 3.42); raise for Li-ion
+#   (~4.0+) or lower slightly for LTO (~2.7+), but keep them at the top.
 #   Uses the same threshold names as Enerkey/Heltec/JK balancers, driven by this
 #   BMS's max/min cell voltage. Cooperates with a real balancer on the same bms_id:
 #   Equalizing = (real balancer balancing) OR (inferred / force).
+#
+#   Inferred latch (Enable):
+#     START only when BOTH are true AND no stop condition is already true:
+#       max_cell >= Balance Starting Voltage
+#       AND (max − min) >= Balance Trigger Voltage
+#     STOP when EITHER is true:
+#       max_cell < Balance Sleep Voltage  (absolute — ends balancing immediately)
+#       OR (max − min) <= Balance Stop Diff Voltage
 #
 # Include (one BMS id — YamBMS BMS ids start at 1):
 #   fake_balancer: !include
@@ -98,41 +109,41 @@ number:
     entity_category: config
     icon: mdi:timer-outline
 
-  # Enter when max cell >= this (Enerkey: Balance Starting Voltage)
+  # Enter ONLY with Trigger Voltage (AND): max cell >= this (top of charge)
   - platform: template
     id: fake_bal${bms_id}_balance_starting_voltage
     device_id: fake_bal_${bms_id}
     name: "Balance Starting Voltage"
     unit_of_measurement: V
     device_class: voltage
-    min_value: 2.0
+    min_value: 2.5
     max_value: 4.5
     step: 0.01
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 3.40
+    initial_value: 3.45
     entity_category: config
     icon: mdi:battery-arrow-up
 
-  # Exit when max cell < this (Enerkey: Balance Sleep Voltage)
+  # Exit when max cell < this (OR with Stop Diff) — still top of charge, just below Start
   - platform: template
     id: fake_bal${bms_id}_balance_sleep_voltage
     device_id: fake_bal_${bms_id}
     name: "Balance Sleep Voltage"
     unit_of_measurement: V
     device_class: voltage
-    min_value: 2.0
+    min_value: 2.5
     max_value: 4.5
     step: 0.01
     mode: ${yambms_input_number_mode}
     restore_value: true
     optimistic: true
-    initial_value: 3.20
+    initial_value: 3.42
     entity_category: config
     icon: mdi:battery-arrow-down
 
-  # Enter when (max − min) >= this (Enerkey: Balance Trigger Voltage)
+  # Enter ONLY with Starting Voltage (AND): (max − min) >= this
   - platform: template
     id: fake_bal${bms_id}_balance_trigger_voltage
     device_id: fake_bal_${bms_id}
@@ -149,7 +160,7 @@ number:
     entity_category: config
     icon: mdi:delta
 
-  # Exit when (max − min) <= this (Enerkey: Balance Stop Diff Voltage)
+  # Exit when (max − min) <= this (OR with Sleep Voltage)
   - platform: template
     id: fake_bal${bms_id}_balance_stop_diff_voltage
     device_id: fake_bal_${bms_id}
@@ -217,19 +228,30 @@ interval:
 
           const bool cells_ok = !isnan(max_cell) && !isnan(min_cell);
           const float delta = cells_ok ? (max_cell - min_cell) : NAN;
-          // Below enter thresholds → safe to re-arm after a Max Run Time expiry
-          const bool below_enter = cells_ok
-              && ((max_cell < start_v) || (delta < trig_v));
+
+          // Start: BOTH must be true (and not already in a stop condition).
+          // Stop: EITHER is enough — Sleep Voltage alone ends balancing. Period.
+          const bool start_hi_v  = cells_ok && (max_cell >= start_v);   // high cell at/above start V
+          const bool start_delta = cells_ok && (delta >= trig_v);       // spread at/above trigger
+          const bool stop_lo_v   = cells_ok && (max_cell < sleep_v);    // high cell below sleep V
+          const bool stop_delta  = cells_ok && (delta <= stop_dv);      // spread at/below stop diff
+          const bool should_stop = stop_lo_v || stop_delta;
+          const bool can_start   = start_hi_v && start_delta && !should_stop;
+
+          // Left the start zone (either start gate false) → re-arm after Max Run Time
+          const bool below_enter = cells_ok && (!start_hi_v || !start_delta);
 
           if (!fake_en) {
             inferred = false;
           } else if (cells_ok) {
-            if (!inferred) {
-              if (!run_expired && (max_cell >= start_v) && (delta >= trig_v))
+            // Sleep Voltage is absolute: high cell below sleep → off, no other gates
+            if (stop_lo_v) {
+              inferred = false;
+            } else if (!inferred) {
+              if (!run_expired && can_start)
                 inferred = true;
-            } else {
-              if ((max_cell < sleep_v) || (delta <= stop_dv))
-                inferred = false;
+            } else if (should_stop) {
+              inferred = false;                                            // stop diff (or sleep)
             }
           }
 

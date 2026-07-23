@@ -474,7 +474,7 @@ Notes:
 
 ## Fake Balancer
 
-Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open while cells balance. This optional package **infers** Equalizing from that BMS's max/min cell voltage using the same threshold names as Enerkey / Heltec / JK balancers. It **cooperates** with a real balancer on the same `bms_id`:
+Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open while cells balance. This optional package **infers** Equalizing from that BMS's max/min cell voltage using the same threshold names as Enerkey / Heltec / JK balancers. It is for **top-of-charge balancing only** (Start/Sleep near max cell charge voltage — never near the bottom of the SoC window). It **cooperates** with a real balancer on the same `bms_id`:
 
 `Equalizing = (real balancer balancing) OR (inferred) OR (force)`
 
@@ -507,7 +507,7 @@ Uses its own `fake_bal_${bms_id}` device/IDs so they do not collide with `balanc
 
 Behaviour:
 
-1. `Enable` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`.
+1. `Enable` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`. Sleep Voltage alone ends balancing immediately.
 2. `Force`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference. Cleared automatically when **Max Run Time** expires.
 3. `Max Run Time`: caps how long fake Equalizing (inferred or force) may stay asserted (default `30` min, max `360`). After expiry, Fake Balancer drops Equalizing and will not re-enter until cells fall below the enter thresholds (or Force is used again after re-arm). Use this for longer weekly top-balance without changing the compile-time YamBMS **EOC timer**.
 4. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when Fake Balancer is idle.
@@ -515,15 +515,15 @@ Behaviour:
 While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The YamBMS **EOC timer** remains a separate compile-time charge-end ceiling; **Max Run Time** is the runtime knob for how long *Fake Balancer* may hold Equalizing.
 
 > [!NOTE]
-> These numbers are **inference** thresholds for YamBMS, not writes to a hardware balancer. Match them to how your BMS/balancer actually behaves. This only signals Equalizing — it does not move charge between cells.
+> These numbers are **inference** thresholds for YamBMS, not writes to a hardware balancer. Match them to how your BMS/balancer actually behaves at the **top of charge**. This only signals Equalizing — it does not move charge between cells. Defaults are LFP (`3.45` / `3.42`); Li-ion and LTO need different top-band values, but still near max charge — not mid or low SoC.
 
 Configuration options:
 
 - `Enable`: Enables cell-threshold inference.
 - `Force`: Forces Equalizing while on (automation-friendly).
 - `Max Run Time`: Maximum continuous sim Equalizing in minutes (slider, `1`–`360`, default `30`).
-- `Balance Starting Voltage`: Max-cell floor to enter (default `3.40V`).
-- `Balance Sleep Voltage`: Max-cell floor to exit (default `3.20V`).
+- `Balance Starting Voltage`: Max-cell floor to enter (default `3.45V`, LFP top).
+- `Balance Sleep Voltage`: Max-cell floor to exit (default `3.42V`, LFP top). Must sit just below Start.
 - `Balance Trigger Voltage`: Cell delta to enter (default `0.015V`).
 - `Balance Stop Diff Voltage`: Cell delta to exit (default `0.005V`).
 
