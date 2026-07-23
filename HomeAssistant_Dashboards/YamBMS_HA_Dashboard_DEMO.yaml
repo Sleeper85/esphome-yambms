@@ -451,6 +451,31 @@ views:
             name: README
             icon: mdi:book-open-variant
         title: YamBMS - Auto EOC
+      - type: entities
+        title: Fake Balancer
+        show_header_toggle: false
+        entities:
+          - entity: switch.fake_balancer_1_enable
+            name: Enable
+          - entity: switch.fake_balancer_1_force
+            name: Force
+          - entity: number.fake_balancer_1_max_run_time
+            name: Max Run Time
+          - entity: number.fake_balancer_1_balance_starting_voltage
+            name: Start Balance V
+          - entity: number.fake_balancer_1_balance_sleep_voltage
+            name: Stop Balance V
+          - entity: number.fake_balancer_1_balance_trigger_voltage
+            name: Start Delta V
+          - entity: number.fake_balancer_1_balance_stop_diff_voltage
+            name: Stop Delta V
+          - entity: binary_sensor.fake_balancer_1_active
+            name: Active
+          - type: weblink
+            url: >-
+              https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#fake-balancer
+            name: README
+            icon: mdi:book-open-variant
   - title: Diagnostic
     cards:
       - type: entity-filter

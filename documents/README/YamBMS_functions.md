@@ -426,6 +426,111 @@ The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN f
 
 ![Image](../../images/YamBMS_CANBUS_Status.png "YamBMS_CANBUS_Status")
 
+## Auto CCL Current Taper
+
+When to use: Your inverter does not charge accurately to the configured `Bulk voltage` — it may stop short (e.g. bulk − `0.5V`) or overshoot (e.g. bulk + `0.2V` to `0.5V`). Current Taper reduces `Requested Charge Current (CCL)` so the pack reaches bulk cleanly and stays from rising much above it.
+
+For undershoot, raise `Inverter Offset V.` enough that the inverter keeps charging until pack voltage can reach bulk. Current Taper then limits current so voltage does not climb past bulk once you get there.
+
+This optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`) participates in the Auto CCL STEP pipeline. From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). How early the taper starts and how low it goes at bulk are configurable — taper only enough to prevent overshoot, or continue down toward near zero. Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
+
+By default the taper is linear with pack voltage. `Auto CCL CT Curve Exp` changes the shape: higher values taper faster early and leave a longer tail; lower values delay the taper and drop more sharply near bulk. Linear or near-linear usually works best.
+
+> [!IMPORTANT]
+> Unlike stock `Auto CCL` (max cell vs BMS `OVP`), Current Taper uses **pack voltage** vs a user knee and YamBMS `Bulk voltage`.
+
+Behaviour:
+
+1. Below `Auto CCL CT Knee Voltage`: no reduction (inactive).
+2. From knee to bulk: CCL follows the curve from `Knee C-Rate × Battery Capacity` down to `Bulk C-Rate × Battery Capacity`.
+3. At first bulk touch: CCL drops to `Auto CCL CT Balance Current` (default `2A`) and holds there so pack voltage does not keep climbing; a non-zero value is used because some inverters ignore `0A`.
+4. After EOC (`var_eoc`): CCL goes to `0A`.
+5. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
+
+If `Knee Voltage` is set within `0.2V` of `Bulk voltage` (or above it), the function is a no-op until the knee is lowered — this avoids jumping straight to the balance-current floor when the knee/bulk window is invalid.
+
+Configuration options:
+
+- `Auto CCL CT`: Enables or disables the taper function.
+- `Auto CCL CT Knee Voltage`: Pack voltage where tapering starts (boot-scaled to pack chemistry/cell count; 16S LFP placeholder default `54.4V`).
+- `Auto CCL CT Knee C-Rate`: C-rate at the knee; multiplied by `Battery Capacity` for the starting CCL (default `0.125C`).
+- `Auto CCL CT Bulk C-Rate`: C-rate at bulk (default `0.03C`).
+- `Auto CCL CT Balance Current`: CCL while latched at bulk (default `2A`). Keep this above `0.005C × Battery Capacity` (the Cut-Off current deadband) so the classic compensated Cut-Off path stays available; at or below that band, charge completion relies on the *fully charged at rest* signature only.
+- `Auto CCL CT Curve Exp`: Curve shape. `1.0` is linear; above `1` drops faster early then a longer tail; below `1` delays the taper and sharpens near bulk (range `0.5`–`2.0`, default `1.0`).
+
+Diagnostic sensors:
+
+- `Auto CCL CT Voltage`: Smoothed pack voltage used by the curve.
+- `Auto CCL CT Knee Amps` / `Auto CCL CT Bulk Amps`: Capacity × C-rate targets.
+- `Auto CCL CT Delta`: Pipeline reduction applied (≤ `0A`).
+
+Notes:
+
+- Requires a correct `Battery Capacity`.
+- Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
+- Pair with `Inverter Offset V.` when the inverter undershoots bulk without an offset. If you taper CCL toward near zero, an offset is usually needed as well.
+- If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
+- With Float enabled: after EOC, Current Taper holds CCL at `0A` while `var_eoc` is true and the session is still active, so Float cannot deliver current until pack voltage falls below `knee − 0.2V`. That is usually a short transient and matches the "CVL not trusted" approach, but Float users should expect it.
+
+## Fake Balancer
+
+Some BMS (e.g. Seplos) never report a balancing/equalizing flag, so YamBMS cannot hold **Cut-Off** open while cells balance. This optional package **infers** Equalizing from that BMS's max/min cell voltage using the same threshold names as Enerkey / Heltec / JK balancers. It is for **top-of-charge balancing only** (Start/Sleep near max cell charge voltage — never near the bottom of the SoC window). It **cooperates** with a real balancer on the same `bms_id`:
+
+`Equalizing = (real balancer balancing) OR (inferred) OR (force)`
+
+Package: `packages/balancer/balancer_fake_balancer.yaml`
+
+Requires `bms${bms_id}_max_cell_voltage` / `_min_cell_voltage`, plus `balancer${bms_id}_equalizing` and `_online_status` from a real balancer package (or `balancer_equalizing_stub.yaml`).
+
+```YAML
+packages:
+  # Real balancer (example) — already provides the IDs Fake Balancer ORs with
+  # balancer1: !include
+  #   file: packages/balancer/balancer_modbus_client.yaml
+  #   vars: { bms_id: '1', balancer_name: 'Enerkey 1', ... }
+
+  fake_balancer: !include
+    file: packages/balancer/balancer_fake_balancer.yaml
+    vars:
+      bms_id: '1'                              # which BMS cells + override to drive
+      fake_bal_name: 'Fake Balancer 1'         # HA device name → entity_id prefix fake_balancer_1_
+
+  # Only if there is NO real balancer package for this bms_id:
+  # balancer_stub1: !include
+  #   file: packages/balancer/balancer_equalizing_stub.yaml
+  #   vars:
+  #     bms_id: '1'
+  #     balancer_name: 'Balancer Stub 1'
+```
+
+Uses its own `fake_bal_${bms_id}` device/IDs so they do not collide with `balancer_${bms_id}`. Each tick merges into `var_ext_balancer_*` and never clears online/equalizing out from under a live real balancer.
+
+Behaviour:
+
+1. `Enable` (auto): enter when `max_cell >= Balance Starting Voltage` **and** `(max − min) >= Balance Trigger Voltage`. Exit when `max_cell < Balance Sleep Voltage` **or** `(max − min) <= Balance Stop Diff Voltage`. Sleep Voltage alone ends balancing immediately.
+2. `Force`: manual / HA automation force (e.g. weekly top-balance) when cell conditions would not yet trigger inference. Cleared automatically when **Max Run Time** expires.
+3. `Max Run Time`: caps how long fake Equalizing (inferred or force) may stay asserted (default `30` min, max `360`). After expiry, Fake Balancer drops Equalizing and will not re-enter until cells fall below the enter thresholds (or Force is used again after re-arm). Use this for longer weekly top-balance without changing the compile-time YamBMS **EOC timer**.
+4. Real balancer: if `balancer${bms_id}_equalizing` is true, Equalizing stays asserted even when Fake Balancer is idle.
+
+While Equalizing is true, Cut-Off holds CVL (cut-off timer paused). The YamBMS **EOC timer** remains a separate compile-time charge-end ceiling; **Max Run Time** is the runtime knob for how long *Fake Balancer* may hold Equalizing.
+
+> [!NOTE]
+> These numbers are **inference** thresholds for YamBMS, not writes to a hardware balancer. Match them to how your BMS/balancer actually behaves at the **top of charge**. This only signals Equalizing — it does not move charge between cells. Defaults are LFP (`3.45` / `3.42`); Li-ion and LTO need different top-band values, but still near max charge — not mid or low SoC.
+
+Configuration options:
+
+- `Enable`: Enables cell-threshold inference.
+- `Force`: Forces Equalizing while on (automation-friendly).
+- `Max Run Time`: Maximum continuous sim Equalizing in minutes (slider, `1`–`360`, default `30`).
+- `Balance Starting Voltage`: Max-cell floor to enter (default `3.45V`, LFP top).
+- `Balance Sleep Voltage`: Max-cell floor to exit (default `3.42V`, LFP top). Must sit just below Start.
+- `Balance Trigger Voltage`: Cell delta to enter (default `0.015V`).
+- `Balance Stop Diff Voltage`: Cell delta to exit (default `0.005V`).
+
+Diagnostic sensors:
+
+- `Active`: True while inferred / forced Equalizing is asserted (does not include real-balancer-only periods).
+
 ## Diagnostic
 
 Useful information for troubleshooting.

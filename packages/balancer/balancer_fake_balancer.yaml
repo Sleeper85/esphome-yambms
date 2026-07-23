@@ -1,0 +1,293 @@
+# Updated : 2026.07.19
+# Version : 1.3.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+#--------------------------------------------------------------------------------------------
+# Fake Balancer (virtual Equalizing)
+#
+# Purpose:
+#   Infer Equalizing for a BMS that balances but never reports a balancing flag.
+#   Top-of-charge only — Start/Sleep sit near max charge voltage, never near the
+#   bottom of the SoC window. Defaults are LFP (3.45 / 3.42); raise for Li-ion
+#   (~4.0+) or lower slightly for LTO (~2.7+), but keep them at the top.
+#   Uses the same threshold names as Enerkey/Heltec/JK balancers, driven by this
+#   BMS's max/min cell voltage. Cooperates with a real balancer on the same bms_id:
+#   Equalizing = (real balancer balancing) OR (inferred / force).
+#
+#   Inferred latch (Enable):
+#     START only when BOTH are true AND no stop condition is already true:
+#       max_cell >= Balance Starting Voltage
+#       AND (max − min) >= Balance Trigger Voltage
+#     STOP when EITHER is true:
+#       max_cell < Balance Sleep Voltage  (absolute — ends balancing immediately)
+#       OR (max − min) <= Balance Stop Diff Voltage
+#
+# Include (one BMS id — YamBMS BMS ids start at 1):
+#   fake_balancer: !include
+#     file: packages/balancer/balancer_fake_balancer.yaml
+#     vars:
+#       bms_id: '1'
+#       fake_bal_name: 'Fake Balancer 1'
+#
+# Requires:
+#   - bms${bms_id}_max_cell_voltage / _min_cell_voltage
+#   - balancer${bms_id}_equalizing and balancer${bms_id}_online_status
+#     (Enerkey/Heltec/modbus balancer package, or balancer_equalizing_stub.yaml)
+#
+# IDs use fake_bal_${bms_id} / fake_bal${bms_id}_* so they do not collide with
+# balancer_${bms_id} used by real balancer packages.
+#
+# Contract:
+#   - Sets fake_bal${bms_id}_var_asserting; !extends bms equalizing to OR it in
+#     (Enerkey modbus also writes var_ext_balancer_* and would wipe a plain write)
+#   - Still updates var_ext_balancer_* for stub / no-hardware-balancer setups
+#   - Max Run Time caps how long fake (inferred/force) may assert Equalizing;
+#     YamBMS EOC timer is a separate compile-time charge-end ceiling
+#--------------------------------------------------------------------------------------------
+
+esphome:
+  devices:
+    - id: fake_bal_${bms_id}
+      name: "${fake_bal_name}"
+
+globals:
+  # Fake Balancer wants Equalizing this tick (survives Enerkey overwriting var_ext_balancer_equalizing)
+  - id: fake_bal${bms_id}_var_asserting
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+switch:
+  # Auto: infer Equalizing from this BMS's cell voltage + delta vs thresholds
+  - platform: template
+    id: fake_bal${bms_id}_switch_enable
+    device_id: fake_bal_${bms_id}
+    name: "Enable"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+  # Manual / HA automation: force Equalizing while on (e.g. weekly top-balance)
+  - platform: template
+    id: fake_bal${bms_id}_switch_force
+    device_id: fake_bal_${bms_id}
+    name: "Force"
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+
+number:
+  # Cap continuous fake Equalizing (inferred or force). Runtime alternative to
+  # raising the compile-time YamBMS EOC timer for longer weekly top-balance.
+  - platform: template
+    id: fake_bal${bms_id}_max_run_time
+    device_id: fake_bal_${bms_id}
+    name: "Max Run Time"
+    unit_of_measurement: min
+    min_value: 1
+    max_value: 360
+    step: 1
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 30
+    entity_category: config
+    icon: mdi:timer-outline
+
+  # Enter ONLY with Trigger Voltage (AND): max cell >= this (top of charge)
+  - platform: template
+    id: fake_bal${bms_id}_balance_starting_voltage
+    device_id: fake_bal_${bms_id}
+    name: "Balance Starting Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 2.5
+    max_value: 4.5
+    step: 0.01
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 3.45
+    entity_category: config
+    icon: mdi:battery-arrow-up
+
+  # Exit when max cell < this (OR with Stop Diff) — still top of charge, just below Start
+  - platform: template
+    id: fake_bal${bms_id}_balance_sleep_voltage
+    device_id: fake_bal_${bms_id}
+    name: "Balance Sleep Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 2.5
+    max_value: 4.5
+    step: 0.01
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 3.42
+    entity_category: config
+    icon: mdi:battery-arrow-down
+
+  # Enter ONLY with Starting Voltage (AND): (max − min) >= this
+  - platform: template
+    id: fake_bal${bms_id}_balance_trigger_voltage
+    device_id: fake_bal_${bms_id}
+    name: "Balance Trigger Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0.001
+    max_value: 0.500
+    step: 0.001
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.015
+    entity_category: config
+    icon: mdi:delta
+
+  # Exit when (max − min) <= this (OR with Sleep Voltage)
+  - platform: template
+    id: fake_bal${bms_id}_balance_stop_diff_voltage
+    device_id: fake_bal_${bms_id}
+    name: "Balance Stop Diff Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    min_value: 0.001
+    max_value: 0.500
+    step: 0.001
+    mode: ${yambms_input_number_mode}
+    restore_value: true
+    optimistic: true
+    initial_value: 0.005
+    entity_category: config
+    icon: mdi:delta
+
+binary_sensor:
+  # OR fake into the BMS equalizing sensor (Enerkey on_state would otherwise clear it)
+  - id: !extend bms${bms_id}_equalizing
+    lambda: |-
+      const bool fake = id(fake_bal${bms_id}_var_asserting);
+      if (id(bms${bms_id}_var_ext_balancer_online))
+        return id(bms${bms_id}_var_ext_balancer_equalizing) || fake;
+      return id(bms${bms_id}_bms_equalizing).state || fake;
+
+  - platform: template
+    id: fake_bal${bms_id}_active
+    device_id: fake_bal_${bms_id}
+    name: "Active"
+    entity_category: diagnostic
+    icon: mdi:scale-balance
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          static bool inferred = false;
+          static bool run_expired = false;   // latched after Max Run Time until re-arm
+          static bool prev_force = false;
+          static uint32_t started_ms = 0;    // when this fake assertion session began
+
+          const bool fake_en = id(fake_bal${bms_id}_switch_enable).state;
+          bool force = id(fake_bal${bms_id}_switch_force).state;
+
+          // Force rising edge starts a new timed session (weekly top-balance)
+          if (force && !prev_force) {
+            run_expired = false;
+            started_ms = 0;
+          }
+          prev_force = force;
+
+          const float max_cell = id(bms${bms_id}_max_cell_voltage).state;
+          const float min_cell = id(bms${bms_id}_min_cell_voltage).state;
+          const float start_v  = id(fake_bal${bms_id}_balance_starting_voltage).state;
+          const float sleep_v  = id(fake_bal${bms_id}_balance_sleep_voltage).state;
+          const float trig_v   = id(fake_bal${bms_id}_balance_trigger_voltage).state;
+          const float stop_dv  = id(fake_bal${bms_id}_balance_stop_diff_voltage).state;
+          const float max_run_min = id(fake_bal${bms_id}_max_run_time).state;
+
+          // Real balancer on this bms_id (Enerkey/Heltec/modbus client, or stub)
+          const bool real_online = id(balancer${bms_id}_online_status).has_state()
+              && id(balancer${bms_id}_online_status).state;
+          const bool real_eq = id(balancer${bms_id}_equalizing).has_state()
+              && id(balancer${bms_id}_equalizing).state;
+
+          const bool cells_ok = !isnan(max_cell) && !isnan(min_cell);
+          const float delta = cells_ok ? (max_cell - min_cell) : NAN;
+
+          // Start: BOTH must be true (and not already in a stop condition).
+          // Stop: EITHER is enough — Sleep Voltage alone ends balancing. Period.
+          const bool start_hi_v  = cells_ok && (max_cell >= start_v);   // high cell at/above start V
+          const bool start_delta = cells_ok && (delta >= trig_v);       // spread at/above trigger
+          const bool stop_lo_v   = cells_ok && (max_cell < sleep_v);    // high cell below sleep V
+          const bool stop_delta  = cells_ok && (delta <= stop_dv);      // spread at/below stop diff
+          const bool should_stop = stop_lo_v || stop_delta;
+          const bool can_start   = start_hi_v && start_delta && !should_stop;
+
+          // Left the start zone (either start gate false) → re-arm after Max Run Time
+          const bool below_enter = cells_ok && (!start_hi_v || !start_delta);
+
+          if (!fake_en) {
+            inferred = false;
+          } else if (cells_ok) {
+            // Sleep Voltage is absolute: high cell below sleep → off, no other gates
+            if (stop_lo_v) {
+              inferred = false;
+            } else if (!inferred) {
+              if (!run_expired && can_start)
+                inferred = true;
+            } else if (should_stop) {
+              inferred = false;                                            // stop diff (or sleep)
+            }
+          }
+
+          bool fake_eq = force || inferred;
+
+          // Max Run Time: cap continuous fake Equalizing (inferred or force)
+          if (!fake_eq) {
+            started_ms = 0;
+            if (!force && below_enter)
+              run_expired = false;
+          } else if (run_expired) {
+            fake_eq = false;
+          } else {
+            const uint32_t now = millis();
+            if (started_ms == 0)
+              started_ms = now;
+            const uint32_t max_ms = (uint32_t)(max_run_min * 60000.0f);
+            if ((now - started_ms) >= max_ms) {
+              run_expired = true;
+              inferred = false;
+              started_ms = 0;
+              if (force) {
+                id(fake_bal${bms_id}_switch_force).publish_state(false);
+                force = false;
+              }
+              fake_eq = false;
+            }
+          }
+
+          const bool want_eq = fake_eq || real_eq;
+
+          // Sticky fake bit — bms equalizing lambda ORs this (Enerkey must not be able to clear it)
+          id(fake_bal${bms_id}_var_asserting) = fake_eq;
+
+          // Also write ext vars for stub / offline-balancer setups (may be overwritten by Enerkey)
+          id(bms${bms_id}_var_ext_balancer_online) = real_online || fake_eq;
+          id(bms${bms_id}_var_ext_balancer_equalizing) = want_eq;
+
+          id(fake_bal${bms_id}_active).publish_state(fake_eq);
