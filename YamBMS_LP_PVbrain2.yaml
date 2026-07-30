@@ -1,4 +1,4 @@
-# Updated : 2026.07.15
+# Updated : 2026.07.30
 # Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -144,6 +144,12 @@ substitutions:
   # +--------------------------------------+
   enable_led_logging: 'false'     # Set to true to see if an led is assigned to a component correctly, logged every 60 seconds
   enable_health_logging: 'false'  # Set to true to see if component health for all component instances, logged every 60 seconds
+  # +--------------------------------------+
+  # | Advanced options                     |
+  # +--------------------------------------+
+  # Increase the `loop_task_stack_size` value for a large number of BMS / entities
+  # See https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/LOOP_TASK_STACK.md before changing
+  loop_task_stack_size: "8192" # 8192 / 16384 / 32768 bytes
   # +--------------------------------------+
   # | UART expander WK2168                 |
   # +--------------------------------------+

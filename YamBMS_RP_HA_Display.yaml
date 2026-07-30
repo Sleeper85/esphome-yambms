@@ -1,5 +1,5 @@
-# Updated : 2026.06.29
-# Version : 1.7.0
+# Updated : 2026.07.30
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -54,6 +54,12 @@ substitutions:
   # This allows to group entities into logical devices that appear separately in Home Assistant.
   hostname: 'yambms-display' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
   friendly_name : 'YamBMS Display' # Name of your board (prefix for board entities)
+  # +--------------------------------------+
+  # | Advanced options                     |
+  # +--------------------------------------+
+  # Increase the `loop_task_stack_size` value for a large number of entities
+  # See https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/LOOP_TASK_STACK.md before changing
+  loop_task_stack_size: "8192" # 8192 / 16384 / 32768 bytes
 
 # +--------------------------------------+
 # | Packages                             |
