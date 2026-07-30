@@ -1,5 +1,5 @@
-# Updated : 2026.02.15
-# Version : 1.1.6
+# Updated : 2026.07.30
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,6 +38,8 @@ substitutions:
   spi_mosi_pin: '40'
   spi_miso_pin: '41'
   mcp2515_cs_pin: '42'
+  # LOOP_TASK_STACK
+  loop_task_stack_size: "8192" # see LOOP_TASK_STACK.md before changing
 
 packages:
   device_base: !include ../base/device_base.yaml
@@ -50,6 +52,8 @@ esp32:
   cpu_frequency: 240MHz
   framework:
     type: esp-idf
+    advanced:
+      loop_task_stack_size: ${loop_task_stack_size}
 
 esphome:
   platformio_options:
