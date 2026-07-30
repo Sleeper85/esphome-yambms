@@ -1,5 +1,5 @@
-# Updated : 2025.06.12
-# Version : 1.1.3
+# Updated : 2026.07.30
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,23 +22,15 @@
 # The configuration presented here already seems stable for several users and
 # visibly offers better behavior of the esp when it contains a lot of entities.
 
-# PSRAM extras options
+# YamBMS default PSRAM options (ESP-IDF 5.5+)
+
 esp32:
   framework:
     sdkconfig_options:
-      COMPILER_OPTIMIZATION_SIZE: y
-      CONFIG_COMPILER_OPTIMIZATION_PERF: y
-      CONFIG_SPIRAM_SUPPORT: y
-      CONFIG_SPIRAM_USE_MALLOC: y
-      CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL: "65536"          # (64KB 65536) Reserve this amount of bytes for data that specifically needs to be in DMA or internal memory. Default value: 32768
-      CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL: "4096"             # ( 4KB  4096) Maximum malloc() size, in bytes, to always put in internal memory. Default value: 16384
-      CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY: y
-      CONFIG_SPIRAM_ALLOW_NOINIT_SEG_EXTERNAL_MEMORY: y       # Allow .noinit segment placed in external memory
-      CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY: y            # Allow external memory as an argument to xTaskCreateStatic
-      CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP: y                 # Try to allocate memories of WiFi and LWIP in SPIRAM firstly. If failed, allocate internal memory
-      CONFIG_FATFS_ALLOC_PREFER_EXTRAM: y                     # Prefer external RAM when allocating FATFS buffers
-      CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC: y                    # Allocation strategy for mbedTLS, essentially provides ability to allocate all required dynamic allocations
-      # BLE Bluedroid
-      # https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32s3/api-reference/kconfig.html#bluedroid-options
-      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: y
-      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: y
+      CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY: y   # Enables EXT_RAM_BSS_ATTR - pair with the next line
+      CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP: y          # Moves LWIP/WiFi statics to PSRAM - frees 12308 B of DRAM
+      CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL: "65536"   # (64KB 65536) Reserve this amount of bytes for data that specifically needs to be in DMA or internal memory. Default value: 32768
+      CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL: "4096"      # ( 4KB  4096) Maximum malloc() size, in bytes, to always put in internal memory. Default value: 16384
+      # BLE Bluedroid (this is taken into account ONLY if a BLE component is imported)
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: y        # Bluedroid allocates from PSRAM first
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: y              # Bluedroid env dynamic instead of static .bss
