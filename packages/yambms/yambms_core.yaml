@@ -1,4 +1,4 @@
-# Updated : 2026.07.15
+# Updated : 2026.07.31
 # Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -1112,31 +1112,31 @@ interval:
           // +-----------------------------------------------+
           // | DEBUG LOGS                                    |
           // +-----------------------------------------------+
-          if (id(yambms${yambms_id}_var_initialized) == true) ESP_LOGD("yambms_debug", "===> YamBMS initialized <=== : true");
-          else ESP_LOGD("yambms_debug", "===> YamBMS initialized <=== : false");
-          if (id(yambms${yambms_id}_total_voltage).has_state()) ESP_LOGD("yambms_debug", "Battery Voltage : %f V", id(yambms${yambms_id}_total_voltage).state);
-          if (id(yambms${yambms_id}_current).has_state()) ESP_LOGD("yambms_debug", "Battery Current : %f A", id(yambms${yambms_id}_current).state);
-          if (id(yambms${yambms_id}_power).has_state()) ESP_LOGD("yambms_debug", "Battery Power : %f W", id(yambms${yambms_id}_power).state);
-          if (id(yambms${yambms_id}_battery_soc).has_state()) ESP_LOGD("yambms_debug", "Battery SOC : %f %%", id(yambms${yambms_id}_battery_soc).state);
-          if (id(yambms${yambms_id}_battery_soh).has_state()) ESP_LOGD("yambms_debug", "Battery SOH : %f %%", id(yambms${yambms_id}_battery_soh).state);
-          if (id(yambms${yambms_id}_min_temperature).has_state()) ESP_LOGD("yambms_debug", "Min temp. : %f °C", id(yambms${yambms_id}_min_temperature).state);
-          if (id(yambms${yambms_id}_max_temperature).has_state()) ESP_LOGD("yambms_debug", "Max temp. : %f °C", id(yambms${yambms_id}_max_temperature).state);
+          if (id(yambms${yambms_id}_var_initialized) == true) { ESP_LOGD("yambms_debug", "===> YamBMS initialized <=== : true"); }
+          else { ESP_LOGD("yambms_debug", "===> YamBMS initialized <=== : false"); }
+          if (id(yambms${yambms_id}_total_voltage).has_state()) { ESP_LOGD("yambms_debug", "Battery Voltage : %f V", id(yambms${yambms_id}_total_voltage).state); }
+          if (id(yambms${yambms_id}_current).has_state()) { ESP_LOGD("yambms_debug", "Battery Current : %f A", id(yambms${yambms_id}_current).state); }
+          if (id(yambms${yambms_id}_power).has_state()) { ESP_LOGD("yambms_debug", "Battery Power : %f W", id(yambms${yambms_id}_power).state); }
+          if (id(yambms${yambms_id}_battery_soc).has_state()) { ESP_LOGD("yambms_debug", "Battery SOC : %f %%", id(yambms${yambms_id}_battery_soc).state); }
+          if (id(yambms${yambms_id}_battery_soh).has_state()) { ESP_LOGD("yambms_debug", "Battery SOH : %f %%", id(yambms${yambms_id}_battery_soh).state); }
+          if (id(yambms${yambms_id}_min_temperature).has_state()) { ESP_LOGD("yambms_debug", "Min temp. : %f °C", id(yambms${yambms_id}_min_temperature).state); }
+          if (id(yambms${yambms_id}_max_temperature).has_state()) { ESP_LOGD("yambms_debug", "Max temp. : %f °C", id(yambms${yambms_id}_max_temperature).state); }
           ESP_LOGD("yambms_debug", "Charge Status : %s", id(yambms${yambms_id}_var_charge_status).c_str());
-          if (id(yambms${yambms_id}_charging_instruction).has_state()) ESP_LOGD("yambms_debug", "Charging instruction : %s", id(yambms${yambms_id}_charging_instruction).state.c_str());
+          if (id(yambms${yambms_id}_charging_instruction).has_state()) { ESP_LOGD("yambms_debug", "Charging instruction : %s", id(yambms${yambms_id}_charging_instruction).state.c_str()); }
           if (id(yambms${yambms_id}_discharging_instruction).has_state())
           {
             bool discharging_instruction = id(yambms${yambms_id}_discharging_instruction).state;
-            if (discharging_instruction == true) ESP_LOGD("yambms_debug", "Discharging instruction : true");
-            else ESP_LOGD("yambms_debug", "Discharging instruction : false");
+            if (discharging_instruction == true) { ESP_LOGD("yambms_debug", "Discharging instruction : true"); }
+            else { ESP_LOGD("yambms_debug", "Discharging instruction : false"); }
           }
-          if (id(yambms${yambms_id}_requested_charge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested CVL : %f V", id(yambms${yambms_id}_requested_charge_voltage).state);
-          if (id(yambms${yambms_id}_requested_discharge_voltage).has_state()) ESP_LOGD("yambms_debug", "Requested DVL : %f V", id(yambms${yambms_id}_requested_discharge_voltage).state);
-          if (id(yambms${yambms_id}_requested_charge_current).has_state()) ESP_LOGD("yambms_debug", "Requested CCL : %f A", id(yambms${yambms_id}_requested_charge_current).state);
-          if (id(yambms${yambms_id}_requested_discharge_current).has_state()) ESP_LOGD("yambms_debug", "Requested DCL : %f A", id(yambms${yambms_id}_requested_discharge_current).state);
-          if (id(yambms${yambms_id}_ccl_derating_reason).has_state()) ESP_LOGD("yambms_debug", "CCL derating reason : %s", id(yambms${yambms_id}_ccl_derating_reason).state.c_str());
-          if (id(yambms${yambms_id}_dcl_derating_reason).has_state()) ESP_LOGD("yambms_debug", "DCL derating reason : %s", id(yambms${yambms_id}_dcl_derating_reason).state.c_str());
+          if (id(yambms${yambms_id}_requested_charge_voltage).has_state()) { ESP_LOGD("yambms_debug", "Requested CVL : %f V", id(yambms${yambms_id}_requested_charge_voltage).state); }
+          if (id(yambms${yambms_id}_requested_discharge_voltage).has_state()) { ESP_LOGD("yambms_debug", "Requested DVL : %f V", id(yambms${yambms_id}_requested_discharge_voltage).state); }
+          if (id(yambms${yambms_id}_requested_charge_current).has_state()) { ESP_LOGD("yambms_debug", "Requested CCL : %f A", id(yambms${yambms_id}_requested_charge_current).state); }
+          if (id(yambms${yambms_id}_requested_discharge_current).has_state()) { ESP_LOGD("yambms_debug", "Requested DCL : %f A", id(yambms${yambms_id}_requested_discharge_current).state); }
+          if (id(yambms${yambms_id}_ccl_derating_reason).has_state()) { ESP_LOGD("yambms_debug", "CCL derating reason : %s", id(yambms${yambms_id}_ccl_derating_reason).state.c_str()); }
+          if (id(yambms${yambms_id}_dcl_derating_reason).has_state()) { ESP_LOGD("yambms_debug", "DCL derating reason : %s", id(yambms${yambms_id}_dcl_derating_reason).state.c_str()); }
           
-          // if (id().has_state()) ESP_LOGD("yambms_debug", "Text : %f V", id().state);
+          // if (id().has_state()) { ESP_LOGD("yambms_debug", "Text : %f V", id().state); }
 
 
 
