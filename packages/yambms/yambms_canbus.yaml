@@ -1,5 +1,5 @@
-# Updated : 2026.06.28
-# Version : 2.5.7
+# Updated : 2026.07.31
+# Version : 2.5.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -188,7 +188,7 @@ canbus:
                 uint32_t inverter_ack_interval_ms = (inverter_ack_ms_current - id(canbus${canbus_id}_inverter_ack_ms_previous));
                 id(canbus${canbus_id}_inverter_ack_ms_previous) = inverter_ack_ms_current;
                 id(canbus${canbus_id}_inverter_heartbeat).publish_state(inverter_ack_interval_ms);
-                ESP_LOGI("canbus", "received can_id: 0x305 ack_interval %d ms", inverter_ack_interval_ms);
+                ESP_LOGI("canbus", "received can_id: 0x305 ack_interval %" PRIu32 " ms", inverter_ack_interval_ms);
               }
 
 interval:
