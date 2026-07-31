@@ -1,5 +1,5 @@
-# Updated : 2026.07.10
-# Version : 1.1.4
+# Updated : 2026.07.31
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,16 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# The settings below can be changed via `vars` when importing the package
-# or by declaring new `substitutions` in the main YAML.
 substitutions:
   # UART
   modbus_baud_rate: '19200'          # 9600 / 19200 / 115200
   # Modbus
   modbus_id: '1'
-  modbus_send_wait_time: '2000ms'    # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending (default value from ESPHome PR #11969)
+  modbus_send_wait_time: '200ms'     # Timeout: max time to wait for the FIRST byte of a response
+  modbus_turnaround_time: '0ms'      # Pause after a completed response before the next command.
   # Modbus Controller
-  modbus_update_interval: '5s'       # frequency with which BMS/Shunt modbus servers are queried
+  modbus_update_interval: '5s'       # Frequency with which BMS/Balancer/Shunt (modbus servers) are queried
 
 uart:
   - id: !extend ${modbus_uart_id}
@@ -37,3 +36,4 @@ modbus:
     id: modbus_${modbus_role}_${modbus_id}
     role: ${modbus_role}
     send_wait_time: ${modbus_send_wait_time}
+    turnaround_time: ${modbus_turnaround_time}
