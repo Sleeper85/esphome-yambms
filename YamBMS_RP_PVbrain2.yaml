@@ -1,4 +1,4 @@
-# Updated : 2026.07.30
+# Updated : 2026.08.04
 # Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -149,7 +149,14 @@ substitutions:
   # +--------------------------------------+
   # Increase the `loop_task_stack_size` value for a large number of BMS / entities
   # See https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/LOOP_TASK_STACK.md before changing
-  loop_task_stack_size: "8192" # 8192 / 16384 / 32768 bytes
+  loop_task_stack_size: "16384" # 8192 / 16384 / 32768 bytes
+
+  # +--------------------------------------+
+  # | PVbrain2 settings                    |
+  # +--------------------------------------+
+  my_second: '59'
+  my_minute: '59'
+  my_hours: '23'
   # +--------------------------------------+
   # | UART expander WK2168                 |
   # +--------------------------------------+
@@ -322,11 +329,16 @@ packages:
 
 
   # +------------------------------------------------------------------------------+
-  # | >>> Add your custom packages below
+  # | >>> PVbrain2 packages
   # +------------------------------------------------------------------------------+
 
-  # Custom packages
-  # yambms_custom: !include yambms_custom.yaml
+  # pvbrain2_packages:
+  #   url: https://github.com/SeByDocKy/pvbrain2
+  #   ref: main
+  #   refresh: 0s
+  #   files:
+
+  #     # Add here your PVbrain2 packages
 
 # +------------------------------------------------------------------------------+
 # | >>> Add your custom YAML below
