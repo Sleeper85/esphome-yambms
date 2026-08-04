@@ -1,5 +1,5 @@
-# Updated : 2025.07.24
-# Version : 1.1.1
+# Updated : 2026.08.04
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,10 +23,10 @@ substitutions:
   bms_protocol: "RS485"
   # Modbus
   pace_modbus_id: modbus_pace
-  pace_modbus_send_wait_time: 250ms # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+  pace_modbus_send_wait_time: 250ms    # Timeout: max time to wait for the FIRST byte of a response
+  pace_modbus_turnaround_time: '0ms'   # Pause after a completed response before the next command.
   # Modbus Controller
-  pace_modbus_update_interval: '5s' # frequency with which BMS modbus servers are queried
-  pace_modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
+  pace_modbus_update_interval: '5s'    # Frequency with which BMS modbus servers are queried
 
 uart:
   - id: !extend ${pace_modbus_uart_id}
@@ -37,3 +37,4 @@ modbus:
     id: ${pace_modbus_id}
     role: client
     send_wait_time: ${pace_modbus_send_wait_time}
+    turnaround_time: ${pace_modbus_turnaround_time}
