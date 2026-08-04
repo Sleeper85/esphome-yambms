@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.1.5
+# Updated : 2026.08.04
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -154,7 +154,7 @@ number:
   - id: !extend yambms${yambms_id}_float_voltage
     web_server:
       sorting_group_id: yambms_charging_settings
-  - id: !extend yambms${yambms_id}_inverter_offset_v
+  - id: !extend yambms${yambms_id}_charger_offset_v
     web_server:
       sorting_group_id: yambms_charging_settings
   # YamBMS - ReBulk
