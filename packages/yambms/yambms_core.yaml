@@ -1,4 +1,4 @@
-# Updated : 2026.07.31
+# Updated : 2026.08.09
 # Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -1391,7 +1391,7 @@ number:
     id: yambms${yambms_id}_charger_offset_v
     device_id: yambms_yambms${yambms_id}
     step: 0.1
-    min_value: 0
+    min_value: -1
     max_value: 1
     restore_value: true
     mode: "${yambms_input_number_mode}"
