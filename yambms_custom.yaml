@@ -54,15 +54,16 @@ switch:
           id: yambms${yambms_id}_var_service
           value: 'false'
 
-interval:
-  # Change the min/max values of a silder
-  - interval: 24h # It will be executed directly at startup and then every 24 hours
-    then:
-      - lambda: |-
-          // Set min/max Float slider
-          id(yambms${yambms_id}_float_voltage).traits.set_min_value(${yambms_cell_count} * 3.125);
-          id(yambms${yambms_id}_float_voltage).traits.set_max_value(${yambms_cell_count} * 3.375);
+esphome:
+  on_boot:
+    # Priority 550 : runs right after the YamBMS chemistry block (600)
+    - priority: 550.0
+      then:
+        - lambda: |-
+            // Set min/max Float slider
+            id(yambms${yambms_id}_float_voltage).traits.set_min_value(${yambms_cell_count} * 3.125);
+            id(yambms${yambms_id}_float_voltage).traits.set_max_value(${yambms_cell_count} * 3.375);
 
-          // Set min/max Inverter Offset Voltage slider
-          id(yambms${yambms_id}_inverter_offset_v).traits.set_min_value(-3.0);
-          id(yambms${yambms_id}_inverter_offset_v).traits.set_max_value(3.0);
+            // Set min/max Charger Offset Voltage slider
+            id(yambms${yambms_id}_charger_offset_v).traits.set_min_value(-3.0);
+            id(yambms${yambms_id}_charger_offset_v).traits.set_max_value(3.0);
