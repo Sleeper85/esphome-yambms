@@ -6,6 +6,32 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+* YamBMS 1.8.0 :
+  * Rewritten Cut-Off / EOC charging logic : adds a current deadband (rejects sensor noise / low-solar current limiting) and a minimum SoC gate before Cut-Off can be declared, extends the cut-off confirmation delay from 60s to 180s to reject transient voltage readings, see [release note](documents/README/changelog/Changelog_YamBMS_1.8.0_Cut-Off_charging_logic.md)
+  * New select `Cut-Off Cell Voltage` : choose between `Max Cell Voltage` (default, conservative) and `Average Cell Voltage` (consistent charge termination voltage for packs with a runner cell, requires Auto CVL and/or Auto CCL for cell protection)
+  * New sliders `Max charge C-Rate` / `Max discharge C-Rate` : the max charge/discharge current is now the lowest of the user slider, the BMS OCP safety margin, and battery capacity × C-Rate
+  * Renamed `Inverter Offset V.` to `Charger Offset V.` and allowed negative values (-1V to +1V)
+  * Auto EOC : new 1-hour grace period holding the last computed current after target time passes (instead of releasing to maximum current), smoothed remaining-capacity estimate between BMS 1% SoC steps to remove current sawtoothing, `Stop SoC` slider capped at 98% (100% could never trigger because SoC is clamped to 98% until end-of-charge)
+  * New `Auto CCL Current Taper` function : tapers CCL from a configurable knee voltage/C-Rate down to a bulk C-Rate, then holds a configurable balance current while at bulk or after EOC ; release hysteresis and Balance Current max are now scaled to cell count/battery capacity instead of flat constants, and a NaN guard prevents a spurious taper during the boot transient, see [changelog](documents/README/changelog/Changelog_Auto_CCL_Current_Taper_1.1.2.md)
+  * `Requested Charge Voltage (CVL)` calculation reworked : `Auto CVL`, `Auto Float` and the new `Auto Custom CVL` are now summed on top of the phase target in every charging phase (`Bulk`/`Float`/`Stop`), instead of `Auto CVL` silently applying a Bulk-anchored correction during Float/Stop too ; `Auto CVL` now has dedicated Float/Stop behavior (based on average cell voltage, one-directional, chained floors down to nominal/discharge voltage) instead of only correcting Bulk ; `Stop` charging voltage target changed from `Rebulk V.` to nominal voltage, see [changelog](documents/README/changelog/Changelog_YamBMS_1.8.0_Auto_CVL.md)
+  * New substitutions `custom_ccl_derating_reason` / `custom_dcl_derating_reason` allowing a custom current-limiting source (e.g. added via `yambms_custom.yaml`) to report itself in the CCL/DCL derating reason sensor, and a similar `Auto Custom CVL` slot for voltage
+  * The CCL/DCL auto-limiting globals are now reset at the start of every cycle instead of only being overwritten by their owning function, preventing a past derating reason/value from getting silently stuck if the condition that caused it disappears
+  * Fixed incorrect Max/Min Cell Voltage scaling (×100 instead of ×1000) sent on the CAN bus for the Deye PCS protocol
+  * Improved PACE BMS Modbus : power is now computed from current × voltage instead of a raw register (fixes incorrect readings), improved offline detection
+  * Reworked Modbus timing options : `send_wait_time` is now a response timeout (default lowered from 2000ms to 200ms) and a new `turnaround_time` option was added; shared multi-node settings (`yambms_config.yaml`) updated accordingly
+  * New `loop_task_stack_size` option (8192/16384/32768) available on every board, to prevent stack overflow with a large number of BMS/entities, see [documentation](documents/README/LOOP_TASK_STACK.md)
+  * Updated default PSRAM options for ESP-IDF 5.5+, see [documentation](documents/README/PSRAM_options.md)
+  * Set esphome `min_version` to `2026.7.0`
+  * Updated HA dashboards `1.8.0` for the new Cut-Off Cell Voltage, Charger Offset V., C-Rate and Auto CCL Current Taper entities
+  * New documentation :
+    * [Charging_a_battery_with_CVL_and_CCL.md](documents/README/Charging_a_battery_with_CVL_and_CCL.md)
+    * [Understanding_ESPHome_Modbus.md](documents/README/Understanding_ESPHome_Modbus.md)
+    * [How_to_perform_a_PR_to_the_dev_branch.md](documents/README/How_to_perform_a_PR_to_the_dev_branch.md)
+  * Merged [PR 308](https://github.com/Sleeper85/esphome-yambms/pull/308) Check if Auto SoC Limit has reached its target
+  * Merged [PR 303](https://github.com/Sleeper85/esphome-yambms/pull/303) Auto CCL Current Taper
+  * Merged [PR 290](https://github.com/Sleeper85/esphome-yambms/pull/290) Add grace period to Auto EOC
+
+
 * YamBMS 1.7.0 :
   * Partial rewrite of `yambms_core` and merging of C++ code into a single lambda in several stages with increased datas control.
   * Added LVGL display dashboard for Waveshare Touch-LCD 4.3" and 7" (Blue Navy 800x480 design)
