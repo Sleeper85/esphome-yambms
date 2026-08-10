@@ -1,5 +1,5 @@
-# Updated : 2025.06.10
-# Version : 1.1.2
+# Updated : 2026.08.10
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,11 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+#
+# You can centralize your settings here to share between multiple YamBMS nodes
+# This is particularly useful with a multi-node configuration so that all nodes use the same Modbus parameters.
+#
+
 substitutions:
   # +--------------------------------------+
-  # | Multi-Node Modbus Settings           |
+  # | Multi-node Modbus Settings           |
   # +--------------------------------------+
-  modbus_update_interval: '5s' # frequency with which BMS/Shunt modbus servers are queried
-  modbus_baud_rate: '19200' # 9600 / 19200 / 115200
-  modbus_command_throttle: '0ms' # minimum time in between 2 requests to the device
-  modbus_send_wait_time: '250ms' # time in milliseconds before the next ModBUS command is sent if an answer from a previous command is pending
+  # UART
+  modbus_baud_rate: '19200'          # 9600 / 19200 / 115200
+  # Modbus
+  modbus_id: '1'
+  modbus_send_wait_time: '200ms'     # Timeout: max time to wait for the FIRST byte of a response
+  modbus_turnaround_time: '0ms'      # Pause after a completed response before the next command.
+  # Modbus Controller
+  modbus_update_interval: '5s'       # Frequency with which BMS/Balancer/Shunt (modbus servers) are queried
