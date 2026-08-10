@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.1.7
+# Updated : 2026.08.11
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -110,7 +110,7 @@ sensor:
         return target_float_v;
       }
       // Auto Float enabled + Floating
-      else if (id(yambms${yambms_id}_var_charge_status) == "Float")
+      else if (id(yambms${yambms_id}_charging_instruction).state == "Float")
       {
         // Check update interval
         if (++time_count >= (uint8_t)update_interval)
@@ -132,6 +132,9 @@ sensor:
           // Reset update interval counter
           time_count = 0;
         }
+
+        // Store difference for CVL calculation (only relevant while actually Floating)
+        id(yambms${yambms_id}_var_auto_float) = float_v - target_float_v;
       }
       // Auto Float enabled + No Floating
       else
@@ -139,10 +142,8 @@ sensor:
         // Reset values
         float_v = bulk_v;
         time_count = 0;
+        id(yambms${yambms_id}_var_auto_float) = 0;
       }
-
-      // Store difference for CVL calculation
-      id(yambms${yambms_id}_var_auto_float) = float_v - target_float_v;
 
       // Return Auto Float voltage
       return float_v;
