@@ -78,6 +78,7 @@ This result can then be **further reduced** by the active functions acting on th
 
 - [Auto Temp-Based Current](YamBMS_functions.md#auto-temp-based-current) : reduces the charge current according to the **temperature** and the **charging_rate_table**
 - [Auto CCL](YamBMS_functions.md#auto-ccl) : reduces the charge current when a cell approaches the BMS **OVP** threshold
+- [Auto CCL Current Taper](YamBMS_functions.md#auto-ccl-current-taper) : reduces the charge current along a knee→bulk curve based on **pack voltage**
 - [Auto SoC Limit](YamBMS_functions.md#auto-soc-limit) : clamps the charge current when the target **SoC** is reached
 - [Auto EOC](YamBMS_functions.md#auto-eoc) : slows down the charge so the battery reaches full charge at the chosen **time**
 
@@ -222,13 +223,27 @@ default allows 0.5C from -20°C up to 55°C, with a cut-off below -30°C and abo
 ![Image](../../images/YamBMS_Auto_CVL.png "YamBMS Auto CVL")
 
 > [!IMPORTANT]
-> The `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
+> In Bulk, the `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
 
 When enabled, the `Automatic Charge Voltage Limit` function automatically reduces the
-`Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the bulk
-target. That way, the runner cell is maintained at or near bulk voltage (for example 3.45 V)
-and the balancer can start to bring up the lagging cells. It also prevents the runner cell
-from ever climbing to the `OVP` threshold.
+`Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the target
+of the phase currently in charge — `Bulk`, `Float` or `Stop`. The runner cell is maintained at
+or near that target, the balancer can start to bring up the lagging cells, and the runner cell
+never climbs to the `OVP` threshold.
+
+- **Bulk** : as before, tracks the highest cell (`max_cell_v`) against the `Bulk Voltage`
+  target, with the BMS `Balance Trig. Volt.` as deadband, and floors at the chemistry's
+  `Min Charge V.` (the cv_min "fully charged at rest" value).
+- **Float / Stop** : tracks the **pack average** cell voltage instead (a single runner cell
+  should no longer stop pulling `CVL` down once the pack has settled), reacts as soon as the
+  average exceeds the target with no deadband, and only ever pulls `CVL` down — never above
+  target. This mainly compensates inverters that hold their output a bit above the requested
+  `CVL` (a fairly common ~0.1-0.3 V overshoot). In `Float`, the target follows the live `Auto
+  Float` ramp (not the final `Float Voltage`) so `Auto CVL` never fights that ramp while it is
+  still gliding down ; the floor is the chemistry's `Nominal V.`. In `Stop`, the target is the
+  chemistry's `Nominal V.` and the floor is `Max Discharge V.`, giving `Auto CVL` room to pull
+  the requested voltage down even after charging has stopped, so a poorly-behaved inverter
+  can't keep trickling current in.
 
 Think of charging as filling a tank with water : the voltage is the **pressure** pushing the
 water in, the current is the **flow**. Where `Auto CCL` is a valve on the pipe, `Auto CVL`
@@ -438,7 +453,7 @@ At first bulk touch, CCL drops to **Balance Current** (e.g. `2A`–`3A`) and sta
 
 The sweet spot is to charge hard enough that the pack is **not yet full** when Bulk is reached, but not so hard that it **never** gets fully charged at Balance Current. That takes some experimentation; a stable curve makes the result more repeatable day to day.
 
-This package participates in the Auto CCL STEP pipeline and writes `var_auto_custom_ccl` (the shared custom CCL slot). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
+This package participates in the Auto CCL STEP pipeline and writes `var_auto_ccl_current_taper` (its own dedicated CCL slot). From the knee voltage to `Bulk voltage`, CCL is reduced along a curve from a starting C-rate to an ending C-rate (both × `Battery Capacity`). Knee Voltage min/max are set at boot from `cell count × chemistry` (same pattern as `Bulk voltage`); the 16S LFP placeholder default is `54.4V`.
 
 By default the taper is linear with pack voltage. Optional YAML substitution `auto_ccl_ct_curve_exp` (default `1.0`) shapes the knee→bulk curve: `>1` drops faster early then longer tail; `<1` delays the taper then sharpens near bulk. Override at package include — compile-time only, no HA entity.
 
@@ -447,7 +462,7 @@ By default the taper is linear with pack voltage. Optional YAML substitution `au
 
 Behaviour:
 
-1. Below **Knee Voltage**: inactive — CCL unchanged (`custom_ccl = 0`).
+1. Below **Knee Voltage**: inactive — CCL unchanged (`auto_ccl_current_taper = 0`).
 2. At knee (active): CCL follows the curve from **Knee C-Rate** × `Battery Capacity` down to **Bulk C-Rate** × `Battery Capacity`.
 3. At first bulk touch, or if EOC occurs earlier: CCL drops to **Balance Current** (default `2A`) and stays there while the session is active.
 4. Session ends when pack voltage falls `0.2V` below the knee (hysteresis), then the curve can start again on the next charge.
@@ -470,7 +485,7 @@ Other diagnostic sensors:
 Notes:
 
 - Requires a correct `Battery Capacity`.
-- Writes the shared `var_auto_custom_ccl` slot; when inactive or disabled it writes `0` so a prior taper cannot stick.
+- Writes its own `var_auto_ccl_current_taper` slot.
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - Pair with `Charger Offset V.` when the inverter undershoots bulk.
