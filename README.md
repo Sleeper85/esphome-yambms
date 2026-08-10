@@ -60,7 +60,7 @@ Come and discuss it on the [DIY Solar Forum dedicated topic](https://diysolarfor
 5) [YamBMS charging logic](documents/README/Charging_logic.md)
 6) [Installation procedure](documents/README/Installation_procedure.md)
 7) [Troubleshooting](documents/README/Troubleshooting.md)
-8) [Changelog](documents/README/Changelog.md)
+8) [Changelog](documents/README/changelog/Changelog.md)
 
 ## YamBMS ( Yet another multi-BMS Merging Solution )
 
