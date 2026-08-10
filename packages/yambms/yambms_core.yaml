@@ -1,5 +1,5 @@
-# Updated : 2026.08.09
-# Version : 1.7.1
+# Updated : 2026.08.11
+# Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.7.1"
+  yambms_version: "1.8.0"
   # Cut-Off Charging Logic
   yambms_cutoff_crate: '0.05'             # (C-Rate) matches the standard charge termination of most LFP, Li-ion and LTO datasheets and is the right value for the vast majority of installations. Check your cell datasheet before changing it.
   yambms_eoc_min_soc: '95'                # (%) minimum SoC (Max 98%) required to allow Cut-Off/EOC
@@ -274,6 +274,10 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: yambms${yambms_id}_var_auto_ccl_current_taper
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: yambms${yambms_id}_var_auto_dcl
     type: float
     restore_value: no
@@ -283,14 +287,6 @@ globals:
     restore_value: no
     initial_value: '0.0'
   - id: yambms${yambms_id}_var_auto_temperature_dcl
-    type: float
-    restore_value: no
-    initial_value: '0.0'
-  - id: yambms${yambms_id}_var_auto_custom_ccl
-    type: float
-    restore_value: no
-    initial_value: '0.0'
-  - id: yambms${yambms_id}_var_auto_custom_dcl
     type: float
     restore_value: no
     initial_value: '0.0'
@@ -306,10 +302,23 @@ globals:
     type: float
     restore_value: no
     initial_value: '0.0'
+  - id: yambms${yambms_id}_var_auto_custom_cvl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: yambms${yambms_id}_var_auto_custom_ccl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: yambms${yambms_id}_var_auto_custom_dcl
+    type: float
+    restore_value: no
+    initial_value: '0.0'
   - id: yambms${yambms_id}_var_eoc
     type: bool
     restore_value: no
     initial_value: 'false'
+
   - id: yambms${yambms_id}_var_eoc_timestamp
     type: time_t
     restore_value: true
@@ -1003,15 +1012,27 @@ interval:
             // +-----------------------------------------------+
             float requested_charge_voltage;
             if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined
+            {
               requested_charge_voltage = 0;
-            // Bulk
-            else if (charging_instruction == "Bulk")
-              requested_charge_voltage = (id(yambms${yambms_id}_bulk_voltage).state + id(yambms${yambms_id}_charger_offset_v).state + id(yambms${yambms_id}_var_auto_cvl));
-            // Float
-            else if (charging_instruction == "Float")
-              requested_charge_voltage = (id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_charger_offset_v).state) + id(yambms${yambms_id}_var_auto_float);
-            // Stop Charging
-            else requested_charge_voltage = (id(yambms${yambms_id}_rebulk_voltage).state + id(yambms${yambms_id}_charger_offset_v).state);
+            }
+            else
+            {
+              // Bulk
+              if (charging_instruction == "Bulk")
+                requested_charge_voltage = id(yambms${yambms_id}_bulk_voltage).state;
+              // Float
+              else if (charging_instruction == "Float")
+                requested_charge_voltage = id(yambms${yambms_id}_float_voltage).state;
+              // Stop : keep at nominal voltage
+              else
+                requested_charge_voltage = id(yambms${yambms_id}_var_cell_nominal_v) * ${yambms_cell_count};
+
+              requested_charge_voltage += id(yambms${yambms_id}_charger_offset_v).state +
+                                          id(yambms${yambms_id}_var_auto_cvl) +
+                                          id(yambms${yambms_id}_var_auto_float) +
+                                          id(yambms${yambms_id}_var_auto_custom_cvl);
+            }
+
             // Publish the sensor
             id(yambms${yambms_id}_requested_charge_voltage).publish_state(requested_charge_voltage);
 
@@ -1043,6 +1064,7 @@ interval:
                 float auto_limit = std::min({
                   id(yambms${yambms_id}_var_auto_temperature_ccl),
                   id(yambms${yambms_id}_var_auto_ccl),
+                  id(yambms${yambms_id}_var_auto_ccl_current_taper),
                   id(yambms${yambms_id}_var_auto_soc_limit),
                   id(yambms${yambms_id}_var_auto_eoc),
                   id(yambms${yambms_id}_var_auto_custom_ccl)
@@ -1057,7 +1079,17 @@ interval:
 
               if (id(yambms${yambms_id}_var_charge_status) != "Init")
                 id(yambms${yambms_id}_var_requested_ccl_init) = true;
-              
+
+              // +-----------------------------------------------+
+              // | Global vars reset                             |
+              // +-----------------------------------------------+
+              id(yambms${yambms_id}_var_auto_temperature_ccl) = 0;
+              id(yambms${yambms_id}_var_auto_ccl) = 0;
+              id(yambms${yambms_id}_var_auto_ccl_current_taper) = 0;
+              id(yambms${yambms_id}_var_auto_soc_limit) = 0;
+              id(yambms${yambms_id}_var_auto_eoc) = 0;
+              id(yambms${yambms_id}_var_auto_custom_ccl) = 0;
+
               id(yambms${yambms_id}_var_charge_current_step) = 1;
             }
 
@@ -1085,6 +1117,13 @@ interval:
 
               // Publish the sensor
               id(yambms${yambms_id}_requested_discharge_current).publish_state(requested_discharge_current);
+
+              // +-----------------------------------------------+
+              // | Global vars reset                             |
+              // +-----------------------------------------------+
+              id(yambms${yambms_id}_var_auto_temperature_dcl) = 0;
+              id(yambms${yambms_id}_var_auto_dcl) = 0;
+              id(yambms${yambms_id}_var_auto_custom_dcl) = 0;
 
               id(yambms${yambms_id}_var_requested_dcl_init) = true;
               id(yambms${yambms_id}_var_discharge_current_step) = 1;
@@ -2256,18 +2295,20 @@ text_sensor:
 
       float limit_1 = id(yambms${yambms_id}_var_auto_temperature_ccl);
       float limit_2 = id(yambms${yambms_id}_var_auto_ccl);
-      float limit_3 = id(yambms${yambms_id}_var_auto_soc_limit);
-      float limit_4 = id(yambms${yambms_id}_var_auto_eoc);
-      float limit_5 = id(yambms${yambms_id}_var_auto_custom_ccl);
+      float limit_3 = id(yambms${yambms_id}_var_auto_ccl_current_taper);
+      float limit_4 = id(yambms${yambms_id}_var_auto_soc_limit);
+      float limit_5 = id(yambms${yambms_id}_var_auto_eoc);
+      float limit_6 = id(yambms${yambms_id}_var_auto_custom_ccl);
 
-      float min_val = std::min({limit_1, limit_2, limit_3, limit_4, limit_5});
+      float min_val = std::min({limit_1, limit_2, limit_3, limit_4, limit_5, limit_6});
 
       if (min_val == 0.0f) return {"No Derating"};
       if (min_val == limit_1) return {"Temperature Derating"};
       if (min_val == limit_2) return {"Auto CCL Derating"};
-      if (min_val == limit_3) return {"SoC Limit Derating"};
-      if (min_val == limit_4) return {"EOC Derating"};
-      if (min_val == limit_5) return {"${custom_ccl_derating_reason}"};
+      if (min_val == limit_3) return {"Current Taper Derating"};
+      if (min_val == limit_4) return {"SoC Limit Derating"};
+      if (min_val == limit_5) return {"EOC Derating"};
+      if (min_val == limit_6) return {"${custom_ccl_derating_reason}"};
       return {"Unknown"};
 
   # +----------------------------------------+
