@@ -1,5 +1,5 @@
-# Updated : 2026.07.31
-# Version : 2.5.8
+# Updated : 2026.08.10
+# Version : 2.5.9
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -225,7 +225,7 @@ interval:
                 if ((id(canbus${canbus_id}_protocol).active_index() == 1) || (id(canbus${canbus_id}_protocol).active_index() == 5))
                 {
                     int can_frame[] = {1, 2, 3, 4, 5, 6};
-                    int max_index = 5;
+                    int max_index = sizeof(can_frame) / sizeof(can_frame[0]) - 1;
                     if (index >= max_index) index = 0;
                     else index++;
                     id(canbus${canbus_id}_can_frame) = can_frame[index];
@@ -234,7 +234,7 @@ interval:
                 else if (id(canbus${canbus_id}_protocol).active_index() == 2)
                 {
                     int can_frame[] = {1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 19};
-                    int max_index = 13;
+                    int max_index = sizeof(can_frame) / sizeof(can_frame[0]) - 1;
                     if (index >= max_index) index = 0;
                     else index++;
                     id(canbus${canbus_id}_can_frame) = can_frame[index];
@@ -243,7 +243,7 @@ interval:
                 else if (id(canbus${canbus_id}_protocol).active_index() == 3)
                 {
                     int can_frame[] = {1, 2, 3, 4, 7, 8};
-                    int max_index = 5;
+                    int max_index = sizeof(can_frame) / sizeof(can_frame[0]) - 1;
                     if (index >= max_index) index = 0;
                     else index++;
                     id(canbus${canbus_id}_can_frame) = can_frame[index];
@@ -252,7 +252,7 @@ interval:
                 else if (id(canbus${canbus_id}_protocol).active_index() == 4)
                 {
                     int can_frame[] = {1, 2, 3, 4, 7, 8, 12, 13, 14, 15, 16, 17, 19, 22, 23};
-                    int max_index = 14;
+                    int max_index = sizeof(can_frame) / sizeof(can_frame[0]) - 1;
                     if (index >= max_index) index = 0;
                     else index++;
                     id(canbus${canbus_id}_can_frame) = can_frame[index];
@@ -261,7 +261,7 @@ interval:
                 else if (id(canbus${canbus_id}_protocol).active_index() == 6)
                 {
                     int can_frame[] = {1, 2, 3, 4, 6, 24, 25, 26, 27, 28};
-                    int max_index = 9;
+                    int max_index = sizeof(can_frame) / sizeof(can_frame[0]) - 1;
                     if (index >= max_index) index = 0;
                     else index++;
                     id(canbus${canbus_id}_can_frame) = can_frame[index];
@@ -887,8 +887,8 @@ interval:
                         // Byte [04:05] : Max cell temperature     (0.1 °C)
                         // Byte [06:07] : Min cell temperature     (0.1 °C)
 
-                        int max_cell_voltage_i = id(yambms${yambms_id}_max_cell_voltage).state * 100.0;
-                        int min_cell_voltage_i = id(yambms${yambms_id}_min_cell_voltage).state * 100.0;
+                        int max_cell_voltage_i = id(yambms${yambms_id}_max_cell_voltage).state * 1000.0;
+                        int min_cell_voltage_i = id(yambms${yambms_id}_min_cell_voltage).state * 1000.0;
 
                         uint8_t can_mesg[8];
                         can_mesg[0] = max_cell_voltage_i & 0xff;
