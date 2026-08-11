@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 2.0.3
+# Updated : 2026.08.10
+# Version : 2.0.4
 # GitHub  : https://github.com/RAR/esphome-eg4-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -27,7 +27,7 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@v1.0.1
+  - source: github://RAR/esphome-eg4-bms@v1.1.0
     refresh: 0s
 
 eg4_bms:

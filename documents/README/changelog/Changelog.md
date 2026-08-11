@@ -18,6 +18,7 @@
   * The CCL/DCL auto-limiting globals are now reset at the start of every cycle instead of only being overwritten by their owning function, preventing a past derating reason/value from getting silently stuck if the condition that caused it disappears
   * Fixed incorrect Max/Min Cell Voltage scaling (×100 instead of ×1000) sent on the CAN bus for the Deye PCS protocol
   * Improved PACE BMS Modbus : power is now computed from current × voltage instead of a raw register (fixes incorrect readings), improved offline detection
+  * Updated EG4 LL-V2 component to [v1.1.0](https://github.com/RAR/esphome-eg4-bms/releases/tag/v1.1.0) : fixes [issue 7](https://github.com/RAR/esphome-eg4-bms/issues/7), some EG4 LL-V2 units intermittently answer with a CRC-valid response whose register data is entirely zero, which was published as a real reading and collapsed SoC / voltage / capacity for one poll cycle ; those blocks are now rejected and no longer refresh the online tracker
   * Reworked Modbus timing options : `send_wait_time` is now a response timeout (default lowered from 2000ms to 200ms) and a new `turnaround_time` option was added; shared multi-node settings (`yambms_config.yaml`) updated accordingly
   * New `loop_task_stack_size` option (8192/16384/32768) available on every board, to prevent stack overflow with a large number of BMS/entities, see [documentation](documents/README/LOOP_TASK_STACK.md)
   * Updated default PSRAM options for ESP-IDF 5.5+, see [documentation](documents/README/PSRAM_options.md)
