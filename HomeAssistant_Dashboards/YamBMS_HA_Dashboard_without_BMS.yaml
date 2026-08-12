@@ -1,4 +1,4 @@
-# Updated : 2026.08.11
+# Updated : 2026.08.13
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -274,6 +274,10 @@ views:
                   <tr>
                   <td>Heap Free Memory</td>
                   <td>{{ states('sensor.yambms_board_debug_heap_free_percent')|float|round }} %</td>
+                </tr>
+                <tr>
+                  <td>Combiner Stall</td>
+                  <td>{{ states('sensor.yambms_1_combiner_stall_reason') }}</td>
                 </tr>
                 <tr>
                   <td>YamBMS Running version</td>
