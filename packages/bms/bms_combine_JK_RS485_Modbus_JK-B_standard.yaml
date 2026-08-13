@@ -1,5 +1,5 @@
-# Updated : 2025.04.21
-# Version : 1.1.1
+# Updated : 2026.08.14
+# Version : 1.1.2
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,4 +19,8 @@
 
 packages:
   bms_sensors: !include bms_sensors_JK_RS485_Modbus_JK-B_standard.yaml
-  bms_combine: !include bms_combine.yaml
+  bms_combine: !include
+    file: bms_combine.yaml
+    vars:
+      bms_model: "JK"
+      bms_protocol: "RS485"

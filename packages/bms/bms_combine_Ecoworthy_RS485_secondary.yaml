@@ -1,5 +1,5 @@
-# Updated : 2026.02.08
-# Version : 1.0.0
+# Updated : 2026.08.14
+# Version : 1.0.1
 # GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,10 +38,10 @@
 #   bms_cell_uvp: Cell under-voltage protection in V (default: 2.500)
 #   bms_balance_trigger_voltage: Balance trigger voltage in V (default: 0.030)
 
-substitutions:
-  bms_model: "Ecoworthy Secondary"
-  bms_protocol: "RS485"
-
 packages:
-  bms_combine: !include bms_combine.yaml
   bms_sensors: !include bms_sensors_Ecoworthy_RS485_secondary.yaml
+  bms_combine: !include
+    file: bms_combine.yaml
+    vars:
+      bms_model: "Ecoworthy"
+      bms_protocol: "RS485"

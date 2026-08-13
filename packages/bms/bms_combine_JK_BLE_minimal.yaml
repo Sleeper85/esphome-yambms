@@ -1,5 +1,5 @@
-# Updated : 2026.06.22
-# Version : 1.3.7
+# Updated : 2026.08.14
+# Version : 1.3.8
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-substitutions:
-  bms_model: "JK"
-  bms_protocol: "BLE"
-
 packages:
   bms_base: !include bms_base.yaml
-  bms_combine: !include bms_combine.yaml
+  bms_combine: !include
+    file: bms_combine.yaml
+    vars:
+      bms_model: "JK"
+      bms_protocol: "BLE"
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_BLE.yaml
   bms_battery_soh: !include bms_base_battery_soh.yaml
@@ -45,18 +45,18 @@ external_components:
 esp32_ble_tracker:
   scan_parameters:
     active: false
-  on_ble_advertise:
-    then:
-      - lambda: |-
-          if (x.get_name().rfind("JK-", 0) == 0 || x.get_name().rfind("JK_", 0) == 0) {
-            ESP_LOGI("ble_adv", "New JK-BMS found");
-            ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
-            ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
-            ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
-            for (auto uuid : x.get_service_uuids()) {
-              ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
-            }
-          }
+  # on_ble_advertise:
+  #   then:
+  #     - lambda: |-
+  #         if (x.get_name().rfind("JK-", 0) == 0 || x.get_name().rfind("JK_", 0) == 0) {
+  #           ESP_LOGI("ble_adv", "New JK-BMS found");
+  #           ESP_LOGI("ble_adv", "  Name: %s", x.get_name().c_str());
+  #           ESP_LOGI("ble_adv", "  MAC address: %s", x.address_str().c_str());
+  #           ESP_LOGD("ble_adv", "  Advertised service UUIDs:");
+  #           for (auto uuid : x.get_service_uuids()) {
+  #             ESP_LOGD("ble_adv", "    - %s", uuid.to_string().c_str());
+  #           }
+  #         }
 
 ble_client:
   - id: ble_client${bms_id}
