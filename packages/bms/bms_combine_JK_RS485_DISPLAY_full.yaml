@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.9
+# Updated : 2026.08.14
+# Version : 1.2.0
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-substitutions:
-  bms_model: "JK"
-  bms_protocol: "DISPLAY"
-
 packages:
   bms_base: !include bms_base.yaml
-  bms_combine: !include bms_combine.yaml
+  bms_combine: !include
+    file: bms_combine.yaml
+    vars:
+      bms_model: "JK"
+      bms_protocol: "DISPLAY"
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_battery_soh: !include bms_base_battery_soh.yaml
 

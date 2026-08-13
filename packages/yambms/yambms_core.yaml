@@ -1,4 +1,4 @@
-# Updated : 2026.08.13
+# Updated : 2026.08.14
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -30,6 +30,14 @@ substitutions:
 
 globals:
   # BMS
+  - id: yambms${yambms_id}_var_bms_models
+    type: std::string
+    restore_value: no
+    initial_value: '""'
+  - id: yambms${yambms_id}_var_bms_protocols
+    type: std::string
+    restore_value: no
+    initial_value: '""'
   - id: yambms${yambms_id}_var_bms_counter
     type: int
     restore_value: no
