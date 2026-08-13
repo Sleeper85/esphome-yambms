@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.4.0
+# Updated : 2026.08.13
+# Version : 1.4.1
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -193,8 +193,8 @@ interval:
     then:
       - lambda: |-
           // Save RS485 options
-          id(yambms${yambms_id}_var_inverter_bms_name) = "RS485";
-          id(yambms${yambms_id}_var_inverter_protocol) = id(rs485${rs485_id}_protocol).current_option();
+          id(yambms${yambms_id}_var_communication_bus) = "RS485";
+          id(yambms${yambms_id}_var_communication_protocol) = id(rs485${rs485_id}_protocol).current_option();
 
   - interval: 100ms
     then:

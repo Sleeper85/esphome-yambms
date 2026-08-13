@@ -228,10 +228,10 @@ globals:
     type: std::string
     restore_value: no
     initial_value: '"Init"'
-  - id: yambms${yambms_id}_var_inverter_bms_name
+  - id: yambms${yambms_id}_var_communication_bus
     type: std::string
     restore_value: no
-  - id: yambms${yambms_id}_var_inverter_protocol
+  - id: yambms${yambms_id}_var_communication_protocol
     type: std::string
     restore_value: no
   - id: yambms${yambms_id}_var_cell_nominal_v
