@@ -33,17 +33,17 @@ Copy, past and enter your credentials :
 
 ```YAML
 # WiFi
-wifi_ssid: YourSSID
-wifi_password: YourPassword
+wifi_ssid: Your_SSID
+wifi_password: Your_Password
 domain: .local
 
 # WiFi AP
-wifi_ap_ssid: YamBMS
-wifi_ap_password: Y4mBM$85
+wifi_ap_ssid: Your_AP_SSID
+wifi_ap_password: Your_AP_Password
 
 # Web Server
-web_server_username: yambms
-web_server_password: Y4mBM$85
+web_server_username: Your_Username
+web_server_password: Your_Password
 ```
 
 ### 2. Add your `ESP32` by clicking on `+ NEW DEVICE` at the bottom right
@@ -102,17 +102,17 @@ cd esphome-yambms
 
 ```YAML
 # WiFi
-wifi_ssid: YourSSID
-wifi_password: YourPassword
+wifi_ssid: Your_SSID
+wifi_password: Your_Password
 domain: .local
 
 # WiFi AP
-wifi_ap_ssid: YamBMS
-wifi_ap_password: Y4mBM$85
+wifi_ap_ssid: Your_AP_SSID
+wifi_ap_password: Your_AP_Password
 
 # Web Server
-web_server_username: yambms
-web_server_password: Y4mBM$85
+web_server_username: Your_Username
+web_server_password: Your_Password
 ```
 
 ### 4. Install the `YamBMS.yaml` into your ESP32
