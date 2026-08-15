@@ -1,5 +1,5 @@
-# Updated : 2026.08.14
-# Version : 2.0.1
+# Updated : 2026.08.15
+# Version : 2.0.2
 # GitHub  : https://github.com/RAR/esphome-eg4-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,7 +22,7 @@ substitutions:
   eg4_modbus_id: modbus_eg4
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@v1.0.1
+  - source: github://RAR/esphome-eg4-bms@v1.1.0
     refresh: 0s
 
 uart:
