@@ -1,5 +1,5 @@
-# Updated : 2025.08.13
-# Version : 1.1.1
+# Updated : 2026.08.14
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,5 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  bms_combine: !include bms_combine.yaml
   bms_sensors: !include bms_sensors_PACE_RS485_bms_full.yaml
+  bms_combine: !include
+    file: bms_combine.yaml
+    vars:
+      bms_model: "PACE"
+      bms_protocol: "RS485"

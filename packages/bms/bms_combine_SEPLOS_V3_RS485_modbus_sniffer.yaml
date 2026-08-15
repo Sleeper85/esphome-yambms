@@ -1,5 +1,5 @@
-# Updated : 2025.11.14
-# Version : 1.1.1
+# Updated : 2026.08.14
+# Version : 1.1.2
 # GitHub  : https://github.com/DpunktS/seplos_v3_sniffer
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,9 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  # BMS
-  bms_model: "Seplos V3"
-  bms_protocol: "RS485"
   # Seplos Parser
   seplos_parser_id: seplos_parser_1
 

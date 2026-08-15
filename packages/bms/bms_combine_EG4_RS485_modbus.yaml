@@ -1,4 +1,4 @@
-# Updated : 2026.08.10
+# Updated : 2026.08.14
 # Version : 2.0.1
 # GitHub  : https://github.com/RAR/esphome-eg4-bms
 
@@ -18,9 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  # BMS
-  bms_model: "EG4 LLV2"
-  bms_protocol: "RS485"
   # Modbus
   eg4_modbus_id: modbus_eg4
 

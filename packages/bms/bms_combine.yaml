@@ -1,4 +1,4 @@
-# Updated : 2026.08.11
+# Updated : 2026.08.14
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+substitutions:
+  bms_model: "Unknown"
+  bms_protocol: "Unknown"
+
 globals:
   - id: bms${bms_id}_combined_once
     type: bool
@@ -30,8 +34,10 @@ esphome:
   on_boot:
     - priority: 600
       then:
-        # Shunt counter (total)
-        - lambda: id(yambms${yambms_id}_var_bms_counter) += 1;
+        - lambda: |-
+            id(yambms${yambms_id}_var_bms_counter) += 1;
+            id(yambms${yambms_id}_var_bms_models) += "${bms_model},";
+            id(yambms${yambms_id}_var_bms_protocols) += "${bms_protocol},";
 
 binary_sensor:
   # Indicates whether the BMS can be combined

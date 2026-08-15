@@ -1,4 +1,4 @@
-# Updated : 2026.08.11
+# Updated : 2026.08.14
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -30,6 +30,14 @@ substitutions:
 
 globals:
   # BMS
+  - id: yambms${yambms_id}_var_bms_models
+    type: std::string
+    restore_value: no
+    initial_value: '""'
+  - id: yambms${yambms_id}_var_bms_protocols
+    type: std::string
+    restore_value: no
+    initial_value: '""'
   - id: yambms${yambms_id}_var_bms_counter
     type: int
     restore_value: no
@@ -228,10 +236,10 @@ globals:
     type: std::string
     restore_value: no
     initial_value: '"Init"'
-  - id: yambms${yambms_id}_var_inverter_bms_name
+  - id: yambms${yambms_id}_var_communication_bus
     type: std::string
     restore_value: no
-  - id: yambms${yambms_id}_var_inverter_protocol
+  - id: yambms${yambms_id}_var_communication_protocol
     type: std::string
     restore_value: no
   - id: yambms${yambms_id}_var_cell_nominal_v
@@ -340,9 +348,11 @@ esphome:
     - priority: 600
       then:
         - lambda: |-
-            //
+            // Combiner Stall
+            id(yambms${yambms_id}_combiner_stall_reason).publish_state("OK");
+
+            // Battery chemistry
             // Source : https://batteryuniversity.com/article/bu-216-summary-table-of-lithium-based-batteries
-            //
             if (${yambms_battery_chemistry} == 1) // LFP
             {
               // LFP
@@ -377,12 +387,98 @@ esphome:
             // Rebulk V.
             id(yambms${yambms_id}_rebulk_voltage).traits.set_min_value(round(cell_count * id(yambms${yambms_id}_var_cell_nominal_v) * 10) / 10);
             id(yambms${yambms_id}_rebulk_voltage).traits.set_max_value(round(cell_count * id(yambms${yambms_id}_var_cell_min_charge_v) * 10) / 10);
+            
+
 
 # YamBMS core lambda
 interval:
   - interval: ${yambms_update_interval}
     then:
       - lambda: |-
+          // +-----------------------------------------------+
+          // | Combiner stall detector                       |
+          // +-----------------------------------------------+
+          // The STEP 1 combiner (bms_combine.yaml / shunt_combine.yaml) increments
+          // var_to_combine_bms_number / var_to_combine_shunt_number unconditionally
+          // once its id is reached, regardless of can_be_combined. No progression for
+          // several rounds in a row means the combiner never found a matching id -
+          // almost always a gap in bms_id/shunt_id numbering (see Design_decisions.md).
+          static int combiner_prev_bms_number = -1;
+          static int combiner_bms_stall_streak = 0;
+          static bool combiner_bms_stalled = false;
+
+          static int combiner_prev_shunt_number = -1;
+          static int combiner_shunt_stall_streak = 0;
+          static bool combiner_shunt_stalled = false;
+
+          int cur_bms_number = id(yambms${yambms_id}_var_to_combine_bms_number);
+          int cur_shunt_number = id(yambms${yambms_id}_var_to_combine_shunt_number);
+          bool stall_state_changed = false;
+
+          // BMS combiner
+          if (id(yambms${yambms_id}_var_bms_counter) > 0)
+          {
+            if (cur_bms_number == combiner_prev_bms_number) combiner_bms_stall_streak++;
+            else combiner_bms_stall_streak = 0;
+
+            if ((combiner_bms_stall_streak == 3) && !combiner_bms_stalled)
+            {
+              combiner_bms_stalled = true;
+              stall_state_changed = true;
+              ESP_LOGD("yambms_debug", "Combiner stalled at BMS id %d of %d declared - check that bms_id values start at 1 and are contiguous.",
+                       cur_bms_number, id(yambms${yambms_id}_var_bms_counter));
+            }
+            else if ((combiner_bms_stall_streak == 0) && combiner_bms_stalled)
+            {
+              combiner_bms_stalled = false;
+              stall_state_changed = true;
+            }
+          }
+          combiner_prev_bms_number = cur_bms_number;
+
+          // Shunt combiner
+          if (id(yambms${yambms_id}_var_shunt_counter) > 0)
+          {
+            if (cur_shunt_number == combiner_prev_shunt_number) combiner_shunt_stall_streak++;
+            else combiner_shunt_stall_streak = 0;
+
+            if ((combiner_shunt_stall_streak == 3) && !combiner_shunt_stalled)
+            {
+              combiner_shunt_stalled = true;
+              stall_state_changed = true;
+              ESP_LOGD("yambms_debug", "Combiner stalled at Shunt id %d of %d declared - check that shunt_id values start at 1 and are contiguous.",
+                       cur_shunt_number, id(yambms${yambms_id}_var_shunt_counter));
+            }
+            else if ((combiner_shunt_stall_streak == 0) && combiner_shunt_stalled)
+            {
+              combiner_shunt_stalled = false;
+              stall_state_changed = true;
+            }
+          }
+          combiner_prev_shunt_number = cur_shunt_number;
+
+          // Diagnostic entity : publish only on a state transition, not every tick
+          if (stall_state_changed)
+          {
+            std::string stall_msg = "";
+            if (combiner_bms_stalled)
+            {
+              stall_msg += "Combiner stalled at BMS id " + std::to_string(cur_bms_number) +
+                           " of " + std::to_string(id(yambms${yambms_id}_var_bms_counter)) +
+                           " declared - check that bms_id values start at 1 and are contiguous.";
+            }
+            if (combiner_shunt_stalled)
+            {
+              if (!stall_msg.empty()) stall_msg += " | ";
+              stall_msg += "Combiner stalled at Shunt id " + std::to_string(cur_shunt_number) +
+                           " of " + std::to_string(id(yambms${yambms_id}_var_shunt_counter)) +
+                           " declared - check that shunt_id values start at 1 and are contiguous.";
+            }
+            if (stall_msg.empty()) stall_msg = "OK";
+
+            id(yambms${yambms_id}_combiner_stall_reason).publish_state(stall_msg);
+          }
+
           // +-----------------------------------------------+
           // | STEP 2 - YamBMS combiner                      |
           // +-----------------------------------------------+
@@ -2167,6 +2263,16 @@ sensor:
 
 
 text_sensor:
+  # +--------------------------------------+
+  # | Combiner Stall                       |
+  # +--------------------------------------+
+  - platform: template
+    name: "Combiner Stall"
+    id: yambms${yambms_id}_combiner_stall_reason
+    device_id: yambms_yambms${yambms_id}
+    icon: mdi:sync-alert
+    entity_category: diagnostic
+    update_interval: never
   # +--------------------------------------+
   # | Charging Instruction                 |
   # +--------------------------------------+
