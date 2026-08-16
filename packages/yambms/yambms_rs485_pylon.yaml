@@ -1,5 +1,5 @@
-# Updated : 2026.08.13
-# Version : 1.4.1
+# Updated : 2026.08.16
+# Version : 1.4.2
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -286,47 +286,47 @@ interval:
                 }
 
 pylontech_rs485:
-  uart_id: ${rs485_uart_id}
-  update_timeout: ${rs485_update_timeout}
-  # --- Link to PROXY sensors ---
-  state_of_charge: rs485${rs485_id}_proxy_soc
-  voltage: rs485${rs485_id}_proxy_voltage
-  current: rs485${rs485_id}_proxy_current
-  temperature: rs485${rs485_id}_proxy_temperature
-  state_of_health: rs485${rs485_id}_proxy_soh
-  cycle_count: rs485${rs485_id}_proxy_cycle_count
-  max_cell_voltage: rs485${rs485_id}_proxy_max_cell_v
-  min_cell_voltage: rs485${rs485_id}_proxy_min_cell_v
-  max_temperature: rs485${rs485_id}_proxy_max_temp
-  min_temperature: rs485${rs485_id}_proxy_min_temp
-  mosfet_temperature: rs485${rs485_id}_proxy_temperature
-  max_mosfet_temperature: rs485${rs485_id}_proxy_max_temp
-  min_mosfet_temperature: rs485${rs485_id}_proxy_min_temp
-  bms_temperature: rs485${rs485_id}_proxy_temperature
-  max_bms_temperature: rs485${rs485_id}_proxy_max_temp
-  min_bms_temperature: rs485${rs485_id}_proxy_min_temp
-  total_voltage_high_alarm: rs485${rs485_id}_proxy_total_voltage_high_alarm
-  total_voltage_low_alarm: rs485${rs485_id}_proxy_total_voltage_low_alarm
-  cell_voltage_high_alarm: rs485${rs485_id}_proxy_cell_voltage_high_alarm
-  cell_voltage_low_alarm: rs485${rs485_id}_proxy_cell_voltage_low_alarm
-  cell_temp_high_alarm: rs485${rs485_id}_proxy_cell_temp_high_alarm
-  cell_temp_low_alarm: rs485${rs485_id}_proxy_cell_temp_low_alarm
-  charge_overcurrent_alarm: rs485${rs485_id}_proxy_charge_overcurrent_alarm
-  discharge_overcurrent_alarm: rs485${rs485_id}_proxy_discharge_overcurrent_alarm
-  cell_imbalance_alarm: rs485${rs485_id}_proxy_cell_imbalance_alarm
-  cell_overvoltage_protection: rs485${rs485_id}_proxy_cell_overvoltage_protection
-  cell_undervoltage_protection: rs485${rs485_id}_proxy_cell_undervoltage_protection
-  cell_overtemp_protection: rs485${rs485_id}_proxy_cell_overtemp_protection
-  cell_undertemp_protection: rs485${rs485_id}_proxy_cell_undertemp_protection
-  charge_overcurrent_protection: rs485${rs485_id}_proxy_charge_overcurrent_protection
-  discharge_overcurrent_protection: rs485${rs485_id}_proxy_discharge_overcurrent_protection
-  system_fault_protection: rs485${rs485_id}_proxy_system_fault_protection
-  max_voltage: rs485${rs485_id}_proxy_max_charge_v
-  min_voltage: rs485${rs485_id}_proxy_min_discharge_v
-  max_charge_current: rs485${rs485_id}_proxy_max_charge_i
-  max_discharge_current: rs485${rs485_id}_proxy_max_discharge_i
-  requested_force_charge: yambms${yambms_id}_requested_force_charge
-  # --- Inverter Heartbeat & Com Status ---
-  inverter_heartbeat: rs485${rs485_id}_inverter_heartbeat
-  rs485_status: rs485${rs485_id}_status
-  heartbeat_switch: rs485${rs485_id}_switch_inverter_heartbeat_monitoring
+  - uart_id: ${rs485_uart_id}
+    update_timeout: ${rs485_update_timeout}
+    # --- Link to PROXY sensors ---
+    state_of_charge: rs485${rs485_id}_proxy_soc
+    voltage: rs485${rs485_id}_proxy_voltage
+    current: rs485${rs485_id}_proxy_current
+    temperature: rs485${rs485_id}_proxy_temperature
+    state_of_health: rs485${rs485_id}_proxy_soh
+    cycle_count: rs485${rs485_id}_proxy_cycle_count
+    max_cell_voltage: rs485${rs485_id}_proxy_max_cell_v
+    min_cell_voltage: rs485${rs485_id}_proxy_min_cell_v
+    max_temperature: rs485${rs485_id}_proxy_max_temp
+    min_temperature: rs485${rs485_id}_proxy_min_temp
+    mosfet_temperature: rs485${rs485_id}_proxy_temperature
+    max_mosfet_temperature: rs485${rs485_id}_proxy_max_temp
+    min_mosfet_temperature: rs485${rs485_id}_proxy_min_temp
+    bms_temperature: rs485${rs485_id}_proxy_temperature
+    max_bms_temperature: rs485${rs485_id}_proxy_max_temp
+    min_bms_temperature: rs485${rs485_id}_proxy_min_temp
+    total_voltage_high_alarm: rs485${rs485_id}_proxy_total_voltage_high_alarm
+    total_voltage_low_alarm: rs485${rs485_id}_proxy_total_voltage_low_alarm
+    cell_voltage_high_alarm: rs485${rs485_id}_proxy_cell_voltage_high_alarm
+    cell_voltage_low_alarm: rs485${rs485_id}_proxy_cell_voltage_low_alarm
+    cell_temp_high_alarm: rs485${rs485_id}_proxy_cell_temp_high_alarm
+    cell_temp_low_alarm: rs485${rs485_id}_proxy_cell_temp_low_alarm
+    charge_overcurrent_alarm: rs485${rs485_id}_proxy_charge_overcurrent_alarm
+    discharge_overcurrent_alarm: rs485${rs485_id}_proxy_discharge_overcurrent_alarm
+    cell_imbalance_alarm: rs485${rs485_id}_proxy_cell_imbalance_alarm
+    cell_overvoltage_protection: rs485${rs485_id}_proxy_cell_overvoltage_protection
+    cell_undervoltage_protection: rs485${rs485_id}_proxy_cell_undervoltage_protection
+    cell_overtemp_protection: rs485${rs485_id}_proxy_cell_overtemp_protection
+    cell_undertemp_protection: rs485${rs485_id}_proxy_cell_undertemp_protection
+    charge_overcurrent_protection: rs485${rs485_id}_proxy_charge_overcurrent_protection
+    discharge_overcurrent_protection: rs485${rs485_id}_proxy_discharge_overcurrent_protection
+    system_fault_protection: rs485${rs485_id}_proxy_system_fault_protection
+    max_voltage: rs485${rs485_id}_proxy_max_charge_v
+    min_voltage: rs485${rs485_id}_proxy_min_discharge_v
+    max_charge_current: rs485${rs485_id}_proxy_max_charge_i
+    max_discharge_current: rs485${rs485_id}_proxy_max_discharge_i
+    requested_force_charge: yambms${yambms_id}_requested_force_charge
+    # --- Inverter Heartbeat & Com Status ---
+    inverter_heartbeat: rs485${rs485_id}_inverter_heartbeat
+    rs485_status: rs485${rs485_id}_status
+    heartbeat_switch: rs485${rs485_id}_switch_inverter_heartbeat_monitoring
