@@ -226,24 +226,13 @@ default allows 0.5C from -20°C up to 55°C, with a cut-off below -30°C and abo
 > In Bulk, the `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
 
 When enabled, the `Automatic Charge Voltage Limit` function automatically reduces the
-`Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the target
-of the phase currently in charge — `Bulk`, `Float` or `Stop`. The runner cell is maintained at
-or near that target, the balancer can start to bring up the lagging cells, and the runner cell
-never climbs to the `OVP` threshold.
+`Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the `Bulk
+Voltage` target. The runner cell is maintained at or near that target, the balancer can start
+to bring up the lagging cells, and the runner cell never climbs to the `OVP` threshold.
 
-- **Bulk** : as before, tracks the highest cell (`max_cell_v`) against the `Bulk Voltage`
-  target, with the BMS `Balance Trig. Volt.` as deadband, and floors at the chemistry's
-  `Min Charge V.` (the cv_min "fully charged at rest" value).
-- **Float / Stop** : tracks the **pack average** cell voltage instead (a single runner cell
-  should no longer stop pulling `CVL` down once the pack has settled), reacts as soon as the
-  average exceeds the target with no deadband, and only ever pulls `CVL` down — never above
-  target. This mainly compensates inverters that hold their output a bit above the requested
-  `CVL` (a fairly common ~0.1-0.3 V overshoot). In `Float`, the target follows the live `Auto
-  Float` ramp (not the final `Float Voltage`) so `Auto CVL` never fights that ramp while it is
-  still gliding down ; the floor is the chemistry's `Nominal V.`. In `Stop`, the target is the
-  chemistry's `Nominal V.` and the floor is `Max Discharge V.`, giving `Auto CVL` room to pull
-  the requested voltage down even after charging has stopped, so a poorly-behaved inverter
-  can't keep trickling current in.
+`Auto CVL` tracks the highest cell (`max_cell_v`) against the `Bulk Voltage` target, with the
+BMS `Balance Trig. Volt.` as deadband, and floors at the chemistry's `Min Charge V.` (the
+cv_min "fully charged at rest" value).
 
 Think of charging as filling a tank with water : the voltage is the **pressure** pushing the
 water in, the current is the **flow**. Where `Auto CCL` is a valve on the pipe, `Auto CVL`
