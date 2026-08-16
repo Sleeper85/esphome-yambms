@@ -119,14 +119,3 @@ Some constants were found by trial on real hardware and must not be rounded or h
 
 <!-- TODO maintainer: list them here, in the form "do not lower <value> below <threshold>, or
 <symptom>" — at minimum loop_task_stack_size, update intervals, RS485 timings. -->
-
-## Auto CVL floor in Float
-
-**File:** `packages/yambms/yambms_auto_cvl.yaml`
-
-The Float floor is derived at runtime from the `Rebulk V.` entity, not from a fixed voltage. Any
-fixed floor — including `cell_count × nominal voltage` — can sit at or below the rebulk threshold
-depending on the user's settings, which lets Auto CVL pull the pack down far enough to trigger a
-rebulk it caused itself, looping Float → Bulk → Float. Keep the floor derived from `Rebulk V.`.
-
-See [Charging_logic.md](../Charging_logic.md) for the charging behaviour itself.
