@@ -597,15 +597,23 @@ interval:
             // | MIN temperature                               |
             // | MIN temperature_sensor                        |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_min_temperature).publish_state(has_combined_data ? id(yambms${yambms_id}_var_min_temperature) : NAN);
-            id(yambms${yambms_id}_min_temperature_sensor).publish_state(has_combined_data ? id(yambms${yambms_id}_var_min_temperature_sensor) : NAN);
+            // Temperature can lag behind `has_combined_data` by a cycle or
+            // more (JK-BMS reports it in a different frame than cell
+            // voltage/current), so the accumulator can still be sitting at
+            // its 100.0/-100.0 reset sentinel even once combined_data is
+            // true - check the sentinel itself, not just the counter.
+            // Found via live boot-transient audit, 2026-08-18.
+            bool has_min_temperature = has_combined_data && (id(yambms${yambms_id}_var_min_temperature) < 100.0f);
+            bool has_max_temperature = has_combined_data && (id(yambms${yambms_id}_var_max_temperature) > -100.0f);
+            id(yambms${yambms_id}_min_temperature).publish_state(has_min_temperature ? id(yambms${yambms_id}_var_min_temperature) : NAN);
+            id(yambms${yambms_id}_min_temperature_sensor).publish_state(has_min_temperature ? id(yambms${yambms_id}_var_min_temperature_sensor) : NAN);
 
             // +-----------------------------------------------+
             // | MAX temperature                               |
             // | MAX temperature_sensor                        |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_max_temperature).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_temperature) : NAN);
-            id(yambms${yambms_id}_max_temperature_sensor).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_temperature_sensor) : NAN);
+            id(yambms${yambms_id}_max_temperature).publish_state(has_max_temperature ? id(yambms${yambms_id}_var_max_temperature) : NAN);
+            id(yambms${yambms_id}_max_temperature_sensor).publish_state(has_max_temperature ? id(yambms${yambms_id}_var_max_temperature_sensor) : NAN);
 
             // +-----------------------------------------------+
             // | Equalizing state                              |
