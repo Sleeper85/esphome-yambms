@@ -402,17 +402,20 @@ interval:
             // | Voltage, Current, Power, SOC, SOH, Ch. Cycles |
             // +-----------------------------------------------+
 
-            // Vars init
-            float total_voltage = 0.0;
-            float current = 0.0;
-            int power = 0;
-            float battery_charging_power = NAN;     // <-- CAMBIADO: era `int = 0`, publicaba 0 W real
-                                                     //     durante la ventana sin BMS combinado (confirmado
-                                                     //     en prueba de arranque real, 2026-08-18)
-            float battery_discharging_power = NAN;  // <-- ídem
-            int soc = 0;
-            int soh = 0;
-            int charging_cycles = 0;
+            // Vars init - all NAN by default (not 0/int-0), so that if the
+            // "at least one BMS combined" block below never runs, every
+            // sensor published from this pass correctly reports N/A instead
+            // of a fabricated measurement. `int` was UB when a NAN was later
+            // assigned to it (silently manifested as 0 on some builds) -
+            // found via live boot-transient audit, 2026-08-18.
+            float total_voltage = NAN;
+            float current = NAN;
+            float power = NAN;
+            float battery_charging_power = NAN;
+            float battery_discharging_power = NAN;
+            float soc = NAN;
+            float soh = NAN;
+            float charging_cycles = NAN;
 
             // +-----------------------------------------------+
             // | At least one BMS can be combined              |
@@ -455,9 +458,9 @@ interval:
               else if (id(yambms${yambms_id}_var_total_battery_capacity) > 0)
                 soc = round(id(yambms${yambms_id}_var_total_battery_capacity_remaining) / id(yambms${yambms_id}_var_total_battery_capacity) * 100);
 
-              // SOC manipulation
-              if (id(yambms${yambms_id}_var_to_combine_bms_counter) == 0) soc = NAN;    // no BMS combined => report N/A (was `soc = 0` upstream: regression vs recovery-point-2026-02-03, which already used NAN here)
-              else if ((soc > 98) && (id(yambms${yambms_id}_var_eoc) == false)) soc = 98;   // Useful for some inverters stopping charging when SoC reaches 100%
+              // SOC manipulation - we're inside "at least one BMS combined",
+              // so soc already holds a real value here; no NAN check needed.
+              if ((soc > 98) && (id(yambms${yambms_id}_var_eoc) == false)) soc = 98;   // Useful for some inverters stopping charging when SoC reaches 100%
 
               // MEAN Battery SOH
               soh = round(id(yambms${yambms_id}_var_bms_total_soh) / id(yambms${yambms_id}_var_to_combine_bms_counter));
@@ -479,17 +482,17 @@ interval:
             // +-----------------------------------------------+
             // | TOTAL battery_capacity                        |
             // +-----------------------------------------------+
-            float battery_capacity = id(yambms${yambms_id}_var_total_battery_capacity);
+            float battery_capacity = (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0) ? id(yambms${yambms_id}_var_total_battery_capacity) : NAN;
             id(yambms${yambms_id}_battery_capacity).publish_state(round(battery_capacity));
 
             // +-----------------------------------------------+
             // | TOTAL battery_capacity_remaining              |
             // +-----------------------------------------------+
-            float capacity_remaining = id(yambms${yambms_id}_var_total_battery_capacity_remaining);
+            float capacity_remaining = (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0) ? id(yambms${yambms_id}_var_total_battery_capacity_remaining) : NAN;
 
             if (id(yambms${yambms_id}_var_shunt_use) == true)
               capacity_remaining = battery_capacity / 100 * soc;
-            
+
             id(yambms${yambms_id}_battery_capacity_remaining).publish_state(round(capacity_remaining));
 
             // +-----------------------------------------------+
@@ -499,7 +502,7 @@ interval:
 
             ESP_LOGD("yambms_debug", "Entering Max charge current...");
 
-            float max_charge_current = 0.0;
+            float max_charge_current = NAN;
 
             if (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0)
             {
@@ -526,7 +529,7 @@ interval:
 
             ESP_LOGD("yambms_debug", "Entering Max discharge current...");
 
-            float max_discharge_current = 0.0;
+            float max_discharge_current = NAN;
 
             if (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0)
             {
@@ -546,55 +549,63 @@ interval:
             id(yambms${yambms_id}_max_discharge_current).publish_state(round(max_discharge_current));
             ESP_LOGD("yambms_debug", "Max discharge current : %f A", max_discharge_current);
 
+            // NOTE: everything below this point used to publish the raw
+            // accumulator globals unconditionally, regardless of whether any
+            // BMS had ever combined - leaking their reset/initial sentinel
+            // values (e.g. min_cell_voltage's 5.0V "impossibly low" sentinel,
+            // max_cell_voltage's 0.0V one) as if they were real readings.
+            // Found via live boot-transient audit, 2026-08-18.
+            bool has_combined_data = (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0);
+
             // +-----------------------------------------------+
             // | MAX balance_trigger_voltage                   |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_balance_trigger_voltage).publish_state(id(yambms${yambms_id}_var_max_balance_trigger_voltage));
+            id(yambms${yambms_id}_balance_trigger_voltage).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_balance_trigger_voltage) : NAN);
 
             // +-----------------------------------------------+
             // | MIN min_cell_voltage                          |
             // | MIN min_voltage_cell (cell number)            |
             // +-----------------------------------------------+
-            float min_cell_v = id(yambms${yambms_id}_var_min_cell_voltage);
+            float min_cell_v = has_combined_data ? id(yambms${yambms_id}_var_min_cell_voltage) : NAN;
             id(yambms${yambms_id}_min_cell_voltage).publish_state(min_cell_v);
-            id(yambms${yambms_id}_min_voltage_cell).publish_state(id(yambms${yambms_id}_var_min_voltage_cell));
+            id(yambms${yambms_id}_min_voltage_cell).publish_state(has_combined_data ? id(yambms${yambms_id}_var_min_voltage_cell) : NAN);
 
             // +-----------------------------------------------+
             // | MAX max_cell_voltage                          |
             // | MAX max_voltage_cell (cell number)            |
             // +-----------------------------------------------+
-            float max_cell_v = id(yambms${yambms_id}_var_max_cell_voltage);
+            float max_cell_v = has_combined_data ? id(yambms${yambms_id}_var_max_cell_voltage) : NAN;
             id(yambms${yambms_id}_max_cell_voltage).publish_state(max_cell_v);
-            id(yambms${yambms_id}_max_voltage_cell).publish_state(id(yambms${yambms_id}_var_max_voltage_cell));
+            id(yambms${yambms_id}_max_voltage_cell).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_voltage_cell) : NAN);
 
             // +-----------------------------------------------+
             // | delta_cell_voltage                            |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_delta_cell_voltage).publish_state(max_cell_v - min_cell_v);
+            id(yambms${yambms_id}_delta_cell_voltage).publish_state(max_cell_v - min_cell_v);  // NAN propagates automatically if either side is NAN
 
             // +-----------------------------------------------+
             // | MIN cell_ovp                                  |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_cell_ovp).publish_state(id(yambms${yambms_id}_var_min_cell_ovp));
+            id(yambms${yambms_id}_cell_ovp).publish_state(has_combined_data ? id(yambms${yambms_id}_var_min_cell_ovp) : NAN);
 
             // +-----------------------------------------------+
             // | MAX cell_uvp                                  |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_cell_uvp).publish_state(id(yambms${yambms_id}_var_max_cell_uvp));
+            id(yambms${yambms_id}_cell_uvp).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_cell_uvp) : NAN);
 
             // +-----------------------------------------------+
             // | MIN temperature                               |
             // | MIN temperature_sensor                        |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_min_temperature).publish_state(id(yambms${yambms_id}_var_min_temperature));
-            id(yambms${yambms_id}_min_temperature_sensor).publish_state(id(yambms${yambms_id}_var_min_temperature_sensor));
+            id(yambms${yambms_id}_min_temperature).publish_state(has_combined_data ? id(yambms${yambms_id}_var_min_temperature) : NAN);
+            id(yambms${yambms_id}_min_temperature_sensor).publish_state(has_combined_data ? id(yambms${yambms_id}_var_min_temperature_sensor) : NAN);
 
             // +-----------------------------------------------+
             // | MAX temperature                               |
             // | MAX temperature_sensor                        |
             // +-----------------------------------------------+
-            id(yambms${yambms_id}_max_temperature).publish_state(id(yambms${yambms_id}_var_max_temperature));
-            id(yambms${yambms_id}_max_temperature_sensor).publish_state(id(yambms${yambms_id}_var_max_temperature_sensor));
+            id(yambms${yambms_id}_max_temperature).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_temperature) : NAN);
+            id(yambms${yambms_id}_max_temperature_sensor).publish_state(has_combined_data ? id(yambms${yambms_id}_var_max_temperature_sensor) : NAN);
 
             // +-----------------------------------------------+
             // | Equalizing state                              |
