@@ -450,7 +450,7 @@ interval:
                 soc = round(id(yambms${yambms_id}_var_total_battery_capacity_remaining) / id(yambms${yambms_id}_var_total_battery_capacity) * 100);
 
               // SOC manipulation
-              if (id(yambms${yambms_id}_var_to_combine_bms_counter) == 0) soc = 0;      // no BMS combined => sending 0%
+              if (id(yambms${yambms_id}_var_to_combine_bms_counter) == 0) soc = NAN;    // no BMS combined => report N/A (was `soc = 0` upstream: regression vs recovery-point-2026-02-03, which already used NAN here)
               else if ((soc > 98) && (id(yambms${yambms_id}_var_eoc) == false)) soc = 98;   // Useful for some inverters stopping charging when SoC reaches 100%
 
               // MEAN Battery SOH
@@ -920,8 +920,8 @@ interval:
             // | Requested Charge Voltage (CVL)                |
             // +-----------------------------------------------+
             float requested_charge_voltage;
-            if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined
-              requested_charge_voltage = 0;
+            if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined => report N/A
+              requested_charge_voltage = NAN;
             // Bulk
             else if (charging_instruction == "Bulk")
               requested_charge_voltage = (id(yambms${yambms_id}_bulk_voltage).state + id(yambms${yambms_id}_inverter_offset_v).state + id(yambms${yambms_id}_var_auto_cvl));
@@ -937,8 +937,8 @@ interval:
             // | Requested Discharge Voltage (DVL)             |
             // +-----------------------------------------------+
             float requested_discharge_voltage;
-            if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined
-              requested_discharge_voltage = 0;
+            if (id(yambms${yambms_id}_bms_combined).state == 0) // no BMS combined => report N/A
+              requested_discharge_voltage = NAN;
             else
               requested_discharge_voltage = ((id(yambms${yambms_id}_cell_uvp).state + 0.2) * id(yambms${yambms_id}_cell_count).state);
             // Publish the sensor
