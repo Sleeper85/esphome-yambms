@@ -1560,7 +1560,14 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 1
-    lambda: return id(yambms${yambms_id}_var_total_installed_battery_capacity);
+    lambda: |-
+      // No BMS has ever combined yet (accumulator still at its 0.0 initial
+      // value, never physically valid) => report N/A instead of a fabricated
+      // 0 Ah. Found via live boot-transient audit, 2026-08-18 - this sensor
+      // has its own independent lambda, not gated by the STEP2 combine block
+      // like the other sensors fixed earlier today.
+      if (id(yambms${yambms_id}_var_total_installed_battery_capacity) <= 0) return NAN;
+      return id(yambms${yambms_id}_var_total_installed_battery_capacity);
 
   # battery_capacity SUM
   - platform: template
