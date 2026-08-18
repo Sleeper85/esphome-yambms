@@ -406,8 +406,10 @@ interval:
             float total_voltage = 0.0;
             float current = 0.0;
             int power = 0;
-            int battery_charging_power = 0;
-            int battery_discharging_power = 0;
+            float battery_charging_power = NAN;     // <-- CAMBIADO: era `int = 0`, publicaba 0 W real
+                                                     //     durante la ventana sin BMS combinado (confirmado
+                                                     //     en prueba de arranque real, 2026-08-18)
+            float battery_discharging_power = NAN;  // <-- ídem
             int soc = 0;
             int soh = 0;
             int charging_cycles = 0;
