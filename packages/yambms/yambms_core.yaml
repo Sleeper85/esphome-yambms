@@ -437,12 +437,16 @@ interval:
               else
                 power = round(id(yambms${yambms_id}_var_bms_total_power));
 
-              // battery_charging_power           
+              // battery_charging_power / battery_discharging_power
+              // Real data exists in this branch, so default both to a real 0
+              // (not NAN) before picking which direction actually applies -
+              // otherwise the inactive direction stayed NAN forever instead
+              // of correctly reporting 0 (found via live boot test, 2026-08-18).
+              battery_charging_power = 0;
+              battery_discharging_power = 0;
               if (power > 0)
                 battery_charging_power = power;
-              
-              // battery_discharging_power
-              if (power <= 0)
+              else
                 battery_discharging_power = power * -1; // Must be positive energy
               
               // MEAN Battery SOC (Shunt/BMS)
