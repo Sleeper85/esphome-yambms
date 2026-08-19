@@ -51,8 +51,13 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
+      // Do NOT coerce NaN to 0 here: cycles_raw is NaN whenever the
+      // underlying BMS hasn't published a real reading yet (e.g. right
+      // after a reboot, before the first trusted frame arrives). Let it
+      // propagate (NaN + x == NaN) so this sensor correctly reports
+      // "unavailable" instead of a fabricated 0 - see jk_rs485_sniffer
+      // hardening memory, 2026-08-20.
       float cycles_raw = id(bms${bms_id}_charging_cycles_raw).state;
-      if (isnan(cycles_raw)) cycles_raw = 0;
       return cycles_raw + id(bms${bms_id}_charging_cycles_offset).state;
 
   # +--------------------------------------+
@@ -72,8 +77,8 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
+      // Same NaN-propagation reasoning as bms${bms_id}_charging_cycles above.
       float capacity_raw = id(bms${bms_id}_cycle_capacity_raw).state;
-      if (isnan(capacity_raw)) capacity_raw = 0;
       return capacity_raw +
              id(bms${bms_id}_charging_cycles_offset).state *
              id(bms${bms_id}_battery_capacity).state;
