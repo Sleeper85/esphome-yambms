@@ -430,64 +430,66 @@ interval:
           // +-----------------------------------------------+
           // | Combiner stall detector                       |
           // +-----------------------------------------------+
-          // The STEP 1 combiner (bms_combine.yaml / shunt_combine.yaml) increments
+          // The STEP 1 combiners (bms_combine.yaml / shunt_combine.yaml) increment
           // var_to_combine_bms_number / var_to_combine_shunt_number unconditionally
-          // once its id is reached, regardless of can_be_combined. No progression for
-          // several rounds in a row means the combiner never found a matching id -
-          // almost always a gap in bms_id/shunt_id numbering (see Design_decisions.md).
-          static int combiner_prev_bms_number = -1;
-          static int combiner_bms_stall_streak = 0;
+          // once their own id is reached, regardless of can_be_combined. A chain is
+          // therefore complete once its number has gone one past the number of
+          // declared devices. A chain that stays incomplete for several rounds is
+          // blocked on an id no device answers to - almost always a gap in
+          // bms_id/shunt_id numbering (see Design_decisions.md).
+          // Note : do NOT compare the number with its value on the previous round.
+          // This lambda samples it before the STEP 2 reset below, so in a healthy
+          // setup both chains are already complete here and the sampled value is the
+          // same on every round - which a "no progression" test reads as a stall.
+          static const int combiner_stall_threshold = 5;
+
+          static int combiner_bms_incomplete_streak = 0;
           static bool combiner_bms_stalled = false;
 
-          static int combiner_prev_shunt_number = -1;
-          static int combiner_shunt_stall_streak = 0;
+          static int combiner_shunt_incomplete_streak = 0;
           static bool combiner_shunt_stalled = false;
 
           int cur_bms_number = id(yambms${yambms_id}_var_to_combine_bms_number);
           int cur_shunt_number = id(yambms${yambms_id}_var_to_combine_shunt_number);
           bool stall_state_changed = false;
 
-          // BMS combiner
-          if (id(yambms${yambms_id}_var_bms_counter) > 0)
+          // BMS combiner chain (complete when the number is past the last declared BMS)
+          if (cur_bms_number > id(yambms${yambms_id}_var_bms_counter))
           {
-            if (cur_bms_number == combiner_prev_bms_number) combiner_bms_stall_streak++;
-            else combiner_bms_stall_streak = 0;
+            combiner_bms_incomplete_streak = 0;
 
-            if ((combiner_bms_stall_streak == 3) && !combiner_bms_stalled)
-            {
-              combiner_bms_stalled = true;
-              stall_state_changed = true;
-              ESP_LOGD("yambms_debug", "Combiner stalled at BMS id %d of %d declared - check that bms_id values start at 1 and are contiguous.",
-                       cur_bms_number, id(yambms${yambms_id}_var_bms_counter));
-            }
-            else if ((combiner_bms_stall_streak == 0) && combiner_bms_stalled)
+            if (combiner_bms_stalled)
             {
               combiner_bms_stalled = false;
               stall_state_changed = true;
             }
           }
-          combiner_prev_bms_number = cur_bms_number;
-
-          // Shunt combiner
-          if (id(yambms${yambms_id}_var_shunt_counter) > 0)
+          else if (++combiner_bms_incomplete_streak == combiner_stall_threshold)
           {
-            if (cur_shunt_number == combiner_prev_shunt_number) combiner_shunt_stall_streak++;
-            else combiner_shunt_stall_streak = 0;
+            combiner_bms_stalled = true;
+            stall_state_changed = true;
+            ESP_LOGD("yambms_debug", "Combiner stalled at BMS id %d of %d declared - check that bms_id values start at 1 and are contiguous.",
+                     cur_bms_number, id(yambms${yambms_id}_var_bms_counter));
+          }
 
-            if ((combiner_shunt_stall_streak == 3) && !combiner_shunt_stalled)
-            {
-              combiner_shunt_stalled = true;
-              stall_state_changed = true;
-              ESP_LOGD("yambms_debug", "Combiner stalled at Shunt id %d of %d declared - check that shunt_id values start at 1 and are contiguous.",
-                       cur_shunt_number, id(yambms${yambms_id}_var_shunt_counter));
-            }
-            else if ((combiner_shunt_stall_streak == 0) && combiner_shunt_stalled)
+          // Shunt combiner chain (complete when the number is past the last declared Shunt)
+          if (cur_shunt_number > id(yambms${yambms_id}_var_shunt_counter))
+          {
+            combiner_shunt_incomplete_streak = 0;
+
+            if (combiner_shunt_stalled)
             {
               combiner_shunt_stalled = false;
               stall_state_changed = true;
             }
           }
-          combiner_prev_shunt_number = cur_shunt_number;
+          else if (++combiner_shunt_incomplete_streak == combiner_stall_threshold)
+          {
+            combiner_shunt_stalled = true;
+            stall_state_changed = true;
+            ESP_LOGD("yambms_debug", "Combiner stalled at Shunt id %d of %d declared - check that shunt_id values start at 1 and are contiguous.",
+                     cur_shunt_number, id(yambms${yambms_id}_var_shunt_counter));
+          }
 
           // Diagnostic entity : publish only on a state transition, not every tick
           if (stall_state_changed)
