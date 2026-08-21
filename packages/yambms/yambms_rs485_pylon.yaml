@@ -1,5 +1,5 @@
-# Updated : 2026.08.16
-# Version : 1.4.2
+# Updated : 2026.08.21
+# Version : 1.4.3
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -34,7 +34,10 @@ esphome:
     - priority: -100.0
       then:
         - lambda: |-
-            // Initialise rs485 status as off
+            // Increment the interface counter for the `requested current` division
+            id(yambms${yambms_id}_var_comm_interfaces_count)++;
+
+            // Initialise RS485 status as off
             id(rs485${rs485_id}_status).publish_state(false);
 
   devices:
