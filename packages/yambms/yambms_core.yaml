@@ -240,6 +240,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'true'
+  - id: yambms${yambms_id}_var_service_failures
+    type: int
+    restore_value: no
+    initial_value: '0'
   - id: yambms${yambms_id}_var_initialized
     type: bool
     restore_value: no

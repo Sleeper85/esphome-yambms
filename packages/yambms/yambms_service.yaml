@@ -1,5 +1,5 @@
-# Updated : 2026.08.14
-# Version : 1.2.9
+# Updated : 2026.08.21
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -46,6 +46,14 @@ text_sensor:
 # https://esphome.io/components/http_request.html
 http_request:
   verify_ssl: false
+  # Must stay under the ESP32 task WDT budget: a 5s WDT minus the 1s feed
+  # interval leaves 4s. The ESPHome default of 4.5s exceeds it and panics the
+  # loop task whenever a connect() is silently dropped by a firewall.
+  timeout: 3s
+  # DNS resolution runs before the socket and is NOT covered by `timeout`. A
+  # filtered port 53 blocks the loop task for a fixed 7s, which panics the WDT.
+  # See Design_decisions.md.
+  watchdog_timeout: 60s
 
 interval:
   - interval: 6h # 60min
@@ -54,33 +62,49 @@ interval:
         condition:
           and:
             - lambda : return id(yambms${yambms_id}_var_service) == true;
-            - lambda : return id(my_network).is_connected();
+            - lambda : return id(my_network).is_connected(); # only proves the device has an IP, not that the internet is reachable. 
+            - lambda : return id(yambms${yambms_id}_var_service_failures) < 3;
         then:
         - http_request.get:
             url: http://script.opentel.be/yambms.get.php
             capture_response: true
+            # on_error fires only when no connection could be made (DNS or
+            # connect failure) — the cases that freeze the loop. An HTTP error
+            # status still fires on_response, which rightly resets the counter.
+            on_error:
+              then:
+              - lambda: id(yambms${yambms_id}_var_service_failures) += 1;
             on_response:
               then:
               - lambda: |-
+                  id(yambms${yambms_id}_var_service_failures) = 0;
                   json::parse_json(body, [](JsonObject root) -> bool {
                     // Explicitly cast to std::string to resolve ambiguity
                     id(yambms${yambms_id}_last_version).publish_state(root["version"].as<std::string>());
                     return true;
                   });
 
-        - http_request.post:
-            url: http://script.opentel.be/yambms.post.php
-            request_headers:
-              Content-Type: application/json
-            json: |-
-              root["mac"] = id(esp32_mac_address).state;
-              root["version"] = "${yambms_version}";
-              root["board_chip"] = "${board_chip}";
-              root["board_name"] = "${board_name}";
-              root["bms_model"] = id(yambms${yambms_id}_var_bms_models);
-              root["bms_protocol"] = id(yambms${yambms_id}_var_bms_protocols);
-              root["bms_count"] = id(yambms${yambms_id}_var_bms_counter);
-              root["comm_bus"] = id(yambms${yambms_id}_var_communication_bus);
-              root["comm_protocol"] = id(yambms${yambms_id}_var_communication_protocol);
-              root["uptime"] = id(esp32_uptime).state;
-              root["date_time_now"] = id(esp32_date_time_now).state;
+        # Guarded by an `if` rather than nested in on_response: nesting would
+        # stack a blocking request inside another one on the loop task, whose
+        # stack is 8192 B by default (see LOOP_TASK_STACK.md). On a filtered
+        # network it also avoids a second 7 s freeze for nothing.
+        - if:
+            condition:
+              lambda: return id(yambms${yambms_id}_var_service_failures) == 0;
+            then:
+            - http_request.post:
+                url: http://script.opentel.be/yambms.post.php
+                request_headers:
+                  Content-Type: application/json
+                json: |-
+                  root["mac"] = id(esp32_mac_address).state;
+                  root["version"] = "${yambms_version}";
+                  root["board_chip"] = "${board_chip}";
+                  root["board_name"] = "${board_name}";
+                  root["bms_model"] = id(yambms${yambms_id}_var_bms_models);
+                  root["bms_protocol"] = id(yambms${yambms_id}_var_bms_protocols);
+                  root["bms_count"] = id(yambms${yambms_id}_var_bms_counter);
+                  root["comm_bus"] = id(yambms${yambms_id}_var_communication_bus);
+                  root["comm_protocol"] = id(yambms${yambms_id}_var_communication_protocol);
+                  root["uptime"] = id(esp32_uptime).state;
+                  root["date_time_now"] = id(esp32_date_time_now).state;

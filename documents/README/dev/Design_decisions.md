@@ -113,6 +113,52 @@ interval to make protocols "consistent" with each other.
 When adding a frame to a sequence, remember that the sequence length is tracked alongside the
 array. Keep the two in sync, or the new frame will silently never be emitted.
 
+## The update service must never block the loop task
+
+**File:** `packages/yambms/yambms_service.yaml`
+
+`http_request` runs synchronously on the ESP32 loop task. ESPHome arms the IDF task watchdog at
+5s with `CONFIG_ESP_TASK_WDT_PANIC=y`, and feeds it at most every 1 s, so any single blocking
+call has a **4s budget** before the device panics and reboots.
+
+Two paths exceed that budget on a network that filters outbound traffic. Both were reproduced on
+an OPNsense firewall and measured on hardware:
+
+| Path | Blocking time | Bounded by |
+|---|---|---|
+| Port 80 dropped silently | 4.5s | `timeout`, whose ESPHome default is 4.5s |
+| Port 53 filtered (drop **or** reject) | 7.0 s, fixed | nothing — `timeout` does not cover DNS |
+
+The 7s figure is the lwIP resolver retry ladder (`1 + 1 + 2 + 3`s over `DNS_MAX_RETRIES`), and
+it is deterministic to a few milliseconds. A reject is not faster than a drop: lwIP's UDP API has
+no error callback, so the ICMP unreachable is counted and discarded, and the query still runs its
+full budget. Only an actual DNS *answer* — including `NXDOMAIN` from a local resolver — fails fast.
+
+This is why three separate settings are needed, and none of them is redundant:
+
+- **`watchdog_timeout: 60s`** is the only thing that covers the DNS wait. It is never reached in
+  normal operation, where a full request takes under 400 ms.
+- **`timeout: 3s`** brings the socket phase back under the 4s budget. It does **not** help the
+  DNS case.
+- **The failure counter** (`yambms${yambms_id}_var_service_failures`) is what stops the loop from
+  freezing for 7s every 6h, forever, on a device that will never reach the internet.
+
+`my_network.is_connected()` is not a reachability test — it only proves the device holds an IP.
+It is kept as a cheap first filter, but the counter is the real guard. Do not remove it on the
+grounds that the connectivity check above it "already handles this".
+
+The counter is incremented from `on_error`, which fires only when no connection could be made.
+An HTTP error status still fires `on_response` and resets the counter, which is correct: the
+network worked, so there is no freeze to protect against.
+
+The POST is guarded by an `if` on the counter rather than nested inside the GET's `on_response`.
+Nesting would stack one blocking request inside another on a loop task whose stack is 8192 B by
+default — see [LOOP_TASK_STACK.md](../LOOP_TASK_STACK.md). It also avoids a second 7s freeze on
+a filtered network, halving the worst case.
+
+Reaching 3 failures disables the service until reboot, or until the user toggles the
+`Update service` switch off and on, which rearms the counter.
+
 ## Empirical constants
 
 Some constants were found by trial on real hardware and must not be rounded or harmonised.
