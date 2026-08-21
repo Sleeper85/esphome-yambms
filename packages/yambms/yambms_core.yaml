@@ -1223,14 +1223,8 @@ interval:
                 // Publish the sensor
                 id(yambms${yambms_id}_requested_charge_current).publish_state(requested_charge_current);
 
-                if (id(yambms${yambms_id}_var_charge_status) != "Init")
-                  id(yambms${yambms_id}_var_requested_ccl_init) = true;
-
-                // +-----------------------------------------------+
-                // | Derating reason                               |
-                // +-----------------------------------------------+
-                // Must run BEFORE the reset below: the reason lambda reads the same
-                // auto vars, and would only ever see zeros ("No Derating") otherwise.
+                // Derating reason update and log
+                id(yambms${yambms_id}_ccl_derating_reason).update();
                 ESP_LOGD("yambms_debug", "CCL limits : temp=%.1f auto=%.1f taper=%.1f soc=%.1f eoc=%.1f custom=%.1f => CCL=%.1f A",
                          id(yambms${yambms_id}_var_auto_temperature_ccl),
                          id(yambms${yambms_id}_var_auto_ccl),
@@ -1239,17 +1233,9 @@ interval:
                          id(yambms${yambms_id}_var_auto_eoc),
                          id(yambms${yambms_id}_var_auto_custom_ccl),
                          requested_charge_current);
-                id(yambms${yambms_id}_ccl_derating_reason).update();
 
-                // +-----------------------------------------------+
-                // | Global vars reset                             |
-                // +-----------------------------------------------+
-                id(yambms${yambms_id}_var_auto_temperature_ccl) = 0;
-                id(yambms${yambms_id}_var_auto_ccl) = 0;
-                id(yambms${yambms_id}_var_auto_ccl_current_taper) = 0;
-                id(yambms${yambms_id}_var_auto_soc_limit) = 0;
-                id(yambms${yambms_id}_var_auto_eoc) = 0;
-                id(yambms${yambms_id}_var_auto_custom_ccl) = 0;
+                if (id(yambms${yambms_id}_var_charge_status) != "Init")
+                  id(yambms${yambms_id}_var_requested_ccl_init) = true;
 
                 id(yambms${yambms_id}_var_charge_current_step) = 1;
               }
@@ -1280,26 +1266,16 @@ interval:
                 // Publish the sensor
                 id(yambms${yambms_id}_requested_discharge_current).publish_state(requested_discharge_current);
 
-                id(yambms${yambms_id}_var_requested_dcl_init) = true;
-
-                // +-----------------------------------------------+
-                // | Derating reason                               |
-                // +-----------------------------------------------+
-                // Must run BEFORE the reset below: the reason lambda reads the same
-                // auto vars, and would only ever see zeros ("No Derating") otherwise.
+                // Derating reason update and log
+                id(yambms${yambms_id}_dcl_derating_reason).update();
                 ESP_LOGD("yambms_debug", "DCL limits : temp=%.1f auto=%.1f custom=%.1f => DCL=%.1f A",
                          id(yambms${yambms_id}_var_auto_temperature_dcl),
                          id(yambms${yambms_id}_var_auto_dcl),
                          id(yambms${yambms_id}_var_auto_custom_dcl),
                          requested_discharge_current);
-                id(yambms${yambms_id}_dcl_derating_reason).update();
 
-                // +-----------------------------------------------+
-                // | Global vars reset                             |
-                // +-----------------------------------------------+
-                id(yambms${yambms_id}_var_auto_temperature_dcl) = 0;
-                id(yambms${yambms_id}_var_auto_dcl) = 0;
-                id(yambms${yambms_id}_var_auto_custom_dcl) = 0;
+                id(yambms${yambms_id}_var_requested_dcl_init) = true;
+
                 id(yambms${yambms_id}_var_discharge_current_step) = 1;
               }
             }

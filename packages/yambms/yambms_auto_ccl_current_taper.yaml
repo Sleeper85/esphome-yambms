@@ -1,5 +1,5 @@
-# Updated : 2026.08.11
-# Version : 1.1.2
+# Updated : 2026.08.21
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -27,10 +27,13 @@
 # Contract with yambms_core.yaml (upstream/dev):
 #   - Participates in Auto CCL STEP pipeline
 #   - Writes: id(yambms${yambms_id}_var_auto_ccl_current_taper) (<= 0 when tapering)
-#     on its own turn only. The core resets this var to 0 every cycle before
-#     restarting the pipeline at step 1, so staying silent (feature disabled,
-#     gated out, or not our turn yet) is equivalent to writing 0.
+#     on its own turn. The core does NOT reset this var: it holds the last value
+#     written until this package overwrites it. Every path that takes its turn
+#     must therefore write it explicitly, 0 included (feature disabled, gated
+#     out, data not ready), otherwise a stale derating sticks forever.
+#     Staying silent is only allowed when it is not our turn (Gate #1).
 #   - Advances pipeline via: id(yambms${yambms_id}_var_charge_current_step)++
+#     exactly once per turn, on every path that passed Gate #1.
 #--------------------------------------------------------------------------------------------
 
 substitutions:
@@ -226,14 +229,18 @@ interval:
           const int n_funcs = id(yambms${yambms_id}_var_auto_ccl_functions_count);
           if (cc_step < 1 || cc_step > n_funcs) return;   // Not our pipeline turn — core resets the pipeline var
 
+          ESP_LOGD("yambms_debug", "Entering Auto CCL Current Taper...");
+
           //--------------------------------------------------------------------
           // Gate #2: Feature enabled ?
           //--------------------------------------------------------------------
           if (!id(yambms${yambms_id}_switch_auto_ccl_current_taper).state) {
             active = false;
             bulk_latched = false;
+            id(yambms${yambms_id}_var_auto_ccl_current_taper) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
+            ESP_LOGD("yambms_debug", "Auto CCL CT : Disabled => Exit");
             return;
           }
 
@@ -278,8 +285,10 @@ interval:
           if (isnan(V_knee) || isnan(V_bulk) || isnan(V_pack)) {
             active = false;
             bulk_latched = false;
+            id(yambms${yambms_id}_var_auto_ccl_current_taper) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
+            ESP_LOGD("yambms_debug", "Auto CCL CT : Critical data is missing => Exit");
             return;
           }
 
@@ -290,8 +299,10 @@ interval:
           if (V_knee >= (V_bulk - V_hyst)) {
             active = false;
             bulk_latched = false;
+            id(yambms${yambms_id}_var_auto_ccl_current_taper) = 0.0f;
             id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(0.0f);
             id(yambms${yambms_id}_var_charge_current_step)++;
+            ESP_LOGD("yambms_debug", "Auto CCL CT : Knee >= Bulk => Exit");
             return;
           }
 
@@ -340,7 +351,8 @@ interval:
             I_target = I_max;
           }
 
-          // Write custom_ccl every baton turn (0 when inactive so a prior taper cannot stick)
+          // Nominal path: write the var on every baton turn (0 when inactive,
+          // so a taper from a previous session cannot stick)
           id(yambms${yambms_id}_var_auto_ccl_current_taper) = delta;
           id(yambms${yambms_id}_auto_ccl_ct_delta).publish_state(delta);
 
