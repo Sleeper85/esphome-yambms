@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.1.6
+# Updated : 2026.08.21
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -49,6 +49,10 @@ switch:
       - globals.set:
           id: yambms${yambms_id}_var_service
           value: 'true'
+      # Rearm the circuit breaker, so the user can retry after fixing the network
+      - globals.set:
+          id: yambms${yambms_id}_var_service_failures
+          value: '0'
     turn_off_action:
       - globals.set:
           id: yambms${yambms_id}_var_service
