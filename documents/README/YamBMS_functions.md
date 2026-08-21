@@ -89,6 +89,22 @@ This result can then be **further reduced** by the active functions acting on th
 
 The final CCL/DCL sent to the inverter is always the **lowest** value among all these functions. The **CCL/DCL derating reason** sensor shows which function is currently limiting the current.
 
+### Multi-inverter / multi-charger
+
+`YamBMS` supports several inverters/chargers connected to the same battery bank. Each inverter/charger declared in your YAML has its own `CAN` or `RS485` package, and each one receives **the same** `Requested Charge/Discharge Current`.
+
+To prevent the battery bank from being charged/discharged at `N` times the calculated limit, `YamBMS` **divides the CCL and DCL by the number of declared inverter/charger interfaces** :
+
+> Example : a CCL of `150 A` with `2` inverters declared → each inverter receives `75 A`
+
+Each declared `yambms_canbus.yaml` / `yambms_rs485_pylon.yaml` package increments an interface counter at boot, and the final CCL/DCL is divided by this counter, then rounded. The division is applied **after** all the limiting functions above, so it always applies to the final value.
+
+> [!NOTE]
+> The counter is only incremented by the inverter/charger packages. A node with no inverter link declared keeps a divider of `1`, so the CCL/DCL are left unchanged.
+
+> [!IMPORTANT]
+> The division assumes your inverters/chargers **share the load evenly**. This is the case for identical units working in parallel on the same bank. If your units have different power ratings, or if one of them is offline, the total current drawn from the battery will be lower than the calculated limit — never higher.
+
 ## Requested Values
 
 ![Image](../../images/YamBMS_Requested_Values.png "YamBMS_Requested_Values")
