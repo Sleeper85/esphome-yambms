@@ -1,0 +1,45 @@
+# Updated : 2026.08.26
+# Version : 1.1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+############################ Local Packages Example ############################
+
+# This is not a working YAML but just code ready to copy into
+# your main YAML below the `packages:` section.
+
+################################################################################
+
+packages:
+
+  bms1: !include
+    file: packages/bms/bms_combine_KS_BLE_standard.yaml
+    vars:
+      bms_id: '1' # must be a number
+      bms_name: 'KS-BMS 1'
+      bms_ble_mac_address: 'C8:47:8C:10:7E:AA' # Your MAC address
+      bms_ks_device_type: '1' # 1 = KS48100 / KS48300-Ho23, 2 = KS48200-Ho21_V2
+      bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
+
+  bms2: !include
+    file: packages/bms/bms_combine_KS_BLE_standard.yaml
+    vars:
+      bms_id: '2' # must be a number
+      bms_name: 'KS-BMS 2'
+      bms_ble_mac_address: 'C8:47:8C:EE:16:EA' # Your MAC address
+      bms_ks_device_type: '1' # 1 = KS48100 / KS48300-Ho23, 2 = KS48200-Ho21_V2
+      bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
