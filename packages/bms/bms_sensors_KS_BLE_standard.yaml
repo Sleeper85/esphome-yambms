@@ -1,0 +1,426 @@
+# Updated : 2026.08.26
+# Version : 1.1.0
+# GitHub  : https://github.com/syssi/esphome-ks-bms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  bms_base: !include bms_base.yaml
+  bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
+  bms_errors_bitmask: !include bms_errors_bitmask_KS_BLE.yaml
+
+substitutions:
+  # KS BMS device type : selects the status command the component polls with,
+  # 0x01 for type 1 and 0x61 for type 2. Everything else (UUIDs, frame decoding,
+  # scaling) is identical.
+  #   1 = default, KS48100 and KS48300-Ho23
+  #   2 = KS48200-Ho21_V2
+  # Wrong value : the settings and identification frames still answer, so the
+  # numbers and text sensors fill in, but every status sensor stays empty and
+  # 'Can be combined' never turns on.
+  bms_ks_device_type: '1'
+
+ota:
+  on_begin:
+    then:
+      - switch.turn_off: bms${bms_id}_enable_bluetooth_connection
+      - logger.log: "BLE shutdown for flashing"
+
+# +--------------------------------------+
+# | Component settings                   |
+# +--------------------------------------+
+
+external_components:
+  - source: github://syssi/esphome-ks-bms@main
+    refresh: 0s
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
+
+ble_client:
+  - id: ble_client${bms_id}
+    mac_address: ${bms_ble_mac_address}
+
+ks_bms_ble:
+  - id: ks_bms_ble${bms_id}
+    ble_client_id: ble_client${bms_id}
+    device_type: ${bms_ks_device_type}
+    update_interval: ${bms_update_interval}
+
+# +--------------------------------------+
+# | Component entities                   |
+# +--------------------------------------+
+
+binary_sensor:
+  - platform: ks_bms_ble
+    ks_bms_ble_id: ks_bms_ble${bms_id}
+    charging:
+      id: bms${bms_id}_charging_allowed
+      device_id: bms_${bms_id}
+      name: "charging"
+    discharging:
+      id: bms${bms_id}_discharging_allowed
+      device_id: bms_${bms_id}
+      name: "discharging"
+    limiting_current:
+      device_id: bms_${bms_id}
+      name: "limiting current"
+    online_status:
+      id: bms${bms_id}_online_status
+      device_id: bms_${bms_id}
+      name: "online status"
+      trigger_on_initial_state: true
+      on_state:
+        then:
+          - lambda: |-
+              // Pass the current state to the update function
+              id(global_update_fault)(${CAT_BMS}, ${bms_id}, !x);
+
+  # Required sensors cannot be retrieved from BMS
+  # equalizing : the KS BMS only reports which cells are being balanced
+  # Internal : only specifying an id without a name will implicitly set this to true.
+  - platform: template
+    id: bms${bms_id}_bms_equalizing
+    device_id: bms_${bms_id}
+    lambda: return (id(bms${bms_id}_balanced_cell_bitmask).state > 0);
+
+switch:
+  - platform: ks_bms_ble
+    ks_bms_ble_id: ks_bms_ble${bms_id}
+    charging:
+      id: bms${bms_id}_charge_switch
+      device_id: bms_${bms_id}
+      name: "Charge switch"
+    discharging:
+      id: bms${bms_id}_discharge_switch
+      device_id: bms_${bms_id}
+      name: "Discharge switch"
+    # +--------------------------------------+
+  - platform: ble_client
+    ble_client_id: ble_client${bms_id}
+    id: bms${bms_id}_enable_bluetooth_connection
+    device_id: bms_${bms_id}
+    name: "Enable Bluetooth connection"
+    # +--------------------------------------+
+
+sensor:
+  - platform: ks_bms_ble
+    ks_bms_ble_id: ks_bms_ble${bms_id}
+    min_cell_voltage:
+      id: bms${bms_id}_min_cell_voltage
+      device_id: bms_${bms_id}
+      name: "min cell voltage"
+    max_cell_voltage:
+      id: bms${bms_id}_max_cell_voltage
+      device_id: bms_${bms_id}
+      name: "max cell voltage"
+    min_voltage_cell:
+      id: bms${bms_id}_min_voltage_cell
+      device_id: bms_${bms_id}
+      name: "min voltage cell"
+    max_voltage_cell:
+      id: bms${bms_id}_max_voltage_cell
+      device_id: bms_${bms_id}
+      name: "max voltage cell"
+    delta_cell_voltage:
+      id: bms${bms_id}_delta_cell_voltage
+      device_id: bms_${bms_id}
+      name: "delta cell voltage"
+    average_cell_voltage:
+      id: bms${bms_id}_average_cell_voltage
+      device_id: bms_${bms_id}
+      name: "average cell voltage"
+    total_voltage:
+      id: bms${bms_id}_total_voltage
+      device_id: bms_${bms_id}
+      name: "total voltage"
+    current:
+      id: bms${bms_id}_current
+      device_id: bms_${bms_id}
+      name: "current"
+    power:
+      id: bms${bms_id}_power
+      device_id: bms_${bms_id}
+      name: "power"
+    charging_power:
+      id: bms${bms_id}_charging_power
+      device_id: bms_${bms_id}
+      name: "charging power"
+    discharging_power:
+      id: bms${bms_id}_discharging_power
+      device_id: bms_${bms_id}
+      name: "discharging power"
+    mosfet_temperature:
+      device_id: bms_${bms_id}
+      name: "mosfet temperature"
+    ambient_temperature:
+      device_id: bms_${bms_id}
+      name: "ambient temperature"
+    average_temperature:
+      device_id: bms_${bms_id}
+      name: "average temperature"
+    temperature_1:
+      id: bms${bms_id}_temperature_sensor_1
+      device_id: bms_${bms_id}
+      name: "temperature sensor 1"
+    temperature_2:
+      id: bms${bms_id}_temperature_sensor_2
+      device_id: bms_${bms_id}
+      name: "temperature sensor 2"
+    temperature_3:
+      id: bms${bms_id}_temperature_sensor_3
+      device_id: bms_${bms_id}
+      name: "temperature sensor 3"
+    temperature_4:
+      id: bms${bms_id}_temperature_sensor_4
+      device_id: bms_${bms_id}
+      name: "temperature sensor 4"
+    state_of_charge:
+      id: bms${bms_id}_state_of_charge
+      device_id: bms_${bms_id}
+      # name: "state of charge"
+    state_of_health:
+      id: bms${bms_id}_battery_soh
+      device_id: bms_${bms_id}
+      name: "Battery SoH"
+    capacity_remaining:
+      id: bms${bms_id}_capacity_remaining_ah
+      device_id: bms_${bms_id}
+      # name: "capacity remaining"
+    full_charge_capacity:
+      id: bms${bms_id}_battery_capacity
+      device_id: bms_${bms_id}
+      name: "full charge capacity"
+    nominal_capacity:
+      device_id: bms_${bms_id}
+      name: "nominal capacity"
+    charging_cycles:
+      id: bms${bms_id}_charging_cycles_raw
+      device_id: bms_${bms_id}
+      # name: "charging cycles"
+    balanced_cell:
+      device_id: bms_${bms_id}
+      name: "balanced cell"
+    balanced_cell_bitmask:
+      id: bms${bms_id}_balanced_cell_bitmask
+      device_id: bms_${bms_id}
+      name: "balanced cell bitmask"
+    error_bitmask:
+      id: bms${bms_id}_errors_bitmask
+      device_id: bms_${bms_id}
+      name: "errors bitmask"
+    voltage_protection_bitmask:
+      device_id: bms_${bms_id}
+      name: "voltage protection bitmask"
+    current_protection_bitmask:
+      device_id: bms_${bms_id}
+      name: "current protection bitmask"
+    temperature_protection_bitmask:
+      device_id: bms_${bms_id}
+      name: "temperature protection bitmask"
+    cell_voltage_1:
+      id: bms${bms_id}_cell_v_01
+      device_id: bms_${bms_id}
+      name: "cell voltage 01"
+    cell_voltage_2:
+      id: bms${bms_id}_cell_v_02
+      device_id: bms_${bms_id}
+      name: "cell voltage 02"
+    cell_voltage_3:
+      id: bms${bms_id}_cell_v_03
+      device_id: bms_${bms_id}
+      name: "cell voltage 03"
+    cell_voltage_4:
+      id: bms${bms_id}_cell_v_04
+      device_id: bms_${bms_id}
+      name: "cell voltage 04"
+    cell_voltage_5:
+      id: bms${bms_id}_cell_v_05
+      device_id: bms_${bms_id}
+      name: "cell voltage 05"
+    cell_voltage_6:
+      id: bms${bms_id}_cell_v_06
+      device_id: bms_${bms_id}
+      name: "cell voltage 06"
+    cell_voltage_7:
+      id: bms${bms_id}_cell_v_07
+      device_id: bms_${bms_id}
+      name: "cell voltage 07"
+    cell_voltage_8:
+      id: bms${bms_id}_cell_v_08
+      device_id: bms_${bms_id}
+      name: "cell voltage 08"
+    cell_voltage_9:
+      id: bms${bms_id}_cell_v_09
+      device_id: bms_${bms_id}
+      name: "cell voltage 09"
+    cell_voltage_10:
+      id: bms${bms_id}_cell_v_10
+      device_id: bms_${bms_id}
+      name: "cell voltage 10"
+    cell_voltage_11:
+      id: bms${bms_id}_cell_v_11
+      device_id: bms_${bms_id}
+      name: "cell voltage 11"
+    cell_voltage_12:
+      id: bms${bms_id}_cell_v_12
+      device_id: bms_${bms_id}
+      name: "cell voltage 12"
+    cell_voltage_13:
+      id: bms${bms_id}_cell_v_13
+      device_id: bms_${bms_id}
+      name: "cell voltage 13"
+    cell_voltage_14:
+      id: bms${bms_id}_cell_v_14
+      device_id: bms_${bms_id}
+      name: "cell voltage 14"
+    cell_voltage_15:
+      id: bms${bms_id}_cell_v_15
+      device_id: bms_${bms_id}
+      name: "cell voltage 15"
+    cell_voltage_16:
+      id: bms${bms_id}_cell_v_16
+      device_id: bms_${bms_id}
+      name: "cell voltage 16"
+
+  # Charging cycle capacity - Calculated from charging cycles and battery capacity
+  - platform: template
+    id: bms${bms_id}_cycle_capacity_raw
+    device_id: bms_${bms_id}
+    # name: "charging cycle capacity"
+    update_interval: ${bms_update_interval}
+    unit_of_measurement: Ah
+    state_class: total
+    icon: mdi:car-battery
+    accuracy_decimals: 0
+    filters:
+      - or:
+        - throttle: 10s
+        - delta: 1
+    lambda: return id(bms${bms_id}_charging_cycles_raw).state * id(bms${bms_id}_battery_capacity).state;
+
+number:
+  - platform: ks_bms_ble
+    ks_bms_ble_id: ks_bms_ble${bms_id}
+    cell_overvoltage_protection:
+      id: bms${bms_id}_cell_ovp
+      device_id: bms_${bms_id}
+      name: "cell voltage overvoltage protection"
+    cell_overvoltage_recovery:
+      id: bms${bms_id}_cell_ovpr
+      device_id: bms_${bms_id}
+      name: "cell voltage overvoltage recovery"
+    cell_undervoltage_protection:
+      id: bms${bms_id}_cell_uvp
+      device_id: bms_${bms_id}
+      name: "cell voltage undervoltage protection"
+    cell_undervoltage_recovery:
+      id: bms${bms_id}_cell_uvpr
+      device_id: bms_${bms_id}
+      name: "cell voltage undervoltage recovery"
+    balance_open_voltage:
+      id: bms${bms_id}_balance_starting_voltage
+      device_id: bms_${bms_id}
+      name: "balancing start voltage"
+    balance_open_voltage_diff:
+      id: bms${bms_id}_bms_balance_trigger_voltage
+      device_id: bms_${bms_id}
+      # name: "balance trigger voltage"
+    cell_full_voltage:
+      device_id: bms_${bms_id}
+      name: "cell full voltage"
+    cell_cutoff_voltage:
+      device_id: bms_${bms_id}
+      name: "cell cutoff voltage"
+    nominal_capacity:
+      device_id: bms_${bms_id}
+      name: "nominal capacity setting"
+    full_charge_capacity:
+      device_id: bms_${bms_id}
+      name: "full charge capacity setting"
+    # The KS BMS has no dedicated charge / discharge current limit setting,
+    # its overcurrent protection thresholds are what YamBMS reads as the
+    # maximum charge and discharge currents of the pack.
+    charge_overcurrent_protection:
+      id: bms${bms_id}_max_charge_current
+      device_id: bms_${bms_id}
+      name: "max charge current"
+    discharge_overcurrent_protection:
+      id: bms${bms_id}_max_discharge_current
+      device_id: bms_${bms_id}
+      name: "max discharge current"
+    charge_overtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charge overtemperature protection"
+    charge_overtemperature_recovery:
+      device_id: bms_${bms_id}
+      name: "charge overtemperature recovery"
+    charge_undertemperature_protection:
+      device_id: bms_${bms_id}
+      name: "charge undertemperature protection"
+    charge_undertemperature_recovery:
+      device_id: bms_${bms_id}
+      name: "charge undertemperature recovery"
+    discharge_overtemperature_protection:
+      device_id: bms_${bms_id}
+      name: "discharge overtemperature protection"
+    discharge_overtemperature_recovery:
+      device_id: bms_${bms_id}
+      name: "discharge overtemperature recovery"
+    discharge_undertemperature_protection:
+      device_id: bms_${bms_id}
+      name: "discharge undertemperature protection"
+    discharge_undertemperature_recovery:
+      device_id: bms_${bms_id}
+      name: "discharge undertemperature recovery"
+
+text_sensor:
+  - platform: ks_bms_ble
+    ks_bms_ble_id: ks_bms_ble${bms_id}
+    errors:
+      device_id: bms_${bms_id}
+      name: "errors"
+    voltage_protection:
+      device_id: bms_${bms_id}
+      name: "voltage protection"
+    current_protection:
+      device_id: bms_${bms_id}
+      name: "current protection"
+    temperature_protection:
+      device_id: bms_${bms_id}
+      name: "temperature protection"
+    balancer_status:
+      device_id: bms_${bms_id}
+      name: "balancer status"
+    # The BLE advertised name identifies the bluetooth module, not the BMS.
+    # 'model type' and 'device model' are what tell you which pack you have,
+    # and so whether bms_ks_device_type should be 1 or 2.
+    device_model:
+      device_id: bms_${bms_id}
+      name: "device model"
+    model_type:
+      device_id: bms_${bms_id}
+      name: "model type"
+    serial_number:
+      device_id: bms_${bms_id}
+      name: "serial number"
+    software_version:
+      device_id: bms_${bms_id}
+      name: "software version"
+    hardware_version:
+      device_id: bms_${bms_id}
+      name: "hardware version"
