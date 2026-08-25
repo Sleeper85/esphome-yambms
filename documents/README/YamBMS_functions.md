@@ -429,23 +429,6 @@ Afterwards the battery is then discharged, however `Requested Charge Current (CC
 `Auto SoC Limit` - `Auto SoC Hysteresis` = `80%` - `5%` = `75%`. Without this, the `SoC` would oscillate between
 `79%` and `80%`, stressing components unnecessary.
 
-
-## Inverter Heartbeat Monitoring
-
-![Image](../../images/YamBMS_Inverter_Heartbeat.png "YamBMS_Inverter_Heartbeat")
-
-This feature allows you to monitor the heartbeat of your inverter (time between two ACK 0x305). This is useful for troubleshooting purposes and should not remain enabled continuously.
-
-This heartbeat must be regular and depends on the selected `CAN protocol` and the behavior of the inverter. If the heartbeat is not regular this can show a problem on the inverter side or an overloaded ESP32.
-
-The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN frame `0x356`. Knowing that CAN frames are sent every `100ms` and that the CAN protocol `PYLON 1.2` has 6 CAN frames, the heartbeat of the `Deye` inverter is `600ms`.
-
-> [!IMPORTANT]  
-> Every `2h` Deye takes more than `3s` to respond and more than `5s` at midnight.
-> This is what the `CANBUS Status` looks like when the `canbus_link_timer` is set to `3s`.
-
-![Image](../../images/YamBMS_CANBUS_Status.png "YamBMS_CANBUS_Status")
-
 ## Auto CCL Current Taper
 
 Optional Auto CCL package (`yambms_auto_ccl_current_taper.yaml`).
@@ -494,6 +477,22 @@ Notes:
 - Can run alongside other Auto CCL functions; the pipeline takes the most restrictive reduction.
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - Pair with `Charger Offset V.` when the inverter undershoots bulk.
+
+## Inverter Heartbeat Monitoring
+
+![Image](../../images/YamBMS_Inverter_Heartbeat.png "YamBMS_Inverter_Heartbeat")
+
+This feature allows you to monitor the heartbeat of your inverter (time between two ACK 0x305). This is useful for troubleshooting purposes and should not remain enabled continuously.
+
+This heartbeat must be regular and depends on the selected `CAN protocol` and the behavior of the inverter. If the heartbeat is not regular this can show a problem on the inverter side or an overloaded ESP32.
+
+The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN frame `0x356`. Knowing that CAN frames are sent every `100ms` and that the CAN protocol `PYLON 1.2` has 6 CAN frames, the heartbeat of the `Deye` inverter is `600ms`.
+
+> [!IMPORTANT]  
+> Every `2h` Deye takes more than `3s` to respond and more than `5s` at midnight.
+> This is what the `CANBUS Status` looks like when the `canbus_link_timer` is set to `3s`.
+
+![Image](../../images/YamBMS_CANBUS_Status.png "YamBMS_CANBUS_Status")
 
 ## Diagnostic
 
