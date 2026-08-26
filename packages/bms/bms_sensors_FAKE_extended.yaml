@@ -1,5 +1,5 @@
-# Updated : 2026.03.03
-# Version : 1.1.2
+# Updated : 2026.08.26
+# Version : 1.1.3
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -54,6 +54,25 @@ number:
     on_value:
       then:
         - lambda: id(bms${bms_id}_current).publish_state(x);
+
+  # battery_capacity
+  - platform: template
+    id: bms${bms_id}_number_battery_capacity
+    device_id: bms_${bms_id}
+    name: "Battery Capacity number"
+    mode: box
+    step: 1
+    min_value: 0
+    max_value: 2000
+    restore_value: true
+    initial_value: ${bms_battery_capacity}
+    unit_of_measurement: Ah
+    icon: mdi:car-battery
+    optimistic: true
+    entity_category: config
+    on_value:
+      then:
+        - lambda: id(bms${bms_id}_battery_capacity).publish_state(x);
 
   # min_cell_voltage
   - platform: template
