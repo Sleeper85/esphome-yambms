@@ -1,5 +1,5 @@
-# Updated : 2026.02.03
-# Version : 1.1.3
+# Updated : 2026.08.26
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -199,6 +199,15 @@ interval:
             auto *led = kv.first;
             auto const &assigned_list = kv.second;
 
+            // Ask the light what it can actually do, rather than trusting a
+            // per-board flag. A `binary` light supports neither brightness nor
+            // RGB, a `monochromatic` one only brightness, an addressable strip
+            // both. Calling an unsupported setter is not fatal but logs a
+            // warning on every state change.
+            auto traits = led->get_traits();
+            bool has_brightness = traits.supports_color_capability(esphome::light::ColorCapability::BRIGHTNESS);
+            bool has_rgb = traits.supports_color_capability(esphome::light::ColorCapability::RGB);
+
             // Filter assigned items to find how many active faults exist
             int active_fault_count = 0;
             for (auto &pair : assigned_list) {
@@ -352,8 +361,8 @@ interval:
             bool need_update = !ctx.last_valid || (ctx.last_state != target_state);
             if (!need_update && target_state) {
               // Only compare when on
-              if (ctx.last_bri != target_bri) need_update = true;
-              if (${board_has_rgb}) {
+              if (has_brightness && ctx.last_bri != target_bri) need_update = true;
+              if (has_rgb) {
                 if (ctx.last_r != target_r || ctx.last_g != target_g || ctx.last_b != target_b) need_update = true;
               }
             }
@@ -363,8 +372,8 @@ interval:
             auto call = led->make_call();
             call.set_state(target_state);
             if (target_state) {
-              call.set_brightness(target_bri);
-              if (${board_has_rgb}) call.set_rgb(target_r, target_g, target_b);
+              if (has_brightness) call.set_brightness(target_bri);
+              if (has_rgb) call.set_rgb(target_r, target_g, target_b);
             }
             call.perform();
 

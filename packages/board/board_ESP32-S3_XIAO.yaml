@@ -1,5 +1,5 @@
-# Updated : 2026.07.30
-# Version : 1.2.0
+# Updated : 2026.08.26
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,8 +38,6 @@ substitutions:
   spi_miso_pin: '4'
   spi_clk_pin: '5'
   mcp2515_cs_pin: '6'
-  # LED
-  board_has_rgb: "false" # LED `RGB` flag to show functionality is available
   # LOOP_TASK_STACK
   loop_task_stack_size: "8192" # see LOOP_TASK_STACK.md before changing
 

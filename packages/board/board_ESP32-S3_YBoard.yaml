@@ -1,5 +1,5 @@
-# Updated : 2026.07.30
-# Version : 1.1.7
+# Updated : 2026.08.26
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -33,8 +33,6 @@ substitutions:
   # canbus_esp32_can
   tx_pin_4: '17'
   rx_pin_4: '18'
-  # LED
-  board_has_rgb: "true" # LED `RGB` flag to show functionality is available
   # LOOP_TASK_STACK
   loop_task_stack_size: "8192" # see LOOP_TASK_STACK.md before changing
 
@@ -74,7 +72,7 @@ light:
   - platform: esp32_rmt_led_strip
     id: esp_light
     # name: ${name} ESP32 Light
-    rgb_order: GRB
+    channel_colors: GRB
     pin: 48
     num_leds: 1
     # rmt_channel: 0
