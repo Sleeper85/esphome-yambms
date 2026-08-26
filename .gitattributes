@@ -1,0 +1,5 @@
+# Every YAML in this repository is stored and checked out with LF endings.
+# Without this, a contributor working on Windows can silently reintroduce CRLF
+# and rewrite a whole file in the diff for nothing.
+*.yaml text eol=lf
+*.yml  text eol=lf
