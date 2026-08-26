@@ -1,4 +1,4 @@
-# Updated : 2026.08.11
+# Updated : 2026.08.26
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -715,6 +715,7 @@ views:
               - entity: switch.bms_1_online_status_switch
               - entity: switch.bms_1_charge_switch
               - entity: switch.bms_1_discharge_switch
+              - entity: number.bms_1_battery_capacity_number
               - entity: number.bms_1_battery_soc_number
               - entity: number.bms_1_current_number
               - entity: number.bms_1_min_cell_voltage_number
@@ -869,6 +870,7 @@ views:
               - entity: switch.bms_2_online_status_switch
               - entity: switch.bms_2_charge_switch
               - entity: switch.bms_2_discharge_switch
+              - entity: number.bms_2_battery_capacity_number
               - entity: number.bms_2_battery_soc_number
               - entity: number.bms_2_current_number
               - entity: number.bms_2_min_cell_voltage_number
@@ -1023,6 +1025,7 @@ views:
               - entity: switch.bms_3_online_status_switch
               - entity: switch.bms_3_charge_switch
               - entity: switch.bms_3_discharge_switch
+              - entity: number.bms_3_battery_capacity_number
               - entity: number.bms_3_battery_soc_number
               - entity: number.bms_3_current_number
               - entity: number.bms_3_min_cell_voltage_number
