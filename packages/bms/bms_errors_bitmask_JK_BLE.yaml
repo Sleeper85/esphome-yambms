@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.5
+# Updated : 2026.08.26
+# Version : 1.1.6
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,26 +17,52 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-  # +--------------------------------------+
-  # | JK BLE Errors Bitmask (16bit)        |
-  # +--------------------------------------+
+  # +----------------------------------------+
+  # | JK BLE Errors Bitmask (32bit)          |
+  # +----------------------------------------+
 
-  # Bit 0     Charge overtemperature                       0000 0000 0000 0001         0x0001
-  # Bit 1     Charge undertemperature                      0000 0000 0000 0010         0x0002
-  # Bit 2     Coprocessor communication error              0000 0000 0000 0100         0x0004
-  # Bit 3     Cell undervoltage                            0000 0000 0000 1000         0x0008
-  # Bit 4     Battery pack undervoltage                    0000 0000 0001 0000         0x0010
-  # Bit 5     Discharge overcurrent                        0000 0000 0010 0000         0x0020
-  # Bit 6     Discharge short circuit                      0000 0000 0100 0000         0x0040
-  # Bit 7     Discharge overtemperature                    0000 0000 1000 0000         0x0080
-  # Bit 8     Wire resistance                              0000 0001 0000 0000         0x0100
-  # Bit 9     Mosfet overtemperature                       0000 0010 0000 0000         0x0200
-  # Bit 10    Cell count is not equal to settings          0000 0100 0000 0000         0x0400
-  # Bit 11    Current sensor anomaly                       0000 1000 0000 0000         0x0800
-  # Bit 12    Cell Overvoltage                             0001 0000 0000 0000         0x1000
-  # Bit 13    Battery pack overvoltage                     0010 0000 0000 0000         0x2000
-  # Bit 14    Charge overcurrent protection                0100 0000 0000 0000         0x4000
-  # Bit 15    Charge short circuit                         1000 0000 0000 0000         0x8000
+  # The jk_bms_ble component no longer exposes a numeric errors_bitmask sensor : a
+  # 32bit mask does not fit in the 24bit mantissa of an ESPHome float, so the raw
+  # value is published as the errors_bitmask_hex text sensor ("0x%08X") instead.
+  # The bitmask is decoded from that string below.
+
+  # The same commit also fixed the frame decoding : the mask is little-endian and
+  # used to be read big-endian, which rotated the low 16 bits by one byte. The bit
+  # layout is now identical to bms_errors_bitmask_JK_RS485_Modbus.yaml, which is
+  # expected since both interfaces carry the same JK register.
+
+  # Bits 16 to 28 are only reported by the JK02_32S protocol version. JK02_24S
+  # reports a 16bit mask, and JK04 does not report this register at all.
+
+  # Bit 0     Wire resistance                              0000 0000 0000 0001         0x0001
+  # Bit 1     MOSFET overtemperature                       0000 0000 0000 0010         0x0002
+  # Bit 2     Cell count is not equal to settings          0000 0000 0000 0100         0x0004
+  # Bit 3     Unused                                       0000 0000 0000 1000         0x0008
+  # Bit 4     Battery is fully charged                     0000 0000 0001 0000         0x0010
+  # Bit 5     Battery pack overvoltage                     0000 0000 0010 0000         0x0020
+  # Bit 6     Charge overcurrent                           0000 0000 0100 0000         0x0040
+  # Bit 7     Charge short circuit                         0000 0000 1000 0000         0x0080
+  # Bit 8     Charge overtemperature                       0000 0001 0000 0000         0x0100
+  # Bit 9     Charge undertemperature                      0000 0010 0000 0000         0x0200
+  # Bit 10    Coprocessor communication error              0000 0100 0000 0000         0x0400
+  # Bit 11    Cell undervoltage                            0000 1000 0000 0000         0x0800
+  # Bit 12    Battery pack undervoltage                    0001 0000 0000 0000         0x1000
+  # Bit 13    Discharge overcurrent                        0010 0000 0000 0000         0x2000
+  # Bit 14    Discharge short circuit                      0100 0000 0000 0000         0x4000
+  # Bit 15    Discharge overtemperature                    1000 0000 0000 0000         0x8000
+  # Bit 16    Charging MOSFET abnormal                0001 0000 0000 0000 0000        0x10000
+  # Bit 17    Discharging MOSFET abnormal             0010 0000 0000 0000 0000        0x20000
+  # Bit 18    GPS disconnected                        0100 0000 0000 0000 0000        0x40000
+  # Bit 19    Modify password in time                 1000 0000 0000 0000 0000        0x80000
+  # Bit 20    Discharge on failed                0001 0000 0000 0000 0000 0000       0x100000
+  # Bit 21    Battery overtemperature            0010 0000 0000 0000 0000 0000       0x200000
+  # Bit 22    Temperature sensor anomaly         0100 0000 0000 0000 0000 0000       0x400000
+  # Bit 23    PL module anomaly                  1000 0000 0000 0000 0000 0000       0x800000
+  # Bit 24    SCP release failed                                                    0x1000000
+  # Bit 25    Discharge OCP II                                                      0x2000000
+  # Bit 26    Discharge OCP III                                                     0x4000000
+  # Bit 27    Discharge undertemperature alarm                                      0x8000000
+  # Bit 28    GPS remote lock                                                      0x10000000
 
   # +--------------------------------------+
   # | YamBMS Errors Bitmask (16bit)        |
@@ -59,6 +85,12 @@
   # Bit 14    Reserved                                     0100 0000 0000 0000         0x4000
   # Bit 15    Reserved                                     1000 0000 0000 0000         0x8000
 
+  # JK bit 4 is deliberately not mapped. Its meaning depends on the BMS firmware
+  # generation : older firmwares report a cell overvoltage there, newer ones report
+  # a fully charged battery. Mapping it would raise a high voltage alarm at the end
+  # of every charge on a recent firmware, and a real overvoltage is already covered
+  # by bit 5. Set error_overrides on the jk_bms_ble component to relabel it.
+
 sensor:
   - platform: template
     id: bms${bms_id}_yambms_errors_bitmask
@@ -72,27 +104,52 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
-      uint16_t bms_errors_bitmask = id(bms${bms_id}_errors_bitmask).state;
+      uint32_t bms_errors_bitmask = 0;
+
+      // Not published yet on the first frames, and never published by JK04.
+      // bms_combine.yaml requires this sensor to always hold a state, so an
+      // undecodable value has to be reported as "no error" rather than skipped.
+      if (id(bms${bms_id}_errors_bitmask_hex).has_state())
+      {
+        const std::string &hex = id(bms${bms_id}_errors_bitmask_hex).state;
+
+        // Format is "0x" followed by 8 hexadecimal digits.
+        if (hex.size() > 2) bms_errors_bitmask = (uint32_t) strtoul(hex.c_str() + 2, nullptr, 16);
+      }
+
       uint16_t yambms_errors_bitmask = 0;
 
       if (bms_errors_bitmask > 0)
       {
-        if (bms_errors_bitmask & 0x0001) yambms_errors_bitmask |= 0x0020;
-        if (bms_errors_bitmask & 0x0002) yambms_errors_bitmask |= 0x0040;
+        if (bms_errors_bitmask & 0x0001) yambms_errors_bitmask |= 0x0800;
+        if (bms_errors_bitmask & 0x0002) yambms_errors_bitmask |= 0x0008;
         if (bms_errors_bitmask & 0x0004) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0008) yambms_errors_bitmask |= 0x0004;
-        if (bms_errors_bitmask & 0x0010) yambms_errors_bitmask |= 0x0004;
-        if (bms_errors_bitmask & 0x0020) yambms_errors_bitmask |= 0x0080;
-        if (bms_errors_bitmask & 0x0040) yambms_errors_bitmask |= 0x0400;
-        if (bms_errors_bitmask & 0x0080) yambms_errors_bitmask |= 0x0008;
-        if (bms_errors_bitmask & 0x0100) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0200) yambms_errors_bitmask |= 0x0008;
+        if (bms_errors_bitmask & 0x0008) yambms_errors_bitmask |= 0x0000;
+        if (bms_errors_bitmask & 0x0010) yambms_errors_bitmask |= 0x0000;   // Battery is fully charged
+        if (bms_errors_bitmask & 0x0020) yambms_errors_bitmask |= 0x0002;
+        if (bms_errors_bitmask & 0x0040) yambms_errors_bitmask |= 0x0100;
+        if (bms_errors_bitmask & 0x0080) yambms_errors_bitmask |= 0x0400;
+        if (bms_errors_bitmask & 0x0100) yambms_errors_bitmask |= 0x0020;
+        if (bms_errors_bitmask & 0x0200) yambms_errors_bitmask |= 0x0040;
         if (bms_errors_bitmask & 0x0400) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x0800) yambms_errors_bitmask |= 0x0800;
-        if (bms_errors_bitmask & 0x1000) yambms_errors_bitmask |= 0x0002;
-        if (bms_errors_bitmask & 0x2000) yambms_errors_bitmask |= 0x0002;
-        if (bms_errors_bitmask & 0x4000) yambms_errors_bitmask |= 0x0100;
-        if (bms_errors_bitmask & 0x8000) yambms_errors_bitmask |= 0x0400;
+        if (bms_errors_bitmask & 0x0800) yambms_errors_bitmask |= 0x0004;
+        if (bms_errors_bitmask & 0x1000) yambms_errors_bitmask |= 0x0004;
+        if (bms_errors_bitmask & 0x2000) yambms_errors_bitmask |= 0x0080;
+        if (bms_errors_bitmask & 0x4000) yambms_errors_bitmask |= 0x0400;
+        if (bms_errors_bitmask & 0x8000) yambms_errors_bitmask |= 0x0008;
+        if (bms_errors_bitmask & 0x10000) yambms_errors_bitmask |= 0x0200;
+        if (bms_errors_bitmask & 0x20000) yambms_errors_bitmask |= 0x0200;
+        if (bms_errors_bitmask & 0x40000) yambms_errors_bitmask |= 0x0000;   // GPS disconnected
+        if (bms_errors_bitmask & 0x80000) yambms_errors_bitmask |= 0x0000;   // Modify password in time
+        if (bms_errors_bitmask & 0x100000) yambms_errors_bitmask |= 0x0200;
+        if (bms_errors_bitmask & 0x200000) yambms_errors_bitmask |= 0x0008;
+        if (bms_errors_bitmask & 0x400000) yambms_errors_bitmask |= 0x0800;
+        if (bms_errors_bitmask & 0x800000) yambms_errors_bitmask |= 0x0800;
+        if (bms_errors_bitmask & 0x1000000) yambms_errors_bitmask |= 0x0400;
+        if (bms_errors_bitmask & 0x2000000) yambms_errors_bitmask |= 0x0080;
+        if (bms_errors_bitmask & 0x4000000) yambms_errors_bitmask |= 0x0080;
+        if (bms_errors_bitmask & 0x8000000) yambms_errors_bitmask |= 0x0010;
+        if (bms_errors_bitmask & 0x10000000) yambms_errors_bitmask |= 0x0000;   // GPS remote lock
       }
 
       return yambms_errors_bitmask;
