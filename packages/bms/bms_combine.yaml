@@ -1,4 +1,4 @@
-# Updated : 2026.08.14
+# Updated : 2026.08.26
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -20,10 +20,11 @@ substitutions:
   bms_protocol: "Unknown"
 
 globals:
-  - id: bms${bms_id}_combined_once
-    type: bool
+  # Last valid battery_capacity this BMS contributed to the installed total
+  - id: bms${bms_id}_installed_capacity
+    type: float
     restore_value: no
-    initial_value: "false"
+    initial_value: "0.0"
   - id: bms${bms_id}_combined
     type: bool
     restore_value: no
@@ -93,13 +94,18 @@ interval:
             if (id(bms${bms_id}_can_be_combined).state)
             {
               // +-----------------------------------------------+
-              // | Combine once only                             |
+              // | Installed battery capacity contribution       |
               // +-----------------------------------------------+
+              // The installed total tracks a hot capacity change, but is never
+              // reduced when a BMS is uncombined : an offline BMS simply stops
+              // updating its contribution, which stays in the total.
 
-              if (id(bms${bms_id}_combined_once) == false)
+              float capacity = id(bms${bms_id}_battery_capacity).state;
+
+              if (capacity != id(bms${bms_id}_installed_capacity))
               {
-                id(yambms${yambms_id}_var_total_installed_battery_capacity) += id(bms${bms_id}_battery_capacity).state;
-                id(bms${bms_id}_combined_once) = true;
+                id(yambms${yambms_id}_var_total_installed_battery_capacity) += capacity - id(bms${bms_id}_installed_capacity);
+                id(bms${bms_id}_installed_capacity) = capacity;
               }
 
               // +-----------------------------------------------+

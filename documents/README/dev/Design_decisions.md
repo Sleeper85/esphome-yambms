@@ -46,16 +46,24 @@ Note that the checks are not uniform. Most use `has_state()`, but `total_voltage
 `battery_capacity`, `max_charge_current` and `max_discharge_current` use `> 0` — a BMS reporting
 zero for those is treated as not ready rather than as a valid reading.
 
-### Combined once, combined continuously, uncombined
+### Combined by contribution, combined continuously, uncombined
 
 Three distinct scopes in the same lambda, and they are not interchangeable:
 
-- **Once** — `total_installed_battery_capacity` accumulates a single time per BMS, for the
-  lifetime of the boot. It represents the *installed* capacity and deliberately does not shrink
-  when a BMS drops offline.
+- **By contribution** — `total_installed_battery_capacity` is a maintained total, not a per-round
+  accumulator. Each BMS remembers the last capacity it contributed in
+  `bms${bms_id}_installed_capacity` and applies only the *difference* to the total. So the
+  installed capacity follows a capacity change made at runtime, without a reboot, while an
+  offline BMS simply stops updating its contribution — which stays in the total. It represents
+  the *installed* capacity and deliberately does not shrink when a BMS drops offline.
 - **Not continuously** — the combined counter is incremented on the transition into the combined
   state, not on every tick.
 - **Continuously** — the totals, bitmasks and min/max values are recomputed every round.
+
+`total_installed_battery_capacity` must never be turned into a per-round accumulator reset in the
+`Global vars reset` block like the other totals. Its sensor is polled independently of STEP 2 and
+its state is written straight into CAN frame `0x379` with no `has_state()` guard, so a transient
+zero would announce 0 Ah of installed capacity to the inverter.
 
 ### `bms_seen_online_bitmask` is never cleared
 
