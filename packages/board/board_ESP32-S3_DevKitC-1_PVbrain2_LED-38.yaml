@@ -17,9 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-packages:
-  rs485_pylon: !include yambms_rs485_pylon_core.yaml
+# LED DevKitC-1 V1.0 = 48 / V1.1 = 38
 
-uart:
-  - id: !extend ${rs485_uart_id}
-    baud_rate: ${rs485_uart_baud_rate}
+substitutions:
+  # canbus_esp32_can
+  tx_pin_4: '48'
+  rx_pin_4: '39'
+  # RGB LED
+  rgb_led_pin: '38' 
+
+packages:
+  pvbrain2: !include board_ESP32-S3_DevKitC-1_PVbrain2.yaml
