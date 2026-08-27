@@ -241,6 +241,9 @@ default allows 0.5C from -20°C up to 55°C, with a cut-off below -30°C and abo
 > [!IMPORTANT]
 > In Bulk, the `Auto CVL` function uses the `Balance Trig. Volt.` value of your BMS. `e.g. for LFP` : BTG=0.010V
 
+> [!NOTE]
+> `Auto CVL` was reworked in `YamBMS 1.8.0` by [@Sleeper85](https://github.com/Sleeper85), see [release note](changelog/Changelog_YamBMS_1.8.0_Auto_CVL.md).
+
 When enabled, the `Automatic Charge Voltage Limit` function automatically reduces the
 `Requested Charge Voltage (CVL)` sent to the inverter when a cell starts to exceed the `Bulk
 Voltage` target. The runner cell is maintained at or near that target, the balancer can start
