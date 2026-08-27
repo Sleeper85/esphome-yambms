@@ -1,6 +1,23 @@
-# Updated : 2026.08.26
-# Version : 1.3.8
+# Updated : 2026.08.27
+# Version : 1.3.9
 # GitHub  : https://github.com/SeByDocKy/pvbrain2
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# LED DevKitC-1 V1.0 = 48 / V1.1 = 38
 
 substitutions:
   board_chip: "ESP32-S3"
@@ -15,9 +32,6 @@ substitutions:
   # uart_esp_3
   tx_pin_3: '43'
   rx_pin_3: '44'
-  # canbus_esp32_can
-  tx_pin_4: '38'
-  rx_pin_4: '39'
   # SPI bus for canbus_mcp2515
   spi_mosi_pin: '11'
   spi_miso_pin: '12'
@@ -72,23 +86,23 @@ logger:
 light:
   # https://esphome.io/components/light/status_led
   - platform: status_led
-    name: ${name}_led_light_1
+    name: PCB LED 1
     id: led_light_1
     pin: 1
     entity_category: config
 
   - platform: status_led
-    name: ${name}_led_light_2
+    name: PCB LED 2
     id: led_light_2
     pin: 2
     entity_category: config
 
   # https://esphome.io/components/light/esp32_rmt_led_strip
   - platform: esp32_rmt_led_strip
-    name: ${name}_on_board_light_io48
+    name: ESP32 LED
     id: esp_light
     channel_colors: GRB
-    pin: 48
+    pin: ${rgb_led_pin}
     num_leds: 1
     # rmt_channel: 0
     chipset: ws2812

@@ -1,4 +1,4 @@
-# Updated : 2026.08.11
+# Updated : 2026.08.27
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -64,6 +64,7 @@ substitutions:
   # This allows to group entities into logical devices that appear separately in Home Assistant.
   hostname: 'pvbrain2' # Name of your ESPHome node registered on the IP network (DNS name must be unique)
   friendly_name : 'PVbrain2' # Name of your board (prefix for board entities)
+  name: '' # This name can be added as a second prefix, both for the `entity display name` and the `entity id`, you can leave it blank.
   # +--------------------------------------+
   # | YamBMS Settings                      |
   # +--------------------------------------+
@@ -173,7 +174,8 @@ substitutions:
 packages:
 
   board: !include
-    file: packages/board/board_ESP32-S3_DevKitC-1_PVbrain2.yaml
+    file: packages/board/board_ESP32-S3_DevKitC-1_PVbrain2_LED-48.yaml # DevKitC-1 V1.0
+    # file: packages/board/board_ESP32-S3_DevKitC-1_PVbrain2_LED-38.yaml # DevKitC-1 V1.1
     # vars:
     #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
     #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
@@ -294,7 +296,7 @@ packages:
   # +------------------------------------------------------------------------------+
 
   # rs485_pylon: !include
-  #   file: packages/yambms/yambms_rs485_pylon.yaml # yambms_rs485_pylon_web_server.yaml
+  #   file: packages/yambms/yambms_rs485_pylon_core.yaml
   #   vars:
   #     rs485_id: '1' # Must be a number
   #     rs485_name: 'RS485 1'
