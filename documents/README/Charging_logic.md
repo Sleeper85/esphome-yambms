@@ -71,11 +71,21 @@ The Bulk or Cut-Off **conditions must hold continuously for 10s** before the cor
 
 Once the **Cut-Off phase** is entered:
 
-- if the BMS reports that cells are **equalizing**, the cut-off timer is stopped: the charge is held so the balancer can work;
+- if the cells are reported — or inferred — as **equalizing**, the cut-off timer is stopped: the charge is held so the balancer can work;
 - otherwise the **cut-off timer** starts (`180s` default): if the Cut-Off conditions still hold when it expires, the **EOC** (End Of Charge) is declared;
 - in parallel, if the `EOC timer` switch is enabled, the **EOC timer** (`30min` default) guarantees that the Cut-Off phase ends at the latest when it expires, even if cells are still equalizing.
 
 Returning to the Bulk phase stops both timers.
+
+Some BMS balance their cells but never expose a balancing flag. YamBMS infers it for
+them, from the max cell reaching the bulk setpoint together with a cell spread that has
+reached `bms_balance_trigger_voltage`, the threshold at which that pack's own balancer
+engages, so the cut-off timer is held exactly as it would be with a
+BMS that reports the flag. A real external balancer, when one is online, always takes
+priority over the inference. This is enabled by default for Seplos V3, Seplos V1/V2,
+EG4 LL v2 and JK RS485 DISPLAY — see
+[Changelog_Fake_Equalizing.md](changelog/Changelog_Fake_Equalizing.md) for the references
+it uses and how to tune or disable it.
 
 ## LFP Cut-Off Values
 

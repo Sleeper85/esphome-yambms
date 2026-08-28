@@ -1,5 +1,5 @@
-# Updated : 2026.08.14
-# Version : 1.2.0
+# Updated : 2026.08.29
+# Version : 1.2.2
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,6 +19,7 @@
 
 packages:
   bms_base: !include bms_base.yaml
+  bms_fake_equalizing: !include bms_options_fake_equalizing.yaml
   bms_combine: !include
     file: bms_combine.yaml
     vars:
@@ -26,6 +27,13 @@ packages:
       bms_protocol: "DISPLAY"
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_battery_soh: !include bms_base_battery_soh.yaml
+
+substitutions:
+  # (V) cell spread at which this BMS starts balancing. Not readable over the display
+  # port, so declare your unit's actual setting at import. Used by 'Auto CVL' and, when
+  # bms_options_fake_equalizing.yaml is included, as the spread reference for the
+  # inferred balancing flag.
+  bms_balance_trigger_voltage: '0.01'
 
 # +--------------------------------------+
 # | DISPLAY port schematic               |
@@ -193,7 +201,7 @@ sensor:
       device_id: bms_${bms_id}
       # name: "state of charge"
     delta_cell_voltage:
-    device_id: bms_${bms_id}
+      device_id: bms_${bms_id}
       name: "delta cell voltage"
     mosfet_temperature:
       id: bms${bms_id}_temperature_sensor_1
@@ -384,7 +392,7 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.001
-    lambda: return 0.005;
+    lambda: return ${bms_balance_trigger_voltage};
 
   # FAKE charging_cycles
   - platform: template

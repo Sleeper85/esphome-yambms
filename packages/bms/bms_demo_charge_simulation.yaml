@@ -1,5 +1,5 @@
-# Updated : 2026.06.29
-# Version : 1.1.3
+# Updated : 2026.08.29
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -38,6 +38,9 @@ substitutions:
   min_temperature: '4.8'
   max_temperature: '5.0'
   delta_cell_voltage: '0.005'
+  # Spread held during the two balancing steps. Must stay above this BMS's
+  # `bms_balance_trigger_voltage` for the inferred equalizing flag to assert.
+  delta_cell_voltage_balancing: '0.020'
 
 switch:
   # DEMO switch
@@ -118,14 +121,14 @@ interval:
             // Step 4 : 98% (10sec)
             id(bms${bms_id}_state_of_charge).publish_state(98);
             id(bms${bms_id}_current).publish_state(5);
-            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count + 0.01 - ${delta_cell_voltage});
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count + 0.01 - ${delta_cell_voltage_balancing});
             id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count + 0.01); // equalizing
           }
           else if (seconds <= 5 * step_sec) { // Entering Cut-off phase...
             // Step 5 : 99% (10sec)
             id(bms${bms_id}_state_of_charge).publish_state(99);
             id(bms${bms_id}_current).publish_state(3.5);
-            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count + 0.005 - ${delta_cell_voltage});
+            id(bms${bms_id}_min_cell_voltage).publish_state(requested_cvl / cell_count + 0.005 - ${delta_cell_voltage_balancing});
             id(bms${bms_id}_max_cell_voltage).publish_state(requested_cvl / cell_count + 0.005); // equalizing
           }
           else if (seconds <= 15 * step_sec) { // End of Cut-off phase...
