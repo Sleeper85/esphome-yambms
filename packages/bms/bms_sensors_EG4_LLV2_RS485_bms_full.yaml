@@ -1,5 +1,5 @@
-# Updated : 2026.08.15
-# Version : 2.0.4
+# Updated : 2026.08.29
+# Version : 2.0.5
 # GitHub  : https://github.com/RAR/esphome-eg4-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -21,6 +21,13 @@ packages:
   bms_base: !include bms_base.yaml
   bms_temperature_sensor: !include bms_temperature_sensor_4.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_EG4_LLV2_RS485_Modbus.yaml
+
+substitutions:
+  # (V) cell spread at which this BMS starts balancing. Not readable over the protocol,
+  # so declare your unit's actual setting at import. Used by 'Auto CVL' and, when
+  # bms_options_fake_equalizing.yaml is included, as the spread reference for the
+  # inferred balancing flag.
+  bms_balance_trigger_voltage: '0.030'
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -281,7 +288,7 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.001
-    lambda: return 0.030;
+    lambda: return ${bms_balance_trigger_voltage};
 
   - platform: template
     id: bms${bms_id}_cell_ovp

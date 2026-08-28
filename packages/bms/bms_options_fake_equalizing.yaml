@@ -1,0 +1,214 @@
+# Updated : 2026.08.29
+# Version : 1.1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+
+
+# +--------------------------------------------------------------------------------+
+# | Fake Equalizing - infer the balancing flag a BMS does not report               |
+# +--------------------------------------------------------------------------------+
+# | Some BMS balance their cells but never expose a balancing flag, so
+# | `bms_equalizing` stays false and the core cannot tell a pack that is still
+# | balancing from one that has finished. That matters : while equalizing is true
+# | the core stops the Cut-Off timer (yambms_core.yaml) and lets the charge run to
+# | the EOC timer instead of terminating early.
+# |
+# | This package infers that flag from the pack itself, and hardcodes neither of the
+# | two references it needs :
+# |
+# |   the voltage anchor is the per-cell bulk setpoint, `bulk voltage / cell count`,
+# |   the same derivation as cell_bulk_v in yambms_core.yaml, so it follows
+# |   `yambms_battery_chemistry`, the cell count and the configured bulk voltage ;
+# |
+# |   the spread anchor is `bms${bms_id}_balance_trigger_voltage`, the very spread at
+# |   which this pack's own balancer engages. bms_base_balancer.yaml resolves it to
+# |   the external balancer's value whenever one is online, to the BMS's otherwise.
+# |
+# |   START when BOTH are true :
+# |     max cell >= cell bulk setpoint             the pack is at the setpoint
+# |     AND (max - min) >= trigger voltage         the pack's own balancing threshold
+# |
+# |   STOP when EITHER is true :
+# |     max cell <  setpoint - hysteresis          the pack dropped off the setpoint
+# |     OR (max - min) < trigger - delta hyst.     the spread closed back below it
+# |
+# | Nothing is configurable but an on/off switch and the two hysteresis margins, so
+# | the inference tracks the hardware instead of a constant that would fit no BMS in
+# | particular : the
+# | balance trigger voltage is 10 mV on a JK or a Seplos, 30 mV on an EG4. A pack that
+# | reports none at all never starts - there is no threshold worth inventing for it.
+# |
+# | The spread condition is what keeps this honest : a pack that reaches the setpoint
+# | already balanced has nothing to equalize, so it reports false and the Cut-Off
+# | timer does its job. A plain voltage comparison would report balancing forever and
+# | terminate the charge on the EOC timer every cycle.
+# |
+# | It extends `bms_equalizing`, the RAW BMS flag, not the combined
+# | `bms${bms_id}_equalizing` sensor. So bms_base_balancer.yaml is untouched and
+# | keeps giving an external balancer (NEEY, modbus client) priority whenever one
+# | is online : the inference only applies when no balancer reports for this pack.
+# |
+# | REQUIRES the BMS package it is included alongside to expose :
+# |
+# |   bms${bms_id}_bms_equalizing     the raw flag, declared as a template
+# |                                   binary_sensor (extended here)
+# |   bms${bms_id}_max_cell_voltage
+# |   bms${bms_id}_min_cell_voltage
+# |
+# | plus, both always present :
+# |
+# |   bms${bms_id}_balance_trigger_voltage   from bms_base_balancer.yaml
+# |   yambms${yambms_id}_bulk_voltage        from the core
+# |   yambms${yambms_id}_cell_count
+# |
+# | A BMS that cannot read its balancing threshold over its protocol exposes it as the
+# | `bms_balance_trigger_voltage` var instead, to be set at import - Seplos V1/V2 and
+# | V3, EG4 LL v2 and JK RS485 DISPLAY all work that way. Declare your unit's actual
+# | setting there : it is what this package compares the spread against.
+# +--------------------------------------------------------------------------------+
+# | Included by default - these BMS need nothing added to your YAML
+# +--------------------------------------------------------------------------------+
+# |
+# |   EG4 LL V2       bms_combine_EG4_LLV2_RS485_bms_full.yaml
+# |                   bms_modbus_EG4_LLV2_RS485_bms_full.yaml
+# |   Seplos V1 V2    bms_combine_SEPLOS_V1_V2_RS485_bms_full.yaml
+# |                   bms_modbus_SEPLOS_V1_V2_RS485_bms_full.yaml
+# |   Seplos V3       bms_combine_SEPLOS_V3_RS485_bms_full.yaml
+# |                   bms_modbus_SEPLOS_V3_RS485_bms_full.yaml
+# |   JK RS485 DISP.  bms_combine_JK_RS485_DISPLAY_full.yaml
+# |   Fake BMS        bms_combine_FAKE.yaml, _FAKE_extended.yaml, _DEMO.yaml
+# |
+# | The four real BMS above declared `bms_equalizing` as a hardcoded
+# | `return false;` : they do balance, they just never say so. The Fake BMS used
+# | to carry an inline voltage comparison, which this package replaces.
+# +--------------------------------------------------------------------------------+
+# | Adding it to another BMS - once for each bms_id
+# +--------------------------------------------------------------------------------+
+#
+#       - path: packages/bms/bms_options_fake_equalizing.yaml
+#         vars:
+#           bms_id: '1' # must be a number
+#
+# | Only where `bms${bms_id}_bms_equalizing` is declared as a plain
+# | `platform: template` binary_sensor, since this replaces its lambda. A BMS that
+# | exposes the flag through its own component - jk_bms_ble, jbd_bms,
+# | modbus_controller and the like - cannot be extended this way : those platforms
+# | take no `lambda:` and the configuration will not validate. No real loss, as those
+# | are exactly the BMS that already report a genuine flag.
+#
+# +--------------------------------------------------------------------------------+
+# | Tuning - add the vars to your BMS include, they override the defaults below
+# +--------------------------------------------------------------------------------+
+#
+#       # BMS 1
+#       - path: 'packages/bms/bms_combine_your_BMS.yaml'
+#         vars:
+#           bms_id: '1'
+#           # ... other vars of your BMS ...
+#           bms_balance_trigger_voltage: '0.010'           # V. Your BMS's balancing threshold
+#           bms_fake_equalizing_enabled: 'true'            # Optional : true/fasle, true by default
+#           bms_fake_equalizing_hysteresis: '0.030'        # Optional : 0.030 by default
+#           bms_fake_equalizing_delta_hysteresis: '0.002'  # Optional : 0.002 by default
+#
+# | The one worth setting is `bms_balance_trigger_voltage` : it is your BMS's own
+# | balancing threshold, it also feeds 'Auto CVL', and the rest is fine as it is.
+# |
+# | Or set them once for every BMS in the root `substitutions:` block.
+# | To turn the inference off on one BMS : bms_fake_equalizing_enabled: 'false'
+# +--------------------------------------------------------------------------------+
+
+
+
+substitutions:
+  # +--------------------------------------------------------------------------------+
+  # | Nothing here is a threshold : the two references come from elsewhere.
+  # | The voltage anchor is the per-cell bulk setpoint, from the core.
+  # | The spread anchor is `bms_balance_trigger_voltage`, from the BMS itself.
+  # | What is left is an on/off switch and the two hysteresis margins.
+  # +--------------------------------------------------------------------------------+
+  # 'true' / 'false'. Set to 'false' to turn the inference off for this BMS : the flag
+  # goes back to the constant false its package used to report. Needed because the
+  # package is included by default for the BMS that cannot report the flag, and a
+  # Remote Packages user cannot edit a package to drop it.
+  bms_fake_equalizing_enabled: 'true'
+  # (V) how far below the bulk setpoint the max cell may fall before balancing stops.
+  # Without it the state toggles on every tick while the max cell sits on the setpoint.
+  bms_fake_equalizing_hysteresis: '0.030'
+  # (V) how far below the balance trigger voltage the spread may fall before balancing
+  # stops. Resolved to whole millivolts, the resolution the cells are reported at :
+  # a value finer than 0.001 has no effect.
+  bms_fake_equalizing_delta_hysteresis: '0.002'
+
+binary_sensor:
+  # equalizing (inferred)
+  - id: !extend bms${bms_id}_bms_equalizing
+    lambda: |-
+      static bool balancing = false;
+
+      // Turned off : report the constant false this BMS package used to hardcode.
+      if (!${bms_fake_equalizing_enabled})
+        return false;
+
+      float cell_count = id(yambms${yambms_id}_cell_count).state;
+      float bulk_v     = id(yambms${yambms_id}_bulk_voltage).state;
+      float max_cell_v = id(bms${bms_id}_max_cell_voltage).state;
+      float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
+      float trigger_v  = id(bms${bms_id}_balance_trigger_voltage).state;
+
+      // The spread reference is the balance trigger voltage : the very spread at which
+      // this pack's own balancer engages, so the inference tracks the hardware instead
+      // of a constant that would fit no BMS in particular. bms_base_balancer.yaml
+      // resolves it to the external balancer's value whenever one is online.
+      //
+      // Hold the last state while any reference is missing, rather than dropping out of
+      // balancing on a single missing reading and releasing the Cut-Off timer. A pack
+      // that never reports a trigger voltage never starts : there is no basis to claim
+      // it is balancing, and no threshold worth inventing for it. Some packages do
+      // publish 0 before their first read (PACE, the Modbus client node), which this
+      // covers as well.
+      if (isnan(cell_count) || cell_count <= 0 || isnan(bulk_v) ||
+          isnan(max_cell_v) || isnan(min_cell_v) ||
+          isnan(trigger_v) || trigger_v <= 0.0f)
+        return balancing;
+
+      // Same derivation as cell_bulk_v in yambms_core.yaml
+      float cell_bulk_v = bulk_v / cell_count;
+
+      // The spread and its threshold are compared as whole millivolts, which is the
+      // resolution the cells are reported at. A float subtraction of two mV-aligned
+      // readings lands a fraction of a uV off - 3.450 - 3.445 gives 0.005000114 - which
+      // would hold the spread just above the threshold forever and never release the
+      // Cut-Off timer. The voltage gates keep their float comparison : their margin is
+      // the hysteresis, orders of magnitude above that error.
+      int delta_mv   = (int) roundf((max_cell_v - min_cell_v) * 1000.0f);
+      int trigger_mv = (int) roundf(trigger_v * 1000.0f);
+      int hyst_mv    = (int) roundf(${bms_fake_equalizing_delta_hysteresis} * 1000.0f);
+
+      if (!balancing)
+      {
+        // Start : at the setpoint AND spread up to what makes this BMS balance
+        balancing = (max_cell_v >= cell_bulk_v) && (delta_mv >= trigger_mv);
+      }
+      else
+      {
+        // Stop : fell off the setpoint OR the spread closed back below the trigger
+        balancing = (max_cell_v >= cell_bulk_v - ${bms_fake_equalizing_hysteresis}) &&
+                    (delta_mv >= trigger_mv - hyst_mv);
+      }
+
+      return balancing;
