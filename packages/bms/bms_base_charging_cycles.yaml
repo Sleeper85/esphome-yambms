@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 1.1.3
+# Updated : 2026.08.29
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -46,14 +46,13 @@ sensor:
     state_class: total
     icon: mdi:counter
     accuracy_decimals: 0
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
     lambda: |-
-      float cycles_raw = id(bms${bms_id}_charging_cycles_raw).state;
-      if (isnan(cycles_raw)) cycles_raw = 0;
-      return cycles_raw + id(bms${bms_id}_charging_cycles_offset).state;
+      return id(bms${bms_id}_charging_cycles_raw).state +
+             id(bms${bms_id}_charging_cycles_offset).state;
+    filters:
+      - lambda: |-
+          const float delta = 1.0f;
+          ${rate_limit_filter}
 
   # +--------------------------------------+
   # | Charging Cycle Capacity              |
@@ -67,13 +66,11 @@ sensor:
     state_class: total
     icon: mdi:car-battery
     accuracy_decimals: 0
-    filters:
-      - or:
-        - throttle: 10s
-        - delta: 1
     lambda: |-
-      float capacity_raw = id(bms${bms_id}_cycle_capacity_raw).state;
-      if (isnan(capacity_raw)) capacity_raw = 0;
-      return capacity_raw +
+      return id(bms${bms_id}_cycle_capacity_raw).state +
              id(bms${bms_id}_charging_cycles_offset).state *
              id(bms${bms_id}_battery_capacity).state;
+    filters:
+      - lambda: |-
+          const float delta = 1.0f;
+          ${rate_limit_filter}
