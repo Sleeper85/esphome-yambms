@@ -1,5 +1,5 @@
-# Updated : 2026.03.23
-# Version : 1.2.7
+# Updated : 2026.08.29
+# Version : 1.2.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,6 +23,39 @@ packages:
   fault_registry: !include device_base_fault_registry.yaml
 
 substitutions:
+  # +----------------------------------------------------------------------+
+  # | Rate-limit filter - NaN-safe replacement for `or: throttle + delta`   |
+  # +----------------------------------------------------------------------+
+  # ESPHome's `delta` filter rejects a NaN without updating its internal
+  # reference, so a sensor that publishes NaN stays frozen on its previous
+  # value until `throttle` fires (up to 10s). YamBMS publishes NaN on purpose
+  # to mean "no data", so the NaN <-> value transition must count as a change,
+  # in both directions - including a return to the very same value.
+  # Defined here (rather than in yambms_core.yaml) so it is reachable from a
+  # node that only loads BMS/Shunt packages, without the YamBMS engine (e.g.
+  # a multi-node Modbus server) - every node loads a board_*.yaml, which
+  # always includes this file.
+  # Usage: declare `const float delta` (delta threshold) then expand it.
+  #   filters:
+  #     - lambda: |-
+  #         const float delta = 1.0f;     # delta: 1
+  #         ${rate_limit_filter}   # improved `throttle: 10s`
+  # Must stay capture-free: a filter lambda is compiled to a plain function
+  # pointer (StatelessLambdaFilter), so no id() reference is allowed here.
+  rate_limit_filter_ms: '10000' # 10s
+  rate_limit_filter: |-
+    static float last = NAN;
+    static uint32_t last_ms = 0;
+    const uint32_t now = millis();
+    if ((std::isnan(x) != std::isnan(last)) ||
+        (!std::isnan(x) && fabsf(x - last) >= delta) ||
+        ((now - last_ms) >= ${rate_limit_filter_ms}))
+    {
+      last = x;
+      last_ms = now;
+      return x;
+    }
+    return {};
   # The ID of the LED on your board used for this component
   board_status_led_id: "esp_light"
   # ID for this component instance for fault registry

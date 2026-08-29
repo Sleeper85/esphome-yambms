@@ -1,4 +1,4 @@
-# Updated : 2026.08.21
+# Updated : 2026.08.29
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -27,34 +27,6 @@ substitutions:
   # Custom CCL/DCL Derating Reason
   yambms_custom_ccl_derating_reason: 'Custom CCL Derating'
   yambms_custom_dcl_derating_reason: 'Custom DCL Derating'
-  # +----------------------------------------------------------------------+
-  # | Rate-limit filter - NaN-safe replacement for `or: throttle + delta`   |
-  # +----------------------------------------------------------------------+
-  # ESPHome's `delta` filter rejects a NaN without updating its internal
-  # reference, so a sensor that publishes NaN stays frozen on its previous
-  # value until `throttle` fires (up to 10s). YamBMS publishes NaN on purpose
-  # to mean "no data", so the NaN <-> value transition must count as a change,
-  # in both directions - including a return to the very same value.
-  # Usage: declare `const float delta` (delta threshold) then expand it.
-  #   filters:
-  #     - lambda: |-
-  #         const float delta = 1.0f;     # delta: 1
-  #         ${yambms_rate_limit_filter}   # improved `throttle: 10s`
-  # Must stay capture-free: a filter lambda is compiled to a plain function
-  # pointer (StatelessLambdaFilter), so no id() reference is allowed here.
-  yambms_rate_limit_filter_ms: '10000' # 10s
-  yambms_rate_limit_filter: |-
-    static float last = NAN;
-    static uint32_t last_ms = 0;
-    const uint32_t now = millis();
-    if ((std::isnan(x) != std::isnan(last)) ||
-        (!std::isnan(x) && fabsf(x - last) >= delta) ||
-        ((now - last_ms) >= ${yambms_rate_limit_filter_ms})) {
-      last = x;
-      last_ms = now;
-      return x;
-    }
-    return {};
 
 globals:
   # BMS
@@ -1723,7 +1695,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # max_discharge_current SUM
   - platform: template
@@ -1739,7 +1711,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # cell_count
   - platform: template
@@ -1752,7 +1724,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
     lambda: return ${yambms_cell_count};
 
   # min_voltage_cell MIN
@@ -1767,7 +1739,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # max_voltage_cell MAX
   - platform: template
@@ -1781,7 +1753,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # min_cell_voltage MIN
   - platform: template
@@ -1796,7 +1768,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.001f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # max_cell_voltage MAX
   - platform: template
@@ -1811,7 +1783,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.001f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # delta_cell_voltage
   - platform: template
@@ -1826,7 +1798,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.001f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # total_voltage MEAN
   - platform: template
@@ -1841,7 +1813,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.01f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # current SUM
   - platform: template
@@ -1856,7 +1828,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.1f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # power SUM
   - platform: template
@@ -1871,7 +1843,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # battery_soc MEAN
   - platform: template
@@ -1886,7 +1858,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # battery_soh MEAN
   - platform: template
@@ -1901,7 +1873,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # installed_battery_capacity SUM
   - platform: template
@@ -1916,7 +1888,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
     lambda: return id(yambms${yambms_id}_var_total_installed_battery_capacity);
 
   # battery_capacity SUM
@@ -1932,7 +1904,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # battery_capacity_remaining SUM
   - platform: template
@@ -1947,7 +1919,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # cell_ovp MIN (Auto CCL)
   - platform: template
@@ -1962,7 +1934,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.001f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # cell_uvp MAX (Auto DCL and MAX Discharge Voltage)
   - platform: template
@@ -1977,7 +1949,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.001f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # balance_trigger_voltage MAX (Auto CVL)
   - platform: template
@@ -1992,7 +1964,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.001f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # MIN temperature
   - platform: template
@@ -2034,7 +2006,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # MAX temperature
   - platform: template
@@ -2076,7 +2048,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # charging_cycles MEAN
   - platform: template
@@ -2090,7 +2062,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # Alarm - errors_bitmask bitwise AND (16bit)
   - platform: template
@@ -2104,7 +2076,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # Warning - errors_bitmask bitwise OR (16bit)
   - platform: template
@@ -2118,7 +2090,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # BMS in alarm (errors_bitmask_counter)
   - platform: template
@@ -2132,7 +2104,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # BMS count
   - platform: template
@@ -2146,7 +2118,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # BMS combined
   - platform: template
@@ -2160,7 +2132,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # BMS blocking charge
   - platform: template
@@ -2174,7 +2146,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # BMS blocking discharge
   - platform: template
@@ -2188,7 +2160,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # Shunt count
   - platform: template
@@ -2202,7 +2174,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # Shunt combined
   - platform: template
@@ -2216,7 +2188,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # Battery Charging Power
   - platform: template
@@ -2282,7 +2254,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.1f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # +--------------------------------------+
   # |  Requested Discharge Voltage  (DVL)  |
@@ -2300,7 +2272,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 0.1f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
 
   # +--------------------------------------+
   # |  Requested Charge Current  (CCL)     |
@@ -2318,7 +2290,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
     # No on_value update of the derating reason here: this fires after STEP 3 has
     # reset the auto vars. The reason is updated from STEP 3, before that reset.
 
@@ -2338,7 +2310,7 @@ sensor:
     filters:
       - lambda: |-
           const float delta = 1.0f;
-          ${yambms_rate_limit_filter}
+          ${rate_limit_filter}
     # No on_value update of the derating reason here: this fires after STEP 3 has
     # reset the auto vars. The reason is updated from STEP 3, before that reset.
 
