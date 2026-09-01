@@ -173,7 +173,7 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 
 ## Requirements
 
-* [ESPHome 2026.7.0 or higher](https://github.com/esphome/esphome/releases)
+* [ESPHome 2026.8.0 or higher](https://github.com/esphome/esphome/releases)
 * ESP32 MCU (buying a board with ≥8MB flash is advised if you intend to monitor multiple BMS)
 * CAN transceiver (only with TJA1050/TJA1051 => 4.7K resistor for 5V to 3V3 level shifing)
 * BMS JK, JBD, Seplos (other BMS brands already integrated with ESPhome can be added easily)
@@ -184,21 +184,25 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 ## Data collection
 
 > [!NOTE]
-> For your information, in July 2026 there were `250` YamBMS users.
+> For your information, in August 2026 there were `255` YamBMS active users.
 
-If the ESP32 has an internet connection, the following data is sent to [this script](http://script.opentel.be/yambms.post.php)
-for statistics collection. Only [@Sleeper85](https://github.com/Sleeper85) have access to this information for the production of statistics, the support and the update service.
+If the ESP32 has an internet connection, the following is sent every 6 hours to
+[this script](http://script.opentel.be/yambms.post.php) for statistics collection:
 
-- ESP32 MAC address
+- Node ID hash
 - YamBMS version
 - Board chip
 - Board name
 - BMS model
+- BMS protocol
 - BMS count
-- CAN bus name
-- CAN bus protocol
+- Communication bus
+- Communication protocol
 - Uptime
 - Current date and time
+
+Only [@Sleeper85](https://github.com/Sleeper85) has access to the collected data, which is used
+for statistics, support and the update service.
 
 ## References
 

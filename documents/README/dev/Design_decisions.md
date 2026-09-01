@@ -121,7 +121,7 @@ interval to make protocols "consistent" with each other.
 When adding a frame to a sequence, remember that the sequence length is tracked alongside the
 array. Keep the two in sync, or the new frame will silently never be emitted.
 
-## The update service must never block the loop task
+## The update and telemetry services must never block the loop task
 
 **File:** `packages/yambms/yambms_service.yaml`
 
@@ -164,8 +164,93 @@ Nesting would stack one blocking request inside another on a loop task whose sta
 default — see [LOOP_TASK_STACK.md](../LOOP_TASK_STACK.md). It also avoids a second 7s freeze on
 a filtered network, halving the worst case.
 
-Reaching 3 failures disables the service until reboot, or until the user toggles the
-`Update service` switch off and on, which rearms the counter.
+Reaching 3 failures disables both requests until reboot.
+
+### Two services, one counter
+
+The two requests are gated independently, by substitution and therefore at compile time:
+
+| Substitution | Request | What it does |
+|---|---|---|
+| `yambms_update_service` | GET | checks the latest published version |
+| `yambms_telemetry_service` | POST | sends the node's configuration |
+
+They share **one** counter, and that is deliberate: the counter measures whether the network is
+reachable, not whether a given endpoint answered. Both requests block the loop task the same way,
+so either one is a valid source of that signal.
+
+This is why the POST carries its own `on_error` / `on_response`, which looks redundant next to
+the GET's. It is not. With `yambms_update_service: 'false'` there is no GET, and without those
+triggers nothing would ever increment the counter — the POST would freeze the loop for 7s every
+6h forever, which is exactly the bug the counter exists to prevent.
+
+The one thing the two services share besides the counter is
+`yambms${yambms_id}_var_service_round_failed`: cleared at the start of every round, raised by any
+request that could not connect. The POST is skipped when it is set, so a round that has already
+frozen the loop once does not freeze it a second time for nothing.
+
+Keep that flag separate from the counter. The counter is cumulative and spans rounds; the
+question the POST needs answered is "did a request fail *in this round*", which is not the same
+question. Expressing it as `failures == 0` happens to work while the GET runs immediately before
+the POST and always writes the counter, but it silently breaks with `yambms_update_service:
+'false'`: nothing resets the counter before the guard, so the POST would stop for good after its
+first failed round, and the counter would sit at 1 without ever reaching the threshold that
+disables the service.
+
+### The interval carries a `startup_delay`
+
+An `interval:` does **not** wait a full period before its first run. The scheduler sets the first
+execution at `now + random(0, min(period / 2, 5s))`, capped by `MAX_INTERVAL_DELAY = 5000` — see
+the `first execution happens immediately after a random smallish offset` comment in
+`core/scheduler.cpp`. A 6h interval therefore fires within 5 seconds of `setup()`.
+
+Without `startup_delay`, that first request lands in the middle of boot: combiner init at
+priority 600, the first CAN frames to the inverter, RS485 polling starting up. Whether it runs at
+all comes down to a race with the WiFi association, since `is_connected()` is usually still false
+that early. That race is also why the reported symptom was a reboot every 6h rather than a boot
+loop — but it is a race, not a design, and a fast reconnect after OTA can win it.
+
+`startup_delay: 5min` puts the request outside the boot window and makes the sequence
+deterministic on a network that filters outbound traffic:
+
+| t | What happens | `failures` |
+|---|---|---|
+| 5min | GET fails after 7s, POST skipped | 1 |
+| 6h05 | same | 2 |
+| 12h05 | same | 3 |
+| 18h05 and later | condition is false, no request is made | 3 |
+
+So a device that will never reach the internet freezes for 7s three times over 12 hours, then
+never again. The counter is `restore_value: no`, so a reboot replays that sequence — acceptable
+for a node meant to run for months, and the reason the threshold is not lower: a single transient
+outage must not disable version checking for good.
+
+A version check has no urgency, so the 5min delay costs nothing.
+
+## A derived sensor is published by its source, not polled
+
+**File:** `packages/base/device_base.yaml`
+
+`esp32_uptime` formats the value of `esp32_uptime_sec` for humans. It used to do so from its own
+`update_interval: 10s` lambda, reading `id(esp32_uptime_sec).state`.
+
+Two independent pollers reading one another is a race. Each starts with its own random offset in
+`[0, 5s)` — see the `startup_delay` note above — so on roughly half of boots the text sensor ran
+first and formatted a state that had never been published. That state is `NaN`, and the
+`float`→`int` conversion saturates to `INT32_MAX` on Xtensa, which the formatter prints as
+`24855d 3h 14m 7s`. It reached the dashboard, the LVGL label, and the telemetry POST, where it
+was stored server-side as a real record.
+
+The source's `on_value` now publishes the text sensor, and the lambda formats `x` — the value
+that was just published. The failure mode is not guarded against, it cannot occur.
+
+Do not convert it back to a polled lambda with a `has_state()` guard. The guard would work, but
+it leaves two pollers where one is enough, and it puts the ordering question back in front of
+whoever edits the file next.
+
+`esp32_date_time_now` keeps its own poller, because it has no source sensor to hang a trigger on.
+There the guard is `now().is_valid()`, and it is the right tool: the problem is an NTP sync that
+may not have happened yet, not a scheduling order.
 
 ## Empirical constants
 

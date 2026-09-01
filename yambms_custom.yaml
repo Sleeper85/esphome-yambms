@@ -1,5 +1,5 @@
-# Updated : 2026.08.21
-# Version : 1.1.7
+# Updated : 2026.08.31
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -37,25 +37,6 @@ switch:
     turn_off_action:
       - globals.set:
           id: yambms${yambms_id}_var_force_float
-          value: 'false'
-  # Update service switch
-  - platform: template
-    device_id: yambms_yambms${yambms_id}
-    name: "Update service"
-    restore_mode: RESTORE_DEFAULT_ON
-    optimistic: true
-    entity_category: config
-    turn_on_action:
-      - globals.set:
-          id: yambms${yambms_id}_var_service
-          value: 'true'
-      # Rearm the circuit breaker, so the user can retry after fixing the network
-      - globals.set:
-          id: yambms${yambms_id}_var_service_failures
-          value: '0'
-    turn_off_action:
-      - globals.set:
-          id: yambms${yambms_id}_var_service
           value: 'false'
 
 esphome:
