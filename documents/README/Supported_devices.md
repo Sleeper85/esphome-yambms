@@ -84,31 +84,31 @@ The following are confirmed and known to work:
 
 | Brand | Model | Inverter bat. mode | CAN/RS485 protocol | Remarks | Reported by |
 | --- | --- | --- | --- | --- | --- |
-| Deye | SUN-3.6K-SG03LP1-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@Der_Hannes](https://diysolarforum.com/members/der_hannes.16949/) |
-| Deye | SUN-5K-SG03LP1-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@vdiex](https://github.com/vdiex), [@arzaman](https://github.com/arzaman), [@widget4145](https://diysolarforum.com/members/widget4145.110784/) |
-| Deye | SUN-6K-SG03LP1-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@Sleeper85](https://github.com/Sleeper85), [@Imanol82](https://diysolarforum.com/members/imanol82.122457/) |
-| Deye | SUN-12K-SG04LP3-EU | Lithium 00 | CAN : PYLON 1.2 | --- | [@lucize](https://github.com/lucize), [@luckylinux](https://github.com/luckylinux), [@virus100b](https://github.com/virus100b), [@b1ggi](https://diysolarforum.com/members/b1ggi.120910/) |
+| Deye | SUN-3.6K-SG03LP1-EU | Lithium 00 | CAN : PYLON V1 | --- | [@Der_Hannes](https://diysolarforum.com/members/der_hannes.16949/) |
+| Deye | SUN-5K-SG03LP1-EU | Lithium 00 | CAN : PYLON V1 | --- | [@vdiex](https://github.com/vdiex), [@arzaman](https://github.com/arzaman), [@widget4145](https://diysolarforum.com/members/widget4145.110784/) |
+| Deye | SUN-6K-SG03LP1-EU | Lithium 00 | CAN : PYLON V1 | --- | [@Sleeper85](https://github.com/Sleeper85), [@Imanol82](https://diysolarforum.com/members/imanol82.122457/) |
+| Deye | SUN-12K-SG04LP3-EU | Lithium 00 | CAN : PYLON V1 | --- | [@lucize](https://github.com/lucize), [@luckylinux](https://github.com/luckylinux), [@virus100b](https://github.com/virus100b), [@b1ggi](https://diysolarforum.com/members/b1ggi.120910/) |
 | Goodwe | GW5048-ES | --- | CAN : PYLON V2 | --- | [@jirdol](https://github.com/jirdol) |
 | Goodwe | GW5000S-BP | Goodwe LX U5.4-L | CAN : PYLON V2 | --- | [@Uksa007](https://github.com/Uksa007), [@OselDusan7](https://github.com/OselDusan7) |
 | Goodwe | GW3600S-BP | --- | CAN : PYLON V2 | --- | [@OselDusan7](https://github.com/OselDusan7) |
 | Sofar | ME 3000-SP | --- | --- | --- | [@starman](https://diysolarforum.com/members/starman.65151/) |
-| Sofar | HYD 3600-ES | Automatic | CAN : PYLON 1.2 | A 120 Ohm resistor had to be added on the Sofar side. | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) |
+| Sofar | HYD 3600-ES | Automatic | CAN : PYLON V1 | A 120 Ohm resistor had to be added on the Sofar side. | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) |
 | Sofar | HYD 5000-ES | --- | --- | --- | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/) |
 | Sofar | HYD 5000-EP | --- | --- | --- | [@tonystrullu](https://diysolarforum.com/members/tonystrullu.91283/) |
-| Growatt | SPF 5000ES | CAN L52 | CAN : PYLON 1.2 | --- | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/), [@cjdell](https://github.com/cjdell), [@cinusik](https://diysolarforum.com/members/cinusik.109738/) |
+| Growatt | SPF 5000ES | CAN L52 | CAN : PYLON V1 | --- | [@Paulfrench35](https://diysolarforum.com/members/paulfrench35.78523/), [@cjdell](https://github.com/cjdell), [@cinusik](https://diysolarforum.com/members/cinusik.109738/) |
 | Solis | RHI-3.6K-48ES-5G | Pylon LV / AoBo | CAN : PYLON V2 / SMA | CAN transceiver 3V3 required (SN65HVD230) for Pylon LV mode. | [@cjdell](https://github.com/cjdell), [@MrPabloUK](https://github.com/MrPabloUK) |
 | Solis | S5-EH1P4.6K-L | Pylon LV | CAN : PYLON V2 | CAN transceiver 3V3 required (SN65HVD230). | [@Baker0052](https://github.com/Baker0052) |
 | Solis | S5-EH1P6K-L | AoBo | CAN : SMA | --- | [@MrPabloUK](https://github.com/MrPabloUK) |
 | Solis | RHI-3K-48ES | AoBo | CAN : SMA | --- | [@chaosnature](https://diysolarforum.com/members/chaosnature.64395/) |
 | LuxPower | LXP SNA 5K | Lithium 6 | CAN : LuxPower | --- | [@shvmm](https://github.com/shvmm), [@yur43](https://diysolarforum.com/members/yur43.121157/) |
 | LuxPower | LXP-LB-US 10K | Lithium 6 | CAN : LuxPower | --- | [@Henny101](https://diysolarforum.com/members/henny101.67026/) |
-| EG4 | 6000XP | Lithium 2 / Lithium 6 | CAN : PYLON 1.2 / LuxPower | --- | [@ChrisG](https://diysolarforum.com/members/chrisg.483/), [@SGB](https://diysolarforum.com/members/scrotpusgobblebottom.100804/) |
+| EG4 | 6000XP | Lithium 2 / Lithium 6 | CAN : PYLON V1 / LuxPower | --- | [@ChrisG](https://diysolarforum.com/members/chrisg.483/), [@SGB](https://diysolarforum.com/members/scrotpusgobblebottom.100804/) |
 | EG4 | 12000XP | Lithium 6 | CAN : LuxPower | --- | [@andrewfraley](https://github.com/andrewfraley) |
 | EG4 | 18kPV | Lithium 6 | CAN : LuxPower | --- | [@Maintman](https://diysolarforum.com/members/maintman.19007/) |
 | Victron | Multiplus 24/1200/25-16 | CAN-bus BMS LV (500 kbit/s) | CAN : Victron | Plugged into Cerbo CAN port (must use supplied Victron terminator in the other port). | [@dmsims](https://diysolarforum.com/members/dmsims.23417/) |
 | Victron | MultiPlus-II 48/10000/140 | CAN-bus BMS LV (500 kbit/s) | CAN : Victron | --- | [@cali-clim](https://diysolarforum.com/members/cali-clim.54284/), [@20after4](https://github.com/20after4) |
-| MidNite Solar | MN15-12KW-AIO | PYLON | CAN : PYLON 1.2 | --- | [@goldserve](https://diysolarforum.com/members/goldserve.52541/), [@jahyde](https://diysolarforum.com/members/jahyde.7475/) |
+| MidNite Solar | MN15-12KW-AIO | PYLON | CAN : PYLON V1 | --- | [@goldserve](https://diysolarforum.com/members/goldserve.52541/), [@jahyde](https://diysolarforum.com/members/jahyde.7475/) |
 | SRNE | HESP48120U200-H | UZE | CAN : PYLON V2 | Most PYLON-based protocols show same results. Inverter does not work in PYLON mode, UZE works. Incorrect temp reported. | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) |
 | Studer | XTM-4000 | Pylontech | CAN : PYLON V2 | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1). | [@kolins-cz](https://github.com/kolins-cz) |
-| Schneider | XW Pro 6848 NA | Voltage Control Li-Ion | CAN : PYLON V2 | Requires enabling the CAN bus option `canbus_extended_ack:` to `true`. | [@AGDorsum](https://diysolarforum.com/members/agdorsum.29403/), [@ngustas](https://diysolarforum.com/members/ngustas.126045/) |
+| Schneider | XW Pro 6848 NA | Voltage Control Li-Ion | CAN : PYLON V2 | The extended 29-bit ACK is handled automatically since YamBMS 1.8.1, no option to set. | [@AGDorsum](https://diysolarforum.com/members/agdorsum.29403/), [@ngustas](https://diysolarforum.com/members/ngustas.126045/) |
 | SMA | Sunny Island | --- | --- | --- | --- |
