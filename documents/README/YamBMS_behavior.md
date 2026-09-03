@@ -197,7 +197,6 @@ The Deye inverter sends the ACK (can_id `0x305`) only when it receives the can_i
     # The CAN bus link will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305)
     # before the end of the `canbus_link_timer` (5s by default).
     canbus_link_timer: '5s'
-    canbus_extended_ack: 'false' # Set to 'true' for enable extended 29-bit IDs for the ACK can_id 0x305 (required for Schneider XW Pro)
 ```
 
 ## Warning & Alarms

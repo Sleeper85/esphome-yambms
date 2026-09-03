@@ -13,23 +13,44 @@
 
 ![Image](../../images/YamBMS_CANBUS_Protocol.png "YamBMS_CANBUS_Protocol")
 
-Choose the CAN protocol that will be sent to your inverter and don't forget to configure your inverter for the protocol you choose.
+Select your inverter brand with the `Inverter brand` select and YamBMS applies the protocol
+below, as long as the `Protocol` select is left on `Automatic`. Choosing a protocol explicitly
+always takes priority over the brand, so an inverter that does not follow the usual mapping can
+still be driven.
 
-The table below helps you choose the best protocol depending on your inverter brand.
-Other configurations are possible, don't hesitate to communicate what works well for you.
+As long as the brand is `Not defined` and the protocol is `Automatic`, **nothing is sent on the
+bus**: this is deliberate, so that a node is never left talking a protocol nobody chose. The
+`Inverter link protocol` diagnostic entity reports what the link is actually doing.
 
-| Inverter | Battery mode | CAN protocol |
-| --- | --- | --- |
-| Deye | Lithium 00 | PYLON 1.2 |
-| GoodWe | LX U5.4-L | PYLON V2 |
-| Sofar | Automatic | PYLON 1.2 |
-| Growatt | CAN L52 | PYLON 1.2 |
-| Solis | AoBo | SMA |
-| LuxPower | Lithium 6 | LuxPower |
-| EG4 | Lithium 6 | LuxPower |
-| Victron | CAN-bus BMS LV (500 kbit/s) | Victron |
-| MidNite Solar | PYLON | PYLON 1.2 |
-| SMA | - | SMA |
+Don't forget to configure your inverter for the protocol in use — the `Inverter battery mode`
+diagnostic entity gives you the setting to look for, and `Note` reports what is specific to your
+brand.
+
+The mapping below is a sensible default, not a rule: a manufacturer may use a different protocol
+depending on the model. Other configurations are possible, don't hesitate to communicate what
+works well for you.
+
+| Inverter | Battery mode | Bus | Protocol |
+| --- | --- | --- | --- |
+| Deye | Lithium 00 | CAN | PYLON V1 |
+| Deye | Lithium 12 | RS485 | PYLON |
+| EG4 | Lithium 6 | CAN | LuxPower |
+| Epever | BPRO 21 | RS485 | PYLON |
+| GoodWe | LX U5.4-L | CAN | PYLON V2 |
+| Growatt | CAN L52 | CAN | PYLON V1 |
+| LuxPower | Lithium 6 | CAN | LuxPower |
+| MidNite Solar | PYLON | CAN | PYLON V1 |
+| Schneider | Voltage Control Li-Ion | CAN | PYLON V2 |
+| SMA | - | CAN | SMA |
+| Sofar | Automatic | CAN | PYLON V1 |
+| Solis | AoBo | CAN | SMA |
+| SRNE | UZE | CAN | PYLON V2 |
+| Studer | Pylontech | CAN | PYLON V2 |
+| Victron | CAN-bus BMS LV (500 kbit/s) | CAN | Victron |
+
+A few couples outside the default mapping are known to work as well, and YamBMS reports the right
+battery mode for them too: `EG4` on `PYLON V1` (Lithium 2, 6000XP only) and `Solis` on `PYLON V2`
+(Pylon LV, requires a 3.3V CAN transceiver).
 
 ## Charging settings
 
@@ -489,7 +510,7 @@ This feature allows you to monitor the heartbeat of your inverter (time between 
 
 This heartbeat must be regular and depends on the selected `CAN protocol` and the behavior of the inverter. If the heartbeat is not regular this can show a problem on the inverter side or an overloaded ESP32.
 
-The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN frame `0x356`. Knowing that CAN frames are sent every `100ms` and that the CAN protocol `PYLON 1.2` has 6 CAN frames, the heartbeat of the `Deye` inverter is `600ms`.
+The `Deye` inverter sends an ACK `0x305` in response to the reception of a CAN frame `0x356`. Knowing that CAN frames are sent every `100ms` and that the CAN protocol `PYLON V1` has 6 CAN frames, the heartbeat of the `Deye` inverter is `600ms`.
 
 > [!IMPORTANT]  
 > Every `2h` Deye takes more than `3s` to respond and more than `5s` at midnight.

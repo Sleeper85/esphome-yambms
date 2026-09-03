@@ -1,0 +1,250 @@
+# Updated : 2026.09.02
+# Version : 1.1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +----------------------------------------------------------------------------+
+# | RS485 inverter link                                                        |
+# |                                                                            |
+# | Entry point of the RS485 link: it carries the `Inverter brand` and         |
+# | `Protocol` selects, the diagnostics and the telemetry slot, then includes  |
+# | the protocol implementation itself.                                        |
+# |                                                                            |
+# | The protocol is selected at compile time by the file included below: two   |
+# | RS485 protocols cannot drive the same bus at the same time. The select is  |
+# | what enables, disables and reports it.                                     |
+# +----------------------------------------------------------------------------+
+
+substitutions:
+  # The ID of the LED on your board used for this component
+  rs485_status_led_id: "virtual_status_light"
+  # Baud rate of the link to the inverter, applied at runtime (see on_boot below)
+  rs485_uart_baud_rate: '9600'
+
+esphome:
+  on_boot:
+    - priority: 600.0
+      then:
+        - lambda: |-
+            // Apply the baud rate at runtime rather than extending the uart component.
+            // `uart: !extend` only works on a native ESP32 UART; an expander channel
+            // (wk2168 and friends) declares its baud rate inside the expander's own
+            // configuration and cannot be extended. Both expose set_baud_rate() and
+            // load_settings(), which reprograms the hardware, so this works everywhere.
+            id(${rs485_uart_id}).set_baud_rate(${rs485_uart_baud_rate});
+            id(${rs485_uart_id}).load_settings();
+
+            // Register System
+            id(global_register_led)(${CAT_INV_RS485}, ${rs485_id}, id(${rs485_status_led_id}));
+            // Force register fault as default, will be updated once RS485 is working
+            // (true = fault)
+            id(global_update_fault)(${CAT_INV_RS485}, ${rs485_id}, true);
+    - priority: -100.0
+      then:
+        - lambda: |-
+            // Increment the interface counter for the `requested current` division
+            id(yambms${yambms_id}_var_comm_interfaces_count)++;
+
+            // Initialise RS485 status as off
+            id(rs485${rs485_id}_status).publish_state(false);
+
+            // Reserve this link's telemetry slot. The four vectors are always
+            // grown together so that the n-th element of each describes this link.
+            id(rs485${rs485_id}_link_slot) = id(yambms${yambms_id}_var_inverter_brands).size();
+            id(yambms${yambms_id}_var_inverter_brands).push_back("Not defined");
+            id(yambms${yambms_id}_var_inverter_buses).push_back("RS485");
+            id(yambms${yambms_id}_var_inverter_protocols).push_back("None");
+            id(yambms${yambms_id}_var_inverter_protocol_sources).push_back("auto");
+
+            // From here the slot exists and every component is set up
+            id(rs485${rs485_id}_link_ready) = true;
+        - script.execute: rs485${rs485_id}_script_resolve_protocol
+
+  devices:
+    - id: rs485_${rs485_id}
+      name: "${yambms_name} ${rs485_name}"
+
+globals:
+  # Protocol actually applied on this link, resolved from the `Protocol` select
+  # and, when it is on `Automatic`, from the `Inverter brand` select. Holds a
+  # YB_PROTO_* constant, never a select index.
+  - id: rs485${rs485_id}_active_protocol
+    type: int
+    restore_value: no
+    initial_value: "${YB_PROTO_NONE}"
+  # Index of this link in the yambms inverter telemetry vectors
+  - id: rs485${rs485_id}_link_slot
+    type: int
+    restore_value: no
+    initial_value: "0"
+  # False until the telemetry slot has been reserved at on_boot priority -100.
+  # The selects are set up at HARDWARE priority (800) and their on_value fires
+  # during setup, long before that: without this flag the resolution script
+  # would index an empty vector and the device would crash on every boot.
+  - id: rs485${rs485_id}_link_ready
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+select:
+  # Inverter brand. On its own it drives nothing: it selects the default
+  # protocol applied when `Protocol` is on `Automatic`, and it provides the
+  # battery mode and the installation note. New brands must be appended at the
+  # END of this list: the restored preference is an index, so inserting one in
+  # the middle would silently shift every user's saved choice.
+  - platform: template
+    name: "Inverter brand"
+    id: rs485${rs485_id}_inverter_brand
+    device_id: rs485_${rs485_id}
+    options:
+      - "Not defined"
+      - "Other"
+      - "Deye"
+      - "EG4"
+      - "Epever"
+      - "GoodWe"
+      - "Growatt"
+      - "LuxPower"
+      - "MidNite Solar"
+      - "Schneider"
+      - "SMA"
+      - "Sofar"
+      - "Solis"
+      - "SRNE"
+      - "Studer"
+      - "Victron"
+    restore_value: true
+    initial_option: "Not defined"
+    optimistic: true
+    entity_category: config
+    on_value:
+      - script.execute: rs485${rs485_id}_script_resolve_protocol
+  # Communication protocol. `Automatic` derives it from the inverter brand;
+  # any other choice takes priority over the brand.
+  - platform: template
+    name: "Protocol"
+    id: rs485${rs485_id}_protocol
+    device_id: rs485_${rs485_id}
+    options:
+      - "Automatic"
+      - "Disabled"
+      - "PYLON"
+    restore_value: true
+    initial_option: "Automatic"
+    optimistic: true
+    entity_category: config
+    on_value:
+      - script.execute: rs485${rs485_id}_script_resolve_protocol
+
+text_sensor:
+  # What this link is actually doing, for the dashboard markdown card
+  - platform: template
+    name: "Inverter link protocol"
+    id: rs485${rs485_id}_inverter_link_protocol
+    device_id: rs485_${rs485_id}
+    icon: mdi:transit-connection-variant
+    entity_category: diagnostic
+  # How the battery type must be configured on the inverter itself
+  - platform: template
+    name: "Inverter battery mode"
+    id: rs485${rs485_id}_inverter_battery_mode
+    device_id: rs485_${rs485_id}
+    icon: mdi:cog-outline
+    entity_category: diagnostic
+  # What is specific to this brand / protocol couple, when there is anything
+  - platform: template
+    name: "Note"
+    id: rs485${rs485_id}_note
+    device_id: rs485_${rs485_id}
+    icon: mdi:information-outline
+    entity_category: diagnostic
+
+script:
+  # Resolves the protocol actually applied on this link, publishes the three
+  # diagnostic text sensors and refreshes this link's telemetry slot.
+  # Runs once at boot and on every change of either select, never in the loop:
+  # everything else only reads `rs485${rs485_id}_active_protocol`.
+  - id: rs485${rs485_id}_script_resolve_protocol
+    mode: restart
+    then:
+      - lambda: |-
+          // Not before the telemetry slot exists: the selects fire on_value while
+          // they are being set up, which is well before on_boot priority -100.
+          if (!id(rs485${rs485_id}_link_ready)) return;
+
+          // Both selects must have restored their state before resolving
+          if (!id(rs485${rs485_id}_inverter_brand).has_state() ||
+              !id(rs485${rs485_id}_protocol).has_state()) return;
+
+          std::string brand = id(rs485${rs485_id}_inverter_brand).current_option();
+          std::string choice = id(rs485${rs485_id}_protocol).current_option();
+          std::string source;
+          int proto;
+
+          // An explicit protocol always takes priority over the brand
+          if (choice == "Automatic") {
+            proto = id(global_inverter_default_protocol)(brand, "RS485");
+            source = "auto";
+          } else {
+            source = "manual";
+            if (choice == "Disabled")   proto = ${YB_PROTO_DISABLED};
+            else if (choice == "PYLON") proto = ${YB_PROTO_RS485_PYLON};
+            else                        proto = ${YB_PROTO_NONE};
+          }
+
+          id(rs485${rs485_id}_active_protocol) = proto;
+
+          std::string label = id(global_inverter_protocol_label)(proto);
+
+          // --- Diagnostics ---
+          if (proto == ${YB_PROTO_NONE}) {
+            id(rs485${rs485_id}_inverter_link_protocol).publish_state("Inverter RS485 bus not defined");
+            ESP_LOGW("rs485", "No inverter brand selected and no protocol forced: nothing is sent on the RS485 bus");
+          } else {
+            id(rs485${rs485_id}_inverter_link_protocol).publish_state(brand + " - RS485 " + label);
+          }
+
+          if (proto == ${YB_PROTO_NONE} || proto == ${YB_PROTO_DISABLED}) {
+            id(rs485${rs485_id}_inverter_battery_mode).publish_state("");
+            id(rs485${rs485_id}_note).publish_state("");
+          } else {
+            id(rs485${rs485_id}_inverter_battery_mode).publish_state(id(global_inverter_battery_mode)(brand, proto));
+            id(rs485${rs485_id}_note).publish_state(id(global_inverter_note)(brand, proto));
+          }
+
+          // --- Fault registry ---
+          // Disabled is a deliberate choice, not a failure: the link is unregistered
+          // so it stops driving the status LED. Any other protocol hands control back
+          // to the status binary sensor, whose current value is reapplied here so the
+          // transition is correct in both directions.
+          if (proto == ${YB_PROTO_DISABLED}) {
+            id(global_unregister_fault)(${CAT_INV_RS485}, ${rs485_id});
+          } else if (id(rs485${rs485_id}_status).has_state()) {
+            id(global_update_fault)(${CAT_INV_RS485}, ${rs485_id}, !id(rs485${rs485_id}_status).state);
+          }
+
+          // --- Telemetry slot ---
+          int slot = id(rs485${rs485_id}_link_slot);
+          id(yambms${yambms_id}_var_inverter_brands)[slot] = brand;
+          id(yambms${yambms_id}_var_inverter_buses)[slot] = "RS485";
+          id(yambms${yambms_id}_var_inverter_protocols)[slot] = label;
+          id(yambms${yambms_id}_var_inverter_protocol_sources)[slot] = source;
+
+          ESP_LOGI("rs485", "Inverter link resolved: %s - RS485 - %s (%s)", brand.c_str(), label.c_str(), source.c_str());
+
+packages:
+  rs485_pylon: !include yambms_rs485_pylon.yaml

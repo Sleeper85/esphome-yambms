@@ -6,6 +6,20 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+* YamBMS 1.8.1 :
+  * **Breaking change** - New `Inverter brand` select and reworked `Protocol` select : selecting your inverter brand is enough, the protocol follows ; a protocol chosen explicitly still takes priority over the brand. Both selects are renamed, so their stored value is reset : **the inverter link stays inactive until you select your inverter brand**, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
+  * Removed the `YamBMS name` select : the manufacturer name sent on CAN frame `0x35E` is now derived from the protocol in use, which is what the `Automatic` mode already did ; the `GOODWE`, `SHEnergy` and `BYD` names are no longer selectable
+  * New diagnostic entities per inverter link : `Inverter link protocol` (what the link is actually doing, e.g. `Solis - CAN SMA`), `Inverter battery mode` (how to configure the battery type on the inverter, keyed on brand *and* protocol so that forcing a protocol never displays a wrong instruction) and `Note` (what is specific to that brand and protocol)
+  * Renamed CAN protocol `PYLON 1.2` to `PYLON V1` and RS485 protocol `Pylontech` to `PYLON`
+  * Schneider XW Pro : the extended 29-bit ACK is now handled automatically and the `canbus_extended_ack` substitution is removed - both the 11-bit and the 29-bit ACK are listened to at the same time, which the CAN component supports natively
+  * A link whose protocol is set to `Disabled` no longer lights the fault LED : it is unregistered from the fault registry (state that the master mask and the health report both ignore) instead of being reported as failing, since it is a deliberate choice and not a communication loss ; a link left unconfigured still faults, on purpose
+  * Changing the inverter brand or protocol now restarts the CAN frames immediately instead of waiting for the next 30s retry tick, so the link comes up as soon as the selection is made
+  * Fixed the RS485 link staying up with `Disabled` : the proxy sensors kept their last value, so the Pylontech component went on answering the inverter with stale data and kept reporting its status as ON ; the sensors it checks are now invalidated when the protocol is off, which makes it stop answering and report the link as down
+  * Fixed the CAN bus not stopping when the protocol was set to `Disabled` at runtime : the frame index kept its previous value and the last frame was re-emitted every 100 ms
+  * Fixed the reported communication bus and protocol being overwritten when a node declares several inverter links : each link now owns its slot, and the telemetry reports every link instead of the last one
+  * The RS485 baud rate is now applied at runtime with `set_baud_rate()` + `load_settings()` instead of extending the `uart` component : `uart: !extend` only works on a native ESP32 UART, so boards using a UART expander (`wk2168` on the PVbrain2) had to include an internal file to avoid it ; every board now includes the same entry point
+  * RS485 packages restructured for the upcoming additional protocols : `yambms_rs485_pylon.yaml` is split in two, `yambms_rs485.yaml` becoming the file you include (selects, diagnostics, UART) and `yambms_rs485_pylon.yaml` keeping only the PYLON protocol implementation ; `yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml`. Point your `!include` to the new entry point, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
+
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`
   * Updated HA dashboards `1.8.0` for the new Cut-Off Cell Voltage, Charger Offset V., C-Rate and Auto CCL Current Taper entities
