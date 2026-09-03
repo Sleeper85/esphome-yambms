@@ -51,9 +51,16 @@ All three follow the same layered scheme, per brand and protocol:
 
 ### `yambms/`
 
-The central engine. `yambms.yaml` aggregates `yambms_core.yaml`, the `yambms_auto_*.yaml`
-functions (CVL / CCL / DCL / Float / EOC / temperature / SoC limit) and `yambms_service.yaml`,
-then `yambms_canbus*.yaml` or `yambms_rs485_pylon*.yaml` for the link to the inverter.
+The central engine. `yambms.yaml` aggregates `yambms_inverter_registry.yaml`,
+`yambms_core.yaml`, the `yambms_auto_*.yaml` functions (CVL / CCL / DCL / Float / EOC /
+temperature / SoC limit) and `yambms_service.yaml`, then `yambms_canbus*.yaml` or
+`yambms_rs485*.yaml` for the link to the inverter.
+
+`yambms_inverter_registry.yaml` holds the protocol dictionary (`YB_PROTO_*`), the brand to
+protocol mapping and the per-couple battery mode and note. Both inverter buses read it.
+
+On the RS485 side, `yambms_rs485.yaml` is the entry point — selects, diagnostics, telemetry
+slot — and it includes the protocol implementation, currently `yambms_rs485_pylon.yaml`.
 
 ## Where the behaviour is documented
 

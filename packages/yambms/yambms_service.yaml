@@ -1,5 +1,5 @@
-# Updated : 2026.08.31
-# Version : 1.4.0
+# Updated : 2026.09.02
+# Version : 1.5.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -157,7 +157,17 @@ interval:
                   root["bms_model"] = id(yambms${yambms_id}_var_bms_models);
                   root["bms_protocol"] = id(yambms${yambms_id}_var_bms_protocols);
                   root["bms_count"] = id(yambms${yambms_id}_var_bms_counter);
-                  root["comm_bus"] = id(yambms${yambms_id}_var_communication_bus);
-                  root["comm_protocol"] = id(yambms${yambms_id}_var_communication_protocol);
+                  // One slot per declared inverter link, joined with a trailing comma
+                  // like bms_model / bms_protocol above. The n-th element of the four
+                  // lists describes the same link.
+                  auto join = [](const std::vector<std::string> &v) {
+                    std::string out;
+                    for (const auto &e : v) { out += e; out += ","; }
+                    return out;
+                  };
+                  root["inverter_brand"] = join(id(yambms${yambms_id}_var_inverter_brands));
+                  root["inverter_bus"] = join(id(yambms${yambms_id}_var_inverter_buses));
+                  root["inverter_protocol"] = join(id(yambms${yambms_id}_var_inverter_protocols));
+                  root["inverter_protocol_source"] = join(id(yambms${yambms_id}_var_inverter_protocol_sources));
                   root["uptime"] = id(esp32_uptime_sec).state;
                   root["date_time_now"] = id(esp32_date_time_now).state;

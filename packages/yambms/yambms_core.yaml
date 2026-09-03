@@ -1,5 +1,5 @@
-# Updated : 2026.08.31
-# Version : 1.8.0
+# Updated : 2026.09.02
+# Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.8.0"
+  yambms_version: "1.8.1"
   # YamBMS services
   yambms_update_service: 'true'           # Set to false to disable update checks
   yambms_telemetry_service: 'true'        # Set to false to disable the sending of telemetry data
@@ -243,11 +243,20 @@ globals:
     type: std::string
     restore_value: no
     initial_value: '"Init"'
-  - id: yambms${yambms_id}_var_communication_bus
-    type: std::string
+  # Inverter links: one slot per declared CAN/RS485 link, filled by the link
+  # package itself. The n-th element of the four vectors describes the same
+  # link, so an unresolved link writes "None" and never an empty string.
+  - id: yambms${yambms_id}_var_inverter_brands
+    type: std::vector<std::string>
     restore_value: no
-  - id: yambms${yambms_id}_var_communication_protocol
-    type: std::string
+  - id: yambms${yambms_id}_var_inverter_buses
+    type: std::vector<std::string>
+    restore_value: no
+  - id: yambms${yambms_id}_var_inverter_protocols
+    type: std::vector<std::string>
+    restore_value: no
+  - id: yambms${yambms_id}_var_inverter_protocol_sources
+    type: std::vector<std::string>
     restore_value: no
   - id: yambms${yambms_id}_var_cell_nominal_v
     type: float

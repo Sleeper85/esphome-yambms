@@ -1,5 +1,5 @@
-# Updated : 2026.03.23
-# Version : 1.1.3
+# Updated : 2026.09.02
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -104,6 +104,54 @@ globals:
           bool cat_has_fault = false;
           for(uint8_t f : faults) {
             if(f == 1) { 
+              cat_has_fault = true;
+              break;
+            }
+          }
+
+          if(cat_has_fault) {
+            id(global_system_fault_mask) |= (1 << category);
+          } else {
+            id(global_system_fault_mask) &= ~(1 << category);
+          }
+        }
+      }
+
+  # ---------------------------------------------------------
+  # Global Function: Unregister an instance
+  # ---------------------------------------------------------
+  # Sets the instance back to state '2' (Unregistered), which the master mask
+  # and the health report both ignore. Use it for a device the user has
+  # deliberately turned off, such as an inverter link whose protocol select is
+  # on `Disabled`: it is neither healthy nor faulty, it is simply not expected
+  # to communicate. Marking it healthy would report [ OK ] for a link that
+  # sends nothing.
+  - id: global_unregister_fault
+    type: std::function<void(int, int)>
+    initial_value: |-
+      [](int category, int instance) {
+        int computer_instance = instance - 1;
+
+        if (category < 0 || category >= 16 || computer_instance < 0) return;
+
+        auto &faults = id(global_instance_faults)[category];
+
+        // Resize with default value '2' (Unregistered).
+        if (computer_instance >= faults.size()) {
+          faults.resize(computer_instance + 1, 2);
+        }
+
+        // Update only if state changed
+        if (faults[computer_instance] != 2) {
+
+          faults[computer_instance] = 2;
+          id(global_update_health_sensor)();
+
+          // Update Master Mask
+          // State 2 (unregistered) is ignored
+          bool cat_has_fault = false;
+          for(uint8_t f : faults) {
+            if(f == 1) {
               cat_has_fault = true;
               break;
             }

@@ -252,6 +252,103 @@ whoever edits the file next.
 There the guard is `now().is_valid()`, and it is the right tool: the problem is an NTP sync that
 may not have happened yet, not a scheduling order.
 
+## The inverter protocol is resolved once, never in the loop
+
+**Files:** `packages/yambms/yambms_inverter_registry.yaml`, `packages/yambms/yambms_canbus.yaml`,
+`packages/yambms/yambms_rs485.yaml`
+
+The protocol actually applied on a link is not readable from a single select. It is the result of
+a resolution with two inputs: the `Protocol` select, and — when that one is on `Automatic` — the
+`Inverter brand` select passed through the registry's mapping.
+
+That resolution runs in a script, triggered at boot and on `on_value` of either select, and its
+result is stored in `canbus${canbus_id}_active_protocol` / `rs485${rs485_id}_active_protocol`.
+Everything else only reads that integer.
+
+Do not inline the resolution back into the consumers. The 100 ms sequencing interval, the five
+protocol branches and the four LuxPower payload tweaks would each redo a table lookup and a
+series of `std::string` comparisons ten times a second, for a value that only changes when a user
+touches a select.
+
+Do not dispatch on `active_index()` either. That is what the code did before: `active_index() == 5`
+meant LuxPower purely by convention of the option order, so reordering the select silently broke
+four payload branches in different frames. The `YB_PROTO_*` constants are named, and the
+conversion from option string to constant exists in exactly one place — the resolution script.
+
+`on_value` is used and **not** `set_action`: `TemplateSelectWithSetAction::control()` fires the
+set trigger *before* `publish_state()`, so a script called from `set_action` would read the
+previous option.
+
+### The resolution must not run during setup
+
+`on_value` also fires when the select restores its value, at `setup_priority::HARDWARE` (800).
+The telemetry slot, on the other hand, is reserved in `on_boot` at `priority: -100`. Between the
+two, the vectors in `yambms_core.yaml` are still empty, so the script would index element `0` of
+an empty `std::vector` and the device would crash on every boot. The registry's `std::function`
+globals are at `HARDWARE` too, so calling them that early is a race of its own.
+
+`canbus${canbus_id}_link_ready` / `rs485${rs485_id}_link_ready` is what closes both holes: the
+script returns immediately until the slot has been reserved, and the reservation raises the flag
+then runs the script explicitly. Do not drop that guard on the grounds that the `has_state()`
+check above it already protects the script — it does not, it only proves the selects have a value.
+
+### The `YB_PROTO_*` values are internal
+
+They are never persisted, never published to Home Assistant and never sent to the telemetry
+service — the label from `global_inverter_protocol_label()` is what leaves the device. So the
+ranges can be renumbered or extended at any time with no impact on existing nodes.
+
+The two invariants that do bind are elsewhere: the **order of the select options**, because
+`restore_value` stores an index (append new brands and protocols at the end, never insert), and
+the **labels**, because they carry the continuity of the collected telemetry.
+
+### Turning the RS485 link off means invalidating its proxies
+
+**File:** `packages/yambms/yambms_rs485_pylon.yaml`
+
+`pylontech_rs485` is passive: it answers the inverter from the proxy sensors YamBMS feeds. Stopping
+the 100 ms interval therefore does **not** stop the link — the proxies keep their last value,
+`update_state_from_sensors_()` still returns true, and the component keeps answering with stale
+data while refreshing `rs485_status`, which is why the status stayed ON.
+
+The component's own fail-safe is a `NaN` on any of the eight sensors it checks. The `else` branch
+of the interval publishes those `NaN` once per transition, guarded by
+`rs485${rs485_id}_proxies_valid` so it does not run ten times a second.
+
+Only those eight sensors matter — the ones read by `update_state_from_sensors_()`. Invalidating the
+others would be harmless but pointless, and would hide which ones the contract actually depends on.
+
+### `Disabled` unregisters the link instead of faulting it
+
+**File:** `packages/base/device_base_fault_registry.yaml`
+
+Turning a link off stops the frames, so the inverter stops acknowledging, the link timer expires
+and the status binary sensor goes false. Fed straight into `global_update_fault()` that lights the
+fault LED for something the user asked for.
+
+The registry already had the right answer: state `2`, which both the master mask and the health
+report ignore. `global_update_fault()` only takes a `bool`, so it can write `0` or `1` and nothing
+else — hence `global_unregister_fault()`, added alongside it.
+
+Do not use `Healthy` for a disabled link. It would clear the LED just as well, but the health
+report would print `[ OK ]` for a link that sends nothing, which is worse than the bug it fixes.
+
+The guard exists in **two** places and both are needed: the resolution script applies it when the
+protocol changes, and the status sensor's `on_state` applies it on every subsequent state change.
+Without the second one the link timer would re-raise the fault a few seconds later.
+
+A link left at `Automatic` with no brand selected is deliberately **not** unregistered — it faults.
+That is the signal telling the user the node was never configured, which is the whole point of the
+1.8.1 breaking change.
+
+### Both ACK triggers are registered
+
+`canbus.cpp` matches a trigger on `can_id` **and** `use_extended_id`, so declaring `0x305` twice —
+once standard, once extended — is not a conflict: only the one matching the received frame fires.
+This is why the Schneider XW Pro extended ACK needs no configuration, and why the
+`canbus_extended_ack` substitution was removed. Both triggers call the same script so the handler
+is not duplicated.
+
 ## Empirical constants
 
 Some constants were found by trial on real hardware and must not be rounded or harmonised.

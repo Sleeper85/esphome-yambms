@@ -1,0 +1,168 @@
+# Updated : 2026.09.02
+# Version : 1.1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +----------------------------------------------------------------------------+
+# | Inverter registry                                                          |
+# |                                                                            |
+# | Shared by the CAN and the RS485 inverter links. Holds:                     |
+# |   - the protocol dictionary (YB_PROTO_*)                                   |
+# |   - the default protocol for a given (brand, bus)                          |
+# |   - the inverter battery mode for a given (brand, protocol)                |
+# |   - the installation note for a given (brand, protocol)                    |
+# |                                                                            |
+# | The brand -> protocol mapping is a sensible DEFAULT, not a statement: a    |
+# | manufacturer may use a different protocol depending on the model, so the   |
+# | user can always override it with the `Protocol` select. Only the battery   |
+# | mode is asserted, and only for couples that were actually confirmed by a   |
+# | user; anything else returns "See inverter manual".                         |
+# +----------------------------------------------------------------------------+
+
+substitutions:
+  # --- PROTOCOL DICTIONARY ---
+  # The leading digit names the bus, so a protocol identifies its own bus.
+  # These constants are internal: they are never persisted, never published to
+  # Home Assistant and never sent to the telemetry service, so the ranges can be
+  # extended or renumbered at any time without any impact on existing nodes.
+  YB_PROTO_NONE:            "0"    # unresolved: no brand and no protocol -> nothing is sent
+  YB_PROTO_DISABLED:        "1"    # explicit user choice -> nothing is sent, no warning
+  # CAN - 1xx
+  YB_PROTO_CAN_PYLON_V1:    "101"
+  YB_PROTO_CAN_PYLON_V2:    "102"
+  YB_PROTO_CAN_SMA:         "103"
+  YB_PROTO_CAN_VICTRON:     "104"
+  YB_PROTO_CAN_LUXPOWER:    "105"
+  YB_PROTO_CAN_DEYE_PCS:    "106"
+  # RS485 - 2xx
+  YB_PROTO_RS485_PYLON:     "201"
+
+globals:
+  # ---------------------------------------------------------
+  # Global Function: Default protocol for a (brand, bus)
+  # ---------------------------------------------------------
+  # Returns the protocol applied when the `Protocol` select is on `Automatic`.
+  # `YB_PROTO_NONE` means the link stays silent and reports a warning.
+  - id: global_inverter_default_protocol
+    type: std::function<int(std::string, std::string)>
+    initial_value: |-
+      [](std::string brand, std::string bus) -> int {
+
+        if (brand == "Not defined" || brand == "Other") return ${YB_PROTO_NONE};
+
+        if (bus == "CAN") {
+          if (brand == "Deye")          return ${YB_PROTO_CAN_PYLON_V1};
+          if (brand == "EG4")           return ${YB_PROTO_CAN_LUXPOWER};
+          if (brand == "Epever")        return ${YB_PROTO_CAN_PYLON_V2};
+          if (brand == "GoodWe")        return ${YB_PROTO_CAN_PYLON_V2};
+          if (brand == "Growatt")       return ${YB_PROTO_CAN_PYLON_V1};
+          if (brand == "LuxPower")      return ${YB_PROTO_CAN_LUXPOWER};
+          if (brand == "MidNite Solar") return ${YB_PROTO_CAN_PYLON_V1};
+          if (brand == "Schneider")     return ${YB_PROTO_CAN_PYLON_V2};
+          if (brand == "SMA")           return ${YB_PROTO_CAN_SMA};
+          if (brand == "Sofar")         return ${YB_PROTO_CAN_PYLON_V1};
+          if (brand == "Solis")         return ${YB_PROTO_CAN_SMA};
+          if (brand == "SRNE")          return ${YB_PROTO_CAN_PYLON_V2};
+          if (brand == "Studer")        return ${YB_PROTO_CAN_PYLON_V2};
+          if (brand == "Victron")       return ${YB_PROTO_CAN_VICTRON};
+          return ${YB_PROTO_NONE};
+        }
+
+        // RS485 currently exposes a single protocol, so every known brand maps to it.
+        if (bus == "RS485") return ${YB_PROTO_RS485_PYLON};
+
+        return ${YB_PROTO_NONE};
+      }
+
+  # ---------------------------------------------------------
+  # Global Function: Protocol label
+  # ---------------------------------------------------------
+  # Human readable name. This is what reaches the dashboard and the telemetry
+  # service, so changing one of these strings breaks the continuity of the
+  # collected statistics.
+  - id: global_inverter_protocol_label
+    type: std::function<std::string(int)>
+    initial_value: |-
+      [](int proto) -> std::string {
+        switch (proto) {
+          case ${YB_PROTO_DISABLED}:       return "Disabled";
+          case ${YB_PROTO_CAN_PYLON_V1}:   return "PYLON V1";
+          case ${YB_PROTO_CAN_PYLON_V2}:   return "PYLON V2";
+          case ${YB_PROTO_CAN_SMA}:        return "SMA";
+          case ${YB_PROTO_CAN_VICTRON}:    return "Victron";
+          case ${YB_PROTO_CAN_LUXPOWER}:   return "LuxPower";
+          case ${YB_PROTO_CAN_DEYE_PCS}:   return "Deye PCS";
+          case ${YB_PROTO_RS485_PYLON}:    return "PYLON";
+          default:                         return "None";
+        }
+      }
+
+  # ---------------------------------------------------------
+  # Global Function: Inverter battery mode
+  # ---------------------------------------------------------
+  # How the user must configure the battery type on the inverter itself.
+  # Keyed on (brand, protocol) and not on the brand alone: EG4 and Solis both
+  # expose a different mode depending on the protocol in use, and forcing a
+  # protocol that does not match the mapping would otherwise display an
+  # instruction that is plainly wrong.
+  - id: global_inverter_battery_mode
+    type: std::function<std::string(std::string, int)>
+    initial_value: |-
+      [](std::string brand, int proto) -> std::string {
+
+        if (brand == "Deye"          && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Lithium 00";
+        if (brand == "Deye"          && proto == ${YB_PROTO_RS485_PYLON})   return "Lithium 12";
+        if (brand == "EG4"           && proto == ${YB_PROTO_CAN_LUXPOWER})  return "Lithium 6";
+        if (brand == "EG4"           && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Lithium 2";
+        if (brand == "Epever"        && proto == ${YB_PROTO_RS485_PYLON})   return "BPRO 21";
+        if (brand == "GoodWe"        && proto == ${YB_PROTO_CAN_PYLON_V2})  return "LX U5.4-L";
+        if (brand == "Growatt"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "CAN L52";
+        if (brand == "LuxPower"      && proto == ${YB_PROTO_CAN_LUXPOWER})  return "Lithium 6";
+        if (brand == "MidNite Solar" && proto == ${YB_PROTO_CAN_PYLON_V1})  return "PYLON";
+        if (brand == "Schneider"     && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Voltage Control Li-Ion";
+        if (brand == "Sofar"         && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Automatic";
+        if (brand == "Solis"         && proto == ${YB_PROTO_CAN_SMA})       return "AoBo";
+        if (brand == "Solis"         && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Pylon LV";
+        if (brand == "SRNE"          && proto == ${YB_PROTO_CAN_PYLON_V2})  return "UZE";
+        if (brand == "Studer"        && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Pylontech";
+        if (brand == "Victron"       && proto == ${YB_PROTO_CAN_VICTRON})   return "CAN-bus BMS LV (500 kbit/s)";
+
+        return "See inverter manual";
+      }
+
+  # ---------------------------------------------------------
+  # Global Function: Installation note
+  # ---------------------------------------------------------
+  # Carries what varies from one model to the next, in one sentence, so that the
+  # registry does not have to list every inverter model. Empty when there is
+  # nothing particular to say.
+  - id: global_inverter_note
+    type: std::function<std::string(std::string, int)>
+    initial_value: |-
+      [](std::string brand, int proto) -> std::string {
+
+        if (brand == "EG4"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "6000XP only.";
+        if (brand == "Epever"    && proto == ${YB_PROTO_RS485_PYLON})   return "Verified on ET-NC and IT-NC inverter-chargers. Other Epever models may only support the Epever BMS Link protocol.";
+        if (brand == "Epever")                                          return "Unverified: Epever inverter-chargers are documented on RS485 PYLON.";
+        if (brand == "Schneider" && proto == ${YB_PROTO_CAN_PYLON_V2})  return "The extended 29-bit ACK is handled automatically.";
+        if (brand == "Sofar"     && proto == ${YB_PROTO_CAN_PYLON_V1})  return "A 120 Ohm resistor may be required on the Sofar side.";
+        if (brand == "Solis"     && proto == ${YB_PROTO_CAN_PYLON_V2})  return "A 3.3V CAN transceiver (SN65HVD230) is required.";
+        if (brand == "SRNE"      && proto == ${YB_PROTO_CAN_PYLON_V2})  return "The inverter reports an incorrect battery temperature.";
+        if (brand == "Studer"    && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Xcom-CAN DIP switches: 11000110 (1 to 8, ON = 1).";
+
+        return "";
+      }
