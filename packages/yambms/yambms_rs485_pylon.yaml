@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 1.5.0
+# Updated : 2026.09.04
+# Version : 1.5.1
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,13 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# The selects, the diagnostics and the telemetry slot live in the entry point
-# `yambms_rs485.yaml`, which includes this file. This file only implements the
-# PYLON protocol itself.
+# This is the file you include for a PYLON RS485 link: it pulls in the shared
+# selects/diagnostics/telemetry machinery from `yambms_rs485.yaml` and adds
+# the PYLON protocol itself. Included this way round (rather than the other
+# way, as before 1.8.1) so that a node with several RS485 links on several
+# UARTs can run PYLON on one and Voltronic LIB on another - see
+# yambms_rs485_voltronic.yaml for that alternative entry point.
+
+packages:
+  rs485_entry: !include yambms_rs485.yaml
 
 external_components:
   - source: github://fahmula/esphome-pylontech-rs485@main
     refresh: 60min
+
+select:
+  # Adds the option this file implements to the base Automatic/Disabled list
+  # declared in yambms_rs485.yaml - see the comment there.
+  - id: !extend rs485${rs485_id}_protocol
+    options:
+      - "PYLON"
 
 globals:
   # True while the proxy sensors carry data the component may serve to the
@@ -147,25 +160,6 @@ binary_sensor:
   - platform: template
     id: rs485${rs485_id}_proxy_system_fault_protection
     internal: true
-  # --- RS485 Status ---
-  - platform: template
-    id: rs485${rs485_id}_status
-    device_id: rs485_${rs485_id}
-    name: "Status"
-    entity_category: diagnostic
-    trigger_on_initial_state: true
-    on_state:
-      then:
-        - lambda: |-
-            // A link the user turned off is neither healthy nor faulty: it is not
-            // expected to communicate, so it must not light the fault LED.
-            if (id(rs485${rs485_id}_active_protocol) == ${YB_PROTO_DISABLED}) {
-              id(global_unregister_fault)(${CAT_INV_RS485}, ${rs485_id});
-              return;
-            }
-            // Pass the current state to the update function
-            id(global_update_fault)(${CAT_INV_RS485}, ${rs485_id}, !x);
-
 interval:
   - interval: 100ms
     then:

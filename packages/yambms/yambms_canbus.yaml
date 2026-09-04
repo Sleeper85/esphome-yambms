@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 2.7.0
+# Updated : 2026.09.04
+# Version : 2.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -114,6 +114,7 @@ select:
       - "Growatt"
       - "LuxPower"
       - "MidNite Solar"
+      - "MPP Solar"
       - "Schneider"
       - "SMA"
       - "Sofar"
@@ -121,6 +122,7 @@ select:
       - "SRNE"
       - "Studer"
       - "Victron"
+      - "Voltronic"
     restore_value: true
     initial_option: "Not defined"
     optimistic: true
