@@ -779,19 +779,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -809,19 +819,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -991,19 +1011,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1021,19 +1051,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1203,19 +1243,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1233,19 +1283,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1415,19 +1475,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1445,19 +1515,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1627,19 +1707,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1657,19 +1747,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1839,19 +1939,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -1869,19 +1979,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -2051,19 +2171,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
@@ -2081,19 +2211,29 @@ views:
               - type: markdown
                 content: >-
                   
-                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', lead_zero = 0, spaces=3) -%}
+                  {% macro cell_v(num, entity, max_color = 'red' , min_color = '#3090C9', max_res_color = 'red', min_res_color = 'green', res_threshold = 0.20, res_abs_threshold = 0.15, lead_zero = 0, spaces=3) -%}
                   {% if lead_zero %}0{% endif %}{{num}}.{% for spaces in range(0, spaces) -%} {{ '&nbsp;' }} {%- endfor %}
                   {% if states('sensor{}_cell_voltage_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ max_color }}'>
                   {% elif states('sensor{}_cell_voltage_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
                   <font color='{{ min_color }}'>
                   {% else %} <font> {% endif %}
-                  
+
                   {{ states('sensor{}_cell_voltage_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} V</font>
-                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %} / 
-                  {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num) , rounded=True) }} Ω {% endif %}
+                  {% if has_value('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) %}
+                  {% set res_max_v = states('sensor{}_cell_resistance_max'.format(entity)) | float(0) %}
+                  {% set res_min_v = states('sensor{}_cell_resistance_min'.format(entity)) | float(0) %}
+                  {% set res_v = states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num)) | float(0) %}
+                  {% if (states('sensor{}_cell_resistance_max_cell_number'.format(entity), rounded=True) == '{}'.format(num) and res_min_v > 0 and (res_max_v - res_min_v) / res_min_v > res_threshold) or res_v > res_abs_threshold %}
+                   / <font color='{{ max_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% elif states('sensor{}_cell_resistance_min_cell_number'.format(entity), rounded=True) == '{}'.format(num) %}
+                   / <font color='{{ min_res_color }}'>{{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω</font>
+                  {% else %}
+                   / {{ states('sensor{}_cell_resistance_{}{}'.format(entity, ''.zfill(lead_zero), num), rounded=True) }} Ω
+                  {% endif %}
+                  {% endif %}
                   <br>
-                  
+
                   {% endmacro %}
                   
                   <center>
