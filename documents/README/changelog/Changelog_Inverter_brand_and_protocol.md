@@ -73,21 +73,18 @@ line from your YAML if you had set it.
 
 ## RS485 package files
 
-`yambms_rs485_pylon.yaml` is **split in two**, to make room for the additional RS485 protocols to
-come. The link itself and the protocol it speaks are now separate files:
+`yambms_rs485_pylon.yaml` **stays the file you include** — no change there. Its internals are
+reorganised to make room for the additional RS485 protocols to come: the `Inverter brand`/
+`Protocol` selects, diagnostics and telemetry move out to a new shared file, `yambms_rs485.yaml`,
+which `yambms_rs485_pylon.yaml` includes itself. Each protocol file includes
+`yambms_rs485.yaml` this way round, rather than the other way, so that a node with several RS485
+links on different UARTs can run a different protocol on each.
 
-| File | Role |
-| --- | --- |
-| `yambms_rs485.yaml` | **the file you include** — carries the `Inverter brand` and `Protocol` selects and the diagnostics sensors |
-| `yambms_rs485_pylon.yaml` | the PYLON protocol implementation, included by the file above |
-
-> [!IMPORTANT]
-> The name `yambms_rs485_pylon.yaml` still exists but no longer designates the same thing: it is
-> now the protocol implementation, not the file to include. Point your `!include` to
-> `yambms_rs485.yaml` instead.
-
-`yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml` in the same way.
+`yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml`, and unlike before it
+no longer includes the link itself: add it **alongside** `yambms_rs485_pylon.yaml` in your YAML,
+with its own `vars: { rs485_id: '1' }` matching the link it decorates, instead of swapping one file
+for the other.
 
 `rs485_uart_baud_rate` keeps the same meaning but is now applied at runtime instead of extending
 the `uart` component, and defaults to `9600`. Boards using a UART expander — the `wk2168` of the
-PVbrain2 — no longer need a separate include: every board now uses `yambms_rs485.yaml`.
+PVbrain2 — no longer need a separate include: every board now uses the same entry point.
