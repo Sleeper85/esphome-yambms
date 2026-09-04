@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 1.1.0
+# Updated : 2026.09.04
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,13 +20,13 @@
 # +----------------------------------------------------------------------------+
 # | RS485 inverter link                                                        |
 # |                                                                            |
-# | Entry point of the RS485 link: it carries the `Inverter brand` and         |
-# | `Protocol` selects, the diagnostics and the telemetry slot, then includes  |
-# | the protocol implementation itself.                                        |
-# |                                                                            |
-# | The protocol is selected at compile time by the file included below: two   |
-# | RS485 protocols cannot drive the same bus at the same time. The select is  |
-# | what enables, disables and reports it.                                     |
+# | Shared machinery for an RS485 link: the `Inverter brand` and `Protocol`    |
+# | selects, the diagnostics and the telemetry slot. Not the file you include  |
+# | - you never `!include` this one directly. Each protocol implementation    |
+# | (yambms_rs485_pylon.yaml, yambms_rs485_voltronic.yaml) includes THIS file, |
+# | not the other way around, so that a node with several RS485 links on      |
+# | several UARTs can run a different protocol on each: including this file   |
+# | directly would hardcode one protocol for every link that does so.         |
 # +----------------------------------------------------------------------------+
 
 substitutions:
@@ -120,6 +120,7 @@ select:
       - "Growatt"
       - "LuxPower"
       - "MidNite Solar"
+      - "MPP Solar"
       - "Schneider"
       - "SMA"
       - "Sofar"
@@ -127,6 +128,7 @@ select:
       - "SRNE"
       - "Studer"
       - "Victron"
+      - "Voltronic"
     restore_value: true
     initial_option: "Not defined"
     optimistic: true
@@ -135,6 +137,12 @@ select:
       - script.execute: rs485${rs485_id}_script_resolve_protocol
   # Communication protocol. `Automatic` derives it from the inverter brand;
   # any other choice takes priority over the brand.
+  #
+  # Only "Automatic" and "Disabled" belong here: they are the two options
+  # common to every protocol. Each protocol implementation file (e.g.
+  # yambms_rs485_pylon.yaml) appends its own option with `!extend` on this
+  # id, so the dropdown only ever offers a choice that is actually compiled
+  # in - selecting an option nothing implements would silently do nothing.
   - platform: template
     name: "Protocol"
     id: rs485${rs485_id}_protocol
@@ -142,7 +150,6 @@ select:
     options:
       - "Automatic"
       - "Disabled"
-      - "PYLON"
     restore_value: true
     initial_option: "Automatic"
     optimistic: true
@@ -173,6 +180,31 @@ text_sensor:
     icon: mdi:information-outline
     entity_category: diagnostic
 
+binary_sensor:
+  # Whether the inverter is actually acknowledging this link, regardless of
+  # protocol. Declared here (not in a protocol file) because both the on_boot
+  # initialisation and the resolution script above reference it - every
+  # protocol implementation must publish to this same id (see e.g. the
+  # pylontech_rs485 `rs485_status:` option, or the polling-activity interval
+  # in yambms_rs485_voltronic.yaml).
+  - platform: template
+    id: rs485${rs485_id}_status
+    device_id: rs485_${rs485_id}
+    name: "Status"
+    entity_category: diagnostic
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lambda: |-
+            // A link the user turned off is neither healthy nor faulty: it is not
+            // expected to communicate, so it must not light the fault LED.
+            if (id(rs485${rs485_id}_active_protocol) == ${YB_PROTO_DISABLED}) {
+              id(global_unregister_fault)(${CAT_INV_RS485}, ${rs485_id});
+              return;
+            }
+            // Pass the current state to the update function
+            id(global_update_fault)(${CAT_INV_RS485}, ${rs485_id}, !x);
+
 script:
   # Resolves the protocol actually applied on this link, publishes the three
   # diagnostic text sensors and refreshes this link's telemetry slot.
@@ -202,6 +234,7 @@ script:
           } else {
             source = "manual";
             if (choice == "Disabled")   proto = ${YB_PROTO_DISABLED};
+            else if (choice == "LIB")   proto = ${YB_PROTO_RS485_VOLTRONIC_LIB};
             else if (choice == "PYLON") proto = ${YB_PROTO_RS485_PYLON};
             else                        proto = ${YB_PROTO_NONE};
           }
@@ -245,6 +278,3 @@ script:
           id(yambms${yambms_id}_var_inverter_protocol_sources)[slot] = source;
 
           ESP_LOGI("rs485", "Inverter link resolved: %s - RS485 - %s (%s)", brand.c_str(), label.c_str(), source.c_str());
-
-packages:
-  rs485_pylon: !include yambms_rs485_pylon.yaml

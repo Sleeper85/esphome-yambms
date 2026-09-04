@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 1.1.0
+# Updated : 2026.09.04
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -49,7 +49,8 @@ substitutions:
   YB_PROTO_CAN_LUXPOWER:    "105"
   YB_PROTO_CAN_DEYE_PCS:    "106"
   # RS485 - 2xx
-  YB_PROTO_RS485_PYLON:     "201"
+  YB_PROTO_RS485_PYLON:          "201"
+  YB_PROTO_RS485_VOLTRONIC_LIB:  "202"
 
 globals:
   # ---------------------------------------------------------
@@ -82,8 +83,13 @@ globals:
           return ${YB_PROTO_NONE};
         }
 
-        // RS485 currently exposes a single protocol, so every known brand maps to it.
-        if (bus == "RS485") return ${YB_PROTO_RS485_PYLON};
+        // RS485: every known brand maps to PYLON, except the Voltronic-derived
+        // family (Axpert, InfiniSolar, MPP Solar) whose "LIB" battery type is a
+        // distinct, unrelated protocol - see yambms_rs485_voltronic.yaml.
+        if (bus == "RS485") {
+          if (brand == "MPP Solar" || brand == "Voltronic") return ${YB_PROTO_RS485_VOLTRONIC_LIB};
+          return ${YB_PROTO_RS485_PYLON};
+        }
 
         return ${YB_PROTO_NONE};
       }
@@ -106,8 +112,9 @@ globals:
           case ${YB_PROTO_CAN_VICTRON}:    return "Victron";
           case ${YB_PROTO_CAN_LUXPOWER}:   return "LuxPower";
           case ${YB_PROTO_CAN_DEYE_PCS}:   return "Deye PCS";
-          case ${YB_PROTO_RS485_PYLON}:    return "PYLON";
-          default:                         return "None";
+          case ${YB_PROTO_RS485_PYLON}:         return "PYLON";
+          case ${YB_PROTO_RS485_VOLTRONIC_LIB}: return "LIB";
+          default:                              return "None";
         }
       }
 
@@ -133,6 +140,7 @@ globals:
         if (brand == "Growatt"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "CAN L52";
         if (brand == "LuxPower"      && proto == ${YB_PROTO_CAN_LUXPOWER})  return "Lithium 6";
         if (brand == "MidNite Solar" && proto == ${YB_PROTO_CAN_PYLON_V1})  return "PYLON";
+        if (brand == "MPP Solar"     && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})  return "LIB";
         if (brand == "Schneider"     && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Voltage Control Li-Ion";
         if (brand == "Sofar"         && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Automatic";
         if (brand == "Solis"         && proto == ${YB_PROTO_CAN_SMA})       return "AoBo";
@@ -140,6 +148,7 @@ globals:
         if (brand == "SRNE"          && proto == ${YB_PROTO_CAN_PYLON_V2})  return "UZE";
         if (brand == "Studer"        && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Pylontech";
         if (brand == "Victron"       && proto == ${YB_PROTO_CAN_VICTRON})   return "CAN-bus BMS LV (500 kbit/s)";
+        if (brand == "Voltronic"     && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})  return "LIB";
 
         return "See inverter manual";
       }
@@ -156,8 +165,10 @@ globals:
       [](std::string brand, int proto) -> std::string {
 
         if (brand == "EG4"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "6000XP only.";
-        if (brand == "Epever"    && proto == ${YB_PROTO_RS485_PYLON})   return "Verified on ET-NC and IT-NC inverter-chargers. Other Epever models may only support the Epever BMS Link protocol.";
+        if (brand == "Epever"    && proto == ${YB_PROTO_RS485_PYLON})   return "Verified on ET-NC and IT-NC inverter-chargers. Other Epever models may only support the Epever BMS Link protocol. BPRO 21 defaults to 115200 baud on ET/IT chargers, not the 9600 default - set rs485_uart_baud_rate accordingly.";
         if (brand == "Epever")                                          return "Unverified: Epever inverter-chargers are documented on RS485 PYLON.";
+        if ((brand == "MPP Solar" || brand == "Voltronic") && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})
+          return "Unverified: per Voltronic's own documentation, only the charge voltage limit is applied by the inverter firmware - discharge voltage and both current limits are documented as unused.";
         if (brand == "Schneider" && proto == ${YB_PROTO_CAN_PYLON_V2})  return "The extended 29-bit ACK is handled automatically.";
         if (brand == "Sofar"     && proto == ${YB_PROTO_CAN_PYLON_V1})  return "A 120 Ohm resistor may be required on the Sofar side.";
         if (brand == "Solis"     && proto == ${YB_PROTO_CAN_PYLON_V2})  return "A 3.3V CAN transceiver (SN65HVD230) is required.";

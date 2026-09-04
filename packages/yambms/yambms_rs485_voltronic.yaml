@@ -1,0 +1,236 @@
+# Updated : 2026.09.04
+# Version : 1.1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# This is the file you include for a Voltronic LIB RS485 link: it pulls in
+# the shared selects/diagnostics/telemetry machinery from `yambms_rs485.yaml`
+# and adds the Voltronic "LIb" protocol itself - see documents/PRIVATE/
+# Voltronic/Voltronic Inverter and BMS 485 communication protocol
+# 20201202.docx (Voltronic Power, also referenced by Epever as PRO=26, same
+# authors Ellis/Lory/Jenny). Use yambms_rs485_pylon.yaml instead for PYLON -
+# never include both on the same UART, see the warning below.
+#
+# Unlike Pylontech, this is plain Modbus RTU (function 0x03, 9600 8N1) so it
+# is implemented with ESPHome's native `modbus_server:` - no external
+# component. YamBMS answers as slave address 1 (the doc's "common ID", always
+# accepted regardless of the inverter's parallel-pack ID switch position) and
+# always reports itself as a single pack: the multi-BMS aggregation already
+# happens upstream, the inverter only ever sees one virtual battery.
+#
+# EXPERIMENTAL - scope deliberately reduced from the full protocol:
+#   - Per-cell voltages (0x0011-0x0024) and per-sensor status codes
+#     (0x0040-0x0069) are not exposed. YamBMS does not track voltage/status
+#     per individual cell beyond min/max, and the inverter's own charge
+#     behaviour does not depend on them.
+#   - Per Voltronic's own documentation, only the charge voltage limit
+#     (0x0070) is applied by the inverter firmware - the discharge voltage
+#     limit and both current limits (0x0071-0x0073) are marked "not used by
+#     UPS yet". Auto CVL therefore has an effect through this protocol, but
+#     Auto CCL Current Taper and Auto Float do not: the inverter follows its
+#     own locally configured charge curve regardless of what is sent there.
+#   - Not verified on real hardware yet.
+
+packages:
+  rs485_entry: !include yambms_rs485.yaml
+
+select:
+  # Adds the option this file implements to the base Automatic/Disabled list
+  # declared in yambms_rs485.yaml - see the comment there.
+  - id: !extend rs485${rs485_id}_protocol
+    options:
+      - "LIB"
+
+globals:
+  # Set by the read_lambda of address 48 (the first register of the
+  # aggregated-data block, always read by a normal polling cycle), cleared by
+  # the interval below. Unlike pylontech_rs485's own update_timeout, nothing
+  # in modbus_server tracks staleness for us, so this link's `Status` binary
+  # sensor (declared in yambms_rs485.yaml) needs its own liveness check.
+  - id: rs485${rs485_id}_voltronic_polled
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+interval:
+  - interval: ${rs485_update_timeout}
+    then:
+      - lambda: |-
+          bool polled = id(rs485${rs485_id}_voltronic_polled);
+          id(rs485${rs485_id}_voltronic_polled) = false;
+          id(rs485${rs485_id}_status).publish_state(polled);
+
+modbus:
+  - uart_id: ${rs485_uart_id}
+    id: modbus_rs485_${rs485_id}
+    role: server
+
+modbus_server:
+  - modbus_id: modbus_rs485_${rs485_id}
+    address: 1
+    registers:
+        # +--------------------------------------------------------------+
+        # | 0x0030-0x003F : aggregated pack data                         |
+        # +--------------------------------------------------------------+
+        # Module charge current (0.1A) - only the charging half of the
+        # signed YamBMS current, zero while discharging or idle. Also marks
+        # this link as polled for the Status sensor - see the interval above.
+        - address: 48   # 0x0030
+          value_type: U_WORD
+          read_lambda: |-
+            id(rs485${rs485_id}_voltronic_polled) = true;
+            float current = id(yambms${yambms_id}_current).state;
+            return uint16_t(current > 0 ? current * 10 : 0);
+        # Module discharge current (0.1A) - the discharging half.
+        - address: 49   # 0x0031
+          value_type: U_WORD
+          read_lambda: |-
+            float current = id(yambms${yambms_id}_current).state;
+            return uint16_t(current < 0 ? -current * 10 : 0);
+        # Module voltage (0.1V)
+        - address: 50   # 0x0032
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(yambms${yambms_id}_total_voltage).state * 10);
+        # SOC (%)
+        - address: 51   # 0x0033
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(yambms${yambms_id}_battery_soc).state);
+        # Module total capacity (mAh) - 4 bytes, occupies 0x0034-0x0035
+        - address: 52   # 0x0034
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(yambms${yambms_id}_battery_capacity).state * 1000);
+        # Pack parallel number - always 1: the multi-BMS aggregation already
+        # happened upstream, the inverter only ever sees one virtual pack.
+        - address: 54   # 0x0036
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(1);
+        # Charge Alarm: bit3 OCC, bit2 CLT, bit1 COV, bit0 CHT
+        - address: 55   # 0x0037
+          value_type: U_WORD
+          read_lambda: |-
+            uint16_t alarm = id(yambms${yambms_id}_errors_bitmask_alarm).state;
+            uint16_t reg = 0;
+            if (alarm & 0x0100) reg |= 0x08; // Charge Over Current -> OCC
+            if (alarm & 0x0040) reg |= 0x04; // Charge Under Temp -> CLT
+            if (alarm & 0x0002) reg |= 0x02; // Over Voltage -> COV
+            if (alarm & 0x0020) reg |= 0x01; // Charge Over Temp -> CHT
+            return reg;
+        # Discharge Alarm: bit3 CUV, bit1 DLT, bit0 DHT (bit2 FETHT unavailable)
+        - address: 56   # 0x0038
+          value_type: U_WORD
+          read_lambda: |-
+            uint16_t alarm = id(yambms${yambms_id}_errors_bitmask_alarm).state;
+            uint16_t reg = 0;
+            if (alarm & 0x0004) reg |= 0x08; // Under Voltage -> CUV
+            if (alarm & 0x0010) reg |= 0x02; // Under Temp -> DLT
+            if (alarm & 0x0008) reg |= 0x01; // Over Temp -> DHT
+            return reg;
+        # Charge Protect - mirrors Charge Alarm: YamBMS does not distinguish
+        # an alarm tier from a protect tier internally.
+        - address: 57   # 0x0039
+          value_type: U_WORD
+          read_lambda: |-
+            uint16_t alarm = id(yambms${yambms_id}_errors_bitmask_alarm).state;
+            uint16_t reg = 0;
+            if (alarm & 0x0100) reg |= 0x0800; // Charge Over Current -> OCC (bit11)
+            if (alarm & 0x0002) reg |= 0x0400; // Over Voltage -> OCV (bit10)
+            if (alarm & 0x0040) reg |= 0x0200; // Charge Under Temp -> CLT (bit9)
+            if (alarm & 0x0020) reg |= 0x0100; // Charge Over Temp -> CHT (bit8)
+            return reg;
+        - address: 58   # 0x003A - Charge Protect 2, reserved
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(0);
+        # Discharge Protect - mirrors Discharge Alarm.
+        - address: 59   # 0x003B
+          value_type: U_WORD
+          read_lambda: |-
+            uint16_t alarm = id(yambms${yambms_id}_errors_bitmask_alarm).state;
+            uint16_t reg = 0;
+            if (alarm & 0x0080) reg |= 0x0004; // Discharge Over Current -> OCD (bit2)
+            return reg;
+        - address: 60   # 0x003C - Discharge Protect 2, reserved
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(0);
+        - address: 61   # 0x003D - BMS State, reserved
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(0);
+        # Design capacity (mAh) - 4 bytes, occupies 0x003E-0x003F. Uses the
+        # installed capacity (nameplate total), not the full-charge capacity
+        # used above for "Module total capacity" - they can differ with SOH.
+        - address: 62   # 0x003E
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(yambms${yambms_id}_installed_battery_capacity).state * 1000);
+
+        # +--------------------------------------------------------------+
+        # | 0x0070-0x0077 : charge/discharge information                 |
+        # +--------------------------------------------------------------+
+        # Charge voltage limit (0.1V) - the only one of the four limits
+        # below that the inverter firmware is documented to actually apply.
+        - address: 112   # 0x0070
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(yambms${yambms_id}_requested_charge_voltage).state * 10);
+        # Discharge voltage limit (0.1V) - "not used by UPS yet" (doc), sent
+        # anyway for forward compatibility.
+        - address: 113   # 0x0071
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(yambms${yambms_id}_requested_discharge_voltage).state * 10);
+        # Charge current limit (0.1A) - "not used by UPS yet" (doc).
+        - address: 114   # 0x0072
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(yambms${yambms_id}_requested_charge_current).state * 10);
+        # Discharge current limit (0.1A) - "not used by UPS yet" (doc).
+        - address: 115   # 0x0073
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(yambms${yambms_id}_requested_discharge_current).state * 10);
+        # Charge/discharge status: bit7 charge enable, bit6 discharge enable,
+        # bit5/4 "charge immediately" hints on low SOC (spec'd thresholds).
+        - address: 116   # 0x0074
+          value_type: U_WORD
+          read_lambda: |-
+            uint16_t reg = 0;
+            std::string charging = id(yambms${yambms_id}_charging_instruction).state;
+            float soc = id(yambms${yambms_id}_battery_soc).state;
+            if (charging == "Bulk" || charging == "Float")        reg |= 0x80;
+            if (id(yambms${yambms_id}_discharging_instruction).state) reg |= 0x40;
+            if (soc <= 9)                    reg |= 0x20;
+            else if (soc <= 14)              reg |= 0x10;
+            return reg;
+        # Run Time To Empty (min) - remaining capacity / discharge current,
+        # left at 0 while not discharging rather than reporting infinity.
+        - address: 117   # 0x0075
+          value_type: U_WORD
+          read_lambda: |-
+            float current = id(yambms${yambms_id}_current).state;
+            if (current >= 0) return uint16_t(0);
+            return uint16_t(id(yambms${yambms_id}_battery_capacity_remaining).state / -current * 60);
+        # Module remain capacity (mAh) - 4 bytes, occupies 0x0076-0x0077
+        - address: 118   # 0x0076
+          value_type: U_DWORD
+          read_lambda: |-
+            return uint32_t(id(yambms${yambms_id}_battery_capacity_remaining).state * 1000);

@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 1.1.3
+# Updated : 2026.09.04
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,9 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
-
-packages:
-  rs485: !include yambms_rs485.yaml
 
 select:
   # YamBMS - Inverter Communication Protocol
