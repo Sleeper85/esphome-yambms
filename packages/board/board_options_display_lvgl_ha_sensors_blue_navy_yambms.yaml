@@ -24,6 +24,7 @@
 substitutions:
   device_name: 'yambms'
   yambms_name: 'yambms_1'
+  battery_fill_px_per_percent: '1'
 
 sensor:
 
@@ -91,7 +92,7 @@ sensor:
           text: !lambda 'return to_string((int)x) + "%";'
       - lvgl.obj.update:
           id: battery_fill_soc
-          height: !lambda 'return (int)x;'
+          height: !lambda 'return (int)(x * ${battery_fill_px_per_percent});'
           bg_color: !lambda |-
             if (x > 80) return lv_color_hex(${color_5}); // green
             if (x > 20) return lv_color_hex(${color_6}); // yellow
