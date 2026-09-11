@@ -82,6 +82,7 @@ packages:
       # - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-4.3.yaml' # 800x480
       - path: 'packages/board/board_ESP32-S3_WS-Touch-LCD-7.yaml' # 800x480
       # - path: 'packages/board/board_ESP32-P4_M5Stack-Tab5.yaml' # 1280x720
+      # - path: 'packages/board/board_ESP32-P4_Elecrow-CrowPanel-Advanced-7-10.yaml' # 1024x600
 
   # +------------------------------------------------------------------------------+
   # | >>> Board Display
@@ -89,7 +90,9 @@ packages:
   # +------------------------------------------------------------------------------+
 
       - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_yambms.yaml'   # 800x480 Blue Navy display - YamBMS pages
-      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml'   # 800x480 Blue Navy display - Overview + YamBMS pages  
+      # - path: 'packages/board/board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml'   # 800x480 Blue Navy display - Overview + YamBMS pages
+      # - path: 'packages/board/board_options_display_lvgl_package_1024x600_blue_navy_ha_yambms.yaml' # 1024x600 Blue Navy display - YamBMS pages
+      # - path: 'packages/board/board_options_display_lvgl_package_1024x600_blue_navy_ha_full.yaml'   # 1024x600 Blue Navy display - Overview + YamBMS pages
       # - path: 'packages/board/board_options_display_lvgl_package_1280x720_Tab5_ha.yaml'            # 1280x720 Tab5 display
 
         vars:
@@ -100,6 +103,7 @@ packages:
           # +------------------------------------------------------------------------------+
           # | >>> Uncomment the variables below to use the following YAMLs :
           # | >>> board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml
+          # | >>> board_options_display_lvgl_package_1024x600_blue_navy_ha_full.yaml
           # +------------------------------------------------------------------------------+
 
           # Overview page inputs
