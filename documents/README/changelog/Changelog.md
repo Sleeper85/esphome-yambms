@@ -31,6 +31,8 @@
   * Fixed the reported communication bus and protocol being overwritten when a node declares several inverter links : each link now owns its slot, and the telemetry reports every link instead of the last one
   * Auto EOC : new `Auto EOC Start Hour` / `Auto EOC Start Minute` define the charging window, which may cross midnight, and the target hour can be set from `0` to `23` (night charging from the grid) ; outside the window the status is `Wait: Starts at hh:mm` instead of `Stop: Target time passed`, the default start `0:00` keeps the daylight behaviour
   * `Daily Charging Energy` / `Daily Discharging Energy` (YamBMS and BMS) rounded to 10 Wh (`0.01 kWh`) instead of 1 Wh, to reduce the number of state changes recorded by Home Assistant
+  * Added `Auto Balancer`: allows balancing only at low current (shunt or BMS current), for external balancers and BMS internal balancers
+  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
 
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`
@@ -60,7 +62,6 @@
   * Updated default PSRAM options for ESP-IDF 5.5+, see [documentation](documents/README/PSRAM_options.md)
   * Fixed incorrect Max/Min Cell Voltage scaling (×100 instead of ×1000) sent on the CAN bus for the Deye PCS protocol
   * `secrets.yaml` template renamed to `secrets_example.yaml` (copy it to your own gitignored `secrets.yaml`, as documented in Installation_procedure.md)
-  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
   * Merged [PR 308](https://github.com/Sleeper85/esphome-yambms/pull/308) Check if Auto SoC Limit has reached its target
   * Merged [PR 303](https://github.com/Sleeper85/esphome-yambms/pull/303) Auto CCL Current Taper
   * Merged [PR 290](https://github.com/Sleeper85/esphome-yambms/pull/290) Add grace period to Auto EOC

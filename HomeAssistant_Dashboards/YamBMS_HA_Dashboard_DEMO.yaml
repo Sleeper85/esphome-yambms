@@ -1,4 +1,4 @@
-# Updated : 2026.11.06
+# Updated : 2026.11.07
 # Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -547,6 +547,22 @@ views:
                 name: README
                 icon: mdi:book-open-variant
             title: YamBMS - Auto SoC Limit
+          - type: entities
+            entities:
+              - entity: switch.yambms_demo_auto_balancer
+                name: Auto Balancer
+              - entity: number.yambms_demo_auto_balancer_stop_current
+                name: Stop Current
+              - entity: number.yambms_demo_auto_balancer_resume_current
+                name: Resume Current
+              - entity: number.yambms_demo_auto_balancer_resume_delay
+                name: Resume Delay
+              - type: weblink
+                url: >-
+                  https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#auto-balancer
+                name: README
+                icon: mdi:book-open-variant
+            title: YamBMS - Auto Balancer
           - type: entities
             entities:
               - entity: switch.yambms_demo_automatic_eoc_current

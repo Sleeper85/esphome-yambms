@@ -532,6 +532,95 @@ Notes:
 - If you taper toward near zero, you may also need a higher cut-off voltage or a longer cut-off timer to avoid an early `Cut-Off`.
 - Pair with `Charger Offset V.` when the inverter undershoots bulk.
 
+## Auto Balancer
+
+When to use: Your balancer starts while the battery still takes a large charge current at the top of charge.
+
+Near full charge, LFP cell voltages react strongly to current, and some cells react much more than others. Under `20-35A` a pack can show a cell spread of `50-75mV` that disappears once the current drops. A balancer running at that moment sees the wrong cells as the fullest and moves charge out of them. At rest these cells then sit lower than the others, and this repeats every day. The balancer's own start voltage and trigger cannot prevent it, because the cells reach these values under current anyway.
+
+This function only allows balancing at low current:
+
+- `|current|` above `Auto Balancer Stop Current`: balancing is turned off immediately.
+- `|current|` below `Auto Balancer Resume Current` for `Auto Balancer Resume Delay`: balancing is turned on again.
+- In between: the last state is kept. The gap and the delay prevent flapping when clouds pass.
+
+The absolute current is used, so balancing is also blocked under heavy discharge near the top. The balancer's own start voltage, trigger and sleep voltage still apply on top of this function.
+
+It works with external balancers (e.g. `JK/NEEY` active balancers) and with the internal balancer of a BMS, connected directly or through a node of the [multi-node RS485 modbus solution](YamBMS_multi-node_RS485_modbus_solution.md). One battery can control several balancers.
+
+### Settings
+
+These entities belong to the `YamBMS` device:
+
+- `Auto Balancer`: enables or disables the function (default `off`).
+- `Auto Balancer Stop Current`: default `8A`.
+- `Auto Balancer Resume Current`: default `5A`. It is never used above the stop current.
+- `Auto Balancer Resume Delay`: default `120s`.
+
+These entities belong to each controlled `BMS` device:
+
+- `Auto Balancer allowed`: `on` if balancing is allowed.
+- `Auto Balancer status`: the state, the current source and the reason, for example `Off: Shunt current > 8 A`, `Off: BMS current < 5 A, waiting` or `On: Shunt current 5-8 A, hold`. `, EOC held` is added while the battery holds the end of charge (see below).
+
+### End of charge
+
+`YamBMS` only ends the charge in the `Cut-Off` phase when no battery is equalizing (see [Charging logic](Charging_logic.md)). A blocked balancer reports no balancing, so without care the charge could end while the current is still high, before the balancer gets its low current window. At float voltage most balancers then stay below their start voltage and do not run at all.
+
+To prevent this, a battery counts as equalizing while its balancing is blocked by the `Auto Balancer` **and** the pack would balance. The references are the same as for `Fake Equalizing`:
+
+- start: max cell voltage `>=` bulk voltage per cell **and** cell spread `>=` balance trigger voltage
+- stop: max cell voltage `<` bulk voltage per cell `- 30mV` **or** cell spread `<` balance trigger voltage `- 2mV`
+
+The `Cut-Off` timer then waits until the current is low, the balancer is allowed again and reports its own balancing state. The `EOC timer`, if enabled, still ends the charge at the latest. While the battery is held this way, the `YamBMS` charging status can show `Balancing`. This also applies to a charge started with `Force Bulk`, which hands over to the normal `Cut-Off` logic.
+
+### Current source
+
+If a `shunt_id` is given, the current of this shunt is used while the shunt is online and its `Combine enabled` switch is on. Otherwise the BMS current is used. The shunt must measure only this battery: a shunt shared by several batteries does not give the current of one battery.
+
+If no current is available (BMS offline and no valid shunt), the last state is kept.
+
+### Balance switches
+
+- `Auto Balancer` on: each controlled switch follows `Auto Balancer allowed`. If the switch state differs from it (manual change, balancer reconnect, failed modbus write), the command is sent again every `30s`.
+- `Auto Balancer` off: the controlled switches are turned on once and then left alone, so the balancers return to their own behaviour.
+
+> [!WARNING]
+> Do not use `bms_options_auto_balance_switch.yaml` on a switch controlled by the `Auto Balancer`, both would fight over the switch.
+
+### Configuration
+
+The global settings are part of `yambms.yaml`. For each battery add one `bms_options_auto_balancer.yaml` and one `bms_options_auto_balancer_switch.yaml` per balance switch to control, on the main `YamBMS` node:
+
+```YAML
+  # Battery 3, measured by Shunt 3, with an external balancer
+  auto_balancer3: !include
+    file: packages/bms/bms_options_auto_balancer.yaml
+    vars:
+      bms_id: '3'
+      shunt_id: '3' # '0' or omitted = use the BMS current
+  auto_balancer3_ext: !include
+    file: packages/bms/bms_options_auto_balancer_switch.yaml
+    vars:
+      bms_id: '3'
+      switch_id: 'balancer3_balance_switch' # external balancer
+  auto_balancer3_int: !include
+    file: packages/bms/bms_options_auto_balancer_switch.yaml
+    vars:
+      bms_id: '3'
+      switch_id: 'bms3_balance_switch' # internal BMS balancer
+```
+
+The switch IDs are the same whether the balancer or BMS is connected directly or through a modbus node:
+
+| Switch | Direct | Through a modbus node (main node) |
+|---|---|---|
+| `balancer<id>_balance_switch` | `balancer_sensors_JK_NEEY_BLE.yaml` | `balancer_modbus_client.yaml` |
+| `bms<id>_balance_switch` | JK BMS packages with a balance switch | `bms_combine_modbus_client_balance_switch.yaml` in addition to `bms_combine_modbus_client.yaml` |
+
+> [!NOTE]
+> The JK UART (4G-GPS) and Basen BMS do not provide a balance switch.
+
+
 ## Inverter Heartbeat Monitoring
 
 ![Image](../../images/YamBMS_Inverter_Heartbeat.png "YamBMS_Inverter_Heartbeat")
