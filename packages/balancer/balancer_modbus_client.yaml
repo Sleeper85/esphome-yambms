@@ -1,5 +1,5 @@
-# Updated : 2026.07.31
-# Version : 1.2.0
+# Updated : 2026.11.03
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -131,3 +131,14 @@ sensor:
       - or:
         - throttle: 10s
         - delta: 0.001
+
+switch:
+  # balance_switch
+  - platform: modbus_controller
+    modbus_controller_id: modbus_controller_balancer${bms_id}
+    id: balancer${bms_id}_balance_switch
+    device_id: balancer_${bms_id}
+    name: "Balance switch"
+    register_type: holding
+    address: 5
+    bitmask: 1

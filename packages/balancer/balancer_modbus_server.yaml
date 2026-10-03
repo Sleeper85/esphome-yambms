@@ -1,5 +1,5 @@
-# Updated : 2026.07.31
-# Version : 1.1.5
+# Updated : 2026.11.03
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -63,3 +63,13 @@ modbus_server:
           value_type: U_WORD
           read_lambda: |-
             return uint16_t(id(balancer${bms_id}_balance_starting_voltage).state * 1000);
+        # balance_switch (1/0) - writable
+        - address: 5
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(balancer${bms_id}_balance_switch).state);
+          write_lambda: |-
+            if (x > 1) return false;
+            if (x == 1) id(balancer${bms_id}_balance_switch).turn_on();
+            else id(balancer${bms_id}_balance_switch).turn_off();
+            return true;
