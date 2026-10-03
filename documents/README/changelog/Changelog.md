@@ -20,6 +20,8 @@
     * The components build with ESPHome 2026.11 at log level `DEBUG`
   * JK RS485 : removed the `precharging` switch and the `operation status` and `battery type` text sensors, which never received a value ; Home Assistant may keep them as unavailable entities, which you can delete
   * JK RS485 : the `sniffer_protocol` var is no longer used (JK RS485 1.2 removed `protocol_version`) ; you can remove it from your YAML, keeping it does no harm
+  * Added `Auto Balancer`: allows balancing only at low current (shunt or BMS current), for external balancers and BMS internal balancers
+  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
 
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`
@@ -119,7 +121,6 @@
   * Web server authentication switched to `digest`
   * Fixed the `brightness not supported` warning logged on every status LED change on boards with a single-colour LED ; `rgb_order` replaced by `channel_colors` in the board files (deprecated by ESPHome, removed in 2027.3.0), to report in your own board file if you have one
   * CAN frame logs moved from `INFO` to `DEBUG` level
-  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
   * Merged [PR 308](https://github.com/Sleeper85/esphome-yambms/pull/308) Check if Auto SoC Limit has reached its target
   * Merged [PR 303](https://github.com/Sleeper85/esphome-yambms/pull/303) Auto CCL Current Taper
   * Merged [PR 290](https://github.com/Sleeper85/esphome-yambms/pull/290) Add grace period to Auto EOC
