@@ -1,0 +1,103 @@
+# Updated : 2026.11.03
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +------------------------------------------------------------------+
+# | Auto Balancer - balance switch                                   |
+# |                                                                  |
+# | Drives one balance switch from the decision of                   |
+# | bms_options_auto_balancer.yaml for battery ${bms_id}.            |
+# | Include this package once per switch to control, e.g. the        |
+# | external balancer and the BMS internal balancer.                 |
+# |                                                                  |
+# |  - Auto Balancer enabled  : the switch follows the decision.     |
+# |    If the switch state differs (manual change, reconnect,        |
+# |    failed write) the command is sent again every 30s.            |
+# |  - Auto Balancer disabled : the switch is turned on once and     |
+# |    then left alone.                                              |
+# |                                                                  |
+# | Do not combine with bms_options_auto_balance_switch.yaml on the  |
+# | same switch.                                                     |
+# |                                                                  |
+# | Vars :                                                           |
+# |   bms_id    : BMS ID of the battery                              |
+# |   switch_id : ID of the balance switch, local or modbus client   |
+# |               e.g. balancer${bms_id}_balance_switch              |
+# |                    bms${bms_id}_balance_switch                   |
+# +------------------------------------------------------------------+
+
+globals:
+  # Auto Balancer was enabled at the last run
+  - id: ${switch_id}_var_auto_balancer_enabled
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  # A command was sent
+  - id: ${switch_id}_var_auto_balancer_cmd_sent
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  # Last command sent
+  - id: ${switch_id}_var_auto_balancer_cmd
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  # Time (ms) of the last command
+  - id: ${switch_id}_var_auto_balancer_cmd_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          auto *sw = id(${switch_id});
+
+          // Auto Balancer disabled: turn the balancer on once and release the switch
+          if (!id(yambms${yambms_id}_switch_auto_balancer).state)
+          {
+            if (id(${switch_id}_var_auto_balancer_enabled))
+            {
+              id(${switch_id}_var_auto_balancer_enabled) = false;
+              id(${switch_id}_var_auto_balancer_cmd_sent) = false;
+              ESP_LOGI("auto_balancer", "BMS %d: Auto Balancer disabled, turning on ${switch_id}", ${bms_id});
+              sw->turn_on();
+            }
+            return;
+          }
+          id(${switch_id}_var_auto_balancer_enabled) = true;
+
+          const bool target = id(bms${bms_id}_var_auto_balancer_allowed);
+          if (sw->state == target) return;
+
+          // Send a new command immediately, repeat the same command every 30s
+          const uint32_t now = millis();
+          if (id(${switch_id}_var_auto_balancer_cmd_sent) &&
+              (id(${switch_id}_var_auto_balancer_cmd) == target) &&
+              ((now - id(${switch_id}_var_auto_balancer_cmd_ms)) < 30000))
+          {
+            return;
+          }
+
+          ESP_LOGI("auto_balancer", "BMS %d: turning %s ${switch_id}", ${bms_id}, target ? "on" : "off");
+          id(${switch_id}_var_auto_balancer_cmd_sent) = true;
+          id(${switch_id}_var_auto_balancer_cmd) = target;
+          id(${switch_id}_var_auto_balancer_cmd_ms) = now;
+          if (target) sw->turn_on();
+          else sw->turn_off();

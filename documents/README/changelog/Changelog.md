@@ -10,6 +10,8 @@
   * Set esphome `min_version` to `2026.11.0`
   * ESPHome 2026.11 requires a `relation` on every sub-device : the BMS, Shunt, Balancer, sniffer, Deye, board, YamBMS and inverter link devices are all declared as `via`, which is how Home Assistant already showed them, so your devices and entities stay as they are
   * Waveshare ESP32-S3 Touch-LCD 4.3, 4.3B and 7 : removed the `enable_pin` workaround added in 1.8.1 for `Pin 2 is used in multiple places`, ESPHome 2026.11 now resolves this conflict itself ; the display and the backlight behave as before
+  * Added `Auto Balancer`: allows balancing only at low current (shunt or BMS current), for external balancers and BMS internal balancers
+  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
 
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`
@@ -109,7 +111,6 @@
   * Web server authentication switched to `digest`
   * Fixed the `brightness not supported` warning logged on every status LED change on boards with a single-colour LED ; `rgb_order` replaced by `channel_colors` in the board files (deprecated by ESPHome, removed in 2027.3.0), to report in your own board file if you have one
   * CAN frame logs moved from `INFO` to `DEBUG` level
-  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
   * Merged [PR 308](https://github.com/Sleeper85/esphome-yambms/pull/308) Check if Auto SoC Limit has reached its target
   * Merged [PR 303](https://github.com/Sleeper85/esphome-yambms/pull/303) Auto CCL Current Taper
   * Merged [PR 290](https://github.com/Sleeper85/esphome-yambms/pull/290) Add grace period to Auto EOC
