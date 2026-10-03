@@ -1,5 +1,5 @@
-# Updated : 2026.08.14
-# Version : 1.1.4
+# Updated : 2026.11.03
+# Version : 1.1.5
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,3 +20,4 @@
 packages:
   bms_sensors: !include bms_sensors_JK_BLE_standard.yaml
   bms_combine: !include bms_modbus_server.yaml
+  bms_balance_switch: !include bms_modbus_server_balance_switch.yaml
