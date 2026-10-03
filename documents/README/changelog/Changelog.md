@@ -119,6 +119,7 @@
   * Web server authentication switched to `digest`
   * Fixed the `brightness not supported` warning logged on every status LED change on boards with a single-colour LED ; `rgb_order` replaced by `channel_colors` in the board files (deprecated by ESPHome, removed in 2027.3.0), to report in your own board file if you have one
   * CAN frame logs moved from `INFO` to `DEBUG` level
+  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
   * Merged [PR 308](https://github.com/Sleeper85/esphome-yambms/pull/308) Check if Auto SoC Limit has reached its target
   * Merged [PR 303](https://github.com/Sleeper85/esphome-yambms/pull/303) Auto CCL Current Taper
   * Merged [PR 290](https://github.com/Sleeper85/esphome-yambms/pull/290) Add grace period to Auto EOC

@@ -1,5 +1,5 @@
-# Updated : 2026.07.31
-# Version : 1.1.9
+# Updated : 2026.11.03
+# Version : 1.1.10
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,7 +23,8 @@ modbus:
     turnaround_time: !remove   # Invalid option for server role (ESPHome PR #11969)
 
 modbus_server:
-  - modbus_id: modbus_server_${modbus_id}
+  - id: modbus_server_bms${bms_id}
+    modbus_id: modbus_server_${modbus_id}
     address: ${bms_id} # max 255 (8bit)
     registers:
         # online_status (1/0)
