@@ -1,5 +1,5 @@
-# Updated : 2026.01.24
-# Version : 1.1.4
+# Updated : 2026.11.03
+# Version : 1.1.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -103,3 +103,13 @@ packages:
         vars:
           bms_id: '3' # must match the BMS ID
           balancer_name: 'Balancer 3'
+      # Auto Balancer: balance only at low current (switch "Auto Balancer")
+      # See documents/README/YamBMS_functions.md#auto-balancer
+      # - path: 'packages/bms/bms_options_auto_balancer.yaml'
+      #   vars:
+      #     bms_id: '2'
+      #     shunt_id: '0' # Shunt measuring only this battery, '0' = use BMS current
+      # - path: 'packages/bms/bms_options_auto_balancer_switch.yaml'
+      #   vars:
+      #     bms_id: '2'
+      #     switch_id: 'balancer2_balance_switch'

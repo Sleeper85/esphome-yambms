@@ -190,7 +190,11 @@ interval:
               id(yambms${yambms_id}_var_total_charging_cycles) += id(bms${bms_id}_charging_cycles).state;
 
               // TOTAL equalizing_counter
-              if (id(bms${bms_id}_equalizing).state) id(yambms${yambms_id}_var_equalizing_counter) += 1;
+              // A battery whose balancing is blocked by the Auto Balancer while it would
+              // balance also counts, so the Cut-Off timer waits for the balancing
+              if (id(bms${bms_id}_equalizing).state ||
+                  (id(yambms${yambms_id}_var_auto_balancer_hold_mask) & (1UL << ${bms_id})))
+                id(yambms${yambms_id}_var_equalizing_counter) += 1;
 
               // MIN/MAX values
               // MAX balance_trigger_voltage

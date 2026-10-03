@@ -1,0 +1,105 @@
+# Updated : 2026.11.03
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +------------------------------------------------------------------+
+# | Auto Balancer                                                    |
+# |                                                                  |
+# | Under charge or discharge current, cell voltages near the top    |
+# | of charge are distorted by each cell's reaction to the current.  |
+# | A balancer running at that moment moves charge out of the wrong  |
+# | cells. This function only allows balancing at low current.       |
+# |                                                                  |
+# | This package holds the global switch and settings. The control   |
+# | per battery is done by bms_options_auto_balancer.yaml and the    |
+# | balance switches are driven by                                   |
+# | bms_options_auto_balancer_switch.yaml.                           |
+# +------------------------------------------------------------------+
+
+globals:
+  # Shunt current per shunt ID (A), written by shunt_combine.yaml
+  # Index 0 is unused, shunt IDs 1..16 are supported
+  - id: yambms${yambms_id}_var_auto_balancer_shunt_current
+    type: std::array<float, 17>
+    restore_value: no
+    initial_value: 'std::array<float, 17>{}'
+  # Bitmask (bit = shunt ID) of shunts with a valid current and enabled combine switch
+  - id: yambms${yambms_id}_var_auto_balancer_shunt_valid
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  # Bitmask (bit = BMS ID) of batteries whose balancing is blocked while they would
+  # balance. bms_combine.yaml counts them as equalizing, which holds the Cut-Off timer.
+  - id: yambms${yambms_id}_var_auto_balancer_hold_mask
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+switch:
+  - platform: template
+    name: "Auto Balancer"
+    id: yambms${yambms_id}_switch_auto_balancer
+    device_id: yambms_yambms${yambms_id}
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: config
+    icon: mdi:scale-balance
+
+number:
+  - platform: template
+    name: "Auto Balancer Stop Current"
+    id: yambms${yambms_id}_auto_balancer_stop_current
+    device_id: yambms_yambms${yambms_id}
+    step: 1
+    min_value: 1
+    max_value: 50
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 8
+    unit_of_measurement: 'A'
+    icon: mdi:current-dc
+    optimistic: true
+    entity_category: config
+  - platform: template
+    name: "Auto Balancer Resume Current"
+    id: yambms${yambms_id}_auto_balancer_resume_current
+    device_id: yambms_yambms${yambms_id}
+    step: 1
+    min_value: 0
+    max_value: 50
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 5
+    unit_of_measurement: 'A'
+    icon: mdi:current-dc
+    optimistic: true
+    entity_category: config
+  - platform: template
+    name: "Auto Balancer Resume Delay"
+    id: yambms${yambms_id}_auto_balancer_resume_delay
+    device_id: yambms_yambms${yambms_id}
+    step: 10
+    min_value: 0
+    max_value: 900
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 120
+    unit_of_measurement: 's'
+    icon: mdi:timer-outline
+    optimistic: true
+    entity_category: config
