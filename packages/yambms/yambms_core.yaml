@@ -581,11 +581,13 @@ interval:
               else
                 power = round(id(yambms${yambms_id}_var_bms_total_power));
 
+              // battery_charging_power
               if (!std::isnan(power) && power > 0)
               {
                 battery_charging_power = power;
                 battery_discharging_power = 0;
               }
+              // battery_discharging_power
               else if (!std::isnan(power))
               {
                 battery_charging_power = 0;
