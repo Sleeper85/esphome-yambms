@@ -2,7 +2,7 @@
 
 YamBMS is a set of **ESPHome YAML packages** — there is no compiled application code beyond a few
 embedded C++ lambdas. It merges data from several BMS / Shunt / Balancer units and drives an
-inverter over CAN or RS485 (PYLON / SMA / Victron / LuxPower). All the logic lives in YAML
+inverter over CAN or RS485 (PYLON / SMA / Victron / LuxPower / EG4). All the logic lives in YAML
 (`substitutions`, `packages: !include`, `lambda:`) and is assembled by the ESPHome compiler.
 
 ## Entry points

@@ -26,10 +26,30 @@ Other configurations are possible, don't hesitate to communicate what works well
 | Growatt | CAN L52 | PYLON 1.2 |
 | Solis | AoBo | SMA |
 | LuxPower | Lithium 6 | LuxPower |
-| EG4 | Lithium 6 | LuxPower |
+| EG4 | Lithium 6 | LuxPower (or `EG4` for LuxPower plus per-pack data) |
 | Victron | CAN-bus BMS LV (500 kbit/s) | Victron |
 | MidNite Solar | PYLON | PYLON 1.2 |
 | SMA | - | SMA |
+
+`LuxPower` remains the documented choice for these inverters. `EG4` sends the same LuxPower frames and also answers the EG4 inverter's per-pack request (`0x405`) with one set of frames per BMS.
+
+### EG4 per-pack data (CAN, protocol `EG4`)
+
+EG4 inverters ask the battery for per-pack data with `can_id 0x405` (about once a minute).
+With the `EG4` protocol YamBMS answers with seven frames per BMS, `0x400 + 0x20 × group + (bms_id − 1)`,
+11 ms apart and sent group by group like a real EG4 master: pack count and capacity, limits,
+voltage / current / SOC / SOH / cycles, max/min temperature and cell voltage with their sensor
+and cell numbers, firmware 2.13 (what an EG4-LL on Z02T13 reports), and the name
+`Battery_ID_NN`. A BMS that cannot be combined (for example an offline BMS) is left out.
+Pack numbers are fixed by `bms_id`: BMS 3 is always sent as pack 3 (`Battery_ID_03`), whether
+or not BMS 2 is present.
+
+To answer only some BMS on a bus, set `canbus_eg4_packs` on that bus's `yambms_canbus.yaml`
+include, e.g. `canbus_eg4_packs: "1,2,5"`. Default `"all"`. A value that selects no BMS (1-32)
+logs a warning and that bus does not answer `0x405`.
+
+With `YamBMS name` set to `Automatic`, the `EG4` protocol sends `EG4-LL` in `0x35E`, the name a real
+EG4-LL battery bank sends. `EG4-LL` can also be chosen manually.
 
 ## Charging settings
 
@@ -132,7 +152,7 @@ This function allows you to force a charge from `GRID` :
 - when `SoC <= Start SoC` the forced charge start
 - when `SoC >= Stop SoC` the forced charge stop
 
-Works only with `PYLON`, `LuxPower` and `Victron` protocols.
+Works only with `PYLON`, `LuxPower`, `EG4` and `Victron` protocols.
 
 ## Auto functions
 

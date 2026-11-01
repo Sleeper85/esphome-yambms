@@ -50,7 +50,7 @@ The requested charge/discharge current starts from the lowest of three static ce
 Auto SoC Limit stops charging at a target SoC by switching to Float, clamping the CCL to a configurable small value (avoiding the 0 A requests some inverters mishandle), or both, with hysteresis to prevent oscillation around the threshold. Auto EOC slows the charge so the battery reaches full at a chosen time instead of sitting fully charged all day — a calendar-aging benefit, since it minimizes time spent at high pressure.
 
 ### ReBulk and Request Force Charge
-Recharge is re-triggered by SoC, voltage, or days since last full charge (useful for periodic SOC recalibration and top balancing), and a grid force-charge can be requested between configurable start/stop SoC values on PYLON, LuxPower and Victron protocols. Force Bulk automatically disengages once the pack enters Cut-Off.
+Recharge is re-triggered by SoC, voltage, or days since last full charge (useful for periodic SOC recalibration and top balancing), and a grid force-charge can be requested between configurable start/stop SoC values on PYLON, LuxPower, EG4 and Victron protocols. Force Bulk automatically disengages once the pack enters Cut-Off.
 
 ### Supporting safeguards
 A 16-bit alarm bitmask consolidates protections across all connected BMS units (OVP, UVP, temperature, overcurrent, short circuit, imbalance…), distinguishing a single unit in alarm ("Warning") from a bank-wide condition. An Inverter Offset compensates for cable voltage drop or inverters that under-deliver the requested voltage, and Inverter Heartbeat Monitoring helps detect a failing CAN/RS485 link — the silent failure mode where an inverter charges blind.

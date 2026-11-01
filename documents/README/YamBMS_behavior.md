@@ -198,6 +198,7 @@ The Deye inverter sends the ACK (can_id `0x305`) only when it receives the can_i
     # before the end of the `canbus_link_timer` (5s by default).
     canbus_link_timer: '5s'
     canbus_extended_ack: 'false' # Set to 'true' for enable extended 29-bit IDs for the ACK can_id 0x305 (required for Schneider XW Pro)
+    canbus_eg4_packs: 'all' # EG4 protocol only: BMS slots (bms_id) answered on this bus, 'all' or e.g. '1,2,5'
 ```
 
 ## Warning & Alarms

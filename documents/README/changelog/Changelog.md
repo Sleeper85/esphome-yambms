@@ -6,6 +6,9 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+* CANBUS 2.7.0 : Added `EG4` protocol (LuxPower frames + per-pack answer to `0x405`, `EG4-LL` BMS name), see [documentation](../YamBMS_functions.md#eg4-per-pack-data-can-protocol-eg4)
+* BMS combine 1.9.0 : register EG4 per-pack frame encoders
+
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`
   * Updated HA dashboards `1.8.0` for the new Cut-Off Cell Voltage, Charger Offset V., C-Rate and Auto CCL Current Taper entities
