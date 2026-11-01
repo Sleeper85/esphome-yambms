@@ -1,5 +1,5 @@
-# Updated : 2026.02.23
-# Version : 1.1.6
+# Updated : 2026.10.18
+# Version : 1.1.7
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -221,8 +221,7 @@ sensor:
     id: deye${deye_id}_battery_capacity
     device_id: deye_${deye_id}
     unit_of_measurement: 'Ah'
-    device_class: 'energy'
-    state_class: 'total_increasing'
+    state_class: 'measurement'
     accuracy_decimals: 0
     filters:
       - throttle: ${bms_update_interval}
