@@ -1,0 +1,189 @@
+# Updated : 2026.09.11
+# Version  : 1.1.0
+# GitHub   : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# Elecrow CrowPanel Advanced (ESP32-P4 + ESP32-C6)
+# 7" / 9" / 10.1" share the same 1024x600 MIPI DSI pinout.
+# 5" is RGB 800x480 with different GPIOs - do not use this board file.
+# https://www.elecrow.com/display/esp-hmi-display/esp32-p4-hmi-display.html
+# https://www.elecrow.com/wiki/CrowPanel_Advanced_9inch_ESP32-P4_HMI_AI_Display_1024x600_IPS.html
+
+# NOTE: WiFi uses the ESP32-C6 co-processor via esp32_hosted (SDIO).
+# Factory C6 firmware is unreliable — update it after the first flash
+# (ESPHome update entity / esphome.github.io/esp-hosted-firmware).
+# Display: mipi_dsi Waveshare 7B preset (EK79007), 1024x600 landscape.
+
+# +--------------------------------------------------------------------------------------------+
+# | Crowtail UART
+# +--------------------------------------------------------------------------------------------+
+# | UART1 (PH2.0-4P): TX=GPIO47, RX=GPIO48 - include board_options_itf_uart_esp_1.yaml
+# | UART3-IN (XH2.54-4P): TX=GPIO34, RX=GPIO33 - include board_options_itf_uart_esp_2.yaml
+# | I2C Crowtail shares GPIO45/46 with the GT911 touch controller.
+# | No onboard CAN transceiver.
+# +--------------------------------------------------------------------------------------------+
+
+substitutions:
+  board_chip: "ESP32-P4"
+  board_name: "CrowPanel Advanced"
+  # I²C bus (GT911 touch and Crowtail I2C)
+  i2c_sda: "45"
+  i2c_scl: "46"
+  # uart_esp_1 (UART1 Crowtail)
+  tx_pin_1: "47"
+  rx_pin_1: "48"
+  # uart_esp_2 (UART3-IN)
+  tx_pin_2: "34"
+  rx_pin_2: "33"
+  # LOOP_TASK_STACK
+  loop_task_stack_size: "8192" # see LOOP_TASK_STACK.md before changing
+
+packages:
+  device_base: !include ../base/device_base.yaml
+  device_base_wifi: !include ../base/device_base_wifi.yaml
+  no_led_control: !include board_options_no_led_control.yaml
+
+preferences:
+  flash_write_interval: never
+
+esp32:
+  variant: esp32p4
+  engineering_sample: true
+  cpu_frequency: 360MHz
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      loop_task_stack_size: ${loop_task_stack_size}
+      execute_from_psram: true
+      enable_idf_experimental_features: true
+    sdkconfig_options:
+      CONFIG_IDF_EXPERIMENTAL_FEATURES: "y"
+      CONFIG_ESPTOOLPY_FLASHMODE_QIO: "y"
+      CONFIG_ESPTOOLPY_FLASHFREQ_80M: "y"
+      CONFIG_ESPTOOLPY_FLASHSIZE_16MB: "y"
+
+# WiFi via ESP32-C6 co-processor (PCB V1.0, 1-bit SDIO)
+esp32_hosted:
+  variant: esp32c6
+  active_high: true
+  bus_width: 1
+  reset_pin: GPIO32
+  cmd_pin: GPIO19
+  clk_pin: GPIO18
+  d0_pin: GPIO14
+
+psram:
+  speed: 200MHz
+
+wifi:
+  id: my_network
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  reboot_timeout: 0s
+  power_save_mode: none
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+# +--------------------------------------+
+# | I²C Bus                              |
+# +--------------------------------------+
+
+i2c:
+  - id: bus_a
+    sda: ${i2c_sda}
+    scl: ${i2c_scl}
+    frequency: 400kHz
+
+# +--------------------------------------+
+# | ESP LDO for display                  |
+# +--------------------------------------+
+
+esp_ldo:
+  - channel: 3
+    voltage: 2.5V
+  - channel: 4
+    voltage: 2.5V
+
+# +--------------------------------------+
+# | Backlight                            |
+# +--------------------------------------+
+# | LCD_BK_EN (PWM) = GPIO31
+# | LCD_BK_POWER (MOSFET, inverted) = GPIO29
+# +--------------------------------------+
+
+output:
+  - platform: ledc
+    pin: GPIO31
+    id: backlight_pwm
+    frequency: 100Hz
+    min_power: 0.03
+    zero_means_zero: true
+  - platform: gpio
+    id: power_light
+    pin: GPIO29
+    inverted: true
+
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    name: Display Backlight
+    id: backlight
+    restore_mode: ALWAYS_ON
+    default_transition_length: 250ms
+
+esphome:
+  on_boot:
+    - priority: 800
+      then:
+        - output.turn_on: backlight_pwm
+        - delay: 200ms
+        - output.turn_off: power_light
+        - delay: 300ms
+        - light.turn_on: backlight
+
+# +--------------------------------------+
+# | Touch Screen (GT911)                 |
+# +--------------------------------------+
+
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    i2c_id: bus_a
+    reset_pin: GPIO40
+    interrupt_pin: GPIO42
+    update_interval: 50ms
+
+# +--------------------------------------+
+# | Display (MIPI DSI 1024x600)          |
+# +--------------------------------------+
+
+display:
+  - platform: mipi_dsi
+    id: my_display
+    model: WAVESHARE-ESP32-P4-WIFI6-TOUCH-LCD-7B
+    reset_pin:
+      number: GPIO41
+    update_interval: never
+    auto_clear_enabled: false
+    dimensions:
+      width: 1024
+      height: 600
+    color_order: RGB
+    color_depth: 16

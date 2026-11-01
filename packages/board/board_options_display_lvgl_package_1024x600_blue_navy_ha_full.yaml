@@ -1,0 +1,74 @@
+# Updated : 2026.09.11
+# Version : 1.1.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# Blue Navy Overview + YamBMS pages - copy of
+#   board_options_display_lvgl_package_800x480_blue_navy_ha_full.yaml
+# with layout scaled to 1024x600 (same widgets, IDs and HA sensors).
+
+substitutions:
+  home_page: "page_overview"
+
+packages:
+  lvgl_design_base: !include board_options_display_lvgl_design_1024x600_blue_navy_base.yaml
+  lvgl_design_overview: !include board_options_display_lvgl_design_1024x600_blue_navy_overview.yaml
+  lvgl_design_yambms: !include board_options_display_lvgl_design_1024x600_blue_navy_yambms.yaml
+  ha_sensors_overview: !include
+    file: board_options_display_lvgl_ha_sensors_blue_navy_overview.yaml
+    vars:
+      # Flow-dot travel follows the scaled 1024x600 connection lines.
+      anim_pv_y_from: "132"
+      anim_pv_y_to: "233"
+      anim_grid_x_import_from: "296"
+      anim_grid_x_import_to: "509"
+      anim_bat_x_charge_from: "515"
+      anim_bat_x_charge_to: "724"
+      anim_home_y_from: "240"
+      anim_home_y_to: "340"
+      anim_pv_power_max: ${anim_pv_power_max}
+      anim_grid_power_max: ${anim_grid_power_max}
+      anim_battery_power_max: ${anim_battery_power_max}
+      anim_home_power_max: ${anim_home_power_max}
+      anim_duration_min: ${anim_duration_min}
+      anim_duration_max: ${anim_duration_max}
+      pv_power: ${pv_power}
+      pv_energy_today: ${pv_energy_today}
+      grid_power: ${grid_power}
+      grid_voltage: ${grid_voltage}
+      grid_frequency: ${grid_frequency}
+      grid_import_today: ${grid_import_today}
+      grid_export_today: ${grid_export_today}
+      bat_power: ${bat_power}
+      bat_soc: ${bat_soc}
+      bat_voltage: ${bat_voltage}
+      bat_cell_count: ${bat_cell_count}
+      bat_charging_phase: ${bat_charging_phase}
+      bat_charge_today: ${bat_charge_today}
+      bat_discharge_today: ${bat_discharge_today}
+      home_power: ${home_power}
+      home_daily_energy_total: ${home_daily_energy_total}
+      home_daily_energy_solar: ${home_daily_energy_solar}
+      home_daily_energy_grid: ${home_daily_energy_grid}
+      home_daily_energy_battery: ${home_daily_energy_battery}
+  ha_sensors_yambms: !include
+    file: board_options_display_lvgl_ha_sensors_blue_navy_yambms.yaml
+    vars:
+      # Battery fill shell is 125 px at 1024x600 vs 100 px at 800x480.
+      battery_fill_px_per_percent: "1.25"
+      device_name: ${device_name}
+      yambms_name: ${yambms_name}
