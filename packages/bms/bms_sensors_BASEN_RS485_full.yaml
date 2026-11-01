@@ -1,5 +1,5 @@
-# Updated : 2026.03.15
-# Version : 1.2.5
+# Updated : 2026.10.18
+# Version : 1.2.7
 # GitHub  : https://github.com/GHswitt/esphome-basen
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -596,7 +596,7 @@ sensor:
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
-    device_class: 'current'
+    device_class: 'power'
     state_class: 'measurement'
     accuracy_decimals: 0
     lambda: |-
@@ -609,7 +609,7 @@ sensor:
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
-    device_class: 'current'
+    device_class: 'power'
     state_class: 'measurement'
     accuracy_decimals: 0
     lambda: |-
@@ -619,7 +619,6 @@ sensor:
   # Remaining capacity: Calculated from capacity and SoC
   - platform: template
     unit_of_measurement: 'Ah'
-    device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 0
     id: bms${bms_id}_capacity_remaining_ah

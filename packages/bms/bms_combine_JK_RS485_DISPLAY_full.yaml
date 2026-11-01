@@ -1,5 +1,5 @@
-# Updated : 2026.08.29
-# Version : 1.2.2
+# Updated : 2026.10.18
+# Version : 1.2.3
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -297,7 +297,6 @@ sensor:
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
     filters:
       - or:
         - throttle: 10s
@@ -312,7 +311,6 @@ sensor:
     update_interval: ${bms_update_interval}
     accuracy_decimals: 0
     unit_of_measurement: Ah
-    device_class: energy_storage
     filters:
       - or:
         - throttle: 10s

@@ -1,5 +1,5 @@
-# Updated : 2026.02.21
-# Version : 1.2.2
+# Updated : 2026.10.18
+# Version : 1.2.3
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -336,7 +336,7 @@ sensor:
     device_id: bms_${bms_id}
     name: "battery power"
     unit_of_measurement: 'W'
-    device_class: 'current'
+    device_class: 'power'
     state_class: 'measurement'
     accuracy_decimals: 0
     lambda: |-
@@ -352,7 +352,7 @@ sensor:
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
-    device_class: 'current'
+    device_class: 'power'
     state_class: 'measurement'
     accuracy_decimals: 0
     lambda: |-
@@ -369,7 +369,7 @@ sensor:
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
-    device_class: 'current'
+    device_class: 'power'
     state_class: 'measurement'
     accuracy_decimals: 0
     lambda: |-
@@ -399,8 +399,7 @@ sensor:
     id: bms${bms_id}_battery_capacity
     device_id: bms_${bms_id}
     unit_of_measurement: 'Ah'
-    device_class: 'energy'
-    state_class: 'total_increasing'
+    state_class: 'measurement'
     accuracy_decimals: 0
     lambda: |-
       uint8_t module_count = id(deye${deye_id}_module_amount).state;
@@ -415,7 +414,6 @@ sensor:
     id: bms${bms_id}_capacity_remaining_ah
     device_id: bms_${bms_id}
     unit_of_measurement: 'Ah'
-    device_class: 'battery'
     state_class: 'measurement'
     accuracy_decimals: 0
     filters:
