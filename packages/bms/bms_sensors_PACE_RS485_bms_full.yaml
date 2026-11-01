@@ -1,5 +1,5 @@
-# Updated : 2026.08.04
-# Version : 1.1.9
+# Updated : 2026.11.1
+# Version : 1.2.0
 # GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -420,7 +420,6 @@ sensor:
     unit_of_measurement: ""
     state_class: measurement
     accuracy_decimals: 0
-    register_count: 2
 
   #   8  Reserved
 
@@ -430,6 +429,7 @@ sensor:
     device_id: bms_${bms_id}
     name: "warnings bitmask"
     address: 9
+    reuse_previous_range: true
     register_type: holding
     value_type: U_WORD
     unit_of_measurement: ""
@@ -471,7 +471,6 @@ sensor:
     unit_of_measurement: ""
     state_class: measurement
     accuracy_decimals: 0
-    register_count: 3
 
   #  13  Reserved
   #  14  Reserved
@@ -482,6 +481,7 @@ sensor:
     device_id: bms_${bms_id}
     name: "cell voltage 1"
     address: 15
+    reuse_previous_range: true
     register_type: holding
     value_type: U_WORD
     unit_of_measurement: "V"
@@ -709,8 +709,7 @@ sensor:
     name: "delta cell voltage"
     address: 15
     register_type: holding
-    value_type: U_WORD
-    register_count: 16
+    value_type: RAW
     response_size: 32
     unit_of_measurement: "V"
     device_class: voltage
@@ -1863,7 +1862,6 @@ text_sensor:
     name: "warnings"
     address: 9
     register_type: holding
-    register_count: 1
     response_size: 2
     raw_encode: HEXBYTES
     lambda: |-
@@ -1909,7 +1907,6 @@ text_sensor:
     name: "protections"
     address: 10
     register_type: holding
-    register_count: 1
     response_size: 2
     raw_encode: HEXBYTES
     lambda: |-
@@ -1955,7 +1952,6 @@ text_sensor:
     name: "faults"
     address: 11
     register_type: holding
-    register_count: 1
     response_size: 2
     raw_encode: HEXBYTES
     lambda: |-
@@ -1993,7 +1989,6 @@ text_sensor:
     name: "status"
     address: 11
     register_type: holding
-    register_count: 1
     response_size: 2
     raw_encode: HEXBYTES
     lambda: |-
@@ -2029,10 +2024,8 @@ text_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
     name: "version information"
-    skip_updates: 60
     address: 150
     register_type: holding
-    register_count: 10
     response_size: 20
 
   # 160  Model SN                             20 byte  RW  uint16  ASCII BMS Manufacturer
@@ -2040,10 +2033,8 @@ text_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
     name: "bms serial number"
-    skip_updates: 60
     address: 160
     register_type: holding
-    register_count: 10
     response_size: 20
 
   # 170  PACK SN                              20 byte  RW  uint16  ASCII PACK Manufacturer
@@ -2051,8 +2042,6 @@ text_sensor:
     modbus_controller_id: modbus_controller_bms${bms_id}
     device_id: bms_${bms_id}
     name: "battery pack serial number"
-    skip_updates: 60
     address: 170
     register_type: holding
-    register_count: 10
     response_size: 20
