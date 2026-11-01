@@ -1,5 +1,5 @@
 # Updated : 2026.11.1
-# Version : 1.2.0
+# Version : 1.2.1
 # GitHub  : https://github.com/syssi/esphome-pace-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -1886,7 +1886,7 @@ text_sensor:
       };
       std::string values = "";
 
-      uint16_t mask = modbus_controller::word_from_hex_str(x, 0);
+      uint16_t mask = modbus::helpers::word_from_hex_str(x, 0);
       if (mask) {
         for (int i = 0; i < WARNINGS_SIZE; i++) {
           if (mask & (1 << i)) {
@@ -1931,7 +1931,7 @@ text_sensor:
       };
       std::string values = "";
 
-      uint16_t mask = modbus_controller::word_from_hex_str(x, 0);
+      uint16_t mask = modbus::helpers::word_from_hex_str(x, 0);
       if (mask) {
         for (int i = 0; i < PROTECTIONS_SIZE; i++) {
           if (mask & (1 << i)) {
@@ -1968,7 +1968,7 @@ text_sensor:
       };
       std::string values = "";
 
-      uint16_t mask = modbus_controller::word_from_hex_str(x, 0);
+      uint16_t mask = modbus::helpers::word_from_hex_str(x, 0);
       if (mask) {
         for (int i = 0; i < FAULTS_SIZE; i++) {
           if (mask & (1 << i)) {
@@ -2005,7 +2005,7 @@ text_sensor:
       };
       std::string values = "";
 
-      uint16_t mask = modbus_controller::word_from_hex_str(x, 0);
+      uint16_t mask = modbus::helpers::word_from_hex_str(x, 0);
       if (mask) {
         for (int i = 8; i < (STATUS_SIZE+8); i++) {
           if (mask & (1 << i)) {
