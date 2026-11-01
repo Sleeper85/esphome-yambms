@@ -1,5 +1,5 @@
-# Updated : 2026.06.29
-# Version : 1.1.5
+# Updated : 2026.09.11
+# Version : 1.2.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+substitutions:
+  anim_pv_power_max: '8000'
+  anim_grid_power_max: '6000'
+  anim_battery_power_max: '6000'
+  anim_home_power_max: '6000'
+  anim_duration_min: '800'
+  anim_duration_max: '4000'
+  anim_pv_y_from: '106'
+  anim_pv_y_to: '186'
+  anim_grid_x_import_from: '232'
+  anim_grid_x_import_to: '395'
+  anim_bat_x_charge_from: '395'
+  anim_bat_x_charge_to: '562'
+  anim_home_y_from: '186'
+  anim_home_y_to: '272'
 
 # +---------------------------------------------------------+
 # | Boot: initialize Solar and Home dots                    |
@@ -84,7 +100,7 @@ sensor:
                 lv_anim_t a; lv_anim_init(&a);
                 lv_anim_set_var(&a, id(dot_solar));
                 lv_anim_set_exec_cb(&a, cb);
-                lv_anim_set_values(&a, 106, 186);
+                lv_anim_set_values(&a, ${anim_pv_y_from}, ${anim_pv_y_to});
                 lv_anim_set_time(&a, dur);
                 lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
                 lv_anim_set_repeat_delay(&a, 0);
@@ -137,9 +153,9 @@ sensor:
               if (direction_changed || speed_changed) {
                 last_dur_grid = dur;
                 last_is_import_grid = is_import;
-                // Import: left→right (232→395), Export: right→left (395→232)
-                int32_t from_x = is_import ? 232 : 395;
-                int32_t to_x   = is_import ? 395 : 232;
+                // Import: left→right, Export: right→left
+                int32_t from_x = is_import ? ${anim_grid_x_import_from} : ${anim_grid_x_import_to};
+                int32_t to_x   = is_import ? ${anim_grid_x_import_to} : ${anim_grid_x_import_from};
                 lv_anim_exec_xcb_t cb = [](void* obj, int32_t v){ lv_obj_set_x((lv_obj_t*)obj, v); };
                 lv_anim_del(id(dot_grid), NULL);
                 lv_anim_t a; lv_anim_init(&a);
@@ -259,10 +275,10 @@ sensor:
               if (direction_changed || speed_changed) {
                 last_dur_bat = dur;
                 last_is_charge_bat = is_charge;
-                // Charge: junction→battery (left→right 395→562)
-                // Discharge: battery→junction (right→left 562→395)
-                int32_t from_x = is_charge ? 395 : 562;
-                int32_t to_x   = is_charge ? 562 : 395;
+                // Charge: junction→battery (left→right)
+                // Discharge: battery→junction (right→left)
+                int32_t from_x = is_charge ? ${anim_bat_x_charge_from} : ${anim_bat_x_charge_to};
+                int32_t to_x   = is_charge ? ${anim_bat_x_charge_to} : ${anim_bat_x_charge_from};
                 lv_anim_exec_xcb_t cb = [](void* obj, int32_t v){ lv_obj_set_x((lv_obj_t*)obj, v); };
                 lv_anim_del(id(dot_bat), NULL);
                 lv_anim_t a; lv_anim_init(&a);
@@ -323,7 +339,7 @@ sensor:
                 lv_anim_t a; lv_anim_init(&a);
                 lv_anim_set_var(&a, id(dot_home));
                 lv_anim_set_exec_cb(&a, cb);
-                lv_anim_set_values(&a, 186, 272);
+                lv_anim_set_values(&a, ${anim_home_y_from}, ${anim_home_y_to});
                 lv_anim_set_time(&a, dur);
                 lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
                 lv_anim_set_repeat_delay(&a, 0);
