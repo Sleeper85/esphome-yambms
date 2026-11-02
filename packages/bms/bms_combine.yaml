@@ -1,4 +1,4 @@
-# Updated : 2026.08.26
+# Updated : 2026.11.02
 # Version : 1.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -61,8 +61,8 @@ binary_sensor:
           (id(bms${bms_id}_battery_capacity).state > 0) &&
           (id(bms${bms_id}_battery_capacity_remaining).has_state()) &&
           (id(bms${bms_id}_charging_cycles).has_state()) &&
-          (id(bms${bms_id}_max_charge_current).state > 0) &&
-          (id(bms${bms_id}_max_discharge_current).state > 0) &&
+          (id(bms${bms_id}_max_charge_current).state >= 0) &&
+          (id(bms${bms_id}_max_discharge_current).state >= 0) &&
           (id(bms${bms_id}_min_cell_voltage).has_state()) &&
           (id(bms${bms_id}_max_cell_voltage).has_state()) &&
           (id(bms${bms_id}_min_voltage_cell).has_state()) &&
