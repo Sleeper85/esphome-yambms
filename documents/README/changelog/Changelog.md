@@ -29,6 +29,7 @@
   * Fixed the RS485 link staying up with `Disabled` : the proxy sensors kept their last value, so the Pylontech component went on answering the inverter with stale data and kept reporting its status as ON ; the sensors it checks are now invalidated when the protocol is off, which makes it stop answering and report the link as down
   * Fixed the CAN bus not stopping when the protocol was set to `Disabled` at runtime : the frame index kept its previous value and the last frame was re-emitted every 100 ms
   * Fixed the reported communication bus and protocol being overwritten when a node declares several inverter links : each link now owns its slot, and the telemetry reports every link instead of the last one
+  * Auto EOC : new `Auto EOC Start Hour` / `Auto EOC Start Minute` define the charging window, which may cross midnight, and the target hour can be set from `0` to `23` (night charging from the grid) ; outside the window the status is `Wait: Starts at hh:mm` instead of `Stop: Target time passed`, the default start `0:00` keeps the daylight behaviour
 
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`

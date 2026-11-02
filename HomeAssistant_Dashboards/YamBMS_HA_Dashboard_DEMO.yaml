@@ -1,4 +1,4 @@
-# Updated : 2026.11.05
+# Updated : 2026.11.06
 # Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -570,6 +570,20 @@ views:
                   - entity: switch.yambms_demo_automatic_eoc_current
                     state: "on"
                 row:
+                  entity: number.yambms_demo_auto_eoc_start_hour
+                  name: Start hour
+              - type: conditional
+                conditions:
+                  - entity: switch.yambms_demo_automatic_eoc_current
+                    state: "on"
+                row:
+                  entity: number.yambms_demo_auto_eoc_start_minute
+                  name: Start minute
+              - type: conditional
+                conditions:
+                  - entity: switch.yambms_demo_automatic_eoc_current
+                    state: "on"
+                row:
                   entity: number.yambms_demo_auto_eoc_target_hour
                   name: Target hour
               - type: conditional
@@ -682,7 +696,7 @@ views:
                 {% if is_state('switch.yambms_demo_automatic_eoc_current','on') %}
                 <tr>
                   <td>Automatic EOC Current</td>
-                  <td>{% set eoc_status = states('sensor.yambms_demo_auto_eoc_status') %}{% set eoc_val %}{{ states('number.yambms_demo_auto_eoc_target_hour') | int }}:{{ '%02d' % (states('number.yambms_demo_auto_eoc_target_minute') | int) }} — {{ eoc_status }}{% endset %}{% if eoc_status.startswith('Stop:') %}<font color="#FFC107">{{ eoc_val }}</font>{% elif eoc_status.startswith('Run') %}<font color="#4CAF50">{{ eoc_val }}</font>{% else %}{{ eoc_val }}{% endif %}</td>
+                  <td>{% set eoc_status = states('sensor.yambms_demo_auto_eoc_status') %}{% set eoc_val %}{{ states('number.yambms_demo_auto_eoc_start_hour') | int }}:{{ '%02d' % (states('number.yambms_demo_auto_eoc_start_minute') | int) }}–{{ states('number.yambms_demo_auto_eoc_target_hour') | int }}:{{ '%02d' % (states('number.yambms_demo_auto_eoc_target_minute') | int) }} — {{ eoc_status }}{% endset %}{% if eoc_status.startswith('Stop:') %}<font color="#FFC107">{{ eoc_val }}</font>{% elif eoc_status.startswith('Run') %}<font color="#4CAF50">{{ eoc_val }}</font>{% else %}{{ eoc_val }}{% endif %}</td>
                 </tr>
                 {% endif %}
                 {% if is_state('switch.yambms_demo_automatic_soc_limit','on') %}
