@@ -1,5 +1,5 @@
-# Updated : 2026.10.18
-# Version : 1.2.3
+# Updated : 2026.11.02
+# Version : 1.2.4
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -335,6 +335,7 @@ sensor:
     id: bms${bms_id}_power
     device_id: bms_${bms_id}
     name: "battery power"
+    update_interval: ${bms_update_interval}
     unit_of_measurement: 'W'
     device_class: 'power'
     state_class: 'measurement'
@@ -349,6 +350,7 @@ sensor:
   # Charging power: Calculated from voltage and current
   - platform: template
     name: "battery power charging"
+    update_interval: ${bms_update_interval}
     id: bms${bms_id}_charging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
@@ -366,6 +368,7 @@ sensor:
   # Discharging power: Calculated from voltage and current
   - platform: template
     name: "battery power discharging"
+    update_interval: ${bms_update_interval}
     id: bms${bms_id}_discharging_power
     device_id: bms_${bms_id}
     unit_of_measurement: 'W'
