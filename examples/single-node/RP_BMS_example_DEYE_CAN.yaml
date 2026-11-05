@@ -36,6 +36,8 @@
         vars:
           # CAN BUS ID
           canbus_id: 'canbus_bms_1'
+          canbus_platform: 'mcp2515'  # esp32_can / mcp2515
+          canbus_bitrate: '500kbps'   # Default : 500kbps
           deye_name: 'DEYE-Top 1'
           deye_id: '1'
       # Deye module 1

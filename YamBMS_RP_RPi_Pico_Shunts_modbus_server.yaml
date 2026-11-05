@@ -1,5 +1,5 @@
-# Updated : 2026.08.11
-# Version : 1.8.0
+# Updated : 2026.11.05
+# Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -67,14 +67,6 @@ packages:
         # vars:
         #   server_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
         #   network_status_led_id: 'virtual_status_light' # led used to show status. Default = esp_light, set specific led or set to 'virtual_status_light' to disable
-
-      # uart
-      - path: packages/board/board_options_itf_uart_1.yaml
-      - path: packages/board/board_options_itf_uart_2.yaml
-      - path: packages/board/board_options_itf_uart_3.yaml
-      - path: packages/board/board_options_itf_uart_4.yaml
-      - path: packages/board/board_options_itf_uart_5.yaml
-      - path: packages/board/board_options_itf_uart_6.yaml
 
       # modbus
       - path: packages/board/board_options_itf_modbus.yaml
