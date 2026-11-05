@@ -40,13 +40,31 @@ works well for you.
 | Growatt | CAN L52 | CAN | PYLON V1 |
 | LuxPower | Lithium 6 | CAN | LuxPower |
 | MidNite Solar | PYLON | CAN | PYLON V1 |
+| MPP Solar | PYL | RS485 | PYLON |
+| MPP Solar | LIB | RS485 | LIB |
 | Schneider | Voltage Control Li-Ion | CAN | PYLON V2 |
 | SMA | - | CAN | SMA |
 | Sofar | Automatic | CAN | PYLON V1 |
+| Sol-Ark | Lithium 00 | CAN | PYLON V1 |
+| Sol-Ark | Lithium 12 | RS485 | PYLON |
 | Solis | AoBo | CAN | SMA |
 | SRNE | UZE | CAN | PYLON V2 |
 | Studer | Pylontech | CAN | PYLON V2 |
+| Sunsynk | Lithium 00 | CAN | PYLON V1 |
+| Sunsynk | Lithium 12 | RS485 | PYLON |
 | Victron | CAN-bus BMS LV (500 kbit/s) | CAN | Victron |
+| Voltronic | PYL | RS485 | PYLON |
+| Voltronic | LIB | RS485 | LIB |
+
+Any other brand of the list, or a listed brand on the other bus, uses `PYLON V2` on CAN by default,
+and the protocol compiled on the node on RS485. Such a combination has not been validated, and the
+`Note` entity says so.
+
+On RS485 the protocol is chosen in your YAML with `rs485_protocol` (`pylon` or `voltronic`), and the
+brand does not change it. `LIB` only works with `Voltronic` and `MPP Solar`: in `Automatic`, a node
+compiled for `LIB` stays silent for any other brand. Rebranded Voltronic inverters must select
+`Voltronic`. The protocols offered by parameter `05` depend on the inverter firmware, see its user
+manual.
 
 A few couples outside the default mapping are known to work as well, and YamBMS reports the right
 battery mode for them too: `EG4` on `PYLON V1` (Lithium 2, 6000XP only) and `Solis` on `PYLON V2`

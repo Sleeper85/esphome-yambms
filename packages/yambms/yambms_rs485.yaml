@@ -1,5 +1,5 @@
-# Updated : 2026.09.04
-# Version : 1.1.1
+# Updated : 2026.11.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -20,14 +20,18 @@
 # +----------------------------------------------------------------------------+
 # | RS485 inverter link                                                        |
 # |                                                                            |
-# | Shared machinery for an RS485 link: the `Inverter brand` and `Protocol`    |
-# | selects, the diagnostics and the telemetry slot. Not the file you include  |
-# | - you never `!include` this one directly. Each protocol implementation    |
-# | (yambms_rs485_pylon.yaml, yambms_rs485_voltronic.yaml) includes THIS file, |
-# | not the other way around, so that a node with several RS485 links on      |
-# | several UARTs can run a different protocol on each: including this file   |
-# | directly would hardcode one protocol for every link that does so.         |
+# | Entry point of the RS485 link: it carries the `Inverter brand` and         |
+# | `Protocol` selects, the diagnostics and the telemetry slot, then includes  |
+# | the protocol implementation named by the `rs485_protocol` substitution     |
+# | ('pylon' or 'voltronic') - requires ESPHome >= 2026.4.0 for substitutions  |
+# | in an `!include` filename (esphome#12213), already covered by the         |
+# | project's min_version. Each RS485 link passes its own `rs485_protocol` in |
+# | its `vars:`, so a node with several links on several UARTs can run a      |
+# | different protocol on each.                                               |
 # +----------------------------------------------------------------------------+
+
+packages:
+  rs485_protocol: !include yambms_rs485_${rs485_protocol}.yaml
 
 substitutions:
   # The ID of the LED on your board used for this component
@@ -113,20 +117,30 @@ select:
     options:
       - "Not defined"
       - "Other"
+      - "Afore"
       - "Deye"
       - "EG4"
       - "Epever"
+      - "Felicity Solar"
+      - "FoxESS"
       - "GoodWe"
       - "Growatt"
+      - "Kstar"
       - "LuxPower"
+      - "Megarevo"
       - "MidNite Solar"
       - "MPP Solar"
+      - "Must"
+      - "Phocos"
+      - "Renogy"
       - "Schneider"
       - "SMA"
       - "Sofar"
+      - "Sol-Ark"
       - "Solis"
       - "SRNE"
       - "Studer"
+      - "Sunsynk"
       - "Victron"
       - "Voltronic"
     restore_value: true
@@ -226,10 +240,20 @@ script:
           std::string choice = id(rs485${rs485_id}_protocol).current_option();
           std::string source;
           int proto;
+          bool lib_refused = false;
 
           // An explicit protocol always takes priority over the brand
           if (choice == "Automatic") {
-            proto = id(global_inverter_default_protocol)(brand, "RS485");
+            // The protocol is chosen at compile time: the brand only decides
+            // whether this link may run it.
+            int compiled = id(rs485${rs485_id}_compiled_protocol);
+            bool brand_defined = id(global_inverter_default_protocol)(brand, "RS485") != ${YB_PROTO_NONE};
+            proto = brand_defined ? compiled : ${YB_PROTO_NONE};
+            // LIB is a Voltronic protocol: answering any other brand is pointless
+            if (proto == ${YB_PROTO_RS485_VOLTRONIC_LIB} && brand != "MPP Solar" && brand != "Voltronic") {
+              proto = ${YB_PROTO_NONE};
+              lib_refused = true;
+            }
             source = "auto";
           } else {
             source = "manual";
@@ -244,14 +268,20 @@ script:
           std::string label = id(global_inverter_protocol_label)(proto);
 
           // --- Diagnostics ---
-          if (proto == ${YB_PROTO_NONE}) {
+          if (lib_refused) {
+            id(rs485${rs485_id}_inverter_link_protocol).publish_state(brand + " - RS485 LIB not applicable");
+            ESP_LOGW("rs485", "LIB does not apply to %s: nothing is sent on the RS485 bus", brand.c_str());
+          } else if (proto == ${YB_PROTO_NONE}) {
             id(rs485${rs485_id}_inverter_link_protocol).publish_state("Inverter RS485 bus not defined");
             ESP_LOGW("rs485", "No inverter brand selected and no protocol forced: nothing is sent on the RS485 bus");
           } else {
             id(rs485${rs485_id}_inverter_link_protocol).publish_state(brand + " - RS485 " + label);
           }
 
-          if (proto == ${YB_PROTO_NONE} || proto == ${YB_PROTO_DISABLED}) {
+          if (lib_refused) {
+            id(rs485${rs485_id}_inverter_battery_mode).publish_state("");
+            id(rs485${rs485_id}_note).publish_state(id(global_inverter_note)(brand, ${YB_PROTO_RS485_VOLTRONIC_LIB}));
+          } else if (proto == ${YB_PROTO_NONE} || proto == ${YB_PROTO_DISABLED}) {
             id(rs485${rs485_id}_inverter_battery_mode).publish_state("");
             id(rs485${rs485_id}_note).publish_state("");
           } else {

@@ -1,5 +1,5 @@
-# Updated : 2026.09.04
-# Version : 2.7.1
+# Updated : 2026.11.05
+# Version : 2.7.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -107,20 +107,30 @@ select:
     options:
       - "Not defined"
       - "Other"
+      - "Afore"
       - "Deye"
       - "EG4"
       - "Epever"
+      - "Felicity Solar"
+      - "FoxESS"
       - "GoodWe"
       - "Growatt"
+      - "Kstar"
       - "LuxPower"
+      - "Megarevo"
       - "MidNite Solar"
       - "MPP Solar"
+      - "Must"
+      - "Phocos"
+      - "Renogy"
       - "Schneider"
       - "SMA"
       - "Sofar"
+      - "Sol-Ark"
       - "Solis"
       - "SRNE"
       - "Studer"
+      - "Sunsynk"
       - "Victron"
       - "Voltronic"
     restore_value: true

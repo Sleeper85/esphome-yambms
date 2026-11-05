@@ -110,5 +110,19 @@ The following are confirmed and known to work:
 | MidNite Solar | MN15-12KW-AIO | PYLON | CAN : PYLON V1 | --- | [@goldserve](https://diysolarforum.com/members/goldserve.52541/), [@jahyde](https://diysolarforum.com/members/jahyde.7475/) |
 | SRNE | HESP48120U200-H | UZE | CAN : PYLON V2 | Most PYLON-based protocols show same results. Inverter does not work in PYLON mode, UZE works. Incorrect temp reported. | [@ogremustcrush](https://diysolarforum.com/members/ogremustcrush.116979/) |
 | Studer | XTM-4000 | Pylontech | CAN : PYLON V2 | DIP Switch in Xcom-CAN: 11000110 (1 to 8, ON==1). | [@kolins-cz](https://github.com/kolins-cz) |
-| Schneider | XW Pro 6848 NA | Voltage Control Li-Ion | CAN : PYLON V2 | The extended 29-bit ACK is handled automatically since YamBMS 1.8.1, no option to set. | [@AGDorsum](https://diysolarforum.com/members/agdorsum.29403/), [@ngustas](https://diysolarforum.com/members/ngustas.126045/) |
-| SMA | Sunny Island | --- | --- | --- | --- |
+| Schneider | XW Pro 6848 NA | Voltage Control Li-Ion | CAN : PYLON V2 | The extended 29-bit ACK is handled automatically since YamBMS 1.8.0, no option to set. | [@AGDorsum](https://diysolarforum.com/members/agdorsum.29403/), [@ngustas](https://diysolarforum.com/members/ngustas.126045/) |
+| SMA | Sunny Island | --- | CAN : SMA | --- | --- |
+
+## Supported MPPT chargers
+
+The following are confirmed and known to work:
+
+| Brand | Model | Inverter bat. mode | CAN/RS485 protocol | Remarks | Reported by |
+| --- | --- | --- | --- | --- | --- |
+| Epever | IT-NC | BPRO 21 | RS485 : PYLON | --- | --- |
+| Epever | ET-NC | BPRO 21 | RS485 : PYLON | --- | --- |
+| Epever | TIS | BPRO 21 | RS485 : PYLON | --- | --- |
+| Epever | TES | BPRO 21 | RS485 : PYLON | --- | --- |
+| Epever | TEP | BPRO 21 | RS485 : PYLON | --- | --- |
+| Epever | TBP | BPRO 21 | RS485 : PYLON | --- | --- |
+| Epever | Tracer-AN G3 | BPRO 21 | RS485 : PYLON | --- | --- |

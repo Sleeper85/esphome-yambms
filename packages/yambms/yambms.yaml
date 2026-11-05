@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 1.1.7
+# Updated : 2026.11.05
+# Version : 1.1.8
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 packages:
-  # Inverter registry (protocol dictionary, brand mapping, battery modes)
-  yambms_inverter_registry: !include yambms_inverter_registry.yaml
+  # Brand registry (protocol dictionary, brand mapping, battery modes)
+  yambms_brand_registry: !include yambms_brand_registry.yaml
   # YamBMS Core
   yambms_core: !include yambms_core.yaml
   # YamBMS Auto Functions

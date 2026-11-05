@@ -1,5 +1,5 @@
-# Updated : 2026.09.04
-# Version : 1.5.1
+# Updated : 2026.11.05
+# Version : 1.5.2
 # GitHub  : https://github.com/fahmula/esphome-pylontech-rs485
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,15 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# This is the file you include for a PYLON RS485 link: it pulls in the shared
-# selects/diagnostics/telemetry machinery from `yambms_rs485.yaml` and adds
-# the PYLON protocol itself. Included this way round (rather than the other
-# way, as before 1.8.1) so that a node with several RS485 links on several
-# UARTs can run PYLON on one and Voltronic LIB on another - see
-# yambms_rs485_voltronic.yaml for that alternative entry point.
-
-packages:
-  rs485_entry: !include yambms_rs485.yaml
+# PYLON protocol implementation. Not the file you include - include
+# `yambms_rs485.yaml` instead, with `rs485_protocol: 'pylon'` in its `vars:`;
+# it includes this file for you (`!include yambms_rs485_${rs485_protocol}.yaml`),
+# so that a node with several RS485 links on several UARTs can run PYLON on
+# one and Voltronic LIB on another, each naming its own protocol.
 
 external_components:
   - source: github://fahmula/esphome-pylontech-rs485@main
@@ -39,6 +35,11 @@ select:
       - "PYLON"
 
 globals:
+  # Protocol this file implements, read by the resolution script in yambms_rs485.yaml
+  - id: rs485${rs485_id}_compiled_protocol
+    type: int
+    restore_value: no
+    initial_value: "${YB_PROTO_RS485_PYLON}"
   # True while the proxy sensors carry data the component may serve to the
   # inverter. Turning the protocol off does not clear them by itself, so they
   # have to be invalidated explicitly - see the interval below.

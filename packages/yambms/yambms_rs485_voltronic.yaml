@@ -1,5 +1,5 @@
-# Updated : 2026.09.04
-# Version : 1.1.0
+# Updated : 2026.11.05
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# This is the file you include for a Voltronic LIB RS485 link: it pulls in
-# the shared selects/diagnostics/telemetry machinery from `yambms_rs485.yaml`
-# and adds the Voltronic "LIb" protocol itself - see documents/PRIVATE/
-# Voltronic/Voltronic Inverter and BMS 485 communication protocol
-# 20201202.docx (Voltronic Power, also referenced by Epever as PRO=26, same
-# authors Ellis/Lory/Jenny). Use yambms_rs485_pylon.yaml instead for PYLON -
-# never include both on the same UART, see the warning below.
+# Voltronic "LIb" protocol implementation - see documents/PRIVATE/Voltronic/
+# Voltronic Inverter and BMS 485 communication protocol 20201202.docx
+# (Voltronic Power, also referenced by Epever as PRO=26, same authors
+# Ellis/Lory/Jenny). Not the file you include - include `yambms_rs485.yaml`
+# instead, with `rs485_protocol: 'voltronic'` in its `vars:`; it includes
+# this file for you (`!include yambms_rs485_${rs485_protocol}.yaml`).
 #
 # Unlike Pylontech, this is plain Modbus RTU (function 0x03, 9600 8N1) so it
 # is implemented with ESPHome's native `modbus_server:` - no external
@@ -45,9 +44,6 @@
 #     own locally configured charge curve regardless of what is sent there.
 #   - Not verified on real hardware yet.
 
-packages:
-  rs485_entry: !include yambms_rs485.yaml
-
 select:
   # Adds the option this file implements to the base Automatic/Disabled list
   # declared in yambms_rs485.yaml - see the comment there.
@@ -56,6 +52,11 @@ select:
       - "LIB"
 
 globals:
+  # Protocol this file implements, read by the resolution script in yambms_rs485.yaml
+  - id: rs485${rs485_id}_compiled_protocol
+    type: int
+    restore_value: no
+    initial_value: "${YB_PROTO_RS485_VOLTRONIC_LIB}"
   # Set by the read_lambda of address 48 (the first register of the
   # aggregated-data block, always read by a normal polling cycle), cleared by
   # the interval below. Unlike pylontech_rs485's own update_timeout, nothing
@@ -73,6 +74,23 @@ interval:
           bool polled = id(rs485${rs485_id}_voltronic_polled);
           id(rs485${rs485_id}_voltronic_polled) = false;
           id(rs485${rs485_id}_status).publish_state(polled);
+  # modbus_server has no off switch: it answers whatever is asked of its address.
+  # Moving it to 248, a reserved address no inverter polls, makes the hub ignore
+  # every request, which is the only way to keep this link truly silent.
+  - interval: 100ms
+    then:
+      - lambda: |-
+          bool active = id(rs485${rs485_id}_active_protocol) == ${YB_PROTO_RS485_VOLTRONIC_LIB};
+
+          // Mirror RS485 status into inverter_com_status. Turning the link off clears
+          // it once per transition, so a CAN link on the same node keeps owning it.
+          if (active) {
+            if (id(rs485${rs485_id}_status).has_state()) id(inverter_com_status).publish_state(id(rs485${rs485_id}_status).state);
+          } else if (id(rs485${rs485_id}_modbus_server).get_address() != 248) {
+            id(inverter_com_status).publish_state(false);
+          }
+
+          id(rs485${rs485_id}_modbus_server).set_address(active ? 1 : 248);
 
 modbus:
   - uart_id: ${rs485_uart_id}
@@ -80,7 +98,8 @@ modbus:
     role: server
 
 modbus_server:
-  - modbus_id: modbus_rs485_${rs485_id}
+  - id: rs485${rs485_id}_modbus_server
+    modbus_id: modbus_rs485_${rs485_id}
     address: 1
     registers:
         # +--------------------------------------------------------------+

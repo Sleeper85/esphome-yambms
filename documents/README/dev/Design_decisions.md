@@ -254,7 +254,7 @@ may not have happened yet, not a scheduling order.
 
 ## The inverter protocol is resolved once, never in the loop
 
-**Files:** `packages/yambms/yambms_inverter_registry.yaml`, `packages/yambms/yambms_canbus.yaml`,
+**Files:** `packages/yambms/yambms_brand_registry.yaml`, `packages/yambms/yambms_canbus.yaml`,
 `packages/yambms/yambms_rs485.yaml`
 
 The protocol actually applied on a link is not readable from a single select. It is the result of
@@ -318,6 +318,39 @@ of the interval publishes those `NaN` once per transition, guarded by
 Only those eight sensors matter — the ones read by `update_state_from_sensors_()`. Invalidating the
 others would be harmless but pointless, and would hide which ones the contract actually depends on.
 
+### On RS485 the protocol is compiled, the brand only gates it
+
+**Files:** `packages/yambms/yambms_rs485.yaml`, `packages/yambms/yambms_rs485_pylon.yaml`,
+`packages/yambms/yambms_rs485_voltronic.yaml`
+
+`rs485_protocol` picks the implementation at compile time, and each implementation declares what
+it is in `rs485${rs485_id}_compiled_protocol`. In `Automatic` the resolution script applies that
+value and never derives a protocol from the brand: a node can only speak what was compiled into
+it, and resolving anything else made the diagnostics describe a protocol that was not running.
+
+Voltronic and MPP Solar are the reason this cannot be a brand mapping. On recent firmwares,
+parameter `05` offers both `PYL` and `LIB` on RS485, so either implementation is a valid choice
+for the same inverter and the brand says nothing about which one was compiled.
+
+`LIB` is the one exception. It is a Voltronic protocol and no other brand can use it, so in
+`Automatic` a node compiled for `LIB` stays silent for any other brand, and `Note` says why.
+Forcing `LIB` is still possible, because an explicit protocol always takes priority over the
+brand. Rebranded inverters are expected to select `Voltronic`. MPP Solar is not a rebrand, which
+is why it has its own entry.
+
+### Turning the LIB link off means moving its Modbus address
+
+**File:** `packages/yambms/yambms_rs485_voltronic.yaml`
+
+`modbus_server` has no off switch, and returning nothing from a `read_lambda` only turns the reply
+into an exception frame, so the inverter still gets an answer on a link that should be silent.
+`ModbusServerHub::find_device_()` matches the address on every request, so moving the server to
+address `248` makes the hub drop the request instead. The 100 ms interval moves it back to `1`
+only while `rs485${rs485_id}_active_protocol` is `LIB`.
+
+Do not replace this with reported charge and discharge limits of zero: the inverter would still
+see a battery, on a link the user believes is off.
+
 ### `Disabled` unregisters the link instead of faulting it
 
 **File:** `packages/base/device_base_fault_registry.yaml`
@@ -339,7 +372,7 @@ Without the second one the link timer would re-raise the fault a few seconds lat
 
 A link left at `Automatic` with no brand selected is deliberately **not** unregistered — it faults.
 That is the signal telling the user the node was never configured, which is the whole point of the
-1.8.1 breaking change.
+1.8.0 breaking change.
 
 ### Both ACK triggers are registered
 
