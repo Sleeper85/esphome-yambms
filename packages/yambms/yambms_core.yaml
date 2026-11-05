@@ -1,4 +1,4 @@
-# Updated : 2026.09.02
+# Updated : 2026.11.05
 # Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -665,7 +665,7 @@ interval:
               float max_discharge_current_yambms = id(yambms${yambms_id}_max_requested_discharge_current).state;
               // BMS protection guard : aggregated OCP values with 10% safety margin
               float max_discharge_current_bms = id(yambms${yambms_id}_var_total_max_discharge_current) * 0.9;
-              // Nominal discharge current : total battery capacity x global C-Rate (default 1C)
+              // Nominal discharge current : total battery capacity x global C-Rate (default 0.5C)
               float max_discharge_current_crate = battery_capacity * id(yambms${yambms_id}_max_discharge_crate).state;
 
               // The max discharge current is the lowest of the three values
