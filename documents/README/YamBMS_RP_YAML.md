@@ -434,21 +434,31 @@ You can keep the default configuration and adapt the `canbus` node on which the 
 
 The RS485 bus connected to your inverter via the RS485 transceiver `uart_esp_3`.
 
+> [!NOTE]
+> A package that uses a UART declares it itself from its `*_uart_id` var, so there is no UART to
+> include separately. Each UART can only be used by one package. If your RS485 transceiver needs a
+> `flow_control_pin`, add `uart_flow_control_pin: ${talk_pin}` to the `vars:` of that package
+> (native ESP32 UART only, not on a WK2168 channel).
+
 You can keep the default configuration and adapt the `uart` port on which the component must connect.
 
 ```YAML
-  rs485_pylon:
+  rs485_1:
     url: https://github.com/Sleeper85/esphome-yambms
     ref: main
     refresh: 0s
     files:
-      - path: 'packages/yambms/yambms_rs485_pylon.yaml'
+      - path: 'packages/yambms/yambms_rs485.yaml'
+      # - path: 'packages/yambms/yambms_rs485_web_server.yaml'
         vars:
-          rs485_id: 'rs485_1'
+          rs485_id: '1'                    # Must be a number
           rs485_name: 'RS485 1'
-          rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
-          rs485_uart_baud_rate: '9600'
-          rs485_update_timeout: '5s'
+          rs485_protocol: 'pylon'          # pylon / voltronic
+          rs485_update_timeout: '10s'
+          rs485_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
+          # UART setup
+          rs485_uart_id: 'uart_esp_3'      # UART interface to which your inverter is connected
+          rs485_uart_baud_rate: '9600'     # Default : 9600 / Epever : 115200
 ```
 
 ## Debug

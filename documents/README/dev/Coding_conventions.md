@@ -50,6 +50,24 @@ processes instances in the order their lambdas run, so ascending order completes
 round per interval; an out-of-order include still converges but spreads the round over several
 intervals.
 
+## UART declaration
+
+A package that needs a UART imports it itself, from its `*_uart_id` var, and exposes the baud rate
+under its own key. `uart_baud_rate` is the internal parameter of the UART file: never a key of a
+package.
+
+```yaml
+packages:
+  shunt_uart: !include
+    file: ../board/board_options_itf_${shunt_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${shunt_uart_baud_rate | default(115200)}
+```
+
+Use `| default(...)` when the device has a usual speed, and leave it out when the speed depends on
+the installation. Never put a fixed value there, nor the default in `substitutions:`. See
+[Design_decisions.md](Design_decisions.md) for the reasons.
+
 ## Entity IDs
 
 Entity IDs follow `<domain>${xxx_id}_<name>`:

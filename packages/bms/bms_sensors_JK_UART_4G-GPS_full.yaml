@@ -1,5 +1,5 @@
-# Updated : 2026.06.22
-# Version : 1.3.7
+# Updated : 2026.11.05
+# Version : 1.3.8
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -22,6 +22,10 @@ packages:
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_errors_bitmask: !include bms_errors_bitmask_JK_UART_4G-GPS.yaml
   bms_battery_soh: !include bms_base_battery_soh.yaml
+  bms_uart: !include
+    file: ../board/board_options_itf_${bms_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${bms_uart_baud_rate | default(115200)}
 
 # +--------------------------------------+
 # | Component settings                   |

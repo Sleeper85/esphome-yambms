@@ -1,5 +1,5 @@
-# Updated : 2025.04.23
-# Version : 1.1.1
+# Updated : 2026.11.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -25,7 +25,3 @@ packages:
 # | Component settings                   |
 # +--------------------------------------+
 
-uart:
-  - id: !extend ${shunt_uart_id}
-    baud_rate: 19200
-    rx_buffer_size: 256

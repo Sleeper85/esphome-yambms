@@ -34,8 +34,14 @@ registry (`device_base_fault_registry.yaml`), memory and PSRAM debug helpers.
 ### `board/`
 
 One file per board (`board_ESP32-S3_*.yaml`) defining pins and GPIO. The `board_options_*.yaml`
-files are optional building blocks — UART, CAN, PSRAM, LVGL display, WiFi AP — included
-separately depending on the hardware.
+files are optional building blocks — CAN, PSRAM, LVGL display, WiFi AP — included separately
+depending on the hardware.
+
+The `board_options_itf_uart_*.yaml` files are the exception: they are not included from the main
+YAML. Each one declares a single UART (`uart_esp_N`, `uart_N` on the RPi Pico, `uart_spi_N` and
+`uart_i2c_N` on a WK2168) and is imported by the package that consumes that UART, from its
+`*_uart_id` var. A WK2168 only needs `board_options_itf_wk2168_spi.yaml` or
+`board_options_itf_wk2168_i2c.yaml` in the main YAML, which declares the bridges.
 
 ### `bms/`, `shunt/`, `balancer/`
 

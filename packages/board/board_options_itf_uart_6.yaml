@@ -1,5 +1,5 @@
-# Updated : 2025.06.18
-# Version : 1.1.1
+# Updated : 2026.11.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,9 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+# Imported by the package that consumes this UART, which passes `uart_baud_rate`.
+
 uart:
   - id: uart_6
     tx_pin: ${tx_pin_6}
     rx_pin: ${rx_pin_6}
-    baud_rate: 19200
-    rx_buffer_size: 256
+    baud_rate: ${uart_baud_rate}
+    rx_buffer_size: ${uart_rx_buffer_size | default(256)}
