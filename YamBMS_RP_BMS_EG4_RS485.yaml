@@ -1,5 +1,5 @@
-# Updated : 2026.08.29
-# Version : 1.8.0
+# Updated : 2026.11.05
+# Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -132,6 +132,16 @@ substitutions:
       { 60.0, 0.00 }
     }
   # +--------------------------------------+
+  # | YamBMS services                      |
+  # +--------------------------------------+
+  # Update service : checks GitHub for a newer YamBMS version.
+  # Telemetry service : sends anonymous data about your setup (BMS model, board,
+  # inverter protocol, YamBMS version). It is what tells me which hardware is
+  # actually in use, so I know where to spend my time. Public stats and details
+  # on what is collected : stats.yambms.org
+  yambms_update_service: 'true'     # Set to false to disable update checks
+  yambms_telemetry_service: 'true'  # Set to false to disable the sending of telemetry data
+  # +--------------------------------------+
   # | Shunt Settings                       |
   # +--------------------------------------+
   shunt_update_interval: '3s'  # frequency at which Shunt data is refreshed
@@ -220,33 +230,6 @@ packages:
   # | >>> Uncomment your interfaces and options
   # +------------------------------------------------------------------------------+
 
-      # UART 1 (uart_id: uart_esp_1)
-      - path: 'packages/board/board_options_itf_uart_esp_1.yaml'
-      # UART 2 (uart_id: uart_esp_2)
-      # - path: 'packages/board/board_options_itf_uart_esp_2.yaml'
-      # UART 3 (uart_id: uart_esp_3)
-      # - path: 'packages/board/board_options_itf_uart_esp_3.yaml'
-
-      # UART flow control
-      # - path: 'packages/board/board_options_itf_uart_flow_control.yaml'
-      #   vars:
-      #     uart_id: 'uart_esp_1'
-      #     uart_flow_control_pin: ${talk_pin}
-
-      # CAN transceiver - ESP32_CAN (TJA105x, SN65HVD230, M5Stack CAN base/unit)
-      - path: 'packages/board/board_options_itf_canbus_esp32_can.yaml'
-        vars:
-          # to bms = canbus_bms_1
-          # to inverter = canbus_inverter_1
-          canbus_node_id: 'canbus_inverter_1'
-      
-      # CAN transceiver - MCP2515
-      # - path: 'packages/board/board_options_itf_canbus_mcp2515.yaml'
-      #   vars:
-      #     # to bms = canbus_bms_1
-      #     # to inverter = canbus_inverter_1
-      #     canbus_node_id: 'canbus_inverter_1'
-
       # PSRAM octal 80Mhz
       # - path: 'packages/board/board_options_PSRAM_octal_80Mhz.yaml'
 
@@ -323,12 +306,14 @@ packages:
         vars:
           canbus_id: '1' # must be a number
           canbus_name: 'CANBUS 1'
-          canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
           canbus_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
           # CAN frames sending will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305) before the end of the `canbus_link_timer` (5s by default).
           canbus_link_timer_enabled: 'true' # Set it to 'false' if your inverter/charger is not sending ACK (can_id 0x305) every `1s` as specified by the protocol
-          canbus_link_timer: '5s'
-          canbus_extended_ack: 'false' # Set to 'true' for enable extended 29-bit IDs (required for Schneider XW Pro)
+          canbus_link_timer: '10s' # min 6s with Deye
+          # CAN setup
+          canbus_platform: 'esp32_can'        # esp32_can / mcp2515
+          canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
+          canbus_bitrate: '500kbps'           # Default : 500kbps
 
 
 
@@ -336,14 +321,17 @@ packages:
   # | >>> RS485 bus to Inverter
   # +------------------------------------------------------------------------------+
 
-  #     - path: 'packages/yambms/yambms_rs485_pylon.yaml' # yambms_rs485_pylon_web_server.yaml
+  #     - path: 'packages/yambms/yambms_rs485.yaml'
+  #     # - path: 'packages/yambms/yambms_rs485_web_server.yaml'
   #       vars:
-  #         rs485_id: '1' # Must be a number
+  #         rs485_id: '1'                    # Must be a number
   #         rs485_name: 'RS485 1'
-  #         rs485_uart_id: 'uart_esp_3' # UART interface to which your inverter is connected
-  #         rs485_uart_baud_rate: '9600'
+  #         rs485_protocol: 'pylon'          # pylon / voltronic
   #         rs485_update_timeout: '10s'
   #         rs485_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
+  #         # UART setup
+  #         rs485_uart_id: 'uart_esp_3'      # UART interface to which your inverter is connected
+  #         rs485_uart_baud_rate: '9600'     # Default : 9600 / Epever : 115200
 
 
 
