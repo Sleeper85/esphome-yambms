@@ -459,6 +459,65 @@ Everywhere else `uart_flow_control_pin` replaces them, and the examples no longe
 The UART id must be readable when the `!include` filename is resolved. A value built from a
 substitution declared in a package, such as `uart_${uart_hub_bus}_3`, is not, so write `uart_spi_3`.
 
+## A CAN node is declared by the package that consumes it
+
+**Files:** `packages/board/board_options_itf_canbus_*.yaml`, `packages/yambms/yambms_canbus.yaml`,
+`packages/bms/bms_sensors_DEYE_CAN_top_*.yaml`
+
+Same principle as the UART: the main YAML describes a link once, in the `vars:` of the package that
+uses it. The mechanism is not the same, and the differences are deliberate.
+
+### The file is picked by platform, not by id
+
+`uart_esp_1` is bound to pins and says nothing about what is connected. A CAN node is the reverse:
+its id is a role (`canbus_inverter_1`, `canbus_bms_1`) that users read and reuse, and the hardware
+behind it is either of two controllers. Naming the file after the id would have replaced those
+roles with `canbus_esp_1`-style names for no gain.
+
+So the id stays free in `canbus_node_id` and `canbus_platform` picks the file, the way
+`rs485_protocol` picks the RS485 implementation.
+
+### `canbus_platform` has no default
+
+A wrong default is valid configuration on the wrong pins, and it fails silently on the wire. A
+missing key fails validation instead, with `Cannot load include with unresolved substitutions`.
+
+### `external` declares nothing
+
+The import is unconditional, so a node that already exists needs a file that adds nothing:
+
+- the espBerry board declares its two nodes in its own board file ;
+- a second link on the same node would otherwise fail with `ID canbus_inverter_1 redefined`.
+
+`board_options_itf_canbus_external.yaml` is that file. `canbus_bitrate` has no effect there, the
+bit rate is the one of the package or board that declares the node.
+
+### One importer per node
+
+As with a UART, two imports of the same node fail, and that should stay so. This is why only the
+Deye `top` packages import the node: the `module` packages are included several times on one bus
+and only add `on_frame` triggers with `!extend`.
+
+In the Deye packages `canbus_id` holds a node id, while in `yambms_canbus.yaml` it is a number. The
+`top` packages map it with `canbus_node_id: ${canbus_id}` so that the examples keep their key.
+
+`board_options_itf_canbus_mcp2515.yaml` declares its own `spi:` bus, so importing it twice fails
+with `ID mcp2515_spi_bus redefined`. A board with two MCP2515 declares them itself and uses
+`external`, as the espBerry does.
+
+### `canbus_bit_rate` stays internal
+
+The reasoning is the UART one: the default lives in the `| default()` of the consumer, not in the
+CAN file nor in `substitutions:`. `esp32_canbus_bitrate` and `mcp2515_canbus_bitrate` were removed,
+the bit rate is not a property of the controller but of the bus.
+
+### The bit rate is set at compile time, the protocol is not
+
+`canbus_bitrate` is compiled in, and nothing in YamBMS changes it at runtime, while the `Protocol`
+select does change at runtime. So a protocol that does not run at 500 kbps cannot work from the
+select alone: the user must also set `canbus_bitrate`. Any such protocol needs a `Note` in
+`yambms_brand_registry.yaml` that says so.
+
 ## Empirical constants
 
 Some constants were found by trial on real hardware and must not be rounded or harmonised.

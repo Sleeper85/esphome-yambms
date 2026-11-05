@@ -31,7 +31,7 @@
 # | - MCP2515 CAN controller (SPI): MOSI=G18, MISO=G19, SCK=G5, CS=G2, INT=G47
 # | - RS485 (SP3485): TX=G6, RX=G7 (uses Port C pins on M5-Bus)
 # | - TTL UART: TX=G37, RX=G38 (uses UART0 pins on M5-Bus)
-# | Include board_options_itf_canbus_mcp2515.yaml for CAN
+# | Set canbus_platform: 'mcp2515' for CAN
 # | Include board_options_itf_modbus.yaml with modbus_uart_id: uart_esp_1 for RS485
 # |
 # +--------------------------------------------------------------------------------------------+
@@ -40,7 +40,7 @@
 # | The DIN BASE provides Port.A and Port.B for native TWAI CAN (requires CAN transceiver unit):
 # | - Port.A: PA_IN=G53, PA_OUT=G54 (M5-Bus pins 2,3)
 # | - Port.B: PB_IN=G17, PB_OUT=G52 (M5-Bus pins 4,10)
-# | Include board_options_itf_canbus_esp32_can.yaml for native CAN
+# | Set canbus_platform: 'esp32_can' for native CAN
 # | Recommended: Use M5Stack CAN Unit (U085) or PwrCAN Module (M013.2) on Port.A or Port.B
 # |
 # +--------------------------------------------------------------------------------------------+

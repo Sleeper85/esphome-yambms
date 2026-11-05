@@ -68,6 +68,23 @@ Use `| default(...)` when the device has a usual speed, and leave it out when th
 the installation. Never put a fixed value there, nor the default in `substitutions:`. See
 [Design_decisions.md](Design_decisions.md) for the reasons.
 
+## CAN declaration
+
+A package that needs a CAN node imports it itself, from its `canbus_platform` var, and exposes the
+bit rate as `canbus_bitrate`. `canbus_bit_rate` is the internal parameter of the CAN file: never a
+key of a package.
+
+```yaml
+packages:
+  canbus_node: !include
+    file: ../board/board_options_itf_canbus_${canbus_platform}.yaml
+    vars:
+      canbus_bit_rate: ${canbus_bitrate | default('500kbps')}
+```
+
+`canbus_platform` has no default, and the id of the node stays free in `canbus_node_id`. See
+[Design_decisions.md](Design_decisions.md) for the reasons.
+
 ## Entity IDs
 
 Entity IDs follow `<domain>${xxx_id}_<name>`:

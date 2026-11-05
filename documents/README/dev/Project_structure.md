@@ -43,6 +43,10 @@ YAML. Each one declares a single UART (`uart_esp_N`, `uart_N` on the RPi Pico, `
 `*_uart_id` var. A WK2168 only needs `board_options_itf_wk2168_spi.yaml` or
 `board_options_itf_wk2168_i2c.yaml` in the main YAML, which declares the bridges.
 
+The `board_options_itf_canbus_*.yaml` files follow the same rule: `yambms_canbus.yaml` and the
+Deye top packages import the one named by their `canbus_platform` var (`esp32_can`, `mcp2515`, or
+`external` for a node declared elsewhere).
+
 ### `bms/`, `shunt/`, `balancer/`
 
 All three follow the same layered scheme, per brand and protocol:

@@ -1,5 +1,5 @@
-# Updated : 2025.08.03
-# Version : 1.1.3
+# Updated : 2026.11.05
+# Version : 1.1.4
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,16 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-# The settings below can be changed via `vars` when importing the package
-# or by declaring new `substitutions` in the main YAML
-substitutions:
-  esp32_canbus_id: '1'
-  esp32_canbus_bitrate: '500kbps'
+# Imported by the package that consumes this CAN node, which passes `canbus_node_id` and
+# `canbus_bit_rate`. Optional var of that import : `esp32_canbus_id`.
 
 canbus:
   - platform: esp32_can
     id: ${canbus_node_id}
     tx_pin: ${tx_pin_4}
     rx_pin: ${rx_pin_4}
-    can_id: ${esp32_canbus_id}
-    bit_rate: ${esp32_canbus_bitrate}
+    can_id: ${esp32_canbus_id | default(1)}
+    bit_rate: ${canbus_bit_rate}
