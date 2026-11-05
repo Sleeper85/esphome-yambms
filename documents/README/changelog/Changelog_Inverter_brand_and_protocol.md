@@ -6,12 +6,20 @@ The inverter link is now described by **two selects** instead of one:
 
 | Select | Options | Default |
 | --- | --- | --- |
-| `Inverter brand` | `Not defined`, `Other`, then the supported brands | `Not defined` |
+| `Inverter brand` | `Not defined`, `Other`, then the inverter brands | `Not defined` |
 | `Protocol` | `Automatic`, `Disabled`, then the protocols of that bus | `Automatic` |
 
 Selecting your inverter brand is enough: with `Protocol` on `Automatic`, YamBMS applies the
 protocol that matches your brand. Choosing a protocol explicitly always takes priority over the
 brand, so an inverter that does not follow the usual mapping can still be driven.
+
+The brand list also covers manufacturers that are not validated yet. Those use `PYLON V2` on CAN
+and the protocol compiled on the node on RS485, and the `Note` entity tells you the brand has not
+been validated on that bus.
+
+On RS485 the brand never changes the protocol, which is the `rs485_protocol` of your YAML. `LIB`
+only works with `Voltronic` and `MPP Solar`: in `Automatic`, a node compiled for `LIB` stays silent
+for any other brand. Rebranded Voltronic inverters must select `Voltronic`.
 
 The old `YamBMS name` select is **removed**. The manufacturer name announced on CAN frame `0x35E`
 is now derived from the protocol in use — exactly the names the `Automatic` mode already sent, and
@@ -73,18 +81,24 @@ line from your YAML if you had set it.
 
 ## RS485 package files
 
-`yambms_rs485_pylon.yaml` **stays the file you include** — no change there. Its internals are
-reorganised to make room for the additional RS485 protocols to come: the `Inverter brand`/
-`Protocol` selects, diagnostics and telemetry move out to a new shared file, `yambms_rs485.yaml`,
-which `yambms_rs485_pylon.yaml` includes itself. Each protocol file includes
-`yambms_rs485.yaml` this way round, rather than the other way, so that a node with several RS485
-links on different UARTs can run a different protocol on each.
+**The file you include changes**, from `yambms_rs485_pylon.yaml` to `yambms_rs485.yaml`. This
+makes room for the additional RS485 protocols to come: `yambms_rs485.yaml` carries the `Inverter
+brand`/`Protocol` selects, diagnostics and telemetry, and takes a new `rs485_protocol` var
+(`pylon` or `voltronic`) that tells it which protocol implementation to include for you
+(`yambms_rs485_pylon.yaml`, keeping the PYLON implementation only, or the new
+`yambms_rs485_voltronic.yaml`). A node with several RS485 links on different UARTs can run a
+different protocol on each, since each link's `vars:` names its own `rs485_protocol`.
 
-`yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml`, and unlike before it
-no longer includes the link itself: add it **alongside** `yambms_rs485_pylon.yaml` in your YAML,
-with its own `vars: { rs485_id: '1' }` matching the link it decorates, instead of swapping one file
-for the other.
+> [!IMPORTANT]
+> Point your `!include` to `yambms_rs485.yaml` and add `rs485_protocol: 'pylon'` to its `vars:`.
+> This relies on substitutions in an `!include` filename, added in ESPHome 2026.4.0
+> ([esphome#12213](https://github.com/esphome/esphome/pull/12213)) — already covered by this
+> project's `min_version: 2026.10.0`, so no extra requirement for you.
 
-`rs485_uart_baud_rate` keeps the same meaning but is now applied at runtime instead of extending
-the `uart` component, and defaults to `9600`. Boards using a UART expander — the `wk2168` of the
-PVbrain2 — no longer need a separate include: every board now uses the same entry point.
+`yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml`. It includes the link
+itself, so use it **instead of** `yambms_rs485.yaml`, not alongside it, with the same `vars:`.
+
+`rs485_uart_baud_rate` keeps the same meaning and defaults to `9600`. The link now declares its
+UART itself from `rs485_uart_id`, so remove the `board_options_itf_uart_*.yaml` include of that UART
+from your YAML. Boards using a UART expander — the `wk2168` of the PVbrain2 — no longer need a
+separate include: every board now uses the same entry point.

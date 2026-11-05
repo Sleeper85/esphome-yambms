@@ -8,7 +8,12 @@
 
 * YamBMS 1.8.1 :
   * **Breaking change** - New `Inverter brand` select and reworked `Protocol` select : selecting your inverter brand is enough, the protocol follows ; a protocol chosen explicitly still takes priority over the brand. Both selects are renamed, so their stored value is reset : **the inverter link stays inactive until you select your inverter brand**, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
+
   * Removed the `YamBMS name` select : the manufacturer name sent on CAN frame `0x35E` is now derived from the protocol in use, which is what the `Automatic` mode already did ; the `GOODWE`, `SHEnergy` and `BYD` names are no longer selectable
+
+  * The RS485 baud rate is now applied at runtime with `set_baud_rate()` + `load_settings()` instead of extending the `uart` component : `uart: !extend` only works on a native ESP32 UART, so boards using a UART expander (`wk2168` on the PVbrain2) had to include an internal file to avoid it ; every board now includes the same entry point
+  * RS485 packages reorganised for the additional protocols to come : the file you include changes from `yambms_rs485_pylon.yaml` to `yambms_rs485.yaml`, which now takes a `rs485_protocol` var (`pylon` or `voltronic`) and includes the matching protocol implementation for you ; a node with several RS485 links on different UARTs can run a different protocol on each, one var per link ; `yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml` and must now be included alongside the entry point with its own `rs485_id`, instead of swapping one for the other, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
+
   * New diagnostic entities per inverter link : `Inverter link protocol` (what the link is actually doing, e.g. `Solis - CAN SMA`), `Inverter battery mode` (how to configure the battery type on the inverter, keyed on brand *and* protocol so that forcing a protocol never displays a wrong instruction) and `Note` (what is specific to that brand and protocol)
   * Renamed CAN protocol `PYLON 1.2` to `PYLON V1` and RS485 protocol `Pylontech` to `PYLON`
   * Schneider XW Pro : the extended 29-bit ACK is now handled automatically and the `canbus_extended_ack` substitution is removed - both the 11-bit and the 29-bit ACK are listened to at the same time, which the CAN component supports natively
@@ -17,8 +22,6 @@
   * Fixed the RS485 link staying up with `Disabled` : the proxy sensors kept their last value, so the Pylontech component went on answering the inverter with stale data and kept reporting its status as ON ; the sensors it checks are now invalidated when the protocol is off, which makes it stop answering and report the link as down
   * Fixed the CAN bus not stopping when the protocol was set to `Disabled` at runtime : the frame index kept its previous value and the last frame was re-emitted every 100 ms
   * Fixed the reported communication bus and protocol being overwritten when a node declares several inverter links : each link now owns its slot, and the telemetry reports every link instead of the last one
-  * The RS485 baud rate is now applied at runtime with `set_baud_rate()` + `load_settings()` instead of extending the `uart` component : `uart: !extend` only works on a native ESP32 UART, so boards using a UART expander (`wk2168` on the PVbrain2) had to include an internal file to avoid it ; every board now includes the same entry point
-  * RS485 packages reorganised internally for the additional protocols to come : `yambms_rs485_pylon.yaml` **stays the file you include**, no change there ; its selects/diagnostics/UART machinery move out to a new shared `yambms_rs485.yaml` (replacing the old internal `yambms_rs485_pylon_core.yaml`), which `yambms_rs485_pylon.yaml` includes itself so that a node with several RS485 links on different UARTs can run a different protocol on each ; `yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml` and must now be included alongside the protocol file with its own `rs485_id`, instead of swapping one for the other, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
 
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`

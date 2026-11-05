@@ -1,5 +1,5 @@
-# Updated : 2026.09.04
-# Version : 1.1.1
+# Updated : 2026.11.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # +----------------------------------------------------------------------------+
-# | Inverter registry                                                          |
+# | Brand registry                                                             |
 # |                                                                            |
 # | Shared by the CAN and the RS485 inverter links. Holds:                     |
 # |   - the protocol dictionary (YB_PROTO_*)                                   |
@@ -31,6 +31,10 @@
 # | user can always override it with the `Protocol` select. Only the battery   |
 # | mode is asserted, and only for couples that were actually confirmed by a   |
 # | user; anything else returns "See inverter manual".                         |
+# |                                                                            |
+# | A brand with no mapping gets PYLON V2 on CAN and the compiled protocol on  |
+# | RS485, and its note says it was not validated. `Not defined` and `Other`   |
+# | are not brands: they resolve to nothing and the user has to choose.        |
 # +----------------------------------------------------------------------------+
 
 substitutions:
@@ -76,20 +80,20 @@ globals:
           if (brand == "Schneider")     return ${YB_PROTO_CAN_PYLON_V2};
           if (brand == "SMA")           return ${YB_PROTO_CAN_SMA};
           if (brand == "Sofar")         return ${YB_PROTO_CAN_PYLON_V1};
+          if (brand == "Sol-Ark")       return ${YB_PROTO_CAN_PYLON_V1};
           if (brand == "Solis")         return ${YB_PROTO_CAN_SMA};
           if (brand == "SRNE")          return ${YB_PROTO_CAN_PYLON_V2};
           if (brand == "Studer")        return ${YB_PROTO_CAN_PYLON_V2};
+          if (brand == "Sunsynk")       return ${YB_PROTO_CAN_PYLON_V1};
           if (brand == "Victron")       return ${YB_PROTO_CAN_VICTRON};
-          return ${YB_PROTO_NONE};
+          // Any other brand was not validated on CAN: the note reports it.
+          return ${YB_PROTO_CAN_PYLON_V2};
         }
 
-        // RS485: every known brand maps to PYLON, except the Voltronic-derived
-        // family (Axpert, InfiniSolar, MPP Solar) whose "LIB" battery type is a
-        // distinct, unrelated protocol - see yambms_rs485_voltronic.yaml.
-        if (bus == "RS485") {
-          if (brand == "MPP Solar" || brand == "Voltronic") return ${YB_PROTO_RS485_VOLTRONIC_LIB};
-          return ${YB_PROTO_RS485_PYLON};
-        }
+        // RS485: the protocol is chosen at compile time (`rs485_protocol`), so the
+        // link only needs to know that a brand was selected. The script in
+        // yambms_rs485.yaml replaces this value with the compiled protocol.
+        if (bus == "RS485") return ${YB_PROTO_RS485_PYLON};
 
         return ${YB_PROTO_NONE};
       }
@@ -140,14 +144,20 @@ globals:
         if (brand == "Growatt"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "CAN L52";
         if (brand == "LuxPower"      && proto == ${YB_PROTO_CAN_LUXPOWER})  return "Lithium 6";
         if (brand == "MidNite Solar" && proto == ${YB_PROTO_CAN_PYLON_V1})  return "PYLON";
+        if (brand == "MPP Solar"     && proto == ${YB_PROTO_RS485_PYLON})   return "PYL";
         if (brand == "MPP Solar"     && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})  return "LIB";
         if (brand == "Schneider"     && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Voltage Control Li-Ion";
         if (brand == "Sofar"         && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Automatic";
+        if (brand == "Sol-Ark"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Lithium 00";
+        if (brand == "Sol-Ark"       && proto == ${YB_PROTO_RS485_PYLON})   return "Lithium 12";
         if (brand == "Solis"         && proto == ${YB_PROTO_CAN_SMA})       return "AoBo";
         if (brand == "Solis"         && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Pylon LV";
         if (brand == "SRNE"          && proto == ${YB_PROTO_CAN_PYLON_V2})  return "UZE";
         if (brand == "Studer"        && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Pylontech";
+        if (brand == "Sunsynk"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Lithium 00";
+        if (brand == "Sunsynk"       && proto == ${YB_PROTO_RS485_PYLON})   return "Lithium 12";
         if (brand == "Victron"       && proto == ${YB_PROTO_CAN_VICTRON})   return "CAN-bus BMS LV (500 kbit/s)";
+        if (brand == "Voltronic"     && proto == ${YB_PROTO_RS485_PYLON})   return "PYL";
         if (brand == "Voltronic"     && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})  return "LIB";
 
         return "See inverter manual";
@@ -165,15 +175,36 @@ globals:
       [](std::string brand, int proto) -> std::string {
 
         if (brand == "EG4"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "6000XP only.";
-        if (brand == "Epever"    && proto == ${YB_PROTO_RS485_PYLON})   return "Verified on ET-NC and IT-NC inverter-chargers. Other Epever models may only support the Epever BMS Link protocol. BPRO 21 defaults to 115200 baud on ET/IT chargers, not the 9600 default - set rs485_uart_baud_rate accordingly.";
-        if (brand == "Epever")                                          return "Unverified: Epever inverter-chargers are documented on RS485 PYLON.";
+        if (brand == "Epever"    && proto == ${YB_PROTO_RS485_PYLON})   return "Set protocol ID 21 (BPRO 21). A direct RS485 link works on most models, UPower-Hi requires the external BMS-Link. BPRO 21 defaults to 115200 baud not the 9600 default - set rs485_uart_baud_rate accordingly.";
+        if (brand == "Epever")                                          return "Unverified: Epever is documented on RS485 PYLON, no CAN support is known.";
         if ((brand == "MPP Solar" || brand == "Voltronic") && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})
           return "Unverified: per Voltronic's own documentation, only the charge voltage limit is applied by the inverter firmware - discharge voltage and both current limits are documented as unused.";
+        if ((brand == "MPP Solar" || brand == "Voltronic") && proto == ${YB_PROTO_RS485_PYLON})
+          return "See user manual: set parameter 05 to PYL. For LIB, set rs485_protocol to 'voltronic'.";
         if (brand == "Schneider" && proto == ${YB_PROTO_CAN_PYLON_V2})  return "The extended 29-bit ACK is handled automatically.";
         if (brand == "Sofar"     && proto == ${YB_PROTO_CAN_PYLON_V1})  return "A 120 Ohm resistor may be required on the Sofar side.";
         if (brand == "Solis"     && proto == ${YB_PROTO_CAN_PYLON_V2})  return "A 3.3V CAN transceiver (SN65HVD230) is required.";
         if (brand == "SRNE"      && proto == ${YB_PROTO_CAN_PYLON_V2})  return "The inverter reports an incorrect battery temperature.";
         if (brand == "Studer"    && proto == ${YB_PROTO_CAN_PYLON_V2})  return "Xcom-CAN DIP switches: 11000110 (1 to 8, ON = 1).";
+
+        // Not brands: nothing to validate, even with a protocol forced by hand.
+        if (brand == "Not defined" || brand == "Other") return "";
+
+        // LIB is a Voltronic protocol: the two brands it applies to returned above.
+        if (proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})
+          return "LIB only works with Voltronic and MPP Solar. Rebranded inverters must select Voltronic, otherwise set rs485_protocol to 'pylon'.";
+
+        // Brands confirmed on each bus. The leading digit of a protocol names its
+        // bus, so this also covers a protocol forced by hand.
+        bool can_validated = brand == "Deye" || brand == "EG4" || brand == "GoodWe" ||
+                             brand == "Growatt" || brand == "LuxPower" || brand == "MidNite Solar" ||
+                             brand == "Schneider" || brand == "SMA" || brand == "Sofar" ||
+                             brand == "Sol-Ark" || brand == "Solis" || brand == "SRNE" ||
+                             brand == "Studer" || brand == "Sunsynk" || brand == "Victron";
+        bool rs485_validated = brand == "Deye" || brand == "Epever" || brand == "Sol-Ark" || brand == "Sunsynk";
+
+        if (proto / 100 == 1 && !can_validated)   return "Unverified: this brand has not been validated on CAN bus yet.";
+        if (proto / 100 == 2 && !rs485_validated) return "Unverified: this brand has not been validated on RS485 yet.";
 
         return "";
       }
