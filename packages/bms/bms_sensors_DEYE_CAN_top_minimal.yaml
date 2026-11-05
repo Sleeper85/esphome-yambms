@@ -1,5 +1,5 @@
-# Updated : 2026.10.18
-# Version : 1.1.7
+# Updated : 2026.11.05
+# Version : 1.1.8
 # GitHub  : https://github.com/GHswitt/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+packages:
+  canbus_node: !include
+    file: ../board/board_options_itf_canbus_${canbus_platform}.yaml
+    vars:
+      canbus_node_id: ${canbus_id}
+      canbus_bit_rate: ${canbus_bitrate | default('500kbps')}
 
 esphome:
   # sub device

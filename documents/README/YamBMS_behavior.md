@@ -192,11 +192,14 @@ The Deye inverter sends the ACK (can_id `0x305`) only when it receives the can_i
   vars:
     canbus_id: '1' # must be a number
     canbus_name: 'CANBUS 1'
-    canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
     canbus_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
     # The CAN bus link will be paused for `30s` if the inverter does not respond with an ACK (can_id 0x305)
     # before the end of the `canbus_link_timer` (5s by default).
     canbus_link_timer: '5s'
+    # CAN setup
+    canbus_platform: 'esp32_can'        # esp32_can / mcp2515
+    canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
+    canbus_bitrate: '500kbps'           # Default : 500kbps
 ```
 
 ## Warning & Alarms
