@@ -1,4 +1,4 @@
-# Updated : 2026.09.03
+# Updated : 2026.11.05
 # Version : 1.8.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -789,7 +789,7 @@ views:
                 </tr>
                 <tr>
                   <td>ESPHome version</td>
-                  <td>{{ states('sensor.yambms_demo_board_esphome_version')[:8] }}</td>
+                  <td>{{ states('sensor.yambms_demo_board_esphome_version')[:9] }}</td>
                 </tr>
                 </table>
       - type: grid
