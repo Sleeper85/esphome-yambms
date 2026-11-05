@@ -42,9 +42,11 @@ The condition in `bms_combine.yaml` checks every sensor the combiner will read. 
 purpose: a single missing or `NaN` value entering the totals corrupts the aggregate that drives
 the inverter. Do not shorten it to a few representative checks.
 
-Note that the checks are not uniform. Most use `has_state()`, but `total_voltage`,
-`battery_capacity`, `max_charge_current` and `max_discharge_current` use `> 0` — a BMS reporting
-zero for those is treated as not ready rather than as a valid reading.
+Note that the checks are not uniform. Most use `has_state()`, but `total_voltage` and
+`battery_capacity` use `> 0` — a BMS reporting zero for those is treated as not ready rather than
+as a valid reading. `max_charge_current` and `max_discharge_current` use `>= 0`: `0 A` is a valid
+limit that a BMS can announce, and it must not take that BMS out of the combination. A `NaN` still
+fails the comparison, so a limit that was never received keeps the BMS uncombined.
 
 ### Combined by contribution, combined continuously, uncombined
 
