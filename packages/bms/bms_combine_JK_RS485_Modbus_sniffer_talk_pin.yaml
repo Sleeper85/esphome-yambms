@@ -1,5 +1,5 @@
-# Updated : 2026.08.14
-# Version : 1.3.3
+# Updated : 2026.11.05
+# Version : 1.3.4
 # GitHub  : https://github.com/txubelaxu/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -23,6 +23,10 @@ substitutions:
 
 packages:
   modbus_sniffer: !include bms_base_sniffer_sub_device.yaml
+  sniffer_uart: !include
+    file: ../board/board_options_itf_${sniffer_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${sniffer_uart_baud_rate | default(115200)}
 
 logger:
   tx_buffer_size: 1024

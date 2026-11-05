@@ -1,5 +1,5 @@
-# Updated : 2026.07.30
-# Version  : 1.1.4
+# Updated : 2026.11.05
+# Version  : 1.1.5
 # GitHub   : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -32,7 +32,7 @@
 # | - RS485 (SP3485): TX=G6, RX=G7 (uses Port C pins on M5-Bus)
 # | - TTL UART: TX=G37, RX=G38 (uses UART0 pins on M5-Bus)
 # | Include board_options_itf_canbus_mcp2515.yaml for CAN
-# | Include board_options_itf_uart_1.yaml + board_options_itf_modbus.yaml for RS485
+# | Include board_options_itf_modbus.yaml with modbus_uart_id: uart_esp_1 for RS485
 # |
 # +--------------------------------------------------------------------------------------------+
 # | DIN BASE (M132) Configuration

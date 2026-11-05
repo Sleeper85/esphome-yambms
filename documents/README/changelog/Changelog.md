@@ -7,11 +7,16 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
 * YamBMS 1.8.1 :
+  * Set esphome `min_version` to `2026.10.0`
   * **Breaking change** - New `Inverter brand` select and reworked `Protocol` select : selecting your inverter brand is enough, the protocol follows ; a protocol chosen explicitly still takes priority over the brand. Both selects are renamed, so their stored value is reset : **the inverter link stays inactive until you select your inverter brand**, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
 
   * Removed the `YamBMS name` select : the manufacturer name sent on CAN frame `0x35E` is now derived from the protocol in use, which is what the `Automatic` mode already did ; the `GOODWE`, `SHEnergy` and `BYD` names are no longer selectable
 
-  * The RS485 baud rate is now applied at runtime with `set_baud_rate()` + `load_settings()` instead of extending the `uart` component : `uart: !extend` only works on a native ESP32 UART, so boards using a UART expander (`wk2168` on the PVbrain2) had to include an internal file to avoid it ; every board now includes the same entry point
+  * **Breaking change** - A package that uses a UART now declares it itself from its `*_uart_id` var : remove the `board_options_itf_uart_*.yaml` includes and the `UART flow control` block from your YAML, otherwise ESPHome reports `ID uart_esp_1 redefined`. Each UART can only be used by one package
+  * Baud rates are set in the `vars:` of the package and keep their names ; packages that had none get `bms_uart_baud_rate`, `sniffer_uart_baud_rate` and `shunt_uart_baud_rate`, with the speed of the device as default
+  * New `uart_flow_control_pin` var on any package using a native ESP32 UART, which replaces the `board_options_itf_uart_flow_control.yaml` include ; the `_talk_pin` packages stay available for the rare setups that need them but are no longer shown in the examples
+  * WK2168 channels are now declared the same way : `board_options_itf_wk2168_spi.yaml` or `board_options_itf_wk2168_i2c.yaml` replaces the PVbrain2 files in your YAML, the `uartN_baudrate` substitutions and `uart_hub_bus` are removed (write `uart_spi_3`), and `board_options_itf_modbus_expander.yaml` and `shunt_combine_Victron_SmartShunt_UART_expander.yaml` are removed
+
   * RS485 packages reorganised for the additional protocols to come : the file you include changes from `yambms_rs485_pylon.yaml` to `yambms_rs485.yaml`, which now takes a `rs485_protocol` var (`pylon` or `voltronic`) and includes the matching protocol implementation for you ; a node with several RS485 links on different UARTs can run a different protocol on each, one var per link ; `yambms_rs485_pylon_web_server.yaml` becomes `yambms_rs485_web_server.yaml` and must now be included alongside the entry point with its own `rs485_id`, instead of swapping one for the other, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
 
   * New diagnostic entities per inverter link : `Inverter link protocol` (what the link is actually doing, e.g. `Solis - CAN SMA`), `Inverter battery mode` (how to configure the battery type on the inverter, keyed on brand *and* protocol so that forcing a protocol never displays a wrong instruction) and `Note` (what is specific to that brand and protocol)

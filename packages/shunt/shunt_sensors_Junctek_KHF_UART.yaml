@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.1.8
+# Updated : 2026.11.05
+# Version : 1.1.9
 # GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,6 +19,10 @@
 
 packages:
   shunt_base: !include shunt_base.yaml
+  shunt_uart: !include
+    file: ../board/board_options_itf_${shunt_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${shunt_uart_baud_rate | default(115200)}
 
 # +--------------------------------------+
 # | Component settings                   |
@@ -30,8 +34,6 @@ external_components:
   # - source:
   #     type: local
   #     path: components
-
-# UART baud_rate : 115200
 
 # +--------------------------------------+
 # | Component entities                   |

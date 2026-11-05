@@ -1,5 +1,5 @@
-# Updated : 2026.02.16
-# Version : 1.1.7
+# Updated : 2026.11.05
+# Version : 1.1.8
 # GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -19,6 +19,11 @@
 
 packages:
   shunt_base_minimal: !include shunt_base_minimal.yaml
+  shunt_uart: !include
+    file: ../board/board_options_itf_${shunt_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${shunt_uart_baud_rate | default(19200)}
+      uart_rx_buffer_size: '256'
 
 # +--------------------------------------+
 # | Component settings                   |

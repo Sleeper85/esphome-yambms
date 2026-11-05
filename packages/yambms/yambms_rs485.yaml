@@ -32,26 +32,20 @@
 
 packages:
   rs485_protocol: !include yambms_rs485_${rs485_protocol}.yaml
+  rs485_uart: !include
+    file: ../board/board_options_itf_${rs485_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${rs485_uart_baud_rate | default(9600)}
 
 substitutions:
   # The ID of the LED on your board used for this component
   rs485_status_led_id: "virtual_status_light"
-  # Baud rate of the link to the inverter, applied at runtime (see on_boot below)
-  rs485_uart_baud_rate: '9600'
 
 esphome:
   on_boot:
     - priority: 600.0
       then:
         - lambda: |-
-            // Apply the baud rate at runtime rather than extending the uart component.
-            // `uart: !extend` only works on a native ESP32 UART; an expander channel
-            // (wk2168 and friends) declares its baud rate inside the expander's own
-            // configuration and cannot be extended. Both expose set_baud_rate() and
-            // load_settings(), which reprograms the hardware, so this works everywhere.
-            id(${rs485_uart_id}).set_baud_rate(${rs485_uart_baud_rate});
-            id(${rs485_uart_id}).load_settings();
-
             // Register System
             id(global_register_led)(${CAT_INV_RS485}, ${rs485_id}, id(${rs485_status_led_id}));
             // Force register fault as default, will be updated once RS485 is working

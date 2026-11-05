@@ -384,6 +384,81 @@ This is why the Schneider XW Pro extended ACK needs no configuration, and why th
 `canbus_extended_ack` substitution was removed. Both triggers call the same script so the handler
 is not duplicated.
 
+## A UART is declared by the package that consumes it
+
+**Files:** `packages/board/board_options_itf_uart_*.yaml`, every package taking a `*_uart_id`
+
+The main YAML names a UART once, in the `vars:` of the package that uses it, and that package
+imports the matching `board_options_itf_${xxx_uart_id}.yaml`. It replaces a two-step declaration,
+an `uart_esp_N` include followed by a `!extend` of the baud rate, which could not reach a WK2168
+channel: those live under `wk2168_spi[].uart[]`, so every consumer needed an `_expander` twin
+without the `uart:` block.
+
+### One importer per UART
+
+Two imports of the same UART fail with `ID uart_esp_1 redefined`, on an expander channel too. Keep
+it that way. Sharing a UART at two speeds has no valid meaning, and with the old `!extend` it did
+not fail: the extended value simply won, so an inverter link declared at 115200 silently ran at
+the 9600 of a BMS package on the same UART.
+
+This is why bus-level packages import the UART, not the per-BMS ones: a bus package is included
+once, the BMS packages on that bus several times.
+
+### Each package keeps its key, `uart_baud_rate` stays internal
+
+Every package exposes its own key (`rs485_uart_baud_rate`, `pace_modbus_baud_rate`,
+`shunt_uart_baud_rate`...) and maps it to `uart_baud_rate` in the `vars:` of the import. Do not
+expose `uart_baud_rate` itself: with `${uart_baud_rate | default(...)}` in every package, one value
+in a root `substitutions:` block would override all the consumers of the node, defaults included.
+
+The defaults live in that `| default()` and nowhere else:
+
+- **Not in `substitutions:`.** Package substitutions are merged into one global block, so
+  `bms_uart_baud_rate` would get the same value for JBD (9600), JK UART (115200) and JK Display
+  (2400), with no error.
+- **Not in the UART file.** It does not know who imports it, and a wrong speed is valid
+  configuration that fails silently on the wire. This is what the old fixed `115200` hid: the JK
+  UART, JK sniffer and Junctek packages only worked because that value happened to suit them.
+- **Not as a fixed value.** A value written in the `vars:` of the import takes priority over the
+  one passed by the user, who is ignored without a message.
+
+Leave `| default()` out when the speed depends on the installation (PACE, EG4, Seplos, BASEN): a
+missing key then fails validation instead of picking a speed.
+
+`modbus_baud_rate` is the exception that keeps its place in `substitutions:`: `yambms_config.yaml`
+shares it between the nodes of a multi-node setup from the root.
+
+### `flow_control` is enabled by a var, so `min_version` is 2026.10.0
+
+`uart_flow_control_pin` is passed like any other var of the import and reaches the UART file,
+which includes `board_options_itf_uart_flow_control.yaml` only when it is defined. So no consumer
+has to know about it.
+
+`flow_control_pin: ${uart_flow_control_pin}` with an empty default is not an option, the UART
+schema refuses a null pin. The `condition:` key of `!include` is what makes the pin optional, and
+ESPHome 2026.8.0 ignores it: the file is included anyway and the configuration fails. Do not lower
+`min_version` without replacing it.
+
+This `!extend` is the last one on a UART. It is not exposed to the user, and it works whatever the
+order of the packages.
+
+### Expander channels
+
+`uart_spi_N` and `uart_i2c_N` are numbered like the PVbrain2 connectors: `0` to `3` on bridge 0,
+`4` to `7` on bridge 1. Do not shift them to start at 1, every existing wiring would move by one
+channel.
+
+Each channel adds itself with `!extend uart_bridgeN`, and the bridges are declared with an empty
+`uart:` by `board_options_itf_wk2168_spi.yaml` or `board_options_itf_wk2168_i2c.yaml`.
+
+A WK2168 channel has no `flow_control_pin`, so `uart_flow_control_pin` is ignored there, without a
+message. Its RS485 transceivers must handle the direction automatically. The `_talk_pin` packages
+are kept for that one case: they drive a plain GPIO from the component, which works on any UART.
+Everywhere else `uart_flow_control_pin` replaces them, and the examples no longer show them.
+
+The UART id must be readable when the `!include` filename is resolved. A value built from a
+substitution declared in a package, such as `uart_${uart_hub_bus}_3`, is not, so write `uart_spi_3`.
+
 ## Empirical constants
 
 Some constants were found by trial on real hardware and must not be rounded or harmonised.

@@ -8,6 +8,7 @@
 
 > [!IMPORTANT]  
 > This board uses a `flow_control_pin`, also called a `talk_pin` in the YamBMS documentation and used to manage the direction of data transmission for RS485 transceiver that do not handle this automatically. This `talk_pin` must be specified in your YAML.
+> Set it with `uart_flow_control_pin: ${talk_pin}` in the `vars:` of the package that uses the UART.
 
 ## Overview
 

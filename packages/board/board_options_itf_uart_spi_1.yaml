@@ -1,6 +1,6 @@
-# Updated : 2024.12.23
+# Updated : 2026.11.05
 # Version : 1.1.1
-# GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-packages:
-  shunt_sensors: !include shunt_sensors_Victron_SmartShunt_UART.yaml
-  shunt_combine: !include shunt_combine.yaml
+# Imported by the package that consumes this UART, which passes `uart_baud_rate`.
+# `uart_flow_control_pin` does not exist on an expander channel and is ignored.
+
+wk2168_spi:
+  - id: !extend uart_bridge0
+    uart:
+      - id: uart_spi_1
+        channel: 1
+        baud_rate: ${uart_baud_rate}

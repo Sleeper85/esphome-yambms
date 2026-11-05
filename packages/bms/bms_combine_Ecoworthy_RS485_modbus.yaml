@@ -1,5 +1,5 @@
-# Updated : 2026.02.05
-# Version : 1.0.1
+# Updated : 2026.11.05
+# Version : 1.0.2
 # GitHub  : https://github.com/RAR/esphome-ecoworthy-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,15 +30,16 @@
 
 substitutions:
   ecoworthy_modbus_id: modbus_ecoworthy
-  ecoworthy_modbus_baud_rate: '9600'
 
 external_components:
   - source: github://RAR/esphome-ecoworthy-bms@v1.0.0
     refresh: 0s
 
-uart:
-  - id: !extend ${ecoworthy_modbus_uart_id}
-    baud_rate: ${ecoworthy_modbus_baud_rate}
+packages:
+  ecoworthy_uart: !include
+    file: ../board/board_options_itf_${ecoworthy_modbus_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${ecoworthy_modbus_baud_rate | default(9600)}
 
 ecoworthy_modbus:
   - id: ${ecoworthy_modbus_id}

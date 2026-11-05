@@ -1,5 +1,5 @@
-# Updated : 2026.08.26
-# Version : 1.1.5
+# Updated : 2026.11.05
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -27,9 +27,11 @@ substitutions:
   # Modbus Controller
   modbus_update_interval: '5s'       # Frequency with which BMS/Balancer/Shunt (modbus servers) are queried
 
-uart:
-  - id: !extend ${modbus_uart_id}
-    baud_rate: ${modbus_baud_rate}
+packages:
+  modbus_uart: !include
+    file: ../board/board_options_itf_${modbus_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${modbus_baud_rate}
 
 modbus:
   - uart_id: ${modbus_uart_id}

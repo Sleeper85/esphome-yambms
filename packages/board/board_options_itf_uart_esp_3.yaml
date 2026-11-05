@@ -1,5 +1,5 @@
-# Updated : 2025.04.02
-# Version : 1.1.1
+# Updated : 2026.11.05
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -17,9 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+# Imported by the package that consumes this UART, which passes `uart_baud_rate`.
+# Optional vars of that import : `uart_rx_buffer_size`, `uart_flow_control_pin`.
+
+packages:
+  flow_control: !include
+    file: board_options_itf_uart_flow_control.yaml
+    condition: ${uart_flow_control_pin is defined}
+    vars:
+      uart_id: uart_esp_3
+
 uart:
   - id: uart_esp_3
     tx_pin: ${tx_pin_3}
     rx_pin: ${rx_pin_3}
-    baud_rate: 115200
-    rx_buffer_size: 512
+    baud_rate: ${uart_baud_rate}
+    rx_buffer_size: ${uart_rx_buffer_size | default(512)}

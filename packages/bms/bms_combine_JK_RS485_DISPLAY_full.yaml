@@ -1,5 +1,5 @@
-# Updated : 2026.10.18
-# Version : 1.2.3
+# Updated : 2026.11.05
+# Version : 1.2.4
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -27,6 +27,10 @@ packages:
       bms_protocol: "DISPLAY"
   bms_temperature_sensor: !include bms_temperature_sensor_2.yaml
   bms_battery_soh: !include bms_base_battery_soh.yaml
+  bms_uart: !include
+    file: ../board/board_options_itf_${bms_uart_id}.yaml
+    vars:
+      uart_baud_rate: ${bms_uart_baud_rate | default(2400)}
 
 substitutions:
   # (V) cell spread at which this BMS starts balancing. Not readable over the display
@@ -80,10 +84,6 @@ substitutions:
 external_components:
   - source: github://syssi/esphome-jk-bms@main
     refresh: 0s
-
-uart:
-  - id: !extend ${bms_uart_id}
-    baud_rate: 2400
 
 jk_bms_display:
   - id: jk_bms_display${bms_id}
