@@ -545,8 +545,8 @@ interval:
             float total_voltage = NAN;
             float current = NAN;
             float power = NAN;
-            float battery_charging_power = NAN;
-            float battery_discharging_power = NAN;
+            float battery_charging_power = 0;
+            float battery_discharging_power = 0;
             float soc = NAN;
             float soh = NAN;
             float charging_cycles = NAN;
@@ -590,13 +590,18 @@ interval:
               else
                 power = round(id(yambms${yambms_id}_var_bms_total_power));
 
-              // battery_charging_power           
-              if (power > 0)
+              // battery_charging_power
+              if (!std::isnan(power) && power > 0)
+              {
                 battery_charging_power = power;
-              
+                battery_discharging_power = 0;
+              }
               // battery_discharging_power
-              else
+              else if (!std::isnan(power))
+              {
+                battery_charging_power = 0;
                 battery_discharging_power = power * -1; // Must be positive energy
+              }
               
               // MEAN Battery SOC (Shunt/BMS)
               if (id(yambms${yambms_id}_var_shunt_use) == true)
