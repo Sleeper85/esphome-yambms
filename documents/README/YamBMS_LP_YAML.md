@@ -344,6 +344,23 @@ You can find `Shunt` import `LP` examples in the [examples/single-node](../../ex
 
 As soon as the balancer is available/online the values ​​`equalizing` and `balance trigger voltage` of the balancers(s) will take precedence over the BMS values.
 
+### Auto Balancer
+
+The [Auto Balancer](YamBMS_functions.md#auto-balancer) allows balancing only at low current. Add these packages on the main `YamBMS` node, one `bms_options_auto_balancer_switch.yaml` per balance switch to control:
+
+```YAML
+  auto_balancer1: !include
+    file: packages/bms/bms_options_auto_balancer.yaml
+    vars:
+      bms_id: '1'
+      shunt_id: '1' # Shunt measuring only this battery, '0' or omitted = use the BMS current
+  auto_balancer1_ext: !include
+    file: packages/bms/bms_options_auto_balancer_switch.yaml
+    vars:
+      bms_id: '1'
+      switch_id: 'balancer1_balance_switch' # or 'bms1_balance_switch' for the BMS internal balancer
+```
+
 ## YamBMS
 
 > [!TIP]

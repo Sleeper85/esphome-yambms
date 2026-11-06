@@ -1,5 +1,5 @@
-# Updated : 2026.06.27
-# Version : 1.7.0
+# Updated : 2026.11.03
+# Version : 1.7.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # This YAML is free software: you can redistribute it and/or
@@ -84,6 +84,23 @@ text_sensor:
 interval:
   - interval: ${yambms_update_interval}
     then:
+      - lambda: |-
+          // +-----------------------------------------------+
+          // | Shunt current for Auto Balancer               |
+          // +-----------------------------------------------+
+          // Valid only if the shunt can be combined (online and "Combine enabled")
+          if (${shunt_id} < 1 || ${shunt_id} >= id(yambms${yambms_id}_var_auto_balancer_shunt_current).size()) return;
+          const uint32_t shunt_bit = 1UL << ${shunt_id};
+          float current = id(shunt${shunt_id}_current).state;
+          if (id(shunt${shunt_id}_can_be_combined).state && !std::isnan(current))
+          {
+            id(yambms${yambms_id}_var_auto_balancer_shunt_current)[${shunt_id}] = current;
+            id(yambms${yambms_id}_var_auto_balancer_shunt_valid) |= shunt_bit;
+          }
+          else
+          {
+            id(yambms${yambms_id}_var_auto_balancer_shunt_valid) &= ~shunt_bit;
+          }
       - lambda: |-
           // +-----------------------------------------------+
           // | STEP 1 - Shunt combiner                       |

@@ -1,0 +1,36 @@
+# Updated : 2026.11.03
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# Exposes the BMS internal balance switch on the BMS modbus server.
+# Requires a BMS package that provides the switch bms${bms_id}_balance_switch.
+# The main YamBMS node uses bms_combine_modbus_client_balance_switch.yaml to control it.
+
+modbus_server:
+  - id: !extend modbus_server_bms${bms_id}
+    registers:
+        # balance_switch (1/0) - writable
+        - address: 35
+          value_type: U_WORD
+          read_lambda: |-
+            return uint16_t(id(bms${bms_id}_balance_switch).state);
+          write_lambda: |-
+            if (x > 1) return false;
+            if (x == 1) id(bms${bms_id}_balance_switch).turn_on();
+            else id(bms${bms_id}_balance_switch).turn_off();
+            return true;
