@@ -1,5 +1,5 @@
-# Updated : 2026.07.16
-# Version : 1.2.3
+# Updated : 2026.11.06
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -47,12 +47,44 @@ switch:
     entity_category: config
 
 number:
+  # Charging window : from the start time to the next target time, may cross midnight.
+  # Start = target means a 24h window. The default start 00:00 is a daylight window.
+  - platform: template
+    name: "Auto EOC Start Hour"
+    id: yambms${yambms_id}_auto_eoc_start_hour
+    device_id: yambms_yambms${yambms_id}
+    step: 1
+    min_value: 0
+    max_value: 23
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0
+    unit_of_measurement: h
+    icon: mdi:clock-start
+    optimistic: true
+    entity_category: config
+
+  - platform: template
+    name: "Auto EOC Start Minute"
+    id: yambms${yambms_id}_auto_eoc_start_min
+    device_id: yambms_yambms${yambms_id}
+    step: 15
+    min_value: 0
+    max_value: 45
+    restore_value: true
+    mode: "${yambms_input_number_mode}"
+    initial_value: 0
+    unit_of_measurement: m
+    icon: mdi:clock-start
+    optimistic: true
+    entity_category: config
+
   - platform: template
     name: "Auto EOC Target Hour"
     id: yambms${yambms_id}_auto_eoc_target_hour
     device_id: yambms_yambms${yambms_id}
     step: 1
-    min_value: 12
+    min_value: 0
     max_value: 23
     restore_value: true
     mode: "${yambms_input_number_mode}"
@@ -251,28 +283,49 @@ interval:
             return;
           }
 
-          // Get target time
-          const int target_hour = id(yambms${yambms_id}_auto_eoc_target_hour).state;
+          // +-----------------------------------------------+
+          // | Charging window (start -> next target)        |
+          // +-----------------------------------------------+
+          // The window runs from the start time to the next target time and may cross
+          // midnight (e.g. 22:00 -> 06:00 for night charging from the grid). Start = target
+          // is a 24h window. Times are built in local time from the noon of a given day, so
+          // stepping whole days never slips the date on a 23h / 25h DST day.
+          const int start_hour    = id(yambms${yambms_id}_auto_eoc_start_hour).state;
+          const int start_minute  = id(yambms${yambms_id}_auto_eoc_start_min).state;
+          const int target_hour   = id(yambms${yambms_id}_auto_eoc_target_hour).state;
           const int target_minute = id(yambms${yambms_id}_auto_eoc_target_min).state;
 
-          // Create target timestamp
-          auto target_time = current_time;
-          target_time.hour = target_hour;
-          target_time.minute = target_minute;
-          target_time.second = 0;
-          target_time.recalc_timestamp_local();
+          ESPTime noon = current_time;
+          noon.hour = 12;
+          noon.minute = 0;
+          noon.second = 0;
+          noon.recalc_timestamp_local();
+          auto local_at = [&](int day_offset, int hour, int minute) -> time_t {
+            ESPTime t = ESPTime::from_epoch_local(noon.timestamp + (time_t) day_offset * 86400);
+            t.hour = hour;
+            t.minute = minute;
+            t.second = 0;
+            t.recalc_timestamp_local();
+            return t.timestamp;
+          };
 
-          // Calculate hours left until target time
-          const float hours_left = (target_time.timestamp - current_time.timestamp) / 3600.0;
+          const time_t now_ts = current_time.timestamp;
+          // Next target : today if still ahead, otherwise tomorrow
+          int target_day = 0;
+          time_t next_target = local_at(0, target_hour, target_minute);
+          if (next_target <= now_ts) {
+            target_day = 1;
+            next_target = local_at(1, target_hour, target_minute);
+          }
+          const time_t prev_target = local_at(target_day - 1, target_hour, target_minute);
 
-          // Check if we stop increasing the charge current
-          bool stop_increasing = false;
-          if (id(yambms${yambms_id}_battery_soc).has_state() && (id(yambms${yambms_id}_battery_soc).state >= id(yambms${yambms_id}_auto_eoc_stop_soc).state)) {
-            ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, SoC is above threshold");
-            stop_increasing = true;
-          } else if (hours_left <= id(yambms${yambms_id}_auto_eoc_stop_hours).state) {
-            ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, hours left is below threshold");
-            stop_increasing = true;
+          // Window start : last start time before the next target
+          time_t window_start;
+          if ((start_hour == target_hour) && (start_minute == target_minute)) {
+            window_start = prev_target;   // 24h window
+          } else {
+            window_start = local_at(target_day, start_hour, start_minute);
+            if (window_start >= next_target) window_start = local_at(target_day - 1, start_hour, start_minute);
           }
 
           // Determine if there is a previously limited current we can hold onto. This is used to
@@ -283,22 +336,37 @@ interval:
               !std::isnan(id(yambms${yambms_id}_auto_eoc_charging_current_filtered).state) &&
               (id(yambms${yambms_id}_auto_eoc_charging_current_filtered).state > 0.0f);
 
-          // Check if the time is up
+          // Calculate hours left until the target time
+          float hours_left = (next_target - now_ts) / 3600.0;
+
+          // The target time has passed. Allow a one hour grace period during which the last
+          // limited current is held, so a battery that has not quite finished charges gently
+          // instead of spiking to maximum. It has priority over a window starting right after.
           bool grace_period = false;
-          if (hours_left <= 0) {
-            // Time is up. Allow a one hour grace period during which the last limited current is
-            // held, so a battery that has not quite finished charges gently instead of spiking to
-            // maximum. If more than one hour has passed, or there is no current to hold, we stop.
-            if ((hours_left < -1.0) || !has_hold_current) {
-              id(yambms${yambms_id}_var_auto_eoc) = 0;
-              id(yambms${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
-              id(yambms${yambms_id}_auto_eoc_status).publish_state("Stop: Target time passed");
-              id(yambms${yambms_id}_var_charge_current_step)++;
-              return;
-            } else {
-              grace_period = true;
-              ESP_LOGD("yambms_auto_eoc", "Target time passed, holding current for grace period");
-            }
+          const float hours_since_target = (now_ts - prev_target) / 3600.0;
+          if ((hours_since_target <= 1.0) && has_hold_current) {
+            grace_period = true;
+            hours_left = -hours_since_target;
+            ESP_LOGD("yambms_auto_eoc", "Target time passed, holding current for grace period");
+          } else if (now_ts < window_start) {
+            // Outside the charging window
+            char wait_status[40];
+            snprintf(wait_status, sizeof(wait_status), "Wait: Starts at %d:%02d", start_hour, start_minute);
+            id(yambms${yambms_id}_var_auto_eoc) = 0;
+            id(yambms${yambms_id}_auto_eoc_charging_current_filtered).publish_state(NAN);
+            id(yambms${yambms_id}_auto_eoc_status).publish_state(wait_status);
+            id(yambms${yambms_id}_var_charge_current_step)++;
+            return;
+          }
+
+          // Check if we stop increasing the charge current
+          bool stop_increasing = false;
+          if (id(yambms${yambms_id}_battery_soc).has_state() && (id(yambms${yambms_id}_battery_soc).state >= id(yambms${yambms_id}_auto_eoc_stop_soc).state)) {
+            ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, SoC is above threshold");
+            stop_increasing = true;
+          } else if (hours_left <= id(yambms${yambms_id}_auto_eoc_stop_hours).state) {
+            ESP_LOGD("yambms_auto_eoc", "Stopping charge current increase, hours left is below threshold");
+            stop_increasing = true;
           }
 
           // Get battery capacity
