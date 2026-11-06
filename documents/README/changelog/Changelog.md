@@ -29,6 +29,7 @@
   * Fixed the RS485 link staying up with `Disabled` : the proxy sensors kept their last value, so the Pylontech component went on answering the inverter with stale data and kept reporting its status as ON ; the sensors it checks are now invalidated when the protocol is off, which makes it stop answering and report the link as down
   * Fixed the CAN bus not stopping when the protocol was set to `Disabled` at runtime : the frame index kept its previous value and the last frame was re-emitted every 100 ms
   * Fixed the reported communication bus and protocol being overwritten when a node declares several inverter links : each link now owns its slot, and the telemetry reports every link instead of the last one
+  * `Daily Charging Energy` / `Daily Discharging Energy` (YamBMS and BMS) rounded to 10 Wh (`0.01 kWh`) instead of 1 Wh, to reduce the number of state changes recorded by Home Assistant
 
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`
