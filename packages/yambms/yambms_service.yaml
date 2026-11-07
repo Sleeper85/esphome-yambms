@@ -1,5 +1,5 @@
-# Updated : 2026.09.02
-# Version : 1.5.0
+# Updated : 2026.11.07
+# Version : 1.5.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -105,7 +105,7 @@ interval:
               lambda: return ${yambms_update_service};
             then:
             - http_request.get:
-                url: http://script.opentel.be/yambms.get.php
+                url: http://script.yambms.org/yambms.get.php
                 capture_response: true
                 # on_error fires only when no connection could be made (DNS or
                 # connect failure) — the cases that freeze the loop. An HTTP error
@@ -138,7 +138,7 @@ interval:
               lambda: return ${yambms_telemetry_service} && !id(yambms${yambms_id}_var_service_round_failed);
             then:
             - http_request.post:
-                url: http://script.opentel.be/yambms.post.php
+                url: http://script.yambms.org/yambms.post.php
                 request_headers:
                   Content-Type: application/json
                 on_error:
