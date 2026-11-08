@@ -1,5 +1,5 @@
 # Updated : 2026.11.08
-# Version : 1.8.1
+# Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 substitutions:
-  yambms_version: "1.8.1"
+  yambms_version: "1.8.2"
   # YamBMS services
   yambms_update_service: 'true'           # Set to false to disable update checks
   yambms_telemetry_service: 'true'        # Set to false to disable the sending of telemetry data
