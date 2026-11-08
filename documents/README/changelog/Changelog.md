@@ -6,6 +6,11 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+* YamBMS 1.8.2 :
+  * Set esphome `min_version` to `2026.11.0`
+  * ESPHome 2026.11 requires a `relation` on every sub-device : the BMS, Shunt, Balancer, sniffer, Deye, board, YamBMS and inverter link devices are all declared as `via`, which is how Home Assistant already showed them, so your devices and entities stay as they are
+  * Waveshare ESP32-S3 Touch-LCD 4.3, 4.3B and 7 : removed the `enable_pin` workaround added in 1.8.1 for `Pin 2 is used in multiple places`, ESPHome 2026.11 now resolves this conflict itself ; the display and the backlight behave as before
+
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`
   * New documentation :
