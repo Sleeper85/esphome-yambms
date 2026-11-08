@@ -8,6 +8,14 @@
 
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`
+  * New documentation :
+    * [Upgrade to YamBMS 1.8.1](documents/README/changelog/Changelog_upgrade_to_YamBMS_1.8.1.md)
+    * [Telemetry.md](documents/README/Telemetry.md)
+  * New documentation for contributors :
+    * [Project_structure.md](documents/README/dev/Project_structure.md)
+    * [Coding_conventions.md](documents/README/dev/Coding_conventions.md)
+    * [Design_decisions.md](documents/README/dev/Design_decisions.md)
+  * Updated HA dashboards `1.8.1` with a markdown card for the new inverter link diagnostics (`Inverter link protocol`, `Inverter battery mode`, `Note`) and a system fault card
   * **Breaking change** - New `Inverter brand` select and reworked `Protocol` select : selecting your inverter brand is enough, the protocol follows ; a protocol chosen explicitly still takes priority over the brand. Both selects are renamed, so their stored value is reset : **the inverter link stays inactive until you select your inverter brand**, see [release note](documents/README/changelog/Changelog_Inverter_brand_and_protocol.md)
 
   * Removed the `YamBMS name` select : the manufacturer name sent on CAN frame `0x35E` is now derived from the protocol in use, which is what the `Automatic` mode already did ; the `GOODWE`, `SHEnergy` and `BYD` names are no longer selectable
@@ -32,8 +40,36 @@
   * Auto EOC : new `Auto EOC Start Hour` / `Auto EOC Start Minute` define the charging window, which may cross midnight, and the target hour can be set from `0` to `23` (night charging from the grid) ; outside the window the status is `Wait: Starts at hh:mm` instead of `Stop: Target time passed`, the default start `0:00` keeps the daylight behaviour
   * `Daily Charging Energy` / `Daily Discharging Energy` (YamBMS and BMS) rounded to 10 Wh (`0.01 kWh`) instead of 1 Wh, to reduce the number of state changes recorded by Home Assistant
 
+  * The `Update service` switch is removed : the version check and the telemetry are now enabled separately with the `yambms_update_service` and `yambms_telemetry_service` substitutions (both `'true'` by default), see [Telemetry](documents/README/Telemetry.md)
+  * Telemetry no longer sends the MAC address but a salted SHA-256 hash of it, shown in the new `Node ID hash` diagnostic entity so that you can quote it for support ; the uptime is now sent in seconds
+  * The update and telemetry requests now go to `script.yambms.org`
+  * Fixed `Uptime` sometimes showing `24855d 3h 14m 7s` after boot, on the dashboard, the LVGL display and in the telemetry : the text sensor could format the uptime before it had a value, it is now published by its source
+  * Fixed `charging cycles` and `total charging cycle capacity` published as `0` after a reboot until the first BMS frame, which also landed in the Home Assistant long-term statistics : both are now unavailable during that time
+
+  * Auto CCL : the max cell voltage used by the curve is now smoothed with a time-based moving average (`auto_ccl_max_cell_v_tau`, default `30`s, `0` disables), which stops the requested CCL swinging between about 8 A and 45 A near the top of charge ; a reading more than `auto_ccl_max_cell_v_guard` (default `5` mV) above the average still cuts the current at once
+  * Auto CCL : new `auto_ccl_min_current` (default `1` A), Auto CCL never requests less, including above the end of its curve ; other limits can still request 0 A
+  * A BMS reporting a charge (CCL) or discharge (DCL) limit of `0 A` now stays combined : a full battery at 0 A CCL, or an empty one at 0 A DCL, no longer drops out of the capacity, SoC and totals ; this applies to all BMS models, a limit not received yet still keeps the BMS uncombined
+  * Deye CAN : the battery power sensors now follow `bms_update_interval` instead of updating every 60s
+  * Fixed sensors `device_class` / `state_class` that Home Assistant reported or handled wrongly : power sensors in W declared as `current` (BASEN RS485, DEYE CAN module), Ah sensors carrying a class that does not accept Ah (BASEN RS485, DEYE CAN, JK RS485 Display, Modbus client), DEYE battery capacity moved from `total_increasing` to `measurement`
+  * Fixed PACE BMS compilation with ESPHome 2026.9 / 2026.10
+  * Fixed the Waveshare ESP32-S3 Touch-LCD 4.3, 4.3B and 7 boards failing validation on ESPHome 2026.10 with `Pin 2 is used in multiple places` ; the backlight stays under control of the LVGL designs
+  * New board `board_ESP32-P4_Elecrow-CrowPanel-Advanced-7-10.yaml` (CrowPanel Advanced ESP32-P4) and new Blue Navy 1024x600 HA display design
+  * Fixed [issue 332](https://github.com/Sleeper85/esphome-yambms/issues/332) YamBMS_RP_BMS_PACE_RS485_Modbus.yaml no longer compiles under esphome 2026-9-1
+  * Fixed [issue 335](https://github.com/Sleeper85/esphome-yambms/issues/335) PACE / DEYE packages: compile errors on ESPHome 2026.9–2026.10 + Deye power updated only every 60 s + full Deye excluded from combine
+  * Merged [PR 322](https://github.com/Sleeper85/esphome-yambms/pull/322) Add CrowPanel Advanced (ESP32-P4) board and Blue Navy 1024x600 HA display
+  * Merged [PR 329](https://github.com/Sleeper85/esphome-yambms/pull/329) Auto CCL smooths max cell voltage
+  * Merged [PR 331](https://github.com/Sleeper85/esphome-yambms/pull/331) Fix sensor device_class and state_class
+  * Merged [PR 337](https://github.com/Sleeper85/esphome-yambms/pull/337) Improve Deye support
+  * Merged [PR 338](https://github.com/Sleeper85/esphome-yambms/pull/338) Auto EOC 24h charging window
+  * Merged [PR 339](https://github.com/Sleeper85/esphome-yambms/pull/339) Round daily energy sensors to 10 Wh
+
 * YamBMS 1.8.0 :
   * Set esphome `min_version` to `2026.8.0`
+  * New documentation :
+    * [Charging_a_battery_with_CVL_and_CCL.md](documents/README/Charging_a_battery_with_CVL_and_CCL.md)
+    * [Understanding_ESPHome_Modbus.md](documents/README/Understanding_ESPHome_Modbus.md)
+    * [How_to_perform_a_PR_to_the_dev_branch.md](documents/README/How_to_perform_a_PR_to_the_dev_branch.md)
+    * [HA_entities_cleanup.md](documents/README/HA_entities_cleanup.md)
   * Updated HA dashboards `1.8.0` for the new Cut-Off Cell Voltage, Charger Offset V., C-Rate and Auto CCL Current Taper entities
   * Rewritten Cut-Off / EOC charging logic : adds a current deadband (rejects sensor noise / low-solar current limiting) and a minimum SoC gate before Cut-Off can be declared, extends the cut-off confirmation delay from 60s to 180s to reject transient voltage readings, see [release note](documents/README/changelog/Changelog_YamBMS_1.8.0_Cut-Off_charging_logic.md)
   * New select `Cut-Off Cell Voltage` : choose between `Max Cell Voltage` (default, conservative) and `Average Cell Voltage` (consistent charge termination voltage for packs with a runner cell, requires Auto CVL and/or Auto CCL for cell protection)
@@ -60,14 +96,15 @@
   * Updated default PSRAM options for ESP-IDF 5.5+, see [documentation](documents/README/PSRAM_options.md)
   * Fixed incorrect Max/Min Cell Voltage scaling (×100 instead of ×1000) sent on the CAN bus for the Deye PCS protocol
   * `secrets.yaml` template renamed to `secrets_example.yaml` (copy it to your own gitignored `secrets.yaml`, as documented in Installation_procedure.md)
+  * Fixed a reboot every 6h on networks that filter the ESP32 outbound traffic (port 80 or DNS blocked) : the update and telemetry requests blocked the device long enough to trigger the watchdog ; requests now time out after 3s, the first one waits 5min after boot, and the services stop until the next reboot after 3 failed attempts
+  * Added `KS BMS` BLE support, fixed [issue 151](https://github.com/Sleeper85/esphome-yambms/issues/151) [ADD] Requesting KS BMS support
+  * JK BLE : BMS alarms are now taken into account through the new `errors_bitmask_hex` of the JK BLE component, instead of always reporting no alarm
+  * Web server authentication switched to `digest`
+  * Fixed the `brightness not supported` warning logged on every status LED change on boards with a single-colour LED ; `rgb_order` replaced by `channel_colors` in the board files (deprecated by ESPHome, removed in 2027.3.0), to report in your own board file if you have one
+  * CAN frame logs moved from `INFO` to `DEBUG` level
   * Merged [PR 308](https://github.com/Sleeper85/esphome-yambms/pull/308) Check if Auto SoC Limit has reached its target
   * Merged [PR 303](https://github.com/Sleeper85/esphome-yambms/pull/303) Auto CCL Current Taper
   * Merged [PR 290](https://github.com/Sleeper85/esphome-yambms/pull/290) Add grace period to Auto EOC
-  * New documentation :
-    * [Charging_a_battery_with_CVL_and_CCL.md](documents/README/Charging_a_battery_with_CVL_and_CCL.md)
-    * [Understanding_ESPHome_Modbus.md](documents/README/Understanding_ESPHome_Modbus.md)
-    * [How_to_perform_a_PR_to_the_dev_branch.md](documents/README/How_to_perform_a_PR_to_the_dev_branch.md)
-    * [HA_entities_cleanup.md](documents/README/HA_entities_cleanup.md)
 
 * YamBMS 1.7.0 :
   * Partial rewrite of `yambms_core` and merging of C++ code into a single lambda in several stages with increased datas control.
