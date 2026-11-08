@@ -384,6 +384,35 @@ This is why the Schneider XW Pro extended ACK needs no configuration, and why th
 `canbus_extended_ack` substitution was removed. Both triggers call the same script so the handler
 is not duplicated.
 
+## The CCL/DCL divider counts declared links, not active ones
+
+**Files:** `packages/yambms/yambms_core.yaml`, `packages/yambms/yambms_canbus.yaml`,
+`packages/yambms/yambms_rs485.yaml`
+
+Each inverter link increments `yambms${yambms_id}_var_comm_interfaces_count` once, in its
+`on_boot` at priority `-100`, and the requested CCL and DCL are divided by that counter. The
+counter never goes down. A link whose `Protocol` is `Disabled`, a link left on `Automatic` with no
+brand, and a link whose inverter stopped answering all keep dividing.
+
+Do not make it count only the active links. In every case where a declared link is not active, the
+inverter behind it may still be drawing from the bank:
+
+- `Disabled` is meant to cut a link temporarily. The inverter is usually still connected to the
+  bank and running on its own settings, and the share the others are not given is the margin it
+  uses.
+- `Automatic` with no brand is an unfinished configuration, and every link starts there after the
+  1.8.0 breaking change. Excluding it would hand the full current to the first link configured.
+- A lost link must never raise the current, or a transient communication loss would double the
+  limit sent to the remaining inverters.
+
+A link that is not wired to anything has no business in the YAML, so the divider is changed by
+changing what is declared. This is why `YamBMS_Local_Packages_example.yaml` ships its RS485 link
+commented out, like the Remote Packages template.
+
+If this is ever revisited, count the excluded links and subtract them, never count the active ones.
+A mask of active links is empty until the resolution script has run, which gives a divider of `1`
+and the full current; a mask of excluded links defaults to the declared count.
+
 ## A UART is declared by the package that consumes it
 
 **Files:** `packages/board/board_options_itf_uart_*.yaml`, every package taking a `*_uart_id`

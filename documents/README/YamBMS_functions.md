@@ -132,17 +132,22 @@ The final CCL/DCL sent to the inverter is always the **lowest** value among all 
 
 `YamBMS` supports several inverters/chargers connected to the same battery bank. Each inverter/charger declared in your YAML has its own `CAN` or `RS485` package, and each one receives **the same** `Requested Charge/Discharge Current`.
 
-To prevent the battery bank from being charged/discharged at `N` times the calculated limit, `YamBMS` **divides the CCL and DCL by the number of declared inverter/charger interfaces** :
+To prevent the battery bank from being charged/discharged at `N` times the calculated limit, `YamBMS` **divides the CCL and DCL by the number of declared inverter/charger links** :
 
 > Example : a CCL of `150 A` with `2` inverters declared → each inverter receives `75 A`
 
-Each declared `yambms_canbus.yaml` / `yambms_rs485_pylon.yaml` package increments an interface counter at boot, and the final CCL/DCL is divided by this counter, then rounded. The division is applied **after** all the limiting functions above, so it always applies to the final value.
+Each declared `yambms_canbus.yaml` / `yambms_rs485.yaml` package increments a link counter at boot, and the final CCL/DCL is divided by this counter, then rounded. The division is applied **after** all the limiting functions above, so it always applies to the final value.
+
+> [!WARNING]
+> Only declare the links that are **actually wired** to an inverter/charger. The counter is based on the **declared** links, not on the active ones: a link whose `Protocol` is `Disabled`, or left on `Automatic` with no `Inverter brand`, still divides the CCL/DCL. With a `CAN` link in use and an unused `RS485` link left in your YAML, your inverter receives **half** the calculated current. Comment out the package of any link you don't use.
+>
+> This is deliberate. `Disabled` is meant to cut a link temporarily, while the inverter behind it is usually still connected to the battery bank and running on its own settings. Keeping it in the divider leaves room for the current it draws.
 
 > [!NOTE]
 > The counter is only incremented by the inverter/charger packages. A node with no inverter link declared keeps a divider of `1`, so the CCL/DCL are left unchanged.
 
 > [!IMPORTANT]
-> The division assumes your inverters/chargers **share the load evenly**. This is the case for identical units working in parallel on the same bank. If your units have different power ratings, or if one of them is offline, the total current drawn from the battery will be lower than the calculated limit — never higher.
+> The division assumes your inverters/chargers **share the load evenly**. This is the case for identical units working in parallel on the same bank. If your units have different power ratings, or if one of them is offline or its link is `Disabled`, the total current drawn from the battery will be lower than the calculated limit — never higher.
 
 ## Requested Values
 
