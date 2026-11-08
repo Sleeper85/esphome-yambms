@@ -67,7 +67,7 @@ In Home Assistant under **" Settings > Devices and services > Add Intergration "
 
 ### 1. Install ESPHome on your computer
 
-Before you can flash your ESP32 you need to install the [ESPHome 2025.11.0 or higher](https://github.com/esphome/esphome/releases) command line application.<br>
+Before you can flash your ESP32 you need to install the [ESPHome 2026.11.0 or higher](https://github.com/esphome/esphome/releases) command line application.<br>
 [Follow these instructions for installation on Windows, Mac or Linux.](https://esphome.io/guides/installing_esphome)
 
 > [!TIP]
