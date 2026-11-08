@@ -39,6 +39,7 @@
   * Fixed the reported communication bus and protocol being overwritten when a node declares several inverter links : each link now owns its slot, and the telemetry reports every link instead of the last one
   * Auto EOC : new `Auto EOC Start Hour` / `Auto EOC Start Minute` define the charging window, which may cross midnight, and the target hour can be set from `0` to `23` (night charging from the grid) ; outside the window the status is `Wait: Starts at hh:mm` instead of `Stop: Target time passed`, the default start `0:00` keeps the daylight behaviour
   * `Daily Charging Energy` / `Daily Discharging Energy` (YamBMS and BMS) rounded to 10 Wh (`0.01 kWh`) instead of 1 Wh, to reduce the number of state changes recorded by Home Assistant
+  * Fixed YamBMS `Daily Charging Energy` / `Daily Discharging Energy` jumping after a long period in the opposite direction : the unused power sensor was published as unknown, which ESPHome skips without advancing its time base, so the next reading was multiplied by the whole gap ; `Battery Charging Power` / `Battery Discharging Power` now publish `0 W` on the unused side, as the shunt already did, and also when no BMS is combined
 
   * The `Update service` switch is removed : the version check and the telemetry are now enabled separately with the `yambms_update_service` and `yambms_telemetry_service` substitutions (both `'true'` by default), see [Telemetry](documents/README/Telemetry.md)
   * Telemetry no longer sends the MAC address but a salted SHA-256 hash of it, shown in the new `Node ID hash` diagnostic entity so that you can quote it for support ; the uptime is now sent in seconds
@@ -59,6 +60,7 @@
   * Merged [PR 322](https://github.com/Sleeper85/esphome-yambms/pull/322) Add CrowPanel Advanced (ESP32-P4) board and Blue Navy 1024x600 HA display
   * Merged [PR 329](https://github.com/Sleeper85/esphome-yambms/pull/329) Auto CCL smooths max cell voltage
   * Merged [PR 331](https://github.com/Sleeper85/esphome-yambms/pull/331) Fix sensor device_class and state_class
+  * Merged [PR 336](https://github.com/Sleeper85/esphome-yambms/pull/336) Fix hub daily energy by publishing 0 W on the unused charge/discharge sign
   * Merged [PR 337](https://github.com/Sleeper85/esphome-yambms/pull/337) Improve Deye support
   * Merged [PR 338](https://github.com/Sleeper85/esphome-yambms/pull/338) Auto EOC 24h charging window
   * Merged [PR 339](https://github.com/Sleeper85/esphome-yambms/pull/339) Round daily energy sensors to 10 Wh
