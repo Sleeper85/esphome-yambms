@@ -6,29 +6,35 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
-## CAN protocol
+## Inverter Brand and Protocol
 
 > [!IMPORTANT]
-> You need to check if your inverter model is on the list of [supported inverters](Supported_devices.md#supported-inverter). In any case it must support one of the following `CAN` bus protocols.
+> Select your inverter brand and leave `Protocol` on `Automatic`. If your inverter is supported,
+> the dashboard then shows how to configure it: the battery mode to set on the inverter and any
+> note specific to your brand.
 
-![Image](../../images/YamBMS_CANBUS_Protocol.png "YamBMS_CANBUS_Protocol")
+![Image](../../images/YamBMS_Inverter_Brand_and_Protocol.png "YamBMS_Inverter_Brand_and_Protocol")
 
-Select your inverter brand with the `Inverter brand` select and YamBMS applies the protocol
-below, as long as the `Protocol` select is left on `Automatic`. Choosing a protocol explicitly
-always takes priority over the brand, so an inverter that does not follow the usual mapping can
-still be driven.
+### Setup in three steps
 
-As long as the brand is `Not defined` and the protocol is `Automatic`, **nothing is sent on the
-bus**: this is deliberate, so that a node is never left talking a protocol nobody chose. The
-`Inverter link protocol` diagnostic entity reports what the link is actually doing.
+1. **Set `Inverter brand`** to the brand of your inverter. If it is not in the list, select
+   `Other` and see [Forcing a protocol](#forcing-a-protocol).
+2. **Leave `Protocol` on `Automatic`.** YamBMS selects the best protocol known for your brand,
+   following the [mapping below](#brand-to-protocol-mapping).
+3. **Configure your inverter** as shown in the `Inverter active protocol` card: set the battery
+   mode it gives you, and read the note if there is one.
 
-Don't forget to configure your inverter for the protocol in use — the `Inverter battery mode`
-diagnostic entity gives you the setting to look for, and `Note` reports what is specific to your
-brand.
+As long as the brand is `Not defined`, nothing is sent on the bus and your inverter reports a
+BMS communication fault. This is deliberate, so that a node is never left talking a protocol
+nobody chose.
 
-The mapping below is a sensible default, not a rule: a manufacturer may use a different protocol
-depending on the model. Other configurations are possible, don't hesitate to communicate what
-works well for you.
+The inverter models confirmed by users are listed in [supported inverters](Supported_devices.md#supported-inverters).
+
+### Brand to protocol mapping
+
+In `Automatic`, YamBMS applies the protocol below for your brand. This mapping is a sensible
+default, not a rule: a manufacturer may use a different protocol depending on the model. Don't
+hesitate to share what works well for you.
 
 | Inverter | Battery mode | Bus | Protocol |
 | --- | --- | --- | --- |
@@ -60,14 +66,25 @@ Any other brand of the list, or a listed brand on the other bus, uses `PYLON V2`
 and the protocol compiled on the node on RS485. Such a combination has not been validated, and the
 `Note` entity says so.
 
+### RS485
+
 On RS485 the protocol is chosen in your YAML with `rs485_protocol` (`pylon` or `voltronic`), and the
 brand does not change it. `LIB` only works with `Voltronic` and `MPP Solar`: in `Automatic`, a node
 compiled for `LIB` stays silent for any other brand. Rebranded Voltronic inverters must select
 `Voltronic`. The protocols offered by parameter `05` depend on the inverter firmware, see its user
 manual.
 
-A few couples outside the default mapping are known to work as well, and YamBMS reports the right
-battery mode for them too: `EG4` on `PYLON V1` (Lithium 2, 6000XP only) and `Solis` on `PYLON V2`
+### Forcing a protocol
+
+Only change `Protocol` if your inverter does not communicate with the automatic choice, or if you
+selected `Other`. A forced protocol always takes priority over the brand, so an inverter that does
+not follow the usual mapping can still be driven. `Disabled` turns the link off without raising a
+fault.
+
+The `Inverter link protocol` diagnostic entity always reports what the link is actually doing.
+
+A few couples outside the default mapping are known to work, and YamBMS reports the right battery
+mode for them too: `EG4` on `PYLON V1` (Lithium 2, 6000XP only) and `Solis` on `PYLON V2`
 (Pylon LV, requires a 3.3V CAN transceiver).
 
 ## Charging settings
