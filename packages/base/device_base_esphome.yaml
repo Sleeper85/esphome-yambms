@@ -28,4 +28,4 @@ esphome:
   project:
     name: Sleeper85.YamBMS
     version: ${yambms_version}
-  min_version: 2026.10.0
+  min_version: 2026.11.0

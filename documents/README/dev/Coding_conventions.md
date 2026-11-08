@@ -102,6 +102,10 @@ Every entity carries a `device_id:` that attaches it to the matching ESPHome `su
 each BMS, Shunt, Balancer and YamBMS instance appears as its own device in Home Assistant. Always
 fill it in — copy an existing package to get it right.
 
+Since ESPHome 2026.11, every entry under `esphome: devices:` requires a `relation:`. Use `via`
+for all of them, including the board, the YamBMS instance and the inverter links: it is the value
+the API assumed before the key existed, so Home Assistant shows the devices exactly as it did.
+
 ## Section comments
 
 Large files (`yambms_core.yaml`, `bms_combine.yaml`, the `YamBMS_LP_*` root YAML) are structured

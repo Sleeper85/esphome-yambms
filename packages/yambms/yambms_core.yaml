@@ -362,6 +362,7 @@ esphome:
   devices:
     - id: yambms_yambms${yambms_id}
       name: "${yambms_name}"
+      relation: via
 
   # Execute once
   on_boot:

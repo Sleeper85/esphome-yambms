@@ -457,7 +457,7 @@ missing key then fails validation instead of picking a speed.
 `modbus_baud_rate` is the exception that keeps its place in `substitutions:`: `yambms_config.yaml`
 shares it between the nodes of a multi-node setup from the root.
 
-### `flow_control` is enabled by a var, so `min_version` is 2026.10.0
+### `flow_control` is enabled by a var, so `min_version` is at least 2026.10.0
 
 `uart_flow_control_pin` is passed like any other var of the import and reaches the UART file,
 which includes `board_options_itf_uart_flow_control.yaml` only when it is defined. So no consumer
