@@ -1,5 +1,5 @@
-# Updated : 2026.11.05
-# Version : 1.1.2
+# Updated : 2026.11.09
+# Version : 1.2.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -52,6 +52,7 @@ substitutions:
   YB_PROTO_CAN_VICTRON:     "104"
   YB_PROTO_CAN_LUXPOWER:    "105"
   YB_PROTO_CAN_DEYE_PCS:    "106"
+  YB_PROTO_CAN_EG4:         "107"   # LuxPower frames + the EG4 per-pack answer to 0x405
   # RS485 - 2xx
   YB_PROTO_RS485_PYLON:          "201"
   YB_PROTO_RS485_VOLTRONIC_LIB:  "202"
@@ -116,6 +117,7 @@ globals:
           case ${YB_PROTO_CAN_VICTRON}:    return "Victron";
           case ${YB_PROTO_CAN_LUXPOWER}:   return "LuxPower";
           case ${YB_PROTO_CAN_DEYE_PCS}:   return "Deye PCS";
+          case ${YB_PROTO_CAN_EG4}:        return "EG4";
           case ${YB_PROTO_RS485_PYLON}:         return "PYLON";
           case ${YB_PROTO_RS485_VOLTRONIC_LIB}: return "LIB";
           default:                              return "None";
@@ -139,6 +141,7 @@ globals:
         if (brand == "Deye"          && proto == ${YB_PROTO_RS485_PYLON})   return "Lithium 12";
         if (brand == "EG4"           && proto == ${YB_PROTO_CAN_LUXPOWER})  return "Lithium 6";
         if (brand == "EG4"           && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Lithium 2";
+        if (brand == "EG4"           && proto == ${YB_PROTO_CAN_EG4})       return "Lithium 6";
         if (brand == "Epever"        && proto == ${YB_PROTO_RS485_PYLON})   return "BPRO 21";
         if (brand == "GoodWe"        && proto == ${YB_PROTO_CAN_PYLON_V2})  return "LX U5.4-L";
         if (brand == "Growatt"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "CAN L52";
@@ -175,6 +178,7 @@ globals:
       [](std::string brand, int proto) -> std::string {
 
         if (brand == "EG4"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "6000XP only.";
+        if (brand == "EG4"       && proto == ${YB_PROTO_CAN_EG4})       return "LuxPower frames, plus per-pack data when the inverter asks (0x405).";
         if (brand == "Epever"    && proto == ${YB_PROTO_RS485_PYLON})   return "Set protocol ID 21 (BPRO 21). A direct RS485 link works on most models, UPower-Hi requires the external BMS-Link. BPRO 21 defaults to 115200 baud not the 9600 default - set rs485_uart_baud_rate accordingly.";
         if (brand == "Epever")                                          return "Unverified: Epever is documented on RS485 PYLON, no CAN support is known.";
         if ((brand == "MPP Solar" || brand == "Voltronic") && proto == ${YB_PROTO_RS485_VOLTRONIC_LIB})
