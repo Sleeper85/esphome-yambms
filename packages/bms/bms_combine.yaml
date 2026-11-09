@@ -1,4 +1,4 @@
-# Updated : 2026.11.08
+# Updated : 2026.11.09
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -39,6 +39,71 @@ esphome:
             id(yambms${yambms_id}_var_bms_counter) += 1;
             id(yambms${yambms_id}_var_bms_models) += "${bms_model},";
             id(yambms${yambms_id}_var_bms_protocols) += "${bms_protocol},";
+
+            // EG4 per-pack data (answered on CAN when an EG4 inverter sends 0x405).
+            // Little-endian fields; see the EG4 protocol section in YamBMS_functions.md.
+            id(yambms${yambms_id}_eg4_packs)[${bms_id}] = [](int group, uint8_t *m) -> bool {
+              if (!id(bms${bms_id}_can_be_combined).state) return false;
+              auto put16 = [m](int at, float value, float lo, float hi) {
+                if (std::isnan(value)) value = 0;
+                const int32_t raw = (int32_t) lroundf(std::min(std::max(value, lo), hi));
+                m[at] = raw & 0xFF;
+                m[at + 1] = (raw >> 8) & 0xFF;
+              };
+              auto put8 = [m](int at, float value, float hi) {
+                if (std::isnan(value)) value = 0;
+                m[at] = (uint8_t) lroundf(std::min(std::max(value, 0.0f), hi));
+              };
+              memset(m, 0, 8);
+              switch (group) {
+                case 0:  // Bytes 0-3 alarms (none sent), byte 4 pack count (set by the 0x405 answer),
+                         // capacity 1 Ah, byte 7 0xC0 as a real EG4 master sends (meaning not decoded)
+                  put16(5, id(bms${bms_id}_battery_capacity).state, 0, 65535);
+                  m[7] = 0xC0;
+                  break;
+                case 1:  // Bank limits, same as 0x351 (0.1 V / 0.1 A)
+                  put16(0, id(yambms${yambms_id}_requested_charge_voltage).state * 10, 0, 65535);
+                  put16(2, id(yambms${yambms_id}_requested_charge_current).state * 10, 0, 65535);
+                  put16(4, id(yambms${yambms_id}_requested_discharge_current).state * 10, 0, 65535);
+                  put16(6, id(yambms${yambms_id}_requested_discharge_voltage).state * 10, 0, 65535);
+                  break;
+                case 2:  // Voltage 0.01 V, current 0.1 A signed (+ = charge), SOC %, SOH %, cycles
+                  put16(0, id(bms${bms_id}_total_voltage).state * 100, 0, 65535);
+                  put16(2, id(bms${bms_id}_current).state * 10, -32768, 32767);
+                  put8(4, id(bms${bms_id}_battery_soc).state, 100);
+                  put8(5, id(bms${bms_id}_battery_soh).state, 100);
+                  put16(6, id(bms${bms_id}_charging_cycles).state, 0, 65535);
+                  break;
+                case 3:  // Max / min temperature 0.1 °C signed, max / min cell mV
+                  put16(0, id(bms${bms_id}_max_temperature).state * 10, -32768, 32767);
+                  put16(2, id(bms${bms_id}_min_temperature).state * 10, -32768, 32767);
+                  put16(4, id(bms${bms_id}_max_cell_voltage).state * 1000, 0, 65535);
+                  put16(6, id(bms${bms_id}_min_cell_voltage).state * 1000, 0, 65535);
+                  break;
+                case 4:  // Sensor / cell numbers; firmware minor, major; then FF 00
+                  put8(0, id(bms${bms_id}_max_temperature_sensor).state, 255);
+                  put8(1, id(bms${bms_id}_min_temperature_sensor).state, 255);
+                  put8(2, id(bms${bms_id}_max_voltage_cell).state, 255);
+                  put8(3, id(bms${bms_id}_min_voltage_cell).state, 255);
+                  m[4] = 13;  // Firmware 2.13, as an EG4-LL on Z02T13 reports; the inverter
+                  m[5] = 2;   // may ignore a pack reporting 0.0
+                  m[6] = 0xFF;
+                  break;
+                case 5:  // Name, first half
+                  memcpy(m, "Battery_", 8);
+                  break;
+                case 6: {  // Name, second half: "ID_NN", NUL padded
+                  char name[9];
+                  snprintf(name, sizeof(name), "ID_%02d", ${bms_id});
+                  memcpy(m, name, strlen(name));
+                  break;
+                }
+                default:
+                  return false;
+              }
+              return true;
+            };
+
 
 binary_sensor:
   # Indicates whether the BMS can be combined
