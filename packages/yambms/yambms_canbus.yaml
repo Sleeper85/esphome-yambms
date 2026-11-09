@@ -1,5 +1,5 @@
-# Updated : 2026.11.08
-# Version : 2.7.3
+# Updated : 2026.11.09
+# Version : 2.8.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -161,6 +161,7 @@ select:
       - "Victron"
       - "LuxPower"
       # - "Deye PCS (beta)"
+      - "EG4"
     restore_value: true
     initial_option: "Automatic"
     optimistic: true
@@ -272,6 +273,7 @@ script:
             else if (choice == "Victron")         proto = ${YB_PROTO_CAN_VICTRON};
             else if (choice == "LuxPower")        proto = ${YB_PROTO_CAN_LUXPOWER};
             else if (choice == "Deye PCS (beta)") proto = ${YB_PROTO_CAN_DEYE_PCS};
+            else if (choice == "EG4")             proto = ${YB_PROTO_CAN_EG4};
             else                                  proto = ${YB_PROTO_NONE};
           }
 
@@ -412,8 +414,9 @@ interval:
               {
                 int index = id(canbus${canbus_id}_can_frame_index);
 
-                // PYLON V1 / LuxPower CAN frames
-                if ((id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_PYLON_V1}) || (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}))
+                // PYLON V1 / LuxPower / EG4 CAN frames
+                if ((id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_PYLON_V1}) || (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) ||
+                    (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_EG4}))
                 {
                     int can_frame[] = {1, 2, 3, 4, 5, 6};
                     int max_index = sizeof(can_frame) / sizeof(can_frame[0]) - 1;
@@ -496,6 +499,10 @@ interval:
                             // Deye BAT SE-G5.1 Pro-B (EVE 100Ah) reply :
                             return {0x44, 0x59, 0x30, 0x30, 0x31, 0x03, 0xE8, 0x03}; // Deye PCS
 
+                          case ${YB_PROTO_CAN_EG4}:
+                            ESP_LOGD("canbus_debug", "send can_id: 0x35E ASCII : EG4-LL");
+                            return {0x45, 0x47, 0x34, 0x2D, 0x4C, 0x4C, 0x00, 0x00}; // EG4-LL (as sent by an EG4-LL battery master)
+
                           // Victron and LuxPower : YamBMS
                           default:
                             ESP_LOGD("canbus_debug", "send can_id: 0x35E ASCII : YamBMS");
@@ -557,7 +564,7 @@ interval:
                         // Byte [04:05] : Max Cell Voltage         (1 mV)
                         // Byte [06:07] : Min Cell voltage         (1 mV)
 
-                        if (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) {
+                        if ((id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) || (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_EG4})) {
                           int min_cell_voltage_i = id(yambms${yambms_id}_min_cell_voltage).state * 1000.0;
                           int max_cell_voltage_i = id(yambms${yambms_id}_max_cell_voltage).state * 1000.0;
                           can_mesg[4] = max_cell_voltage_i & 0xff;
@@ -597,7 +604,7 @@ interval:
                         // Byte [04:05] : Max cell temperature     (0.1 °C)
                         // Byte [06:07] : Min cell temperature     (0.1 °C)
 
-                        if (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER})
+                        if ((id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) || (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_EG4}))
                         {
                           // Added 0.1 °C safeguard to max temperature so that max and min values are never equal
                           can_mesg[4] = int16_t(id(yambms${yambms_id}_max_temperature).state * 10 + 1) & 0xff;
@@ -671,7 +678,7 @@ interval:
                         // LuxPower
                         // Byte [05:06] : Battery Capacity     (1 Ah)
 
-                        if (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) {
+                        if ((id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) || (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_EG4})) {
                           can_mesg[5] = uint16_t(id(yambms${yambms_id}_battery_capacity).state) & 0xff;
                           can_mesg[6] = uint16_t(id(yambms${yambms_id}_battery_capacity).state) >> 8 & 0xff;
                         }
@@ -708,7 +715,7 @@ interval:
 
                         // LuxPower
                         // Byte [02:03] : Cycle count     (1 cycle)
-                        if (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) {
+                        if ((id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_LUXPOWER}) || (id(canbus${canbus_id}_active_protocol) == ${YB_PROTO_CAN_EG4})) {
                           can_mesg[2] = uint16_t(id(yambms${yambms_id}_charging_cycles).state) & 0xff;
                           can_mesg[3] = uint16_t(id(yambms${yambms_id}_charging_cycles).state) >> 8 & 0xff;
                         }
