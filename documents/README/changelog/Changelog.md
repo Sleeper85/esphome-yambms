@@ -6,6 +6,8 @@
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
 
+* CANBUS 2.8.0 : New `EG4` CAN protocol : the `LuxPower` frames, `EG4-LL` in `0x35E`, and the per-pack answer to the EG4 inverter's `0x405` request, with the new `canbus_eg4_packs` var to choose the BMS a bus answers for, see [documentation](../YamBMS_functions.md#eg4-per-pack-data-can-protocol-eg4)
+
 * YamBMS 1.8.2 :
   * Set esphome `min_version` to `2026.11.0`
   * ESPHome 2026.11 requires a `relation` on every sub-device : the BMS, Shunt, Balancer, sniffer, Deye, board, YamBMS and inverter link devices are all declared as `via`, which is how Home Assistant already showed them, so your devices and entities stay as they are

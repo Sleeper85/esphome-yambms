@@ -66,6 +66,26 @@ Any other brand of the list, or a listed brand on the other bus, uses `PYLON V2`
 and the protocol compiled on the node on RS485. Such a combination has not been validated, and the
 `Note` entity says so.
 
+### EG4 per-pack data (CAN, protocol `EG4`)
+
+The `EG4` protocol, chosen with the `Protocol` select, sends the same frames as `LuxPower` and also
+answers the EG4 inverter's per-pack request, so the inverter sees each pack instead of one battery.
+Battery mode `Lithium 6`, as with `LuxPower`. The `EG4` brand still defaults to `LuxPower`.
+
+EG4 inverters ask the battery for per-pack data with `can_id 0x405` (about once a minute).
+YamBMS answers with seven frames per BMS, `0x400 + 0x20 × group + (bms_id − 1)`, 11 ms apart and
+sent group by group like a real EG4 master: pack count and capacity, limits, voltage / current /
+SOC / SOH / cycles, max/min temperature and cell voltage with their sensor and cell numbers,
+firmware 2.13 (what an EG4-LL on Z02T13 reports), and the name `Battery_ID_NN`. A BMS that cannot
+be combined (for example an offline BMS) is left out. Pack numbers are fixed by `bms_id`: BMS 3 is
+always sent as pack 3 (`Battery_ID_03`), whether or not BMS 2 is present.
+
+To answer only some BMS on a bus, set `canbus_eg4_packs` on that bus's `yambms_canbus.yaml`
+include, e.g. `canbus_eg4_packs: "1,2,5"`. Default `"all"`. A value that selects no BMS (1-32)
+logs a warning and that bus does not answer `0x405`.
+
+The manufacturer name sent in `0x35E` is `EG4-LL`, the name a real EG4-LL battery bank sends.
+
 ### RS485
 
 On RS485 the protocol is chosen in your YAML with `rs485_protocol` (`pylon` or `voltronic`), and the
@@ -193,7 +213,7 @@ This function allows you to force a charge from `GRID` :
 - when `SoC <= Start SoC` the forced charge start
 - when `SoC >= Stop SoC` the forced charge stop
 
-Works only with `PYLON`, `LuxPower` and `Victron` protocols.
+Works only with `PYLON`, `LuxPower`, `EG4` and `Victron` protocols.
 
 ## Auto functions
 
