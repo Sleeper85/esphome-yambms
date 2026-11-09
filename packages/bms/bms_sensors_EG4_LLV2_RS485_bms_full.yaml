@@ -1,4 +1,4 @@
-# Updated : 2026.08.29
+# Updated : 2026.11.09
 # Version : 2.0.5
 # GitHub  : https://github.com/RAR/esphome-eg4-bms
 
@@ -34,7 +34,7 @@ substitutions:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@v1.1.0
+  - source: github://RAR/esphome-eg4-bms@v1.1.1
     refresh: 0s
 
 eg4_bms:
