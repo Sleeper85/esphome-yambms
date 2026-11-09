@@ -26,6 +26,7 @@ packages:
 substitutions:
   canbus_status_led_id: "virtual_status_light" # The ID of the LED on your board used for this component
   canbus_link_timer_enabled: 'true' # Set it to 'false' if your inverter/charger is not sending ACK (can_id 0x305) every `1s` as specified by the protocol
+  canbus_eg4_packs: "all" # EG4 protocol: BMS slots answered on this bus, "all" or e.g. "1,2,5"
 
 esphome:
   on_boot:
@@ -37,6 +38,45 @@ esphome:
             // Force register fault as default, will be updated once CANBUS is working
             // (true = fault)
             id(global_update_fault)(${CAT_INV_CAN_BUS}, ${canbus_id}, true);          
+            // EG4 packs answered on this bus: "all" or a comma-separated list of bms_id
+            {
+              const std::string packs_raw = "${canbus_eg4_packs}";
+              const size_t first = packs_raw.find_first_not_of(" \t");
+              const size_t last = packs_raw.find_last_not_of(" \t");
+              const std::string packs = (first == std::string::npos) ? std::string() : packs_raw.substr(first, last - first + 1);
+              std::string packs_lower = packs;
+              for (auto &ch : packs_lower) ch = (char) tolower((unsigned char) ch);
+              const bool packs_all = (packs_lower == "all");
+              auto &selected = id(canbus${canbus_id}_eg4_selected);
+              selected.clear();
+              id(canbus${canbus_id}_eg4_all) = packs_all;
+              if (!packs_all) {
+                // comma-separated bms_id list; every ignored token is logged
+                size_t pos = 0;
+                while (pos <= packs.size()) {
+                  size_t comma = packs.find(',', pos);
+                  if (comma == std::string::npos) comma = packs.size();
+                  const std::string raw_token = packs.substr(pos, comma - pos);
+                  pos = comma + 1;
+                  const size_t tf = raw_token.find_first_not_of(" \t");
+                  if (tf == std::string::npos) continue;     // empty token (e.g. trailing comma)
+                  const std::string token = raw_token.substr(tf, raw_token.find_last_not_of(" \t") - tf + 1);
+                  char *end = nullptr;
+                  const long bms = strtol(token.c_str(), &end, 10);
+                  if (end == token.c_str() || *end != '\0') {
+                    ESP_LOGW("canbus", "EG4: canbus_eg4_packs token '%s' is not a BMS number - ignored", token.c_str());
+                  } else if (bms < 1 || bms > 32) {
+                    ESP_LOGW("canbus", "EG4: canbus_eg4_packs token '%s' is outside 1-32 - ignored", token.c_str());
+                  } else {
+                    selected.insert((int) bms);
+                  }
+                }
+                if (selected.empty())
+                  ESP_LOGW("canbus", "EG4: canbus_eg4_packs '%s' selects no BMS (1-32) - this bus will not answer 0x405", packs.c_str());
+                else
+                  ESP_LOGI("canbus", "EG4: %u BMS slot(s) selected for this bus", (unsigned) selected.size());
+              }
+            }
     - priority: -100.0
       then:
         - lambda: |-
@@ -100,6 +140,17 @@ globals:
     type: uint32_t
     restore_value: no
     initial_value: "0"
+  # EG4 0x405 answer queued for sending: (can_id, data)
+  - id: canbus${canbus_id}_eg4_burst
+    type: std::vector<std::pair<uint32_t, std::vector<uint8_t>>>
+  # EG4: BMS slots sent on this bus (used when canbus_eg4_packs is not "all"; empty = none)
+  - id: canbus${canbus_id}_eg4_selected
+    type: std::set<int>
+  # EG4: true when canbus_eg4_packs is exactly "all"
+  - id: canbus${canbus_id}_eg4_all
+    type: bool
+    restore_value: no
+    initial_value: "false"
 
 select:
   # Inverter brand. On its own it drives nothing: it selects the default
@@ -367,6 +418,22 @@ script:
             id(canbus${canbus_id}_status).publish_state(false);               // Set CANBUS status to OFF
             id(inverter_com_status).publish_state(false);                     // Set Inverter com. status to OFF
           }
+  - id: canbus${canbus_id}_script_eg4_burst
+    mode: single
+    then:
+      - while:
+          condition:
+            lambda: return !id(canbus${canbus_id}_eg4_burst).empty();
+          then:
+            - lambda: |-
+                auto &burst = id(canbus${canbus_id}_eg4_burst);
+                if (id(canbus${canbus_id}_active_protocol) != ${YB_PROTO_CAN_EG4}) {
+                  burst.clear();                               // protocol changed mid-burst: drop the rest
+                } else {
+                  id(${canbus_node_id}).send_data(burst.front().first, false, burst.front().second);
+                  burst.erase(burst.begin());
+                }
+            - delay: 11ms
 
 # +--------------------------------------+
 # | Start CAN Handling                   |
@@ -388,6 +455,36 @@ canbus:
         use_extended_id: true
         then:
           - script.execute: canbus${canbus_id}_script_inverter_ack
+
+      # 0x405 - EG4 inverter asks for per-pack data
+      - can_id: 0x405
+        then:
+          - lambda: |-
+              if (id(canbus${canbus_id}_active_protocol) != ${YB_PROTO_CAN_EG4}) return;
+              if (id(yambms${yambms_id}_var_initialized) == false) return;
+              auto &burst = id(canbus${canbus_id}_eg4_burst);
+              if (!burst.empty()) return;                    // still sending the last answer
+              const auto &selected = id(canbus${canbus_id}_eg4_selected);
+              const bool all = id(canbus${canbus_id}_eg4_all);
+              // Encode every pack first: a BMS that cannot be combined is left out entirely.
+              std::vector<std::pair<int, std::vector<std::vector<uint8_t>>>> packs;
+              for (auto &entry : id(yambms${yambms_id}_eg4_packs)) {
+                const int bms = entry.first;
+                if (bms < 1 || bms > 32) continue;
+                if (!all && selected.count(bms) == 0) continue;
+                std::vector<std::vector<uint8_t>> frames(7, std::vector<uint8_t>(8));
+                bool ok = true;
+                for (int group = 0; group < 7 && ok; group++) ok = entry.second(group, frames[group].data());
+                if (ok) packs.push_back({bms, std::move(frames)});
+              }
+              // Group 0 byte 4 is the number of packs in the answer
+              for (auto &pack : packs) pack.second[0][4] = (uint8_t) packs.size();
+              // Same order as a real EG4 master: group by group, packs in order within each group
+              for (int group = 0; group < 7; group++)
+                for (auto &pack : packs)
+                  burst.push_back({0x400u + 0x20u * group + (uint32_t) (pack.first - 1), pack.second[group]});
+              ESP_LOGI("canbus", "EG4: answering 0x405 with %u frames", (unsigned) burst.size());
+              if (!burst.empty()) id(canbus${canbus_id}_script_eg4_burst).execute();
 
 interval:
   - interval: 30s
