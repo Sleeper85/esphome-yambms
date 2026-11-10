@@ -28,6 +28,20 @@ While no BMS is combined (boot, reboot, OTA update, RS485 or BLE dropout), the c
 
 When a BMS is combined again, the logic resumes from the kept status, and the usual rebulk rules apply: if the battery was discharged during the dropout, `Rebulk voltage`, `Rebulk SoC` or `Rebulk days` start a new `Bulk`.
 
+## Charging blocked (Wait)
+
+While at least one BMS is combined, the `Charging Status` goes to `Wait` when charging is not allowed:
+
+- without `bms_options_charging_logic.yaml`: when the `Charging` switch is off, or when no combined BMS allows charging (protection, charge switch off);
+- with `bms_options_charging_logic.yaml`: only when the `Charging` switch is off. In that mode YamBMS turns the BMS charge switch off itself at Cut-Off, and that block must not change the status.
+
+In `Wait` the `Charging Instruction` is `Stop`.
+
+When charging is allowed again:
+
+- a battery that was in `Float` or `EOC` goes back there, unless a rebulk rule applies (`Rebulk voltage`, `Rebulk SoC`, `Rebulk days`, `Force Bulk` or `Request Force Charge`), in which case a new `Bulk` starts;
+- any other status (`Init`, `Bulk`, `Cut-Off`, `Balancing`) goes to `Bulk`.
+
 ## Cut-Off Charging Logic Equation
 
 Source: [Charging Marine Lithium Battery Banks](https://nordkyndesign.com/charging-marine-lithium-battery-banks)

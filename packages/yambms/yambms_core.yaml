@@ -243,6 +243,11 @@ globals:
     type: std::string
     restore_value: no
     initial_value: '"Init"'
+  # Charge status before Wait, restored if it was Float or EOC
+  - id: yambms${yambms_id}_var_charge_status_before_wait
+    type: std::string
+    restore_value: no
+    initial_value: '"Init"'
   # Inverter links: one slot per declared CAN/RS485 link, filled by the link
   # package itself. The n-th element of the four vectors describes the same
   # link, so an unresolved link writes "None" and never an empty string.
@@ -927,6 +932,17 @@ interval:
               }
 
               // +-----------------------------------------------+
+              // | Charging allowed again after Wait             |
+              // +-----------------------------------------------+
+              // A battery that was in Float or EOC goes back there, and the rebulk rules
+              // below decide whether a new Bulk is needed. Any other status (Init, Bulk,
+              // Cut-Off, Balancing) goes to Bulk through the Init / Wait rule.
+              if ((id(yambms${yambms_id}_var_charge_status) == "Wait") &&
+                  ((id(yambms${yambms_id}_var_charge_status_before_wait) == "Float") ||
+                   (id(yambms${yambms_id}_var_charge_status_before_wait) == "EOC")))
+                id(yambms${yambms_id}_var_charge_status) = id(yambms${yambms_id}_var_charge_status_before_wait);
+
+              // +-----------------------------------------------+
               // | Force Bulk Logic                              |
               // +-----------------------------------------------+
               if (id(yambms${yambms_id}_switch_force_bulk).state)
@@ -1100,14 +1116,23 @@ interval:
               }
             }
             // Charging not allowed (BMS or YamBMS)
+            // The status before Wait is kept, to go back to Float or EOC when charging
+            // is allowed again (see "Charging allowed again after Wait").
             else if (id(yambms${yambms_id}_var_bms_charging_logic) == true)
             {
               ESP_LOGD("yambms_debug", "Charging not allowed !");
-              if (!id(yambms${yambms_id}_switch_charging).state) id(yambms${yambms_id}_var_charge_status) = "Wait";
+              if (!id(yambms${yambms_id}_switch_charging).state)
+              {
+                if (id(yambms${yambms_id}_var_charge_status) != "Wait")
+                  id(yambms${yambms_id}_var_charge_status_before_wait) = id(yambms${yambms_id}_var_charge_status);
+                id(yambms${yambms_id}_var_charge_status) = "Wait";
+              }
             }
             else
             {
               ESP_LOGD("yambms_debug", "Charging not allowed !");
+              if (id(yambms${yambms_id}_var_charge_status) != "Wait")
+                id(yambms${yambms_id}_var_charge_status_before_wait) = id(yambms${yambms_id}_var_charge_status);
               id(yambms${yambms_id}_var_charge_status) = "Wait";
             }
 
