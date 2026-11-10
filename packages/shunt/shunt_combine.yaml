@@ -1,4 +1,4 @@
-# Updated : 2026.06.27
+# Updated : 2026.11.10
 # Version : 1.7.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -69,7 +69,6 @@ binary_sensor:
     name: "Can be combined"
     id: shunt${shunt_id}_can_be_combined
     device_id: shunt_${shunt_id}
-    lambda: return (id(shunt${shunt_id}_switch_combine).state && id(shunt${shunt_id}_online_status).state);
 
 text_sensor:
   # Show diagnostic state and reason for combine/uncombine
@@ -91,8 +90,27 @@ interval:
           // Shunt number to combine ?
           if (id(yambms${yambms_id}_var_to_combine_shunt_number) == ${shunt_id})
           {
+            // +-----------------------------------------------+
+            // | Can be combined                               |
+            // +-----------------------------------------------+
+            // Evaluated once per round, on this Shunt's turn, and published to the
+            // binary sensor. A template lambda would run on every loop instead.
+            // Every entity below is mandatory and must hold a real value.
+            // Sensor: has_state() stays true after a NaN is published, so test isnan().
+            // > 0: zero is not a valid reading, and NaN fails the comparison.
+            // Binary sensor: has_state() is enough, a bool cannot be NaN.
+            const bool can_be_combined =
+                (id(shunt${shunt_id}_switch_combine).state) &&                    // switch
+                (id(shunt${shunt_id}_online_status).has_state()) &&               // binary_sensor
+                (id(shunt${shunt_id}_online_status).state) &&                     // binary_sensor
+                (id(shunt${shunt_id}_voltage).state > 0) &&
+                (!std::isnan(id(shunt${shunt_id}_current).state)) &&
+                (!std::isnan(id(shunt${shunt_id}_power).state)) &&
+                (!std::isnan(id(shunt${shunt_id}_soc).state));
+            id(shunt${shunt_id}_can_be_combined).publish_state(can_be_combined);
+
             // The Shunt can be combined ?
-            if (id(shunt${shunt_id}_can_be_combined).state)
+            if (can_be_combined)
             {
               // +-----------------------------------------------+
               // | Check if all connected BMS are online         |

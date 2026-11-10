@@ -1,4 +1,4 @@
-# Updated : 2026.11.08
+# Updated : 2026.11.10
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -46,39 +46,6 @@ binary_sensor:
     name: "Can be combined"
     id: bms${bms_id}_can_be_combined
     device_id: bms_${bms_id}
-    lambda: |-
-      // Ensure that the sensors have a correct value and not NAN
-      if ((id(bms${bms_id}_online_status).has_state()) &&           // binary_sensor
-          (id(bms${bms_id}_online_status).state) &&                 // binary_sensor
-          (id(bms${bms_id}_charging_allowed).has_state()) &&        // binary_sensor
-          (id(bms${bms_id}_discharging_allowed).has_state()) &&     // binary_sensor
-          (id(bms${bms_id}_equalizing).has_state()) &&              // binary_sensor
-          (id(bms${bms_id}_total_voltage).state > 0) &&
-          (id(bms${bms_id}_current).has_state()) &&
-          (id(bms${bms_id}_power).has_state()) &&
-          (id(bms${bms_id}_battery_soc).has_state()) &&
-          (id(bms${bms_id}_battery_soh).has_state()) &&
-          (id(bms${bms_id}_battery_capacity).state > 0) &&
-          (id(bms${bms_id}_battery_capacity_remaining).has_state()) &&
-          (id(bms${bms_id}_charging_cycles).has_state()) &&
-          (id(bms${bms_id}_max_charge_current).state >= 0) &&
-          (id(bms${bms_id}_max_discharge_current).state >= 0) &&
-          (id(bms${bms_id}_min_cell_voltage).has_state()) &&
-          (id(bms${bms_id}_max_cell_voltage).has_state()) &&
-          (id(bms${bms_id}_min_voltage_cell).has_state()) &&
-          (id(bms${bms_id}_max_voltage_cell).has_state()) &&
-          (id(bms${bms_id}_min_temperature).has_state()) &&
-          (id(bms${bms_id}_max_temperature).has_state()) &&
-          (id(bms${bms_id}_min_temperature_sensor).has_state()) &&
-          (id(bms${bms_id}_max_temperature_sensor).has_state()) &&
-          (id(bms${bms_id}_cell_ovp).has_state()) &&
-          (id(bms${bms_id}_cell_uvp).has_state()) &&
-          (id(bms${bms_id}_balance_trigger_voltage).has_state()) &&
-          (id(bms${bms_id}_yambms_errors_bitmask).has_state()))
-      {
-        return true;
-      }
-      else return false;
 
 interval:
   - interval: ${yambms_update_interval}
@@ -90,8 +57,48 @@ interval:
           // BMS number to combine ?
           if (id(yambms${yambms_id}_var_to_combine_bms_number) == ${bms_id})
           {
+            // +-----------------------------------------------+
+            // | Can be combined                               |
+            // +-----------------------------------------------+
+            // Evaluated once per round, on this BMS's turn, and published to the
+            // binary sensor. A template lambda would run on every loop instead.
+            // Every entity below is mandatory and must hold a real value.
+            // Sensor: has_state() stays true after a NaN is published, so test isnan().
+            // > 0: zero is not a valid reading, and NaN fails the comparison. cell_ovp and
+            // cell_uvp may be a number, whose state starts at 0 instead of NaN.
+            // Binary sensor: has_state() is enough, a bool cannot be NaN.
+            const bool can_be_combined =
+                (id(bms${bms_id}_online_status).has_state()) &&           // binary_sensor
+                (id(bms${bms_id}_online_status).state) &&                 // binary_sensor
+                (id(bms${bms_id}_charging_allowed).has_state()) &&        // binary_sensor
+                (id(bms${bms_id}_discharging_allowed).has_state()) &&     // binary_sensor
+                (id(bms${bms_id}_equalizing).has_state()) &&              // binary_sensor
+                (id(bms${bms_id}_total_voltage).state > 0) &&
+                (!std::isnan(id(bms${bms_id}_current).state)) &&
+                (!std::isnan(id(bms${bms_id}_power).state)) &&
+                (!std::isnan(id(bms${bms_id}_battery_soc).state)) &&
+                (!std::isnan(id(bms${bms_id}_battery_soh).state)) &&
+                (id(bms${bms_id}_battery_capacity).state > 0) &&
+                (!std::isnan(id(bms${bms_id}_battery_capacity_remaining).state)) &&
+                (!std::isnan(id(bms${bms_id}_charging_cycles).state)) &&
+                (id(bms${bms_id}_max_charge_current).state >= 0) &&
+                (id(bms${bms_id}_max_discharge_current).state >= 0) &&
+                (!std::isnan(id(bms${bms_id}_min_cell_voltage).state)) &&
+                (!std::isnan(id(bms${bms_id}_max_cell_voltage).state)) &&
+                (!std::isnan(id(bms${bms_id}_min_voltage_cell).state)) &&
+                (!std::isnan(id(bms${bms_id}_max_voltage_cell).state)) &&
+                (!std::isnan(id(bms${bms_id}_min_temperature).state)) &&
+                (!std::isnan(id(bms${bms_id}_max_temperature).state)) &&
+                (!std::isnan(id(bms${bms_id}_min_temperature_sensor).state)) &&
+                (!std::isnan(id(bms${bms_id}_max_temperature_sensor).state)) &&
+                (id(bms${bms_id}_cell_ovp).state > 0) &&                  // sensor or number
+                (id(bms${bms_id}_cell_uvp).state > 0) &&                  // sensor or number
+                (!std::isnan(id(bms${bms_id}_balance_trigger_voltage).state)) &&
+                (!std::isnan(id(bms${bms_id}_yambms_errors_bitmask).state));
+            id(bms${bms_id}_can_be_combined).publish_state(can_be_combined);
+
             // The BMS can be combined ?
-            if (id(bms${bms_id}_can_be_combined).state)
+            if (can_be_combined)
             {
               // +-----------------------------------------------+
               // | Installed battery capacity contribution       |
