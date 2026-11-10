@@ -39,6 +39,8 @@ discharged further then wanted.
 > You need to manually enable the `Combine` switch again if it was disabled automatically.
 > If you do not want that behaviour, do not provide `bms_ids` to the shunt.
 
+The [Auto Balancer](YamBMS_functions.md#auto-balancer) uses the current of one battery. With the variable `shunt_id` of `bms_options_auto_balancer.yaml` it uses the current of a shunt that measures only this battery, as long as this shunt is online and its `Combine` switch is `ON`. Otherwise it uses the BMS current. This does not depend on `bms_ids`.
+
 ### BMS
 
 Combine condition :
