@@ -42,9 +42,30 @@ The condition in `bms_combine.yaml` checks every sensor the combiner will read. 
 purpose: a single missing or `NaN` value entering the totals corrupts the aggregate that drives
 the inverter. Do not shorten it to a few representative checks.
 
-Note that the checks are not uniform. Most use `has_state()`, but `total_voltage` and
-`battery_capacity` use `> 0` — a BMS reporting zero for those is treated as not ready rather than
-as a valid reading. `max_charge_current` and `max_discharge_current` use `>= 0`: `0 A` is a valid
+Every entity in the condition is mandatory: a BMS with one value missing or `NaN` is not
+combined.
+
+The condition is evaluated in STEP 1, on the BMS's turn, and published to the `Can be combined`
+binary sensor. Do not move it back into a template lambda: a template binary sensor with a lambda
+runs it on every loop, about 60 times per second per BMS, for a value read once per round.
+
+`shunt_combine.yaml` follows the same rules: its condition checks the `Combine enabled` switch,
+`online_status` and the four values the combiner reads (`voltage > 0`, then `current`, `power`
+and `soc` with `isnan()`), and it is evaluated in STEP 1 on the shunt's turn. A combined shunt
+replaces the BMS values, so a `NaN` there would reach the inverter directly.
+
+Note that the checks are not uniform, and the difference is deliberate:
+
+- **Sensors use `!std::isnan()`, not `has_state()`.** ESPHome sets `has_state()` on every
+  publication, a `NaN` included, so a sensor that has published `NaN` once passes it. A sensor's
+  state starts at `NaN`, so `isnan()` also covers a sensor that never published.
+- **Binary sensors use `has_state()`**, a `bool` cannot be `NaN`.
+
+`total_voltage`, `battery_capacity`, `cell_ovp` and `cell_uvp` use `> 0` — a BMS reporting zero
+for those is treated as not ready rather than as a valid reading. For `cell_ovp` and `cell_uvp` it
+is also the only test that works: several packages (JK, KS, PACE) declare them as a `number`,
+whose state starts at `0`, not `NaN`, so `isnan()` would combine the BMS before its protection
+settings are read. `max_charge_current` and `max_discharge_current` use `>= 0`: `0 A` is a valid
 limit that a BMS can announce, and it must not take that BMS out of the combination. A `NaN` still
 fails the comparison, so a limit that was never received keeps the BMS uncombined.
 
