@@ -18,6 +18,16 @@ The charging voltage and current correspond to the default values in the YAML sc
 
 ![Image](../../images/YamBMS_Charging_Logic_Diagram.png "YamBMS Charging Logic")
 
+## BMS dropout
+
+While no BMS is combined (boot, reboot, OTA update, RS485 or BLE dropout), the charging logic is suspended:
+
+- the `Charging Status` keeps its value: a battery in `Float` or `EOC` stays there and is not sent back to `Bulk` when the BMS returns;
+- the `Charging Instruction` is `Stop`, the `Discharging Instruction` is off, and the requested values (CVL, DVL, CCL, DCL) are unknown;
+- nothing is sent to the inverter until YamBMS is initialized again.
+
+When a BMS is combined again, the logic resumes from the kept status, and the usual rebulk rules apply: if the battery was discharged during the dropout, `Rebulk voltage`, `Rebulk SoC` or `Rebulk days` start a new `Bulk`.
+
 ## Cut-Off Charging Logic Equation
 
 Source: [Charging Marine Lithium Battery Banks](https://nordkyndesign.com/charging-marine-lithium-battery-banks)
