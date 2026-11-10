@@ -28,6 +28,11 @@ have made the changes below.
   CAN and RS485 links can run at the same time: keep both blocks, each link with its own
   `canbus_id` or `rs485_id`. The dashboard shows up to 3 CAN links and 3 RS485 links. If you only
   use RS485, comment out the CAN block.
+- **Balancing inferred:** EG4 LL V2, Seplos V1/V2, Seplos V3 and JK RS485 DISPLAY do not report
+  balancing, and YamBMS now infers it from the cell spread. While a pack is seen as balancing, the
+  charge only ends when the spread closes or the EOC timer expires, and the SoC stays at 98% until
+  then. Set `bms_balance_trigger_voltage` to your BMS's actual setting and keep `EOC timer enabled`
+  ON. See [Fake Equalizing](Changelog_Fake_Equalizing.md).
 
 ## How to update from 1.7.0 or 1.8.0
 
