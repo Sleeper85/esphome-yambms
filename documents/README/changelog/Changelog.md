@@ -9,6 +9,8 @@
 * YamBMS 1.8.2 :
   * Set esphome `min_version` to `2026.11.0`
   * Updated EG4 LL-V2 component to [v1.1.1](https://github.com/RAR/esphome-eg4-bms/releases/tag/v1.1.1) : it builds on ESPHome 2026.11, which removed `format_hex_pretty()` ; v1.1.0 fails to compile with `'format_hex_pretty' was not declared in this scope`
+  * Updated EG4 LL-V2 component to [v1.1.2](https://github.com/RAR/esphome-eg4-bms/releases/tag/v1.1.2) : a pack goes offline when either of its two register blocks stops giving valid replies, and that block's sensors go unknown ; before, one good block kept the pack online with the other block's values going stale ([RAR/esphome-eg4-bms#9](https://github.com/RAR/esphome-eg4-bms/issues/9))
+  * EG4 LL-V2 errors bitmask : protection bit 12 "Low Capacity" no longer raises a General alarm ; EG4 packs hold it while full and charging has stopped, so every full charge reported an alarm to the inverter (#342). Discharge over temperature and discharge under temperature protection, which were not mapped, now raise the high and low temperature alarms
   * ESPHome 2026.11 requires a `relation` on every sub-device : the BMS, Shunt, Balancer, sniffer, Deye, board, YamBMS and inverter link devices are all declared as `via`, which is how Home Assistant already showed them, so your devices and entities stay as they are
   * Waveshare ESP32-S3 Touch-LCD 4.3, 4.3B and 7 : removed the `enable_pin` workaround added in 1.8.1 for `Pin 2 is used in multiple places`, ESPHome 2026.11 now resolves this conflict itself ; the display and the backlight behave as before
 

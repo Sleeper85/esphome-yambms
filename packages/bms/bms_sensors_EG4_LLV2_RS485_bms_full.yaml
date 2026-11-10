@@ -34,7 +34,7 @@ substitutions:
 # +--------------------------------------+
 
 external_components:
-  - source: github://RAR/esphome-eg4-bms@v1.1.1
+  - source: github://RAR/esphome-eg4-bms@v1.1.2
     refresh: 0s
 
 eg4_bms:
