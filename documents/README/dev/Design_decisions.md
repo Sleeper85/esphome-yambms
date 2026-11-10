@@ -69,6 +69,31 @@ settings are read. `max_charge_current` and `max_discharge_current` use `>= 0`: 
 limit that a BMS can announce, and it must not take that BMS out of the combination. A `NaN` still
 fails the comparison, so a limit that was never received keeps the BMS uncombined.
 
+### STEP 3 only runs on real values
+
+**File:** `packages/yambms/yambms_core.yaml`
+
+STEP 3 is entered only while at least one BMS is combined and every value it reads is real. Its
+guard follows the `can_be_combined` rules — `isnan()` or a comparison for sensors, `has_state()`
+for binary sensors — because STEP 2 publishes `NaN` when nothing is combined and `has_state()`
+stays true after that.
+
+The guard reads the live `var_to_combine_bms_counter`, not `bms_combined`: STEP 3 runs on every
+tick, while STEP 2 publishes `bms_combined` only once per round. Reading the counter is what makes
+the guard the single "at least one BMS combined" test of STEP 3, with no inner check repeating it.
+
+When the guard fails, the `else` branch suspends the charging logic instead of running it on
+`NaN`:
+
+- **`var_charge_status` is not touched.** Running the logic with no BMS forced it to `Wait`, and
+  the `Init/Wait → Bulk` rebulk rule then restarted a Bulk on a full battery after every dropout.
+- **The instructions and requested values are cleared** (`Stop`, off, `NaN`), so that Home
+  Assistant does not show the last ones during a dropout. No inverter link reads them then: CAN,
+  PYLON and LIB all stop on `var_initialized`.
+- **`var_initialized` is set to false.** STEP 2 already does it when the counter is `0`; the
+  `else` also covers a round where the counter is back but STEP 2 has not published real values
+  yet.
+
 ### Combined by contribution, combined continuously, uncombined
 
 Three distinct scopes in the same lambda, and they are not interchangeable:
