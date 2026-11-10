@@ -369,7 +369,14 @@ is why it has its own entry.
 into an exception frame, so the inverter still gets an answer on a link that should be silent.
 `ModbusServerHub::find_device_()` matches the address on every request, so moving the server to
 address `248` makes the hub drop the request instead. The 100 ms interval moves it back to `1`
-only while `rs485${rs485_id}_active_protocol` is `LIB`.
+only while `rs485${rs485_id}_active_protocol` is `LIB` **and** YamBMS is initialized
+(`var_initialized` and at least one BMS combined).
+
+The second condition is the gate the CAN and PYLON links already apply: no frame on CAN, `NaN`
+proxies on PYLON. Without it, the LIB link answered during a boot or a BMS dropout, and its
+`read_lambda`s converted the `NaN` values to integers, which is undefined. The status mirroring
+still follows `active` only: an active link left silent serves no request, its `Status` goes
+false and raises the fault, exactly like the other links during a dropout.
 
 Do not replace this with reported charge and discharge limits of zero: the inverter would still
 see a battery, on a link the user believes is off.

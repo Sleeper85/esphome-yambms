@@ -1,5 +1,5 @@
-# Updated : 2026.11.05
-# Version : 1.1.1
+# Updated : 2026.11.11
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -81,6 +81,11 @@ interval:
     then:
       - lambda: |-
           bool active = id(rs485${rs485_id}_active_protocol) == ${YB_PROTO_RS485_VOLTRONIC_LIB};
+          // Same gate as the CAN and PYLON links: no answer until YamBMS is initialized,
+          // so the read_lambdas never convert a NaN (no BMS combined) to an integer.
+          bool serve = active &&
+                       (id(yambms${yambms_id}_var_initialized) == true) &&
+                       (id(yambms${yambms_id}_bms_combined).state > 0);
 
           // Mirror RS485 status into inverter_com_status. Turning the link off clears
           // it once per transition, so a CAN link on the same node keeps owning it.
@@ -90,7 +95,7 @@ interval:
             id(inverter_com_status).publish_state(false);
           }
 
-          id(rs485${rs485_id}_modbus_server).set_address(active ? 1 : 248);
+          id(rs485${rs485_id}_modbus_server).set_address(serve ? 1 : 248);
 
 modbus:
   - uart_id: ${rs485_uart_id}
