@@ -1,4 +1,4 @@
-# Updated : 2026.11.08
+# Updated : 2026.11.09
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -45,6 +45,10 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+  # EG4 per-pack frames: bms_id -> encoder of one 0x400 + 0x20 * group frame for that BMS.
+  # Filled by bms_combine.yaml, sent by yambms_canbus.yaml when the inverter asks with 0x405.
+  - id: yambms${yambms_id}_eg4_packs
+    type: std::map<int, std::function<bool(int, uint8_t *)>>
   - id: yambms${yambms_id}_var_to_combine_bms_number
     type: int
     restore_value: no

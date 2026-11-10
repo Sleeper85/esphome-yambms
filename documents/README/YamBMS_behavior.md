@@ -200,6 +200,7 @@ The Deye inverter sends the ACK (can_id `0x305`) only when it receives the can_i
     canbus_platform: 'esp32_can'        # esp32_can / mcp2515
     canbus_node_id: 'canbus_inverter_1' # CAN bus node to which your inverter is connected
     canbus_bitrate: '500kbps'           # Default : 500kbps
+    canbus_eg4_packs: 'all'             # EG4 protocol only: BMS (bms_id) answered on this bus, 'all' or e.g. '1,2,5'
 ```
 
 ## Warning & Alarms
