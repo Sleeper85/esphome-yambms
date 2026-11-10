@@ -193,6 +193,10 @@ This function allows you to force a charge from `GRID` :
 - when `SoC <= Start SoC` the forced charge start
 - when `SoC >= Stop SoC` the forced charge stop
 
+The request is only evaluated while at least one BMS is combined. During a reboot or a BMS dropout
+the SoC is not a real value, so the request keeps its last state. Turning the switch off clears it
+at once.
+
 Works only with `PYLON`, `LuxPower` and `Victron` protocols.
 
 ## Auto functions

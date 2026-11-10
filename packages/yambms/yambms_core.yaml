@@ -1,4 +1,4 @@
-# Updated : 2026.11.08
+# Updated : 2026.11.10
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -1160,6 +1160,22 @@ interval:
             if (id(yambms${yambms_id}_var_to_combine_bms_counter) > 0)
             {
               // +-----------------------------------------------+
+              // | Requested Force Charge                        |
+              // +-----------------------------------------------+
+              // Evaluated only while at least one BMS is combined: otherwise the SoC is
+              // not a real value, and the request keeps its last state (boot, BMS dropout).
+              // Switch off: the request is cleared by its on_turn_off and only republished here.
+              bool force_charge = id(yambms${yambms_id}_requested_force_charge).state;
+              if (id(yambms${yambms_id}_switch_request_force_charge).state)
+              {
+                const float soc = id(yambms${yambms_id}_battery_soc).state;
+                if (soc <= id(yambms${yambms_id}_request_force_charge_start_soc).state) force_charge = true;
+                else if (soc >= id(yambms${yambms_id}_request_force_charge_stop_soc).state) force_charge = false;
+                // Between Start and Stop SoC (or NaN SoC): keep the current state (hysteresis)
+              }
+              id(yambms${yambms_id}_requested_force_charge).publish_state(force_charge);
+
+              // +-----------------------------------------------+
               // | Requested Charge Voltage (CVL)                |
               // +-----------------------------------------------+
               // Bulk
@@ -1431,6 +1447,11 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: config
+    # Clear the request at once, even while no BMS is combined
+    on_turn_off:
+      - binary_sensor.template.publish:
+          id: yambms${yambms_id}_requested_force_charge
+          state: OFF
 
 # +--------------------------------------+
 # | binary_sensor                        |
@@ -1479,16 +1500,6 @@ binary_sensor:
     device_id: yambms_yambms${yambms_id}
     icon: mdi:battery-charging-low
     trigger_on_initial_state: true
-    lambda: |-
-      if (id(yambms${yambms_id}_switch_request_force_charge).state)
-      {
-        int soc = id(yambms${yambms_id}_battery_soc).state;
-        if (soc <= id(yambms${yambms_id}_request_force_charge_start_soc).state) return true;
-        else if (soc >= id(yambms${yambms_id}_request_force_charge_stop_soc).state) return false;
-        else if (id(yambms${yambms_id}_requested_force_charge).state) return true;
-        else return false;
-      }
-      else return false;
 
 # +--------------------------------------+
 # | number                               |
