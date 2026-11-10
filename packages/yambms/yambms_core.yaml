@@ -1482,6 +1482,9 @@ binary_sensor:
     lambda: |-
       if (id(yambms${yambms_id}_switch_request_force_charge).state)
       {
+        // Keep the last value while no BMS is combined or the SoC is unknown (boot, BMS dropout)
+        if (!(id(yambms${yambms_id}_bms_combined).state > 0) || std::isnan(id(yambms${yambms_id}_battery_soc).state))
+          return id(yambms${yambms_id}_requested_force_charge).state;
         int soc = id(yambms${yambms_id}_battery_soc).state;
         if (soc <= id(yambms${yambms_id}_request_force_charge_start_soc).state) return true;
         else if (soc >= id(yambms${yambms_id}_request_force_charge_stop_soc).state) return false;
