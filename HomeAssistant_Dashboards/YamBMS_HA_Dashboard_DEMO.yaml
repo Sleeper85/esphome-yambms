@@ -349,6 +349,9 @@ views:
               - entity: number.yambms_demo_charger_offset_v
                 name:
                   type: entity
+              - entity: select.yambms_demo_cut_off_cell_voltage
+                name:
+                  type: entity
               - type: weblink
                 url: >-
                   https://github.com/Sleeper85/esphome-yambms/blob/main/documents/README/YamBMS_functions.md#charging-settings
