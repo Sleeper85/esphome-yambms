@@ -1,5 +1,5 @@
-# Updated : 2026.02.16
-# Version : 1.1.5
+# Updated : 2026.11.11
+# Version : 1.1.6
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -34,7 +34,6 @@
       # RS485 Sniffer
       - path: 'packages/bms/bms_combine_JK_RS485_Modbus_sniffer.yaml'
         vars:
-          sniffer_protocol: 'JK02_32S'
           sniffer_uart_id: 'uart_esp_1'
           # uart_flow_control_pin: ${talk_pin} # WS-RS485-CAN and other RS485 boards with a flow_control_pin
       # BMS 1
