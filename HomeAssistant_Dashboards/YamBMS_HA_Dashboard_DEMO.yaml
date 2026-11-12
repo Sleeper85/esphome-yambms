@@ -1,4 +1,4 @@
-# Updated : 2026.11.08
+# Updated : 2026.11.12
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -347,6 +347,9 @@ views:
                 name:
                   type: entity
               - entity: number.yambms_demo_charger_offset_v
+                name:
+                  type: entity
+              - entity: select.yambms_demo_cut_off_cell_voltage
                 name:
                   type: entity
               - type: weblink
