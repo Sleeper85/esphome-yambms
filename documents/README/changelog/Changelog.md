@@ -21,6 +21,7 @@
   * JK RS485 : removed the `precharging` switch and the `operation status` and `battery type` text sensors, which never received a value ; Home Assistant may keep them as unavailable entities, which you can delete
   * JK RS485 : the `sniffer_protocol` var is no longer used (JK RS485 1.2 removed `protocol_version`) ; you can remove it from your YAML, keeping it does no harm
   * Fixed [issue 344](https://github.com/Sleeper85/esphome-yambms/issues/344) : the `Protection Alarms` were never sent to the inverter while a BMS was offline, only `Warning` ; they are now sent when all **combined** BMS are in alarm, an offline BMS no longer counts. The `Alarm` text sensor follows
+  * Fixed [issue 345](https://github.com/Sleeper85/esphome-yambms/issues/345) : on CAN frame `0x359` (PYLON V1, PYLON V2, LuxPower), `Charge Over Current` was sent on bit 7 of bytes 1 and 3 instead of bit 0, so the inverter never received it. `UnBalanced Cell` is no longer sent on bit 4 of these bytes : PYLON V2 defines byte 1 bit 4 as an external communication timeout that stops charge and discharge. Cell imbalance is still sent on frame `0x35A`, where Victron reads it ; PYLON V2 marks that field as reserved
 
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`

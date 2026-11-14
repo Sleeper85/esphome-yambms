@@ -157,6 +157,12 @@ because they share a CAN ID — that would break both protocols at once.
 Byte order is not uniform either: `0x373` sends min cell voltage before max, `0x361` sends max
 before min. Both match their respective specifications. Do not "harmonise" them.
 
+### `0x359` does not carry cell imbalance
+
+PYLON V2 uses byte 1 bit 4 of `0x359` for a communication timeout that stops charge and
+discharge, and byte 3 bit 4 is reserved. Cell imbalance used to be sent on both, so an imbalance
+alarm could stop the inverter. It is only sent on `0x35A` now. Do not put it back in `0x359`.
+
 ## Frame sequencing
 
 **File:** `packages/yambms/yambms_canbus.yaml`
