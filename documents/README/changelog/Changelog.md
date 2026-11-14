@@ -20,6 +20,7 @@
     * The components build with ESPHome 2026.11 at log level `DEBUG`
   * JK RS485 : removed the `precharging` switch and the `operation status` and `battery type` text sensors, which never received a value ; Home Assistant may keep them as unavailable entities, which you can delete
   * JK RS485 : the `sniffer_protocol` var is no longer used (JK RS485 1.2 removed `protocol_version`) ; you can remove it from your YAML, keeping it does no harm
+  * Fixed [issue 344](https://github.com/Sleeper85/esphome-yambms/issues/344) : the `Protection Alarms` were never sent to the inverter while a BMS was offline, only `Warning` ; they are now sent when all **combined** BMS are in alarm, an offline BMS no longer counts. The `Alarm` text sensor follows
 
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`

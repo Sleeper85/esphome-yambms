@@ -1,4 +1,4 @@
-# Updated : 2026.11.11
+# Updated : 2026.11.14
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -530,11 +530,12 @@ interval:
             // +-----------------------------------------------+
 
             // Alarm
-            // Alarm - all BMS are in alarm ?
-            if (id(yambms${yambms_id}_var_errors_bitmask_counter) == id(yambms${yambms_id}_var_bms_counter))
+            // Alarm - all combined BMS are in alarm ?
+            // An uncombined BMS is offline or has missing data, it does not count as "not in alarm".
+            if (id(yambms${yambms_id}_var_errors_bitmask_counter) == id(yambms${yambms_id}_var_to_combine_bms_counter))
               id(yambms${yambms_id}_errors_bitmask_alarm).publish_state(id(yambms${yambms_id}_var_errors_bitmask));
-            
-            // At least one BMS is not in alarm
+
+            // At least one combined BMS is not in alarm
             else id(yambms${yambms_id}_errors_bitmask_alarm).publish_state(0);
 
             // Warning
@@ -2123,7 +2124,7 @@ sensor:
           const float delta = 1.0f;
           ${rate_limit_filter}
 
-  # Alarm - errors_bitmask bitwise AND (16bit)
+  # Alarm - errors_bitmask bitwise OR, published only when all combined BMS are in alarm (16bit)
   - platform: template
     id: yambms${yambms_id}_errors_bitmask_alarm
     device_id: yambms_yambms${yambms_id}
@@ -2469,13 +2470,13 @@ text_sensor:
     entity_category: diagnostic
     icon: mdi:battery-alert
     lambda: |-
-      // Error Bitmask ?
+      // Shows what is sent to the inverter : alarm bits if all combined BMS are in alarm,
+      // otherwise Warning if at least one is.
       uint16_t errors_bitmask = id(yambms${yambms_id}_errors_bitmask_alarm).state;
-      int eb_counter = id(yambms${yambms_id}_errors_bitmask_counter).state;
 
       // At least one BMS in alarm
-      if ((eb_counter > 0) && (eb_counter < id(yambms${yambms_id}_var_bms_counter))) return {"Warning"};
-      // All BMS are in alarm
+      if ((errors_bitmask == 0) && (id(yambms${yambms_id}_errors_bitmask_warning).state > 0)) return {"Warning"};
+      // All combined BMS are in alarm
       else if (errors_bitmask > 0)
       {
         if ((errors_bitmask & 0x0002)) return {"OVP"};         // Over Voltage Protection

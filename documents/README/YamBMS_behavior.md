@@ -204,9 +204,11 @@ The Deye inverter sends the ACK (can_id `0x305`) only when it receives the can_i
 
 ## Warning & Alarms
 
-If all BMS have alarms, the alarms are sent to the `CAN bus` as `Protection Alarms`.
+If all combined BMS have alarms, the alarms are sent to the `CAN bus` as `Protection Alarms`.
 
-If at least one BMS has no alarms, the alarms are sent to the CAN bus as `Warning`.
+If at least one combined BMS has no alarms, the alarms are sent to the CAN bus as `Warning`.
+
+Only combined BMS are counted. A BMS that is not combined (offline, or with missing data) is ignored, so a single BMS in protection while the others are offline sends `Protection Alarms`.
 
 Both **text_sensor** `Alarm` and `Warning` show the alarms/warnings currently transmitted to the inverter.
 
