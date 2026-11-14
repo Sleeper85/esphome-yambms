@@ -1,4 +1,4 @@
-# Updated : 2026.11.12
+# Updated : 2026.11.14
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -292,6 +292,10 @@ views:
                 <tr>
                   <td>Chip</td>
                   <td>{% set info = states('sensor.yambms_board_debug_device_info') %}{% if info not in ['unknown', 'unavailable', ''] and '|' in info %}{{ info.split('|')[1].split('Features:')[0].replace('Chip:', '').strip() }}{% else %}{{ info }}{% endif %}</td>
+                </tr>
+                <tr>
+                  <td>Board</td>
+                  <td>{{ states('sensor.yambms_board_board_name') }}</td>
                 </tr>
                 <tr>
                   <td>Board Uptime</td>
@@ -789,6 +793,10 @@ views:
                 <tr>
                   <td>Chip</td>
                   <td>{% set info = states('sensor.yambms_board_debug_device_info') %}{% if info not in ['unknown', 'unavailable', ''] and '|' in info %}{{ info.split('|')[1].split('Features:')[0].replace('Chip:', '').strip() }}{% else %}{{ info }}{% endif %}</td>
+                </tr>
+                <tr>
+                  <td>Board</td>
+                  <td>{{ states('sensor.yambms_board_board_name') }}</td>
                 </tr>
                 <tr>
                   <td>Board Uptime</td>

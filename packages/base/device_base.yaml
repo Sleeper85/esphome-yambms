@@ -1,5 +1,5 @@
-# Updated : 2026.08.31
-# Version : 1.2.9
+# Updated : 2026.11.14
+# Version : 1.3.0
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -68,6 +68,8 @@ esphome:
         - lambda: |-
             // Register System
             id(global_register_led)(${CAT_SYSTEM}, ${board_fault_device_id}, id(${board_status_led_id}));
+            // Constant, so published once: the API resends the stored state on every connection
+            id(esp32_board_name).publish_state("${board_name}");
 
 time:
   # https://esphome.io/components/time/homeassistant
@@ -158,6 +160,15 @@ text_sensor:
       auto t = id(my_time).now();
       if (!t.is_valid()) return {};
       return t.strftime("%Y-%m-%d %H:%M:%S");
+
+  # Board name, from the board_name substitution of the board_*.yaml
+  - platform: template
+    name: Board name
+    id: esp32_board_name
+    device_id: ${board_id}
+    update_interval: never # published once by on_boot
+    icon: mdi:developer-board
+    entity_category: diagnostic
 
   # https://esphome.io/components/text_sensor/version
   - platform: version
