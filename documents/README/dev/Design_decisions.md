@@ -157,6 +157,18 @@ because they share a CAN ID — that would break both protocols at once.
 Byte order is not uniform either: `0x373` sends min cell voltage before max, `0x361` sends max
 before min. Both match their respective specifications. Do not "harmonise" them.
 
+### `0x35A` sends OK as `2`, never as `0`
+
+`0x35A` is sent by PYLON V2, SMA and Victron. Each alarm and warning is a 2-bit field read as a
+value: `1` (bit N) is active, `2` (bit N+1) is inactive, `0` and `3` mean not supported or
+reserved. So a frame with no alarm is `AA AA AA 02 AA AA AA 02`, which is also what a BYD battery
+sends at rest. The reserved fields of bytes 3 and 7 stay at `0`.
+
+Do not go back to an all-zero frame on the grounds that "no bit set means no alarm". The inverter
+then reads every field as not supported instead of OK, and the alarm list it displays is empty or
+wrong. Do not write `0` for a field either: it is not "off", it is "this battery does not report
+it".
+
 ### `0x359` does not carry cell imbalance
 
 PYLON V2 uses byte 1 bit 4 of `0x359` for a communication timeout that stops charge and

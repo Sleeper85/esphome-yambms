@@ -1,5 +1,5 @@
 # Updated : 2026.11.14
-# Version : 2.7.4
+# Version : 2.7.5
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -734,49 +734,49 @@ interval:
                         uint16_t errors_bitmask_alarm = id(yambms${yambms_id}_errors_bitmask_alarm).state;
                         uint16_t errors_bitmask_warning = id(yambms${yambms_id}_errors_bitmask_warning).state;
 
+                        // Each alarm and warning is a 2-bit field, read as a value :
+                        //   1 (bit N)   = active
+                        //   2 (bit N+1) = inactive, status OK
+                        //   0 or 3      = not supported / reserved
+                        // 0 must never be used for OK : the inverter would read the field as not supported.
+                        // An idle frame is AA AA AA 02 AA AA AA 02, reserved fields stay at 0.
+                        auto field = [](uint16_t mask, uint16_t bit) -> uint8_t { return (mask & bit) ? 0x01 : 0x02; };
+
                         // +---------------------------+
                         // | Alarm : byte 0 to 3       |
                         // +---------------------------+
 
-                        // YamBMS alarm ?
-                        if (errors_bitmask_alarm > 0)
-                        {
-                          if (errors_bitmask_alarm & 0x0001) can_mesg[0] |= 0x0001;    // General alarm
-                          if (errors_bitmask_alarm & 0x0002) can_mesg[0] |= 0x0004;    // Battery high voltage alarm
-                          if (errors_bitmask_alarm & 0x0004) can_mesg[0] |= 0x0010;    // Battery low voltage alarm
-                          if (errors_bitmask_alarm & 0x0008) can_mesg[0] |= 0x0040;    // Battery high temperature alarm
-                          if (errors_bitmask_alarm & 0x0010) can_mesg[1] |= 0x0001;    // Battery low temperature alarm
-                          if (errors_bitmask_alarm & 0x0020) can_mesg[1] |= 0x0004;    // Battery high temperature charge alarm
-                          if (errors_bitmask_alarm & 0x0040) can_mesg[1] |= 0x0010;    // Battery low temperature charge alarm
-                          if (errors_bitmask_alarm & 0x0080) can_mesg[1] |= 0x0040;    // Battery high discharge current alarm
-                          if (errors_bitmask_alarm & 0x0100) can_mesg[2] |= 0x0001;    // Battery high charge current alarm
-                          if (errors_bitmask_alarm & 0x0200) can_mesg[2] |= 0x0004;    // Contactor alarm
-                          if (errors_bitmask_alarm & 0x0400) can_mesg[2] |= 0x0010;    // Short circuit alarm
-                          if (errors_bitmask_alarm & 0x0800) can_mesg[2] |= 0x0040;    // BMS internal alarm
-                          if (errors_bitmask_alarm & 0x1000) can_mesg[3] |= 0x0001;    // Cell imbalance alarm
-                        }
+                        can_mesg[0] = field(errors_bitmask_alarm, 0x0001)           // General alarm
+                                    | field(errors_bitmask_alarm, 0x0002) << 2      // Battery high voltage alarm
+                                    | field(errors_bitmask_alarm, 0x0004) << 4      // Battery low voltage alarm
+                                    | field(errors_bitmask_alarm, 0x0008) << 6;     // Battery high temperature alarm
+                        can_mesg[1] = field(errors_bitmask_alarm, 0x0010)           // Battery low temperature alarm
+                                    | field(errors_bitmask_alarm, 0x0020) << 2      // Battery high temperature charge alarm
+                                    | field(errors_bitmask_alarm, 0x0040) << 4      // Battery low temperature charge alarm
+                                    | field(errors_bitmask_alarm, 0x0080) << 6;     // Battery high discharge current alarm
+                        can_mesg[2] = field(errors_bitmask_alarm, 0x0100)           // Battery high charge current alarm
+                                    | field(errors_bitmask_alarm, 0x0200) << 2      // Contactor alarm
+                                    | field(errors_bitmask_alarm, 0x0400) << 4      // Short circuit alarm
+                                    | field(errors_bitmask_alarm, 0x0800) << 6;     // BMS internal alarm
+                        can_mesg[3] = field(errors_bitmask_alarm, 0x1000);          // Cell imbalance alarm, bits 2-7 reserved
 
                         // +---------------------------+
                         // | Warning : byte 4 to 7     |
                         // +---------------------------+
 
-                        // YamBMS warning ?
-                        if (errors_bitmask_warning > 0)
-                        {
-                          if (errors_bitmask_warning & 0x0001) can_mesg[4] |= 0x0001;    // General warning
-                          if (errors_bitmask_warning & 0x0002) can_mesg[4] |= 0x0004;    // Battery high voltage warning
-                          if (errors_bitmask_warning & 0x0004) can_mesg[4] |= 0x0010;    // Battery low voltage warning
-                          if (errors_bitmask_warning & 0x0008) can_mesg[4] |= 0x0040;    // Battery high temperature warning
-                          if (errors_bitmask_warning & 0x0010) can_mesg[5] |= 0x0001;    // Battery low temperature warning
-                          if (errors_bitmask_warning & 0x0020) can_mesg[5] |= 0x0004;    // Battery high temperature charge warning
-                          if (errors_bitmask_warning & 0x0040) can_mesg[5] |= 0x0010;    // Battery low temperature charge warning
-                          if (errors_bitmask_warning & 0x0080) can_mesg[5] |= 0x0040;    // Battery high discharge current warning
-                          if (errors_bitmask_warning & 0x0100) can_mesg[6] |= 0x0001;    // Battery high charge current warning
-                          if (errors_bitmask_warning & 0x0200) can_mesg[6] |= 0x0004;    // Contactor warning
-                          if (errors_bitmask_warning & 0x0400) can_mesg[6] |= 0x0010;    // Short circuit warning
-                          if (errors_bitmask_warning & 0x0800) can_mesg[6] |= 0x0040;    // BMS internal warning
-                          if (errors_bitmask_warning & 0x1000) can_mesg[7] |= 0x0001;    // Cell imbalance warning
-                        }
+                        can_mesg[4] = field(errors_bitmask_warning, 0x0001)         // General warning
+                                    | field(errors_bitmask_warning, 0x0002) << 2    // Battery high voltage warning
+                                    | field(errors_bitmask_warning, 0x0004) << 4    // Battery low voltage warning
+                                    | field(errors_bitmask_warning, 0x0008) << 6;   // Battery high temperature warning
+                        can_mesg[5] = field(errors_bitmask_warning, 0x0010)         // Battery low temperature warning
+                                    | field(errors_bitmask_warning, 0x0020) << 2    // Battery high temperature charge warning
+                                    | field(errors_bitmask_warning, 0x0040) << 4    // Battery low temperature charge warning
+                                    | field(errors_bitmask_warning, 0x0080) << 6;   // Battery high discharge current warning
+                        can_mesg[6] = field(errors_bitmask_warning, 0x0100)         // Battery high charge current warning
+                                    | field(errors_bitmask_warning, 0x0200) << 2    // Contactor warning
+                                    | field(errors_bitmask_warning, 0x0400) << 4    // Short circuit warning
+                                    | field(errors_bitmask_warning, 0x0800) << 6;   // BMS internal warning
+                        can_mesg[7] = field(errors_bitmask_warning, 0x1000);        // Cell imbalance warning, bits 2-7 reserved
 
                         ESP_LOGD("canbus_debug", "send can_id: 0x35A hex: %x %x %x %x %x %x %x %x", can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]);
                         return {can_mesg[0], can_mesg[1], can_mesg[2], can_mesg[3], can_mesg[4], can_mesg[5], can_mesg[6], can_mesg[7]};
