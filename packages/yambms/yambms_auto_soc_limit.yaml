@@ -1,5 +1,5 @@
-# Updated : 2026.06.29
-# Version : 1.1.6
+# Updated : 2026.11.14
+# Version : 1.1.7
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -175,6 +175,16 @@ interval:
             id(yambms${yambms_id}_var_auto_soc_target_reached) = false;
             id(yambms${yambms_id}_var_charge_current_step)++;
             return;
+          }
+
+          // While the target is reached in a CCL mode, the offset follows the Max Charge
+          // Current on every pass. Computed once, a cached offset applied to a larger
+          // maximum (a pack rejoining, a BMS raising its limit) released the CCL limit.
+          if (id(yambms${yambms_id}_var_auto_soc_target_reached)) {
+            const auto mode = id(yambms${yambms_id}_auto_soc_limit_mode).active_index();
+            const float max_ccl = id(yambms${yambms_id}_max_charge_current).state;
+            if (((mode == 1) || (mode == 2)) && !std::isnan(max_ccl))
+              id(yambms${yambms_id}_var_auto_soc_limit) = -(max_ccl - id(yambms${yambms_id}_auto_soc_ccl).state);
           }
 
           // Update in 60s intervals only

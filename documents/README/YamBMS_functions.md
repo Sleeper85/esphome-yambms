@@ -496,7 +496,7 @@ The text sensor `Auto SoC Limit Status` will show the current status of the func
 
 Modes:
 - `Float`: Will set the charging mode from `Bulk` to `Float`. If already at `Float`, nothing will happen.
-- `CCL`: Limits the `Requested Charge Current (CCL)` to the value set by `Auto SoC Limit CCL`. The limit will be removed once the `SoC` is below `Auto SoC Limit` - `Auto SoC Hysteresis`.
+- `CCL`: Limits the `Requested Charge Current (CCL)` to the value set by `Auto SoC Limit CCL`. The limit follows the `Max Charge Current` while it is held, so it stays at `Auto SoC Limit CCL` when a pack rejoins the bank. The limit will be removed once the `SoC` is below `Auto SoC Limit` - `Auto SoC Hysteresis`.
 - `Float + CCL`: Will use both previously described methods. However while the `Requested Charge Current (CCL)` will be removed, the charging mode will not be reset to `Bulk`. For this, `Rebulk SoC` is available.
 
 Note: Some inverters may not like `0A` for `Requested Charge Current (CCL)`. `Auto SoC Limit CCL` allows to set a small value to effectively limit the charging process.
