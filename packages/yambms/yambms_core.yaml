@@ -1210,15 +1210,17 @@ interval:
             if (charging_instruction == "Bulk")
               requested_charge_voltage = id(yambms${yambms_id}_bulk_voltage).state;
             // Float
+            // Auto Float only applies to the Float voltage. Its 60s interval clears the
+            // delta after leaving Float, so adding it to every instruction would raise the
+            // CVL above the Bulk voltage for up to 60s after a Float => Bulk transition.
             else if (charging_instruction == "Float")
-              requested_charge_voltage = id(yambms${yambms_id}_float_voltage).state;
+              requested_charge_voltage = id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_var_auto_float);
             // Stop : keep at nominal voltage
             else
               requested_charge_voltage = id(yambms${yambms_id}_var_cell_nominal_v) * ${yambms_cell_count};
 
             requested_charge_voltage += id(yambms${yambms_id}_charger_offset_v).state +
                                         id(yambms${yambms_id}_var_auto_cvl) +
-                                        id(yambms${yambms_id}_var_auto_float) +
                                         id(yambms${yambms_id}_var_auto_custom_cvl);
 
             // Publish the sensor
