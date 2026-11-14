@@ -23,6 +23,7 @@ The charging voltage and current correspond to the default values in the YAML sc
 While no BMS is combined (boot, reboot, OTA update, RS485 or BLE dropout), the charging logic is suspended:
 
 - the `Charging Status` keeps its value: a battery in `Float` or `EOC` stays there and is not sent back to `Bulk` when the BMS returns;
+- the cut-off timer and the EOC timer are stopped: a dropout during the `Cut-Off` phase cannot declare an EOC with no BMS to confirm it;
 - the `Charging Instruction` is `Stop`, the `Discharging Instruction` is off, and the requested values (CVL, DVL, CCL, DCL) are unknown;
 - nothing is sent to the inverter until YamBMS is initialized again.
 
@@ -35,7 +36,7 @@ While at least one BMS is combined, the `Charging Status` goes to `Wait` when ch
 - without `bms_options_charging_logic.yaml`: when the `Charging` switch is off, or when no combined BMS allows charging (protection, charge switch off);
 - with `bms_options_charging_logic.yaml`: only when the `Charging` switch is off. In that mode YamBMS turns the BMS charge switch off itself at Cut-Off, and that block must not change the status.
 
-In `Wait` the `Charging Instruction` is `Stop`.
+In `Wait` the `Charging Instruction` is `Stop`, and the cut-off timer and the EOC timer are stopped: an EOC is only declared while charging is allowed.
 
 When charging is allowed again:
 
@@ -99,7 +100,7 @@ Once the **Cut-Off phase** is entered:
 - otherwise the **cut-off timer** starts (`180s` default): if the Cut-Off conditions still hold when it expires, the **EOC** (End Of Charge) is declared;
 - in parallel, if the `EOC timer` switch is enabled, the **EOC timer** (`30min` default) guarantees that the Cut-Off phase ends at the latest when it expires, even if cells are still equalizing.
 
-Returning to the Bulk phase stops both timers.
+Returning to the Bulk phase, going to `Wait` or a BMS dropout stops both timers.
 
 Some BMS balance their cells but never expose a balancing flag. YamBMS infers it for
 them, from the max cell reaching the bulk setpoint together with a cell spread that has
