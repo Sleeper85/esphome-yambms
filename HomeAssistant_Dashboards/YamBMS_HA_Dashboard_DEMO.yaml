@@ -996,6 +996,7 @@ views:
               - entity: number.bms_1_max_cell_voltage_number
               - entity: number.bms_1_min_temperature_number
               - entity: number.bms_1_max_temperature_number
+              - entity: number.bms_1_yambms_errors_bitmask_number
             conditions:
               - condition: state
                 state_not: unavailable
@@ -1151,6 +1152,7 @@ views:
               - entity: number.bms_2_max_cell_voltage_number
               - entity: number.bms_2_min_temperature_number
               - entity: number.bms_2_max_temperature_number
+              - entity: number.bms_2_yambms_errors_bitmask_number
             conditions:
               - condition: state
                 state_not: unavailable
@@ -1306,6 +1308,7 @@ views:
               - entity: number.bms_3_max_cell_voltage_number
               - entity: number.bms_3_min_temperature_number
               - entity: number.bms_3_max_temperature_number
+              - entity: number.bms_3_yambms_errors_bitmask_number
             conditions:
               - condition: state
                 state_not: unavailable
