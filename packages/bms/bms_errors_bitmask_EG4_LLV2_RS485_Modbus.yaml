@@ -1,5 +1,5 @@
-# Updated : 2025.12.22
-# Version : 2.0.1
+# Updated : 2026.11.10
+# Version : 2.0.2
 # GitHub  : https://github.com/RAR/esphome-eg4-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -43,6 +43,7 @@
   # Bit 10    Charge Under Temp                            0000 0100 0000 0000         0x0400
   # Bit 11    Discharge Under Temp                         0000 1000 0000 0000         0x0800
   # Bit 12    Low Capacity                                 0001 0000 0000 0000         0x1000
+  #           (held while a full pack has stopped charging, so it is not mapped to an alarm)
   # Bit 13    Discharge SC                                 0010 0000 0000 0000         0x2000
 
   # +--------------------------------------+
@@ -79,8 +80,11 @@ sensor:
         - throttle: 10s
         - delta: 1
     lambda: |-
-      uint32_t bms_errors_bitmask = id(bms${bms_id}_errors_bitmask).state;
-      uint32_t bms_protection_bitmask = id(bms${bms_id}_protection_bitmask).state;
+      // The component publishes NaN for a register block that has gone stale (no bits)
+      float bms_errors = id(bms${bms_id}_errors_bitmask).state;
+      float bms_protection = id(bms${bms_id}_protection_bitmask).state;
+      uint32_t bms_errors_bitmask = std::isnan(bms_errors) ? 0 : (uint32_t) bms_errors;
+      uint32_t bms_protection_bitmask = std::isnan(bms_protection) ? 0 : (uint32_t) bms_protection;
       uint16_t yambms_errors_bitmask = 0;
 
       if (bms_errors_bitmask > 0)
@@ -100,11 +104,12 @@ sensor:
         if (bms_protection_bitmask & 0x0010) yambms_errors_bitmask |= 0x0100;
         if (bms_protection_bitmask & 0x0020) yambms_errors_bitmask |= 0x0080;
         if (bms_protection_bitmask & 0x0100) yambms_errors_bitmask |= 0x0020;
+        if (bms_protection_bitmask & 0x0200) yambms_errors_bitmask |= 0x0008;
         if (bms_protection_bitmask & 0x0400) yambms_errors_bitmask |= 0x0040;
+        if (bms_protection_bitmask & 0x0800) yambms_errors_bitmask |= 0x0010;
         if (bms_protection_bitmask & 0x2000) yambms_errors_bitmask |= 0x0400;
         if (bms_protection_bitmask & 0x0040) yambms_errors_bitmask |= 0x0001;
         if (bms_protection_bitmask & 0x0080) yambms_errors_bitmask |= 0x0001;
-        if (bms_protection_bitmask & 0x1000) yambms_errors_bitmask |= 0x0001;
       }
 
       return yambms_errors_bitmask;
