@@ -1,4 +1,4 @@
-# Updated : 2026.11.14
+# Updated : 2026.11.17
 # Version : 1.8.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
@@ -1075,8 +1075,7 @@ interval:
                 {
                   ESP_LOGD("yambms_debug", "Entering the Bulk phase...");
                   // Stop timer
-                  if (id(yambms${yambms_id}_script_eoc_timer).is_running()) id(yambms${yambms_id}_script_eoc_timer).stop();
-                  if (id(yambms${yambms_id}_script_cutoff_timer).is_running()) id(yambms${yambms_id}_script_cutoff_timer).stop();
+                  id(yambms${yambms_id}_script_stop_timers).execute();
                   // Balancing : the BMS is equalizing the cells
                   if (id(yambms${yambms_id}_equalizing).state) id(yambms${yambms_id}_var_charge_status) = "Balancing";
                   // Bulk
@@ -1126,8 +1125,7 @@ interval:
               ESP_LOGD("yambms_debug", "Charging not allowed !");
               if (!id(yambms${yambms_id}_switch_charging).state)
               {
-                if (id(yambms${yambms_id}_script_eoc_timer).is_running()) id(yambms${yambms_id}_script_eoc_timer).stop();
-                if (id(yambms${yambms_id}_script_cutoff_timer).is_running()) id(yambms${yambms_id}_script_cutoff_timer).stop();
+                id(yambms${yambms_id}_script_stop_timers).execute();
                 if (id(yambms${yambms_id}_var_charge_status) != "Wait")
                   id(yambms${yambms_id}_var_charge_status_before_wait) = id(yambms${yambms_id}_var_charge_status);
                 id(yambms${yambms_id}_var_charge_status) = "Wait";
@@ -1136,8 +1134,7 @@ interval:
             else
             {
               ESP_LOGD("yambms_debug", "Charging not allowed !");
-              if (id(yambms${yambms_id}_script_eoc_timer).is_running()) id(yambms${yambms_id}_script_eoc_timer).stop();
-              if (id(yambms${yambms_id}_script_cutoff_timer).is_running()) id(yambms${yambms_id}_script_cutoff_timer).stop();
+              id(yambms${yambms_id}_script_stop_timers).execute();
               if (id(yambms${yambms_id}_var_charge_status) != "Wait")
                 id(yambms${yambms_id}_var_charge_status_before_wait) = id(yambms${yambms_id}_var_charge_status);
               id(yambms${yambms_id}_var_charge_status) = "Wait";
@@ -1351,8 +1348,7 @@ interval:
           // not show stale ones; the inverter links stop on var_initialized.
           else
           {
-            if (id(yambms${yambms_id}_script_eoc_timer).is_running()) id(yambms${yambms_id}_script_eoc_timer).stop();
-            if (id(yambms${yambms_id}_script_cutoff_timer).is_running()) id(yambms${yambms_id}_script_cutoff_timer).stop();
+            id(yambms${yambms_id}_script_stop_timers).execute();
             id(yambms${yambms_id}_charging_instruction).publish_state("Stop");
             id(yambms${yambms_id}_discharging_instruction).publish_state(false);
             id(yambms${yambms_id}_requested_charge_voltage).publish_state(NAN);
@@ -1405,12 +1401,17 @@ script:
     then:
       - delay: ${yambms_cutoff_timer}s
       - script.execute: yambms${yambms_id}_script_eoc
+  # Stops the Cut-Off and EOC timers (Bulk, Wait, suspended logic, EOC declared)
+  # No delay: execute() runs both stops before returning to the caller.
+  - id: yambms${yambms_id}_script_stop_timers
+    then:
+      - script.stop: yambms${yambms_id}_script_eoc_timer
+      - script.stop: yambms${yambms_id}_script_cutoff_timer
   - id: yambms${yambms_id}_script_eoc
     then:
       - lambda: |-
           // Stop timer
-          if (id(yambms${yambms_id}_script_eoc_timer).is_running()) id(yambms${yambms_id}_script_eoc_timer).stop();
-          if (id(yambms${yambms_id}_script_cutoff_timer).is_running()) id(yambms${yambms_id}_script_cutoff_timer).stop();
+          id(yambms${yambms_id}_script_stop_timers).execute();
           // EOC script
           if (id(yambms${yambms_id}_switch_float).state) id(yambms${yambms_id}_var_charge_status) = "Float";
           else id(yambms${yambms_id}_var_charge_status) = "EOC";
