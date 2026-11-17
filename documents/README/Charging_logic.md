@@ -43,6 +43,12 @@ When charging is allowed again:
 - a battery that was in `Float` or `EOC` goes back there, unless a rebulk rule applies (`Rebulk voltage`, `Rebulk SoC`, `Rebulk days`, `Force Bulk` or `Request Force Charge`), in which case a new `Bulk` starts;
 - any other status (`Init`, `Bulk`, `Cut-Off`, `Balancing`) goes to `Bulk`.
 
+## Bulk to Float with Auto Float
+
+With `Automatic Float Voltage` enabled and a bulk voltage above the float voltage, the `Requested Charge Voltage (CVL)` does not drop when `Float` starts: the first `Float` CVL is the bulk voltage, and it is then lowered step by step down to the float voltage. See [Auto Float Voltage](YamBMS_functions.md#auto-float-voltage).
+
+If the bulk or float voltage is changed less than a minute before `Float` starts, the first `Float` CVL can still use the previous values until the next Auto Float update, at most 60 s later.
+
 ## Cut-Off Charging Logic Equation
 
 Source: [Charging Marine Lithium Battery Banks](https://nordkyndesign.com/charging-marine-lithium-battery-banks)

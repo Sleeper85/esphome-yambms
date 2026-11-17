@@ -404,7 +404,7 @@ This feature might not work with all inverters as good or is not required if the
 
 The voltage steps can be configured (default `0.1V`) with `Auto Float Voltage Step`. The update interval can be configured (default `3 minutes`) with `Auto Float Update Interval`.
 
-The adjustment only applies while the `Charging Instruction` is `Float`. When a rebulk or `Force Bulk` starts a new `Bulk`, the `Requested Charge Voltage (CVL)` goes straight back to the bulk voltage.
+The adjustment only applies while the `Charging Instruction` is `Float`. When `Float` starts, the `Requested Charge Voltage (CVL)` stays at the bulk voltage and the step-down starts from there, with no drop to the float voltage in between. When a rebulk or `Force Bulk` starts a new `Bulk`, the `Requested Charge Voltage (CVL)` goes straight back to the bulk voltage.
 
 ## Auto EOC
 

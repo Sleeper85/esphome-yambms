@@ -1213,9 +1213,10 @@ interval:
             if (charging_instruction == "Bulk")
               requested_charge_voltage = id(yambms${yambms_id}_bulk_voltage).state;
             // Float
-            // Auto Float only applies to the Float voltage. Its 60s interval clears the
-            // delta after leaving Float, so adding it to every instruction would raise the
-            // CVL above the Bulk voltage for up to 60s after a Float => Bulk transition.
+            // Auto Float only applies to the Float voltage. Outside Float its 60s interval
+            // keeps the delta armed at Bulk - Float, so that the first Float CVL is the Bulk
+            // voltage. Adding it to every instruction would raise the CVL above the Bulk
+            // voltage outside Float.
             else if (charging_instruction == "Float")
               requested_charge_voltage = id(yambms${yambms_id}_float_voltage).state + id(yambms${yambms_id}_var_auto_float);
             // Stop : keep at nominal voltage

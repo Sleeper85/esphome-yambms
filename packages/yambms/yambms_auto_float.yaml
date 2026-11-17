@@ -1,5 +1,5 @@
-# Updated : 2026.08.11
-# Version : 1.2.0
+# Updated : 2026.11.17
+# Version : 1.2.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -140,7 +140,11 @@ interval:
             // Reset values
             float_v = bulk_v;
             time_count = 0;
-            id(yambms${yambms_id}_var_auto_float) = 0.0;
+            // Arm the delta at Bulk - Float instead of 0. The core only adds it while the
+            // instruction is Float, so it has no effect here, but it is already in place
+            // on the first Float tick. Clearing it made the CVL drop to the final Float
+            // voltage for up to 60s, then rise back to Bulk on the next interval tick.
+            id(yambms${yambms_id}_var_auto_float) = roundf((bulk_v - target_float_v) * 10.0f) / 10.0f;
             id(yambms${yambms_id}_auto_float_v).publish_state(float_v);
             id(yambms${yambms_id}_auto_float_v_delta).publish_state(0.0);
             return;
