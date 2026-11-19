@@ -56,7 +56,7 @@
       # BMS 3
       - path: 'packages/bms/bms_combine_EG4_LLV2_RS485_bms_full.yaml'
         vars:
-          bms_id: '2' # must be a number
+          bms_id: '3' # must be a number
           bms_name: 'EG4-BMS 3'
           bms_address: 4 # BMS 3 modbus address
           bms_balance_trigger_voltage: '0.030' # V. Cell spread at which the BMS balances, set yours
