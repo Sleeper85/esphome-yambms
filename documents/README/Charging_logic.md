@@ -113,10 +113,14 @@ them, from the max cell reaching the bulk setpoint together with a cell spread t
 reached `bms_balance_trigger_voltage`, the threshold at which that pack's own balancer
 engages, so the cut-off timer is held exactly as it would be with a
 BMS that reports the flag. A real external balancer, when one is online, always takes
-priority over the inference. This is enabled by default for Seplos V3, Seplos V1/V2,
-EG4 LL v2 and JK RS485 DISPLAY — see
+priority over the inference. It is available, but **disabled by default**, for Seplos V3,
+Seplos V1/V2, EG4 LL v2 and JK RS485 DISPLAY: enable it per BMS with
+`bms_fake_equalizing_enabled: 'true'`. A pack that does not actually balance (no balancer,
+balancing disabled, or a balancer too weak for the pack) never closes its cell spread, so
+the charge can stay in Cut-Off until the EOC timer ends it, or indefinitely if the
+`EOC Timer enabled` switch is off. See
 [Changelog_Fake_Equalizing.md](changelog/Changelog_Fake_Equalizing.md) for the references
-it uses and how to tune or disable it.
+it uses and how to tune it.
 
 ## LFP Cut-Off Values
 

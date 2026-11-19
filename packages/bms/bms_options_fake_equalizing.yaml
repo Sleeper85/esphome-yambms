@@ -1,5 +1,5 @@
-# Updated : 2026.08.29
-# Version : 1.1.0
+# Updated : 2026.11.19
+# Version : 1.1.1
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -47,7 +47,7 @@
 # |     max cell <  setpoint - hysteresis          the pack dropped off the setpoint
 # |     OR (max - min) < trigger - delta hyst.     the spread closed back below it
 # |
-# | Nothing is configurable but an on/off switch and the two hysteresis margins, so
+# | Nothing is configurable but an on/off switch (off by default) and the two hysteresis margins, so
 # | the inference tracks the hardware instead of a constant that would fit no BMS in
 # | particular : the
 # | balance trigger voltage is 10 mV on a JK or a Seplos, 30 mV on an EG4. A pack that
@@ -81,8 +81,17 @@
 # | V3, EG4 LL v2 and JK RS485 DISPLAY all work that way. Declare your unit's actual
 # | setting there : it is what this package compares the spread against.
 # +--------------------------------------------------------------------------------+
-# | Included by default - these BMS need nothing added to your YAML
+# | Included by default, DISABLED by default - set the var to enable it
 # +--------------------------------------------------------------------------------+
+# |
+# |   bms_fake_equalizing_enabled: 'true'  in the vars of each BMS include
+# |
+# | It is off by default because it stops the Cut-Off timer while the spread stays
+# | above the trigger voltage. A pack that does not actually balance - no balancer,
+# | balancing disabled in the BMS, or a balancer too weak for the pack - never closes
+# | its spread : the charge then stays in Cut-Off until the EOC timer ends it (30min
+# | by default), or indefinitely if the 'EOC Timer enabled' switch is off.
+# | Enable it only once you know your pack balances at the configured trigger voltage.
 # |
 # |   EG4 LL V2       bms_combine_EG4_LLV2_RS485_bms_full.yaml
 # |                   bms_modbus_EG4_LLV2_RS485_bms_full.yaml
@@ -95,7 +104,8 @@
 # |
 # | The four real BMS above declared `bms_equalizing` as a hardcoded
 # | `return false;` : they do balance, they just never say so. The Fake BMS used
-# | to carry an inline voltage comparison, which this package replaces.
+# | to carry an inline voltage comparison, which this package replaces. Disabled,
+# | the flag reports that constant false again.
 # +--------------------------------------------------------------------------------+
 # | Adding it to another BMS - once for each bms_id
 # +--------------------------------------------------------------------------------+
@@ -121,7 +131,7 @@
 #           bms_id: '1'
 #           # ... other vars of your BMS ...
 #           bms_balance_trigger_voltage: '0.010'           # V. Your BMS's balancing threshold
-#           bms_fake_equalizing_enabled: 'true'            # Optional : true/fasle, true by default
+#           bms_fake_equalizing_enabled: 'true'            # Optional : true/false, false by default
 #           bms_fake_equalizing_hysteresis: '0.030'        # Optional : 0.030 by default
 #           bms_fake_equalizing_delta_hysteresis: '0.002'  # Optional : 0.002 by default
 #
@@ -129,7 +139,7 @@
 # | balancing threshold, it also feeds 'Auto CVL', and the rest is fine as it is.
 # |
 # | Or set them once for every BMS in the root `substitutions:` block.
-# | To turn the inference off on one BMS : bms_fake_equalizing_enabled: 'false'
+# | To turn the inference on for one BMS : bms_fake_equalizing_enabled: 'true'
 # +--------------------------------------------------------------------------------+
 
 
@@ -141,11 +151,14 @@ substitutions:
   # | The spread anchor is `bms_balance_trigger_voltage`, from the BMS itself.
   # | What is left is an on/off switch and the two hysteresis margins.
   # +--------------------------------------------------------------------------------+
-  # 'true' / 'false'. Set to 'false' to turn the inference off for this BMS : the flag
-  # goes back to the constant false its package used to report. Needed because the
-  # package is included by default for the BMS that cannot report the flag, and a
-  # Remote Packages user cannot edit a package to drop it.
-  bms_fake_equalizing_enabled: 'true'
+  # 'true' / 'false'. Off by default : the flag reports the constant false its package
+  # used to hardcode. Set to 'true' to turn the inference on for this BMS. A switch is
+  # needed because the package is included by default for the BMS that cannot report
+  # the flag, and a Remote Packages user cannot edit a package to drop it.
+  # Off by default because a pack that does not actually balance never closes its
+  # spread : the Cut-Off timer stays stopped and the charge only ends on the EOC timer
+  # (30min by default), or never if the 'EOC Timer enabled' switch is off.
+  bms_fake_equalizing_enabled: 'false'
   # (V) how far below the bulk setpoint the max cell may fall before balancing stops.
   # Without it the state toggles on every tick while the max cell sits on the setpoint.
   bms_fake_equalizing_hysteresis: '0.030'

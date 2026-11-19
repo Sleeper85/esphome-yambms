@@ -1,5 +1,5 @@
-# Updated : 2026.11.05
-# Version : 1.2.4
+# Updated : 2026.11.19
+# Version : 1.2.5
 # GitHub  : https://github.com/syssi/esphome-jk-bms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -35,8 +35,8 @@ packages:
 substitutions:
   # (V) cell spread at which this BMS starts balancing. Not readable over the display
   # port, so declare your unit's actual setting at import. Used by 'Auto CVL' and, when
-  # bms_options_fake_equalizing.yaml is included, as the spread reference for the
-  # inferred balancing flag.
+  # Fake Equalizing is enabled (bms_fake_equalizing_enabled), as the spread reference
+  # for the inferred balancing flag.
   bms_balance_trigger_voltage: '0.01'
 
 # +--------------------------------------+

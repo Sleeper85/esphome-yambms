@@ -97,8 +97,9 @@ reading wins; the inference only applies when no balancer reports for this pack.
 
 ## 3. Which BMS are concerned
 
-The four BMS below shipped a hardcoded `return false;`. The package is now **included by
-default** for them — there is nothing to add to your YAML:
+The four BMS below shipped a hardcoded `return false;`. The package is **included by
+default** for them, but **disabled by default**: enable it per BMS with
+`bms_fake_equalizing_enabled: 'true'` (see [To enable the inference](#to-enable-the-inference)).
 
 | BMS | Packages |
 |---|---|
@@ -164,7 +165,7 @@ They now expose it like the others with the following default values:
           bms_id: '1'
           # ... other vars of your BMS ...
           bms_balance_trigger_voltage: '0.010'           # V. Your BMS's balancing threshold
-          bms_fake_equalizing_enabled: 'true'            # Optional : true/fasle, true by default
+          bms_fake_equalizing_enabled: 'true'            # Optional : true/false, false by default
           bms_fake_equalizing_hysteresis: '0.030'        # Optional : 0.030 by default
           bms_fake_equalizing_delta_hysteresis: '0.002'  # Optional : 0.002 by default
 ```
@@ -179,7 +180,7 @@ defaults are fine for any pack.
 
 | Substitution | Default | Meaning |
 |---|---|---|
-| `bms_fake_equalizing_enabled` | `'true'` | set to `'false'` to turn the inference off for this BMS |
+| `bms_fake_equalizing_enabled` | `'false'` | set to `'true'` to turn the inference on for this BMS |
 | `bms_fake_equalizing_hysteresis` | `0.030` | how far below the bulk setpoint the max cell may fall before balancing stops |
 | `bms_fake_equalizing_delta_hysteresis` | `0.002` | how far below the trigger voltage the spread may fall before balancing stops |
 
@@ -187,30 +188,41 @@ All of them can be passed per BMS as above, or set once for every BMS in the roo
 `substitutions:` block. The spread values are resolved to whole millivolts, the resolution
 the cells are reported at, so a value finer than `0.001` has no effect.
 
-**To disable the inference** on a BMS without editing any package:
+### To enable the inference
+
+It is off by default: the flag reports the constant `false` its package used to hardcode.
+Turn it on per BMS, without editing any package:
 
 ```yaml
-          bms_fake_equalizing_enabled: 'false'
+          bms_fake_equalizing_enabled: 'true'
 ```
 
-The flag then reports the constant `false` its package used to hardcode, which is the
-behaviour you had before this release. Do *not* try to disable it by raising
+> [!WARNING]
+> Enable it only if the pack actually balances at the configured
+> `bms_balance_trigger_voltage`. A BMS without a balancer, with balancing disabled, or
+> with a balancer too weak for the pack never closes its cell spread: the Cut-Off timer
+> stays stopped and the charge can stay in Cut-Off for a long time, until the EOC timer
+> ends it (`30min` by default), or indefinitely if the `EOC Timer enabled` switch is off.
+
+To turn it off again, set it back to `'false'`. Do *not* try to disable it by raising
 `bms_balance_trigger_voltage` instead — that value also feeds `Auto CVL`, where it means
 something else entirely: how far the highest cell may overshoot the per-cell setpoint
 before the PI clamps.
 
 ## 5. What changes for you on upgrade
 
-If you own one of the four BMS above, the `balancing` entity will now turn on at the top
+The inference is disabled by default, so nothing changes until you enable it. Once
+enabled on one of the four BMS above, the `balancing` entity turns on at the top
 of charge as soon as your cells are spread by as much as your BMS's own
 `bms_balance_trigger_voltage` — 10 mV on a Seplos or a JK, 30 mV on an EG4 unless you
 declared otherwise. The charge then runs until the spread closes back below that, or
 until the EOC timer expires, instead of being cut short by the Cut-Off timer. That is the
 intended fix, but it *is* a change in charge termination, so watch a couple of cycles
-after updating.
+after enabling it.
 
 The risk is bounded on the safe side. A false positive can only extend the charge up to
-the EOC timer, which exists for exactly that purpose. A false negative simply restores
+the EOC timer, which exists for exactly that purpose, as long as the `EOC Timer enabled`
+switch is on. A false negative simply restores
 the previous behaviour.
 
 ## Why not the original pull request
