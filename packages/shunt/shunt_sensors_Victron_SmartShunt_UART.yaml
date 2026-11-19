@@ -1,6 +1,6 @@
-# Updated : 2026.11.05
-# Version : 1.2.0
-# GitHub  : https://github.com/KinDR007/VictronMPPT-ESPHOME
+# Updated : 2026.11.19
+# Version : 1.2.1
+# GitHub  : https://github.com/GHswitt/VictronMPPT-ESPHOME
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -31,7 +31,7 @@ packages:
 
 external_components:
   - source: github://GHswitt/VictronMPPT-ESPHOME@main
-    refresh: 60s
+    refresh: 60min
 
 victron:
   - uart_id: ${shunt_uart_id}

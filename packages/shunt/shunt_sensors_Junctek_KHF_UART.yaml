@@ -1,5 +1,5 @@
-# Updated : 2026.11.05
-# Version : 1.1.9
+# Updated : 2026.11.19
+# Version : 1.2.0
 # GitHub  : https://github.com/Sleeper85/esphome-junctek_khf
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -30,7 +30,7 @@ packages:
 
 external_components:
   - source: github://Sleeper85/esphome-junctek_khf@main
-    refresh: 0s
+    refresh: 60min
   # - source:
   #     type: local
   #     path: components
