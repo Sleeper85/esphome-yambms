@@ -47,6 +47,11 @@ packages:
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Fake Equalizing: this BMS does not report its balancing state. When enabled, YamBMS infers it
+      # from the cell spread and holds the Cut-Off timer while the pack balances, instead of ending the charge.
+      # Warning: a BMS without a balancer (or with balancing disabled) never closes its cell spread, so it can
+      # stay in Cut-Off a long time, until the EOC timer (30min default) ends the charge, or forever if disabled.
+      bms_fake_equalizing_enabled: 'false' # true/false, false by default
       bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
 
   bms2: !include
@@ -64,6 +69,11 @@ packages:
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Fake Equalizing: this BMS does not report its balancing state. When enabled, YamBMS infers it
+      # from the cell spread and holds the Cut-Off timer while the pack balances, instead of ending the charge.
+      # Warning: a BMS without a balancer (or with balancing disabled) never closes its cell spread, so it can
+      # stay in Cut-Off a long time, until the EOC timer (30min default) ends the charge, or forever if disabled.
+      bms_fake_equalizing_enabled: 'false' # true/false, false by default
       bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
 
   bms3: !include
@@ -81,4 +91,9 @@ packages:
       bms_cell_ovp: '3.650' # V. Used by 'Auto CCL' functions
       bms_cell_uvp: '2.800' # V. Used by 'Auto DCL' functions and to calculate maximum discharge voltage
       bms_balance_trigger_voltage: '0.010' # V. Used by 'Auto CVL' functions
+      # Fake Equalizing: this BMS does not report its balancing state. When enabled, YamBMS infers it
+      # from the cell spread and holds the Cut-Off timer while the pack balances, instead of ending the charge.
+      # Warning: a BMS without a balancer (or with balancing disabled) never closes its cell spread, so it can
+      # stay in Cut-Off a long time, until the EOC timer (30min default) ends the charge, or forever if disabled.
+      bms_fake_equalizing_enabled: 'false' # true/false, false by default
       bms_status_led_id: 'esp_light' # LED used to show status; default = esp_light, comment out to disable
