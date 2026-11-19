@@ -1,0 +1,231 @@
+# Updated : 2026.11.03
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# +------------------------------------------------------------------+
+# | Auto Balancer - per battery controller                           |
+# |                                                                  |
+# | Decides if balancing is allowed for battery ${bms_id}:           |
+# |  - |current| > Stop Current   : balancing not allowed            |
+# |  - |current| < Resume Current : allowed again after Resume Delay |
+# |  - in between                 : keep the last state              |
+# |                                                                  |
+# | Current source : the shunt `shunt_id` if it is online and its    |
+# | "Combine enabled" switch is on, otherwise the BMS current.       |
+# |                                                                  |
+# | Use bms_options_auto_balancer_switch.yaml to drive the balance   |
+# | switches of this battery.                                        |
+# |                                                                  |
+# | End of charge : while balancing is blocked but the pack would    |
+# | balance, the battery counts as equalizing for YamBMS. This holds |
+# | the Cut-Off timer until the balancer could run at low current.   |
+# | "Would balance" uses the same references as Fake Equalizing :    |
+# |  - start : max cell >= bulk setpoint per cell                    |
+# |            AND spread >= balance trigger voltage                 |
+# |  - stop  : max cell <  bulk setpoint per cell - 30 mV            |
+# |            OR spread <  balance trigger voltage - 2 mV           |
+# |                                                                  |
+# | Vars :                                                           |
+# |   bms_id   : BMS ID of the battery                               |
+# |   shunt_id : Shunt ID measuring only this battery ('0' = none)   |
+# +------------------------------------------------------------------+
+
+substitutions:
+  shunt_id: '0'
+
+globals:
+  # Balancing allowed
+  - id: bms${bms_id}_var_auto_balancer_allowed
+    type: bool
+    restore_value: no
+    initial_value: 'true'
+  # Current is below the resume current
+  - id: bms${bms_id}_var_auto_balancer_below_resume
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  # Time (ms) since the current is below the resume current
+  - id: bms${bms_id}_var_auto_balancer_below_resume_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  # The pack would balance (top of charge and spread above the trigger voltage)
+  - id: bms${bms_id}_var_auto_balancer_would_balance
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+binary_sensor:
+  - platform: template
+    name: "Auto Balancer allowed"
+    id: bms${bms_id}_auto_balancer_allowed
+    device_id: bms_${bms_id}
+    icon: mdi:scale-balance
+
+text_sensor:
+  - platform: template
+    name: "Auto Balancer status"
+    id: bms${bms_id}_auto_balancer_status
+    device_id: bms_${bms_id}
+    update_interval: never
+    icon: mdi:information-outline
+    entity_category: diagnostic
+
+interval:
+  - interval: ${yambms_update_interval}
+    then:
+      - lambda: |-
+          bool allowed = id(bms${bms_id}_var_auto_balancer_allowed);
+          std::string status;
+
+          // Disabled: balancing allowed, the switches are released
+          if (!id(yambms${yambms_id}_switch_auto_balancer).state)
+          {
+            allowed = true;
+            id(bms${bms_id}_var_auto_balancer_below_resume) = false;
+            status = "Disabled";
+          }
+          else
+          {
+            // +-----------------------------------------------+
+            // | Current source (Shunt/BMS)                    |
+            // +-----------------------------------------------+
+            float current = NAN;
+            const char *source = "";
+            const int shunt_id = ${shunt_id};
+            if ((shunt_id > 0) && (shunt_id < (int) id(yambms${yambms_id}_var_auto_balancer_shunt_current).size()) &&
+                (id(yambms${yambms_id}_var_auto_balancer_shunt_valid) & (1UL << shunt_id)))
+            {
+              current = id(yambms${yambms_id}_var_auto_balancer_shunt_current)[shunt_id];
+              source = "Shunt";
+            }
+            else if (id(bms${bms_id}_online_status).state && id(bms${bms_id}_current).has_state())
+            {
+              current = id(bms${bms_id}_current).state;
+              source = "BMS";
+            }
+
+            if (std::isnan(current))
+            {
+              // No current available: keep the last state
+              id(bms${bms_id}_var_auto_balancer_below_resume) = false;
+              status = allowed ? "On: No current, hold" : "Off: No current, hold";
+            }
+            else
+            {
+              const float abs_current = fabsf(current);
+              const float stop_current = id(yambms${yambms_id}_auto_balancer_stop_current).state;
+              // Resume current must not be above the stop current
+              const float resume_current = std::min(id(yambms${yambms_id}_auto_balancer_resume_current).state, stop_current);
+              const uint32_t resume_delay_ms = (uint32_t) id(yambms${yambms_id}_auto_balancer_resume_delay).state * 1000;
+              char buf[64];
+
+              if (abs_current > stop_current)
+              {
+                allowed = false;
+                id(bms${bms_id}_var_auto_balancer_below_resume) = false;
+                snprintf(buf, sizeof(buf), "Off: %s current > %.0f A", source, stop_current);
+                status = buf;
+              }
+              else if (abs_current < resume_current)
+              {
+                if (!allowed)
+                {
+                  uint32_t now = millis();
+                  if (!id(bms${bms_id}_var_auto_balancer_below_resume))
+                  {
+                    id(bms${bms_id}_var_auto_balancer_below_resume) = true;
+                    id(bms${bms_id}_var_auto_balancer_below_resume_ms) = now;
+                  }
+                  if ((now - id(bms${bms_id}_var_auto_balancer_below_resume_ms)) >= resume_delay_ms)
+                  {
+                    allowed = true;
+                  }
+                }
+                if (allowed)
+                {
+                  snprintf(buf, sizeof(buf), "On: %s current < %.0f A", source, resume_current);
+                }
+                else
+                {
+                  snprintf(buf, sizeof(buf), "Off: %s current < %.0f A, waiting", source, resume_current);
+                }
+                status = buf;
+              }
+              else
+              {
+                // Hysteresis band: keep the last state
+                id(bms${bms_id}_var_auto_balancer_below_resume) = false;
+                snprintf(buf, sizeof(buf), "%s: %s current %.0f-%.0f A, hold", allowed ? "On" : "Off", source, resume_current, stop_current);
+                status = buf;
+              }
+            }
+          }
+
+          // +-----------------------------------------------+
+          // | End of charge hold                            |
+          // +-----------------------------------------------+
+          // Same references as bms_options_fake_equalizing.yaml : the per-cell bulk
+          // setpoint and the balance trigger voltage of this pack. Missing values
+          // keep the last state.
+          bool would_balance = id(bms${bms_id}_var_auto_balancer_would_balance);
+          {
+            const float cell_count = id(yambms${yambms_id}_cell_count).state;
+            const float bulk_v     = id(yambms${yambms_id}_bulk_voltage).state;
+            const float max_cell_v = id(bms${bms_id}_max_cell_voltage).state;
+            const float min_cell_v = id(bms${bms_id}_min_cell_voltage).state;
+            const float trigger_v  = id(bms${bms_id}_balance_trigger_voltage).state;
+            if (!std::isnan(cell_count) && (cell_count > 0) && !std::isnan(bulk_v) &&
+                !std::isnan(max_cell_v) && !std::isnan(min_cell_v) &&
+                !std::isnan(trigger_v) && (trigger_v > 0.0f))
+            {
+              const float cell_bulk_v = bulk_v / cell_count;
+              // Compared in whole mV, the resolution of the cell voltages
+              const int delta_mv   = (int) roundf((max_cell_v - min_cell_v) * 1000.0f);
+              const int trigger_mv = (int) roundf(trigger_v * 1000.0f);
+              if (!would_balance)
+                would_balance = (max_cell_v >= cell_bulk_v) && (delta_mv >= trigger_mv);
+              else
+                would_balance = (max_cell_v >= cell_bulk_v - 0.030f) && (delta_mv >= trigger_mv - 2);
+            }
+          }
+          id(bms${bms_id}_var_auto_balancer_would_balance) = would_balance;
+
+          // Blocked while the pack would balance : count as equalizing (bms_combine.yaml)
+          const bool hold_eoc = !allowed && would_balance;
+          const uint32_t bms_bit = 1UL << ${bms_id};
+          if (hold_eoc)
+          {
+            id(yambms${yambms_id}_var_auto_balancer_hold_mask) |= bms_bit;
+            status += ", EOC held";
+          }
+          else
+          {
+            id(yambms${yambms_id}_var_auto_balancer_hold_mask) &= ~bms_bit;
+          }
+
+          if (allowed != id(bms${bms_id}_var_auto_balancer_allowed))
+          {
+            ESP_LOGI("auto_balancer", "BMS %d: balancing %s (%s)", ${bms_id}, allowed ? "allowed" : "blocked", status.c_str());
+          }
+          id(bms${bms_id}_var_auto_balancer_allowed) = allowed;
+
+          if (!id(bms${bms_id}_auto_balancer_allowed).has_state() || (id(bms${bms_id}_auto_balancer_allowed).state != allowed))
+            id(bms${bms_id}_auto_balancer_allowed).publish_state(allowed);
+          if (id(bms${bms_id}_auto_balancer_status).state != status)
+            id(bms${bms_id}_auto_balancer_status).publish_state(status);

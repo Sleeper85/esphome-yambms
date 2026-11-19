@@ -1,5 +1,5 @@
-# Updated : 2025.07.07
-# Version : 1.1.1
+# Updated : 2026.11.03
+# Version : 1.1.2
 # GitHub  : https://github.com/Sleeper85/esphome-yambms
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
@@ -16,6 +16,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# Turns the BMS balance switch on above ${bms_top_v} or below ${bms_bot_v} (max/min cell voltage).
+# Do not combine with the Auto Balancer (bms_options_auto_balancer_switch.yaml) on the same switch,
+# both would fight over bms${bms_id}_balance_switch.
 
 interval:
   - interval: ${bms_update_interval}

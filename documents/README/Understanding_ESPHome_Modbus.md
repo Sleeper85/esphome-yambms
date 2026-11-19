@@ -216,3 +216,18 @@ logger:
 * `Modbus command timed out` on a device that is alive means `send_wait_time` is
   too low, or the bus is saturated.
 * `Modbus device=N set offline` / `back online` traces the offline back-off.
+
+## Writable balance switches
+
+The balance switches can be controlled from the main `YamBMS` node, for example by the
+[Auto Balancer](YamBMS_functions.md#auto-balancer). They are exposed as writable holding
+registers (`1` = on, `0` = off). A write is one extra Modbus command, sent only when the
+switch changes.
+
+| Node package | Register | Main node package | Switch |
+|---|---|---|---|
+| `balancer_modbus_JK_NEEY_BLE.yaml` | `5` | `balancer_modbus_client.yaml` | `balancer<id>_balance_switch` |
+| `bms_modbus_JK_BLE_standard.yaml`, `bms_modbus_JK_RS485_Modbus_bms_standard.yaml` | `35` | `bms_combine_modbus_client_balance_switch.yaml` (in addition to `bms_combine_modbus_client.yaml`) | `bms<id>_balance_switch` |
+
+> [!IMPORTANT]
+> The node and the main node must both be updated. An older node rejects the write to these registers.

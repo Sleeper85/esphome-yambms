@@ -40,6 +40,8 @@
   * New `Board name` diagnostic text sensor on the board device, from the `board_name` substitution of the board file (not available on the RPi Pico)
   * Updated HA dashboards `1.8.2` : new `Board` row in the Diagnostic card
   * Fixed the EG4 LL-V2 Remote Packages example : the third BMS used `bms_id: '2'`, which stops the combiner for the whole bank ; it now uses `bms_id: '3'`. If you copied this example with 3 BMS, check your YAML
+  * Added `Auto Balancer`: allows balancing only at low current (shunt or BMS current), for external balancers and BMS internal balancers
+  * Added writable balance switch over RS485 modbus: balancer register `5`, BMS register `35`
 
 * YamBMS 1.8.1 :
   * Set esphome `min_version` to `2026.10.0`
