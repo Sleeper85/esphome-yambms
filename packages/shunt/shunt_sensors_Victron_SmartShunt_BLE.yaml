@@ -1,6 +1,6 @@
-# Updated : 2026.02.05
-# Version : 1.1.7
-# GitHub  : https://github.com/Fabian-Schmidt/esphome-victron_ble
+# Updated : 2026.11.19
+# Version : 1.1.8
+# GitHub  : https://github.com/darek-margas/esphome-victron_ble
 
 # YamBMS ( Yet another multi-BMS Merging Solution )
 
@@ -25,8 +25,8 @@ packages:
 # +--------------------------------------+
 
 external_components:
-  - source: github://Fabian-Schmidt/esphome-victron_ble
-    refresh: 0s
+  - source: github://darek-margas/esphome-victron_ble
+    refresh: 60min
 
 esp32_ble_tracker:
 
