@@ -5,7 +5,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/Sleeper85/esphome-yambms)
 ![GitHub forks](https://img.shields.io/github/forks/Sleeper85/esphome-yambms)
 ![GitHub watchers](https://img.shields.io/github/watchers/Sleeper85/esphome-yambms)
-[!["Buy Me A Coffee"](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://www.buymeacoffee.com/sleeper85)
+[![Badge Support](https://img.shields.io/badge/Support-YamBMS-FFDD00?logo=buymeacoffee&logoColor=black)](#support)
 
 > [!TIP]
 > This page contains many links to other README.
@@ -25,13 +25,19 @@
 
 > [!IMPORTANT]  
 > The most important thing for proper functioning of YamBMS is that **the voltage of your BMS is well calibrated**.
-> YamBMS logic is based on the `min_cell_voltage` and `max_cell_voltage` voltages of your `BMS`.
-> If you use `YamBMS`, the internal charging logic of the `JK-PB BMS` will not be used.
-> Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Hardware_and_schematic_instructions.md).
+> YamBMS logic is based on the cell voltages of your `BMS`.
 
-| ESPHome application to `combine` information coming from<br>your `BMS / Balancer / Shunt` and adds a smart layer before<br>transmitting instructions to your inverter on `RS485 or CAN bus`<br>using the protocols `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4). | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a> |
-| --- | --- |
-| **Note: Pylontech uses 15S/48V and many others uses 16S/51.2V !**<br><br>Other battery profiles that utilise the **`PYLON`** protocol with different cell counts<br>may also work, e.g. Alpha Ess Smile, BYD Battery-Box LV Flex Lite.<br>Select the correct battery profile in the inverter to match your battery pack !<br><br>**DISCLAIMER:** Working with battery systems involves electrical hazards.<br>Please read the complete documentation before installation and use<br>this project at your own risk. | <a href="https://www.buymeacoffee.com/Sleeper85" target="_blank"><img src="images/BMC_QR.png" alt="Buy Me A Coffee" style="height: 217px !important;width: 217px !important;" ></a> |
+> [!CAUTION]
+> **DISCLAIMER:** Working with battery systems involves electrical hazards.
+> Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Hardware_and_schematic_instructions.md)
+> before installation and use this project at your own risk.
+
+ESPHome application to `combine` information coming from your `BMS / Balancer / Shunt` and adds a smart layer before transmitting instructions to your inverter on `RS485 or CAN bus` using the protocols `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4).
+
+**Note: Pylontech uses 15S/48V and many others uses 16S/51.2V !**
+
+Other battery profiles that utilise the **`PYLON`** protocol with different cell counts may also work, e.g. Alpha Ess Smile, BYD Battery-Box LV Flex Lite.
+Select the correct battery profile in the inverter to match your battery pack !
 
 **Sends over CAN / RS485 bus to your inverter :**
   - Battery Voltage
@@ -190,3 +196,15 @@ rx_pin: 22 # to CAN board CRX (with 4.7K resistor except for SN65HVD230)
 * Thanks to [@Fahmula](https://github.com/Fahmula) for developing the `PYLON RS485` component.
 * Thanks to [@uksa007](https://www.patreon.com/Uksa007Codedevelopment) for the development of the first CANBUS code.
 * Thanks to all the [contributors](https://github.com/Sleeper85/esphome-yambms/graphs/contributors).
+
+## Support
+
+YamBMS is free and open source, and will stay that way — no paid features,
+no supporter-only functions, no locked code.
+
+Hosting, the domain and the tools I use to develop it come to about $300 a year,
+out of my own pocket. If YamBMS saved you time or money, a coffee helps cover
+the bill. It doesn't buy anything — the project stays exactly the same either way.
+
+[!["Buy Me A Coffee"](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/sleeper85)
+[!["PayPal"](https://img.shields.io/badge/PayPal-003087?logo=paypal&logoColor=white)](https://paypal.me/Sleeper85)
