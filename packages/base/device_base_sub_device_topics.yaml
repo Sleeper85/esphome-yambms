@@ -31,7 +31,9 @@
 # See documents/README/MQTT_and_Prometheus.md
 
 external_components:
-  - source: github://Sleeper85/esphome-yambms@main
+  # Set the `sub_device_topics_source` substitution to `components` to build the
+  # component from a local copy of this repository instead of GitHub.
+  - source: ${sub_device_topics_source | default('github://Sleeper85/esphome-yambms@main')}
     components: [ yambms_sub_device_topics ]
     refresh: 60min
 

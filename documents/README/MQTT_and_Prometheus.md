@@ -78,13 +78,11 @@ entry, is not changed.
   changing it, so entities with the same name on several BMS still overwrite each other in
   discovery. Use the native API with Home Assistant.
 - Climate, cover, fan, light, valve and alarm panel entities are not changed (YamBMS does not use them).
-- The `external_components` source in the package is `github://Sleeper85/esphome-yambms@main`.
-  With local packages you can point it to your local copy instead:
+- The package downloads the component from `github://Sleeper85/esphome-yambms@main`.
+  With local packages you can build it from your local copy instead, by setting this in
+  your main YAML (the path is relative to it):
 
   ```yaml
-  external_components:
-    - source:
-        type: local
-        path: components
-      components: [ yambms_sub_device_topics ]
+  substitutions:
+    sub_device_topics_source: 'components'
   ```
