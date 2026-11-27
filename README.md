@@ -32,7 +32,7 @@
 > Please read the [documentation](README.md#contents) and the [setup instructions](documents/README/Hardware_and_schematic_instructions.md)
 > before installation and use this project at your own risk.
 
-ESPHome application to `combine` information coming from your `BMS / Balancer / Shunt` and adds a smart layer before transmitting instructions to your inverter on `RS485 or CAN bus` using the protocols `PYLON`, `SMA`, `Victron` or `LuxPower` (EG4).
+ESPHome application to `combine` information coming from your `BMS / Balancer / Shunt` and adds a smart layer before transmitting instructions to your inverter on `RS485 or CAN bus` using the protocols `PYLON`, `SMA`, `Victron`, `LuxPower` or `EG4`.
 
 **Note: Pylontech uses 15S/48V and many others uses 16S/51.2V !**
 
