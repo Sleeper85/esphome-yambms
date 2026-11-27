@@ -70,7 +70,7 @@ and the protocol compiled on the node on RS485. Such a combination has not been 
 
 The `EG4` protocol, chosen with the `Protocol` select, sends the same frames as `LuxPower` and also
 answers the EG4 inverter's per-pack request, so the inverter sees each pack instead of one battery.
-Battery mode `Lithium 6`, as with `LuxPower`. The `EG4` brand still defaults to `LuxPower`.
+Battery mode `Lithium 2` (what EG4 FlexBOSS inverters run on this protocol). The `EG4` brand still defaults to `LuxPower`.
 
 EG4 inverters ask the battery for per-pack data with `can_id 0x405` (about once a minute).
 YamBMS answers with seven frames per BMS, `0x400 + 0x20 × group + (bms_id − 1)`, 11 ms apart and

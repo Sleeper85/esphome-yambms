@@ -141,7 +141,7 @@ globals:
         if (brand == "Deye"          && proto == ${YB_PROTO_RS485_PYLON})   return "Lithium 12";
         if (brand == "EG4"           && proto == ${YB_PROTO_CAN_LUXPOWER})  return "Lithium 6";
         if (brand == "EG4"           && proto == ${YB_PROTO_CAN_PYLON_V1})  return "Lithium 2";
-        if (brand == "EG4"           && proto == ${YB_PROTO_CAN_EG4})       return "Lithium 6";
+        if (brand == "EG4"           && proto == ${YB_PROTO_CAN_EG4})       return "Lithium 2";  // FlexBOSS on this protocol
         if (brand == "Epever"        && proto == ${YB_PROTO_RS485_PYLON})   return "BPRO 21";
         if (brand == "GoodWe"        && proto == ${YB_PROTO_CAN_PYLON_V2})  return "LX U5.4-L";
         if (brand == "Growatt"       && proto == ${YB_PROTO_CAN_PYLON_V1})  return "CAN L52";
