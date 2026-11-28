@@ -1,0 +1,42 @@
+# Updated : 2026.11.18
+# Version : 1.0.0
+# GitHub  : https://github.com/Sleeper85/esphome-yambms
+
+# YamBMS ( Yet another multi-BMS Merging Solution )
+
+# This YAML is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+# For MQTT and Prometheus users with several BMS / shunts / balancers.
+#
+# Since YamBMS 1.6.0 each BMS is an ESPHome sub-device and its entities no longer
+# carry the BMS name. Home Assistant (native API) is not affected, but ESPHome
+# builds MQTT topics and Prometheus labels from the entity name only, so every BMS
+# publishes to the same topic, e.g. `yambms/sensor/charging_power/state`.
+#
+# This package prefixes them with the sub-device name :
+#   MQTT       : yambms/sensor/bms_1_charging_power/state (and /command)
+#   Prometheus : id="bms_1_charging_power", name="BMS 1 Charging Power"
+#
+# See documents/README/MQTT_and_Prometheus.md
+
+external_components:
+  # Set the `sub_device_topics_source` substitution to `components` to build the
+  # component from a local copy of this repository instead of GitHub.
+  - source: ${sub_device_topics_source | default('github://Sleeper85/esphome-yambms@main')}
+    components: [ yambms_sub_device_topics ]
+    refresh: 60min
+
+yambms_sub_device_topics:
+  mqtt: true       # Prefix MQTT state/command topics (only if `mqtt:` is configured)
+  prometheus: true # Prefix Prometheus `id` and `name` labels (only if `prometheus:` is configured)

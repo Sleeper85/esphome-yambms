@@ -235,6 +235,9 @@ packages:
   # Web Server
   # web_server: !include packages/yambms/yambms_web_server.yaml
 
+  # MQTT / Prometheus : add the BMS name to topics and labels (needed with several BMS)
+  # sub_device_topics: !include packages/base/device_base_sub_device_topics.yaml
+
   # WiFi AP @ 192.168.4.1
   # wifi_ap: !include packages/board/board_options_wifi_ap.yaml
 
